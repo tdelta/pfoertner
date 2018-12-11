@@ -4,32 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="@android:color/holo_blue_light"
+    android:background="@android:color/holo_blue_light"
     tools:context=".MainActivity">
 
     <Button
         android:id="@+id/ScanQrButton"
         android:layout_width="207dp"
-        android:layout_height="62dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="77dp"
+        android:background="@color/Material_Amber"
         android:text="@string/scan_qr"
         android:textColor="@android:color/white"
         android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/PleaseOpenTextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        tools:background="@color/Material_Amber"
-        tools:layout_editor_absoluteY="239dp" />
+        app:layout_constraintTop_toBottomOf="@+id/LetsGetStartedTextField" />
 
     <TextView
         android:id="@+id/LetsGetStartedTextField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="54dp"
+        android:layout_marginBottom="66dp"
         android:text="@string/lets_get_started"
         android:textAlignment="center"
         android:textColor="@android:color/white"
@@ -41,19 +38,15 @@
 
     <TextView
         android:id="@+id/PleaseOpenTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="50dp"
+        android:layout_width="273dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="68dp"
         android:text="@string/please_open_the_tablet_app"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.518"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ScanQrButton" />
 
