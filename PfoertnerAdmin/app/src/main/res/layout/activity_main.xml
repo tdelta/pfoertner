@@ -9,15 +9,16 @@
 
     <Button
         android:id="@+id/ScanQrButton"
-        android:layout_width="207dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="77dp"
+        android:layout_width="255dp"
+        android:layout_height="wrap_content"
         android:background="@color/Material_Amber"
+        android:onClick="scanQR"
         android:text="@string/scan_qr"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/PleaseOpenTextView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/LetsGetStartedTextField" />
 
@@ -25,28 +26,27 @@
         android:id="@+id/LetsGetStartedTextField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="54dp"
-        android:layout_marginBottom="66dp"
         android:text="@string/lets_get_started"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="36sp"
         app:layout_constraintBottom_toTopOf="@+id/ScanQrButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/PleaseOpenTextView"
         android:layout_width="273dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="68dp"
+        android:layout_height="wrap_content"
         android:text="@string/please_open_the_tablet_app"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ScanQrButton" />
 
