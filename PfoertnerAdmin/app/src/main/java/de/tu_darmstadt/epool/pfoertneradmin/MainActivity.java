@@ -6,10 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-
-import java.io.Console;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,15 +17,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //settings = getSharedPreferences("Settings", 0);
+        settings = getSharedPreferences("Settings", 0);
 
-        //Log.e("Error", settings.getString("token", "Du bbist dumm"));
-
-        //if (settings.getString("token",null ) != null){
-        //    AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-        //    something.setMessage("Die App wurde bereits mit einem Token initialisiert");
-        //    something.show();
-        //}
+        // "Proof of concept" for persistence variable in memory
+        if (settings.getString("token",null ) != null){
+            AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
+            something.setMessage("Die App wurde bereits mit einem Token initialisiert");
+            something.show();
+        }
     }
 
 
@@ -68,13 +64,15 @@ public class MainActivity extends AppCompatActivity {
                 something.setMessage(token);
                 something.show();
 
-                //SharedPreferences.Editor editor = settings.edit();
-                //editor.putString("token", token);
+                // Save the token in persistent memory
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("token", token);
+                editor.commit();
 
             }
             if(resultCode == RESULT_CANCELED){
                 AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-                something.setMessage("And it was at this moment, he knew, he fucked up");
+                something.setMessage("Scanvorgang wurde abgebrochen!");
                 something.show();
             }
         }
