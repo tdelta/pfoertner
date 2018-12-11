@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PfoertnerAdmin</string>
+    <string name="scan_qr">SCAN QR</string>
+    <string name="lets_get_started">Lets get started!</string>
+    <string name="please_open_the_tablet_app">Please open the tablet app</string>
+
 </resources>
