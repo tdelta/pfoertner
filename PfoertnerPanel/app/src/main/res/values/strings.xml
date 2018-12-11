@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">PfoertnerPanel</string>
+
+    <string name="title_activity_initialization">InitializationActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="init_message">Please scan this code using the <font fgcolor='#FF4081'>admin app</font></string>
 </resources>

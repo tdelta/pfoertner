@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,19 +18,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // For now, this is a simple test of QR code generation for an arbitrary text.
-        final ImageView image = findViewById(R.id.imageView);
-        final TextView text = findViewById(R.id.editText);
-        final Button button = findViewById(R.id.button);
+        // for now, immediately start initialization screen
+        final Intent initIntent = new Intent(
+                MainActivity.this,
+                InitializationActivity.class
+        );
 
-        // Whenever the set button is pressed, generate and render a QR code for the text entered by the user
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Drawable qrCode = new QRCode(text.getText().toString());
-
-                image.setImageDrawable(qrCode);
-            }
-        });
+        MainActivity.this.startActivity(initIntent);
     }
 }
