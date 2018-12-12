@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
+    android:onClick="onClick"
     android:orientation="vertical"
     tools:context=".InitializationActivity">
 
@@ -13,12 +14,11 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10sp"
         android:text="@string/init_message"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:layout_margin="10sp"
-        />
+        android:textSize="30sp" />
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -32,11 +32,11 @@
             android:layout_height="0dp"
             android:scaleType="centerInside"
 
+            app:layout_constraintBottom_toTopOf="@+id/guideline4"
             app:layout_constraintDimensionRatio="W,1:1"
             app:layout_constraintLeft_toRightOf="@+id/guideline2"
             app:layout_constraintRight_toLeftOf="@+id/guideline3"
             app:layout_constraintTop_toBottomOf="@+id/guideline"
-            app:layout_constraintBottom_toTopOf="@+id/guideline4"
 
             app:srcCompat="@android:color/background_light" />
 
