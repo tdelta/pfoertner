@@ -3,5 +3,8 @@
     <string name="scan_qr">SCAN QR</string>
     <string name="lets_get_started">Lets get\n started!</string>
     <string name="please_open_the_tablet_app">Please open the\n tablet app</string>
+    <string name="vorname">Vorname</string>
+    <string name="nachname">Nachname</string>
+    <string name="create_account">Create Account</string>
 
 </resources>

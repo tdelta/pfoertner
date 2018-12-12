@@ -20,61 +20,19 @@ public class MainActivity extends AppCompatActivity {
         settings = getSharedPreferences("Settings", 0);
 
         // "Proof of concept" for persistence variable in memory
-        if (settings.getString("token",null ) != null){
+        if (settings.getString("token",null ) == null){
+
+            Intent intent = new Intent(this, InitActivity.class);
+            startActivity(intent);
+
+        } else{
             AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-            something.setMessage("Die App wurde bereits mit einem Token initialisiert");
+            something.setMessage("Die App wurde bereits mit einem Token initialisiert. Willkommen im Startbereich.");
             something.show();
         }
-    }
 
-
-    public void scanQR(View view){
-
-        // Source : https://stackoverflow.com/a/8833123
-        try {
-
-            // Try to use the QR scanner from zxing
-            Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-            intent.putExtra("SCAN_MODE", "QR_CODE_MODE"); // "PRODUCT_MODE for bar codes
-
-            startActivityForResult(intent, 0);
-
-        } catch (Exception e) {
-
-            // If the QR scanner from zxing is not installed, the application redirects to the
-            // google play store to download the QR scanner.
-
-            Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
-            Intent marketIntent = new Intent(Intent.ACTION_VIEW,marketUri);
-            startActivity(marketIntent);
-
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Handel results from QR code scanner
-        if (requestCode == 0) {
-
-            if (resultCode == RESULT_OK) {
-                String token = data.getStringExtra("SCAN_RESULT");
-                AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-                something.setMessage(token);
-                something.show();
-
-                // Save the token in persistent memory
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString("token", token);
-                editor.commit();
-
-            }
-            if(resultCode == RESULT_CANCELED){
-                AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-                something.setMessage("Scanvorgang wurde abgebrochen!");
-                something.show();
-            }
-        }
+        AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
+        something.setMessage("Hier wird wieder eingestiegen.");
+        something.show();
     }
 }
