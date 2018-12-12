@@ -20,20 +20,10 @@ public class InitializationActivity extends AppCompatActivity {
         final Drawable qrCode = new QRCode("https://i.kym-cdn.com/photos/images/newsfeed/001/091/264/665.jpg");
 
         qrCodeView.setImageDrawable(qrCode);
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Hide the status bar.
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-
-        // Hide action bar
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
+    public void onClick(View v) {
+        finish();
     }
 }
