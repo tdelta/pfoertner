@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">PfoertnerPanel</string>
+
+    <string name="title_activity_initialization">InitializationActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="init_message">Please scan this code using the <font fgcolor='#FF4081'>admin app</font></string>
+
+    <string name="office_time">Office Time:</string>
+    <string name="come_in">Come In</string>
+    <string name="available">available</string>
+    <string name="absent">absent</string>
+    <string name="out_of_office">out of office</string>
+    <string name="do_not_disturb">Do Not Disturb!</string>
+    <string name="extended_access">&#032;Extended Access&#032;</string>
 </resources>

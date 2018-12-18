@@ -1,0 +1,25 @@
+@startuml
+activate Panel
+Panel -> Server : /api/offices/userJoinCode(GET, header={"Authentication": userId})
+activate Server
+Panel <-- Server : 200 body={joinCode}
+deactivate Server
+Panel -> Panel : QR = renderQR(officeId, joinCode)
+activate Panel
+deactivate Panel
+deactivate Panel
+activate AdminApp
+AdminApp -> Server : /api/Users(POST, body={password})
+activate Server
+AdminApp <-- Server : 200 body={id: userId}
+deactivate Server
+AdminApp -> Panel : scan(QR)
+activate Panel
+AdminApp <-- Panel : (officeId, joinCode)
+deactivate Panel
+AdminApp -> Server : /api/offices/join(PUT, header={"Authentication": userId}, body={officeId, joinCode})
+activate Server
+AdminApp <-- Server : 200
+deactivate Server
+deactivate AdminApp
+@enduml
