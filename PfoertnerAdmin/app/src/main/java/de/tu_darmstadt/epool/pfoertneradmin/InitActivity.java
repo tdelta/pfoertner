@@ -40,7 +40,7 @@ public class InitActivity extends AppCompatActivity {
 
         //create retrofit client
 
-        String API_BASE_URL = "http://172.18.92.121/";
+        String API_BASE_URL = "http://172.18.92.121:3000/api/";
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -58,7 +58,7 @@ public class InitActivity extends AppCompatActivity {
         //////
 
         //Create user
-        Call<User> call = service.createUser(new LoginCredentials("k", "mark@markmitk.k"));
+        Call<User> call = service.createUser(new LoginCredentials("k"));
 
         call.enqueue(new Callback<User>() {
             @Override
@@ -76,6 +76,7 @@ public class InitActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<User> call, Throwable t) {
                 // the network call was a failure
+                t.printStackTrace();
                 Log.d("bla", "versager");
             }
         });

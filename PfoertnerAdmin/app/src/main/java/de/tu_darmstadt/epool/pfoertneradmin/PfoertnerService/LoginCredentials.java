@@ -1,13 +1,10 @@
 package de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService;
 public class LoginCredentials {
   public final String password;
-  public final String email;
 
   public LoginCredentials(
-    final String password,
-    final String email
+    final String password
   ) {
     this.password = password;
-    this.email = email;
   }
 }
