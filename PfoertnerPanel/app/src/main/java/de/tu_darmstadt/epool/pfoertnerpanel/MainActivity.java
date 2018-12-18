@@ -1,7 +1,9 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,7 +15,18 @@ import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.io.IOException;
+
+import retrofit2.Response;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Retrofit;
+
+import android.util.Log;
+
 import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
+import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.User;
+import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.LoginCredentials;
 
 public class MainActivity extends AppCompatActivity {
     private LayoutInflater inflater;
@@ -23,6 +36,46 @@ public class MainActivity extends AppCompatActivity {
 
     public enum GlobalStatus {
         DO_NOT_DISTURB, COME_IN, EXTENDED_ACCESS
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void testApi() {
+        // Debug logging
+        //HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        //    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        //    OkHttpClient client = new OkHttpClient.Builder()
+        //                    .addInterceptor(interceptor).build();
+
+        final Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("http://172.18.84.214:3000")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
+
+        final PfoertnerService service = retrofit.create(PfoertnerService.class);
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground( final Void ... params ) {
+                try {
+                    final Response response = service.createUser(
+                            new LoginCredentials("lol@lol.de", "lol")
+                    )
+                            .execute();
+
+                    Log.d("MainActivity", response.message());
+                }
+
+                catch (final IOException e) {
+                    Log.d("MainActivity", "trolololo");
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute( final Void result ) {
+            }
+        }.execute();
     }
 
     @Override
@@ -44,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
         setRoom("S101/A1");
         setGlobalStatus(GlobalStatus.EXTENDED_ACCESS);
+
+        testApi();
     }
     public void setRoom(String str){
         TextView room = findViewById(R.id.room);
