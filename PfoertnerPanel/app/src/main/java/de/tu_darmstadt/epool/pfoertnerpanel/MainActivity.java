@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import java.io.IOException;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.Retrofit;
@@ -41,12 +43,13 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     private void testApi() {
         // Debug logging
-        //HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        //    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        //    OkHttpClient client = new OkHttpClient.Builder()
-        //                    .addInterceptor(interceptor).build();
+        final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        final OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(interceptor).build();
 
         final Retrofit retrofit = new Retrofit.Builder()
+            .client(client)
             .baseUrl("http://172.18.84.214:3000")
             .addConverterFactory(GsonConverterFactory.create())
             .build();
@@ -57,12 +60,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground( final Void ... params ) {
                 try {
-                    final Response response = service.createUser(
-                            new LoginCredentials("lol@lol.de", "lol")
+                    final Response<User> response = service.createUser(
+                            new LoginCredentials("lol", "lol@lol.de")
                     )
                             .execute();
 
-                    Log.d("MainActivity", response.message());
+                    final User user = response.body();
+
+                    if (user == null) {
+                        Log.d("MainActivity", "Request failed: " + response.message());
+                    }
+
+                    else {
+                        Log.d("MainActivity", "Request successful: " + String.valueOf(user.id));
+                    }
                 }
 
                 catch (final IOException e) {
