@@ -1,0 +1,16 @@
+@startuml
+activate Panel
+Panel -> Server : /api/Users(POST, body={password})
+activate Server
+Panel <-- Server : 200 body={id: userId}
+deactivate Server
+Panel -> Server : /api/Users/login(POST, body={password})
+activate Server
+Panel <-- Server : 200 body={id: authToken, ...}
+deactivate Server
+Panel -> Server : /api/offices(POST, header={"Authentication": authToken})
+activate Server
+Panel <-- Server : 200 body={id: officeId}
+deactivate Server
+deactivate Panel
+@enduml
