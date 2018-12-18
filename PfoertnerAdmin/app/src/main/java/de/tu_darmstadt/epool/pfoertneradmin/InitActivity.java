@@ -1,18 +1,35 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import java.io.IOException;
+import java.util.List;
+
+import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.User;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class InitActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
+    private PfoertnerService service;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +38,47 @@ public class InitActivity extends AppCompatActivity {
 
         settings = getSharedPreferences("Settings", 0);
 
+        //create retrofit client
+
+        String API_BASE_URL = "http://172.18.92.121/";
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        Retrofit.Builder builder =
+                new Retrofit.Builder()
+                        .baseUrl(API_BASE_URL)
+                        .addConverterFactory(
+                                GsonConverterFactory.create()
+                        );
+
+        Retrofit retrofit = builder.client(httpClient.build()).build();
+
+        service =  retrofit.create(PfoertnerService.class);
+
+        //////
+
+        //Create user
+        Call<User> call = service.createUser(new LoginCredentials("k", "mark@markmitk.k"));
+
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                // The network call was a success and we got a response
+                // TODO: use the repository list and display it
+                User body = response.body();
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putInt("userid", body.id);
+                editor.commit();
+
+                Log.d("bla", "" + body.id);
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                // the network call was a failure
+                Log.d("bla", "versager");
+            }
+        });
 
     }
     public void scanQR(View view){
@@ -97,4 +155,45 @@ public class InitActivity extends AppCompatActivity {
             }
         }
     }
+
+//    @SuppressLint("StaticFieldLeak")
+//    private void testApi() {
+//        // Debug logging
+//        //HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//        //    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//        //    OkHttpClient client = new OkHttpClient.Builder()
+//        //                    .addInterceptor(interceptor).build();
+//
+//        final Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://172.18.84.214:3000")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        final PfoertnerService service = retrofit.create(PfoertnerService.class);
+//
+//        new AsyncTask<Void, Void, Void>() {
+//            @Override
+//            protected Void doInBackground( final Void ... params ) {
+//                try {
+//                    final Response response = service.createUser(
+//                            new LoginCredentials("lol@lol.de", "lol")
+//                    )
+//                            .execute();
+//
+//                    Log.d("MainActivity", response.message());
+//                }
+//
+//                catch (final IOException e) {
+//                    Log.d("MainActivity", "trolololo");
+//                }
+//
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute( final Void result ) {
+//            }
+//        }.execute();
+//    }
+
 }
