@@ -26,9 +26,9 @@ import retrofit2.Retrofit;
 import android.util.Log;
 
 import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.User;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.LoginCredentials;
+import service.PfoertnerService;
+import service.User;
+import service.LoginCredentials;
 
 public class MainActivity extends AppCompatActivity {
     private LayoutInflater inflater;

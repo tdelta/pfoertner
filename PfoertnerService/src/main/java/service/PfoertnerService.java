@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService;
+package service;
 
 import retrofit2.http.Body;
 import retrofit2.http.Header;
