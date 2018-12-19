@@ -7,9 +7,9 @@ import retrofit2.Call;
 
 public interface PfoertnerService {
   @POST("/api/devices")
-  Call<User> createUser(@Body final LoginCredentials credentials);
+  Call<User> createUser(@Body final Password password);
 
-  @POST("/api/Users/login")
+  @POST("/api/devices/login")
   Call<Authentication> login(@Body final LoginCredentials credentials);
 
   @POST("/api/offices")

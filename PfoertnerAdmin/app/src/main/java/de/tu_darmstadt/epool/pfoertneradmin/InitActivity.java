@@ -15,7 +15,9 @@ import android.widget.EditText;
 import java.io.IOException;
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.Authentication;
 import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.Password;
 import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.User;
 import okhttp3.OkHttpClient;
@@ -29,6 +31,8 @@ public class InitActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
     private PfoertnerService service;
+    private String password;
+    private int userid;
 
 
     @Override
@@ -58,7 +62,12 @@ public class InitActivity extends AppCompatActivity {
         //////
 
         //Create user
-        Call<User> call = service.createUser(new LoginCredentials("k"));
+        SharedPreferences.Editor edit = settings.edit();
+        edit.putString("password", "blabla");
+        edit.commit();
+        Call<User> call = service.createUser(new Password(settings.getString("password","passwordnotset")));
+
+        Log.d("success", "ich bin vor den ersten call gekommen");
 
         call.enqueue(new Callback<User>() {
             @Override
@@ -70,16 +79,56 @@ public class InitActivity extends AppCompatActivity {
                 editor.putInt("userid", body.id);
                 editor.commit();
 
+                Log.d("success", "ich bin im ersten call in responspe");
                 Log.d("bla", "" + body.id);
+
+                Log.d("success", "ich bin nach dem ersten call ");
+
+                Call<Authentication> call2 = service.login(new LoginCredentials(settings.getString("password", "passwordnotset"), settings.getInt("userid", 0)));
+
+
+                Log.d("success", "Starte call 2");
+                call2.enqueue(new Callback<Authentication>() {
+                    @Override
+                    public void onResponse(Call<Authentication> call, Response<Authentication> response) {
+                        // The network call was a success and we got a response
+                        // TODO: use the repository list and display it
+                        Authentication body = response.body();
+                        if(body == null){
+                            Log.d("errrror", "geh nix da");
+                        }
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString("authtoken", body.id);
+                        editor.commit();
+
+                        Log.d("success", "ich bin im zweiten call in responspe");
+                        Log.d("authtoken", "" + body.id);
+                    }
+
+                    @Override
+                    public void onFailure(Call<Authentication> call, Throwable t) {
+                        // the network call was a failure
+                        t.printStackTrace();
+
+                        Log.d("success", "ich bin im zewiten call in failure");
+                        Log.d("bla", "versager2");
+                    }
+                });
+
+                Log.d("success", "ich bin nach dem zweiten call");
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
                 // the network call was a failure
                 t.printStackTrace();
+
+                Log.d("success", "ich bin im ersten call in failure");
                 Log.d("bla", "versager");
             }
         });
+
+
 
     }
     public void scanQR(View view){
