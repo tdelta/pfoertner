@@ -1,2 +1,2 @@
-include ':app', ':PfoertnerService'
+include ':app', ':PfoertnerRetrofit'
 project(':PfoertnerRetrofit').projectDir = new File(settingsDir, '../PfoertnerRetrofit')

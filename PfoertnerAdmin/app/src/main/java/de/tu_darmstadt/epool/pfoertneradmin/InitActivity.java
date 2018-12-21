@@ -1,25 +1,20 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import java.io.IOException;
-import java.util.List;
-
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.Authentication;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.LoginCredentials;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.Password;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.User;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.retrofit.User;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
