@@ -1,5 +1,4 @@
 package service;
-
 public class User {
   public final int id;
 

@@ -2,13 +2,13 @@ package service;
 
 public class LoginCredentials {
   public final String password;
-  public final String email;
+  public final int userid;
 
   public LoginCredentials(
     final String password,
-    final String email
+    final int userid
   ) {
     this.password = password;
-    this.email = email;
+    this.userid = userid;
   }
 }
