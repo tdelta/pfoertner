@@ -26,6 +26,7 @@ import retrofit2.Retrofit;
 import android.util.Log;
 
 import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
+import service.Password;
 import service.PfoertnerService;
 import service.User;
 import service.LoginCredentials;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             protected Void doInBackground( final Void ... params ) {
                 try {
                     final Response<User> response = service.createUser(
-                            new LoginCredentials("lol", "lol@lol.de")
+                            new Password("lol")
                     )
                             .execute();
 

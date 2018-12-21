@@ -1,11 +1,11 @@
 package service;
 
 public class Password {
-    public Password(String password) {
+    public Password(final String password) {
         this.password = password;
     }
 
-    private String password;
+    private final String password;
 }
 
 
