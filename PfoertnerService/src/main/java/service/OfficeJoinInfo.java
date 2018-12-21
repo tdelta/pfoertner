@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService;
+package service;
 
 public class OfficeJoinInfo {
     public final int officeId;

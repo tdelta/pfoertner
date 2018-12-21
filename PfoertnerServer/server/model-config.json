@@ -13,9 +13,6 @@
       "./mixins"
     ]
   },
-  "User": {
-    "dataSource": "db"
-  },
   "AccessToken": {
     "dataSource": "db",
     "public": false
@@ -36,6 +33,10 @@
     "public": false
   },
   "office": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Device": {
     "dataSource": "db",
     "public": true
   }

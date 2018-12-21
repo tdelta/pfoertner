@@ -1,6 +1,5 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.util.Consumer;
@@ -10,18 +9,18 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.Authentication;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.LoginCredentials;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.Office;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.OfficeJoinInfo;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertnerpanel.PfoertnerService.User;
 import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import service.Authentication;
+import service.LoginCredentials;
+import service.Office;
+import service.OfficeJoinInfo;
+import service.PfoertnerService;
+import service.User;
 
 public class InitializationActivity extends AppCompatActivity {
     private static User loadDevice(final PfoertnerService service, final LoginCredentials credentials) throws IOException {

@@ -44,4 +44,6 @@ dependencies {
 
     // Debugging
     implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+
+    implementation project(path: ':PfoertnerService')
 }

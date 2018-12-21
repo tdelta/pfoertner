@@ -6,21 +6,35 @@
   "options": {
     "validateUpsert": true
   },
-  "properties": {},
+  "properties": {
+    "Name":{
+      "type":"String",
+      "required":"false"
+    },
+    "userJoinCode":{
+      "type":"String",
+      "required":"false"
+    }
+  },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "device": {
+      "type": "belongsTo",
+      "model": "Device",
+      "foreignKey": "deviceId"
+    }
+  },
   "acls": [
     {
-      "accessType": "WRITE",
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
     },
     {
       "accessType": "EXECUTE",
@@ -28,6 +42,12 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "create"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
     }
   ],
   "methods": {}
