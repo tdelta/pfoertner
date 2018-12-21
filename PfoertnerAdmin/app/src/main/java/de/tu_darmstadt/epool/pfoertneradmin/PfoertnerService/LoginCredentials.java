@@ -1,4 +1,4 @@
-package service;
+package de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService;
 
 public class LoginCredentials {
   public final String password;
