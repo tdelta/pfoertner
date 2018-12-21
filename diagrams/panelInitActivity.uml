@@ -1,0 +1,49 @@
+@startuml
+start
+(N)
+detach
+partition NormalExecution {
+  (N)
+  if (device already registered) then (yes)
+    :load registration info from local storage;
+  else (no)
+    :register device at server API;
+    if (network failed) then (yes)
+      (E)
+      detach
+    else (no)
+      :store device registration information locally;
+    endif
+  endif
+  :login with device information;
+  if (network failed) then (yes)
+    (E)
+    detach
+  else (no)
+    if (office already registered) then (yes)
+      :load office info from local storage;
+    else (no)
+      :register office at server API;
+      if (network failed) then (yes)
+        (E)
+        detach
+      else (no)
+        :store office registration information locally;
+      endif
+    endif
+  endif
+  stop
+}
+
+partition NetworkError {
+  (E)
+  :Display information about network error;
+  :Display retry button;
+  if (user wants to retry) then (yes)
+    (N)
+    detach
+  else (no)
+    stop
+  endif
+}
+@enduml
