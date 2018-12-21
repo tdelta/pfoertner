@@ -1,4 +1,5 @@
-package service;
+package de.tu_darmstadt.epool.pfoertner.retrofit;
+
 public class User {
   public final int id;
 

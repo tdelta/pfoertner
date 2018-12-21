@@ -9,21 +9,23 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 
+import de.tu_darmstadt.epool.pfoertner.retrofit.OfficeInitConf;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import service.Authentication;
-import service.LoginCredentials;
-import service.Office;
-import service.OfficeJoinInfo;
-import service.PfoertnerService;
-import service.User;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.retrofit.OfficeJoinInfo;
+import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.retrofit.User;
 
 public class InitializationActivity extends AppCompatActivity {
-    private static User loadDevice(final PfoertnerService service, final LoginCredentials credentials) throws IOException {
+    private static User loadDevice(final PfoertnerService service, final Password password) throws IOException {
         final User device;
         if (false /*device already registered*/) {
             device = null;
@@ -31,7 +33,7 @@ public class InitializationActivity extends AppCompatActivity {
 
         else {
             // Create user
-            final Call<User> deviceCall = service.createUser(credentials);
+            final Call<User> deviceCall = service.createUser(password);
             device = deviceCall.execute().body();
 
             if (device == null) {
@@ -42,9 +44,9 @@ public class InitializationActivity extends AppCompatActivity {
         return device;
     }
 
-    private static Authentication authenticate(final PfoertnerService service, final LoginCredentials credentials) throws IOException {
+    private static Authentication authenticate(final PfoertnerService service, final User user, final Password password) throws IOException {
         final Authentication auth = service
-                .login(credentials)
+                .login(new LoginCredentials(password.password, user.id))
                 .execute()
                 .body();
 
@@ -65,7 +67,7 @@ public class InitializationActivity extends AppCompatActivity {
         else {
             // Create office
             office = service
-                    .createOffice(auth.id)
+                    .createOffice(auth.id, new OfficeInitConf("Test"))
                     .execute()
                     .body();
 
@@ -114,9 +116,9 @@ public class InitializationActivity extends AppCompatActivity {
         @Override
         protected OfficeJoinInfo doInBackground(final Void ... parameters) {
             try {
-                final LoginCredentials credentials = new LoginCredentials("lol", "lol@lol.de");
-                final User device = loadDevice(service, credentials);
-                final Authentication authToken = authenticate(service, credentials);
+                final Password password = new Password("lol");
+                final User device = loadDevice(service, password);
+                final Authentication authToken = authenticate(service, device, password);
                 final Office office = loadOffice(service, authToken);
 
                 return loadJoinCode(service, office, authToken);
