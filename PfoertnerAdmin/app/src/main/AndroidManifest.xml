@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".InitActivity"></activity>
+        <activity android:name=".JoinOfficeActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

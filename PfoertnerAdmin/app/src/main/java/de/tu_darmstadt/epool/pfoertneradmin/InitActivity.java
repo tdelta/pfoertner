@@ -86,23 +86,7 @@ public class InitActivity extends AppCompatActivity {
         }
     }
 
-    public void createAccount(View view){
 
-        EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
-        String firstname = firstnameinput.getText().toString();
-        Log.e("ERROR", firstname);
-
-        EditText lastnameinput = (EditText) findViewById(R.id.NachnameInput);
-        String lastname = lastnameinput.getText().toString();
-
-        Log.e("ERROR", lastname);
-
-        // Request to server
-
-
-        //
-        finish();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -122,9 +106,10 @@ public class InitActivity extends AppCompatActivity {
                 editor.putString("token", token);
                 editor.commit();
 
-                // Set new layout for entering user information
+                // Set new intent for entering user information
 
-                setContentView(R.layout.activity_init2);
+                Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
+                startActivity(joinOffice);
             }
             if(resultCode == RESULT_CANCELED){
                 AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
