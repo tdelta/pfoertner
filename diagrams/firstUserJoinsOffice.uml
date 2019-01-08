@@ -1,9 +1,5 @@
 @startuml
 activate Panel
-Panel -> Server : /api/offices/{officeId}/userJoinCode(GET, header={"Authentication": deviceId})
-activate Server
-Panel <-- Server : 200 body={joinCode}
-deactivate Server
 Panel -> Panel : QR = renderQR(officeId, joinCode)
 activate Panel
 deactivate Panel
