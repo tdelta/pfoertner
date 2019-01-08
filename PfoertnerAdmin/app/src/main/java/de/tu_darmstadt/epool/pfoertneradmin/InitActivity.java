@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.spencerwi.either.Either;
+
 import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
@@ -57,7 +59,21 @@ public class InitActivity extends AppCompatActivity {
 
         service =  retrofit.create(PfoertnerService.class);
 
-        new InitTask(service, settings).execute();
+        new InitTask(
+                service,
+                settings,
+                eitherErrorOrVoid -> {
+                    if (eitherErrorOrVoid.isLeft()) {
+                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                        alertDialogBuilder.setMessage(
+                                "We encountered a problem:\n\n" +
+                                        eitherErrorOrVoid.getLeft()
+                        );
+                        alertDialogBuilder.show();
+                    }
+                }
+        ).execute();
+
 
     }
 

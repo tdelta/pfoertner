@@ -4,7 +4,10 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.spencerwi.either.Either;
+
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
@@ -13,36 +16,39 @@ import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.retrofit.User;
 import de.tu_darmstadt.epool.pfoertneradmin.State;
 
-public class InitTask extends AsyncTask<Void, Void, Void> {
-
+public class InitTask extends AsyncTask<Void, Void, Either<String, Void>>{
+    private Consumer<Either<String, Void>> callback;
     private PfoertnerService service;
     private SharedPreferences settings;
 
 
-    public InitTask(final PfoertnerService service, SharedPreferences settings){
+    public InitTask(final PfoertnerService service, SharedPreferences settings, final Consumer<Either<String, Void>> callback){
         this.service = service;
         this.settings = settings;
+        this.callback = callback;
     }
 
     @Override
-    protected Void doInBackground(final Void ... parameters){
+    protected void onPostExecute(Either<String, Void> stringVoidEither) {
+        this.callback.accept(stringVoidEither);
+    }
 
-        //TODO: Somehow peusdo random create later
-        final Password password = new Password("GEHEIM!");
+    @Override
+    protected Either<String, Void> doInBackground(final Void ... parameters){
 
-        // Save the password
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("password", password.password);
+
+
 
         try {
+            // Save the password
+            final Password password = Password.loadPassword(settings);
+
             // First api call
 
             final User device = User.loadDevice(settings, service, password);
             Log.d("RESULT", "ID: " +device.id);
 
 
-            // Save the DeviceID
-            editor.putInt("deviceID", device.id);
 
             // Create logincredentials with the generated password and the id from the server
             final LoginCredentials logincredentials = new LoginCredentials(password.password, device.id);
@@ -60,9 +66,8 @@ public class InitTask extends AsyncTask<Void, Void, Void> {
         // TODO: Think about resoanable exception handling
         catch (Exception e) {
             e.printStackTrace();
+            return Either.left(e.getMessage());
         }
-        // Commit changes of password and userid to the persistend memory
-        editor.commit();
-        return null;
+        return Either.right(null);
     }
 }
