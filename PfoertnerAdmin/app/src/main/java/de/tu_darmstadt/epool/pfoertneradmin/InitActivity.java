@@ -18,12 +18,15 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.IOException;
 
-import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
-import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.retrofit.User;
+import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+
 import de.tu_darmstadt.epool.pfoertneradmin.tasks.InitTask;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -95,19 +98,11 @@ public class InitActivity extends AppCompatActivity {
                 something.setMessage("Scanvorgang wurde abgebrochen!");
                 something.show();
             } else {
-                String token = data.getStringExtra("SCAN_RESULT");
-                AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
-                something.setMessage(token);
-                something.show();
-
-                // Save the token in persistent memory
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString("token", token);
-                editor.commit();
+                String qrCodeDataRaw = data.getStringExtra("SCAN_RESULT");
 
                 // Set new intent for entering user information
-
                 Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
+                joinOffice.putExtra("QrCodeDataRaw", qrCodeDataRaw );
                 startActivity(joinOffice);
             }
         } else {

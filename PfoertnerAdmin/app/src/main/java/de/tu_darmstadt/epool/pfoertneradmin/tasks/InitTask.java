@@ -5,15 +5,13 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.spencerwi.either.Either;
-
-import java.io.IOException;
 import java.util.function.Consumer;
 
-import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
-import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.retrofit.User;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 import de.tu_darmstadt.epool.pfoertneradmin.State;
 
 public class InitTask extends AsyncTask<Void, Void, Either<String, Void>>{

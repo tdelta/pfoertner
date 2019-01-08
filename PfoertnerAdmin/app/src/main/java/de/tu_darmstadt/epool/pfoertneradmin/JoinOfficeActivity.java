@@ -6,14 +6,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
 
 public class JoinOfficeActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init2);
+
+        QRCodeData qrData = QRCodeData.deserialize(getIntent().getStringExtra("QrCodeDataRaw"));
+
     }
 
     public void createAccount(View view){

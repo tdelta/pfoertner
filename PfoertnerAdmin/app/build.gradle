@@ -37,7 +37,7 @@ dependencies {
     // die handy app kann eine qr-code
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
-    implementation project(path: ':PfoertnerRetrofit')
+    implementation project(path: ':PfoertnerCommon')
 
     implementation "com.spencerwi:Either.java:2.1.0"
 

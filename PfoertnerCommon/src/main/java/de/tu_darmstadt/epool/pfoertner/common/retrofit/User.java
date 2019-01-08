@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertner.retrofit;
+package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
 import java.io.IOException;
 import android.content.SharedPreferences;
