@@ -29,6 +29,7 @@ public class InitActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
     private PfoertnerService service;
+    private State state = State.getInstance();
     private String password;
     private int userid;
     private Authentication authtoken;
@@ -39,25 +40,11 @@ public class InitActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
 
+        //get persistent memory
         settings = getSharedPreferences("Settings", 0);
 
-        //create retrofit client
-
-        // Base url of our deployment server
-        String API_BASE_URL = "http://deh.duckdns.org:3000/api/";
-
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
-        Retrofit.Builder builder =
-                new Retrofit.Builder()
-                        .baseUrl(API_BASE_URL)
-                        .addConverterFactory(
-                                GsonConverterFactory.create()
-                        );
-
-        Retrofit retrofit = builder.client(httpClient.build()).build();
-
-        service =  retrofit.create(PfoertnerService.class);
+        //get retrofit client from State
+        service = state.service;
 
         new InitTask(
                 service,
@@ -77,7 +64,6 @@ public class InitActivity extends AppCompatActivity {
 
     }
 
-    // Asynctask for creating new user and getting new authtoken
 
     public void scanQR(View view){
 
