@@ -22,13 +22,12 @@ public class JoinOfficeActivity extends AppCompatActivity {
     }
 
     public void createAccount(View view){
-
-        EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
-        String firstname = firstnameinput.getText().toString();
+        final EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
+        final String firstname = firstnameinput.getText().toString();
         Log.e("ERROR", firstname);
 
-        EditText lastnameinput = (EditText) findViewById(R.id.NachnameInput);
-        String lastname = lastnameinput.getText().toString();
+        final EditText lastnameinput = (EditText) findViewById(R.id.NachnameInput);
+        final String lastname = lastnameinput.getText().toString();
 
         Log.e("ERROR", lastname);
 
