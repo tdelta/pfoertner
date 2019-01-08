@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
     private PfoertnerService service;
-    //private State state = State.getInstance();
+    private State state = State.getInstance();
 
     private Authentication authtoken;
 
@@ -27,21 +27,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //create retrofit client
-
-        String API_BASE_URL = "http://deh.duckdns.org:3000/api/";
-
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
-        Retrofit.Builder builder =
-                new Retrofit.Builder()
-                        .baseUrl(API_BASE_URL)
-                        .addConverterFactory(
-                                GsonConverterFactory.create()
-                        );
-
-        Retrofit retrofit = builder.client(httpClient.build()).build();
-
-       service =  retrofit.create(PfoertnerService.class);
+        service =  State.getInstance().service;
 
 
         settings = getSharedPreferences("Settings", 0);
@@ -50,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
         if (settings.getString("token",null ) == null){
 
             Intent intent = new Intent(this, InitActivity.class);
-//            intent.putExtra("PfoertnerService", service);
             startActivity(intent);
 
 
@@ -59,9 +44,5 @@ public class MainActivity extends AppCompatActivity {
             something.setMessage("Die App wurde bereits mit einem Token initialisiert. Willkommen im Startbereich.");
             something.show();
         }
-
-        AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-        something.setMessage("Hier wird wieder eingestiegen.");
-        something.show();
     }
 }
