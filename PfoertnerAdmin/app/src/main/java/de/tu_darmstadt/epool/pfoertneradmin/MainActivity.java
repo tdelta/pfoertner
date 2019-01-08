@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 
+import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -16,6 +17,9 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
     private PfoertnerService service;
+    //private State state = State.getInstance();
+
+    private Authentication authtoken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         //create retrofit client
 
-
-
-
-        String API_BASE_URL = "http://deh.duckdns.com/api/";
+        String API_BASE_URL = "http://deh.duckdns.org:3000/api/";
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
        service =  retrofit.create(PfoertnerService.class);
 
-        //////
 
         settings = getSharedPreferences("Settings", 0);
 
@@ -64,42 +64,4 @@ public class MainActivity extends AppCompatActivity {
         something.setMessage("Hier wird wieder eingestiegen.");
         something.show();
     }
-
-//    @SuppressLint("StaticFieldLeak")
-//    private void testApi() {
-//        // Debug logging
-//        //HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//        //    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//        //    OkHttpClient client = new OkHttpClient.Builder()
-//        //                    .addInterceptor(interceptor).build();
-//
-//        final Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("http://172.18.84.214:3000")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        final PfoertnerService service = retrofit.create(PfoertnerService.class);
-//
-//        new AsyncTask<Void, Void, Void>() {
-//            @Override
-//            protected Void doInBackground( final Void ... params ) {
-//                try {
-//                    final Response response = service.createUser(new LoginCredentials("lol@lol.de", "lol")).execute();
-//
-//                    Log.d("MainActivity", response.message());
-//                }
-//
-//                catch (final IOException e) {
-//                    Log.d("MainActivity", "trolololo");
-//                }
-//
-//                return null;
-//            }
-//
-//            @Override
-//            protected void onPostExecute( final Void result ) {
-//            }
-//        }.execute();
-//    }
-
 }

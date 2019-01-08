@@ -18,10 +18,8 @@ import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
 import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.retrofit.User;
+import de.tu_darmstadt.epool.pfoertneradmin.tasks.InitTask;
 import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -31,6 +29,7 @@ public class InitActivity extends AppCompatActivity {
     private PfoertnerService service;
     private String password;
     private int userid;
+    private Authentication authtoken;
 
 
     @Override
@@ -42,7 +41,8 @@ public class InitActivity extends AppCompatActivity {
 
         //create retrofit client
 
-        String API_BASE_URL = "http://172.18.92.121:3000/api/";
+        // Base url of our deployment server
+        String API_BASE_URL = "http://deh.duckdns.org:3000/api/";
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -57,111 +57,11 @@ public class InitActivity extends AppCompatActivity {
 
         service =  retrofit.create(PfoertnerService.class);
 
-        //////
-
-        //Create user
-        SharedPreferences.Editor edit = settings.edit();
-        edit.putString("password", "blabla");
-        edit.commit();
-
-
-        /*
-        Call<User> call = service.createUser(new Password(settings.getString("password","passwordnotset")));
-
-        Log.d("success", "ich bin vor den ersten call gekommen");
-
-        call.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                // The network call was a success and we got a response
-                // TODO: use the repository list and display it
-                User body = response.body();
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putInt("userid", body.id);
-                editor.commit();
-
-                Log.d("success", "ich bin im ersten call in responspe");
-                Log.d("bla", "" + body.id);
-
-                Log.d("success", "ich bin nach dem ersten call ");
-
-                Call<Authentication> call2 = service.login(new LoginCredentials(settings.getString("password", "passwordnotset"), settings.getInt("userid", 0)));
-
-
-                Log.d("success", "Starte call 2");
-                call2.enqueue(new Callback<Authentication>() {
-                    @Override
-                    public void onResponse(Call<Authentication> call, Response<Authentication> response) {
-                        // The network call was a success and we got a response
-                        // TODO: use the repository list and display it
-                        Authentication body = response.body();
-                        if(body == null){
-                            Log.d("errrror", "geh nix da");
-                        }
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString("authtoken", body.id);
-                        editor.commit();
-
-                        Log.d("success", "ich bin im zweiten call in responspe");
-                        Log.d("authtoken", "" + body.id);
-                    }
-
-                    @Override
-                    public void onFailure(Call<Authentication> call, Throwable t) {
-                        // the network call was a failure
-                        t.printStackTrace();
-
-                        Log.d("success", "ich bin im zewiten call in failure");
-                        Log.d("bla", "versager2");
-                    }
-                });
-
-                Log.d("success", "ich bin nach dem zweiten call");
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                // the network call was a failure
-                t.printStackTrace();
-
-                Log.d("success", "ich bin im ersten call in failure");
-                Log.d("bla", "versager");
-            }
-        });
-        */
-
+        new InitTask(service, settings).execute();
 
     }
 
-
-    private static class InitTask extends AsyncTask<Void, Void, Void> {
-
-        private PfoertnerService service;
-
-        InitTask(final PfoertnerService service){
-            this.service = service;
-        }
-
-        @Override
-        protected Void doInBackground(final Void ... parameters){
-            //TODO: Somehow peusdo random create later
-            final Password password = new Password("GEHEIM!");
-            try {
-                // First api call
-                final User device = service.createUser(password).execute().body();
-
-                // Create logincredentials with the generated password and the id from the server
-                final LoginCredentials logincredentials = new LoginCredentials(password.password, device.id);
-
-                // Second api call
-                final Authentication authtoken = service.login(logincredentials).execute().body();
-                
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
+    // Asynctask for creating new user and getting new authtoken
 
     public void scanQR(View view){
 
@@ -201,7 +101,6 @@ public class InitActivity extends AppCompatActivity {
 
 
         //
-
         finish();
     }
 
@@ -226,9 +125,6 @@ public class InitActivity extends AppCompatActivity {
                 // Set new layout for entering user information
 
                 setContentView(R.layout.activity_init2);
-
-
-
             }
             if(resultCode == RESULT_CANCELED){
                 AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
@@ -237,45 +133,4 @@ public class InitActivity extends AppCompatActivity {
             }
         }
     }
-
-//    @SuppressLint("StaticFieldLeak")
-//    private void testApi() {
-//        // Debug logging
-//        //HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//        //    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//        //    OkHttpClient client = new OkHttpClient.Builder()
-//        //                    .addInterceptor(interceptor).build();
-//
-//        final Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("http://172.18.84.214:3000")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        final PfoertnerService service = retrofit.create(PfoertnerService.class);
-//
-//        new AsyncTask<Void, Void, Void>() {
-//            @Override
-//            protected Void doInBackground( final Void ... params ) {
-//                try {
-//                    final Response response = service.createUser(
-//                            new LoginCredentials("lol@lol.de", "lol")
-//                    )
-//                            .execute();
-//
-//                    Log.d("MainActivity", response.message());
-//                }
-//
-//                catch (final IOException e) {
-//                    Log.d("MainActivity", "trolololo");
-//                }
-//
-//                return null;
-//            }
-//
-//            @Override
-//            protected void onPostExecute( final Void result ) {
-//            }
-//        }.execute();
-//    }
-
 }
