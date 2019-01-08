@@ -10,7 +10,7 @@ Panel <-- Server : 200 body={id: authToken, ...}
 deactivate Server
 Panel -> Server : /api/offices(POST, header={"Authorization": authToken})
 activate Server
-Panel <-- Server : 200 body={id: officeId}
+Panel <-- Server : 200 body={id: officeId, userJoinCode}
 deactivate Server
 deactivate Panel
 @enduml
