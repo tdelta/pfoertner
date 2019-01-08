@@ -21,7 +21,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.retrofit.OfficeJoinInfo;
 import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.retrofit.User;
 
@@ -48,27 +47,27 @@ public class InitializationActivity extends AppCompatActivity {
         ).execute();
     }
 
-    private static class InitTask extends AsyncTask<Void, Void, Either<String, OfficeJoinInfo>> {
+    private static class InitTask extends AsyncTask<Void, Void, Either<String, Office>> {
         private final SharedPreferences registrationInfo;
         private final PfoertnerService service;
-        private final Consumer<Either<String, OfficeJoinInfo>> callback;
+        private final Consumer<Either<String, Office>> callback;
 
-        InitTask(final SharedPreferences registrationInfo, final PfoertnerService service, final Consumer<Either<String, OfficeJoinInfo>> callback) {
+        InitTask(final SharedPreferences registrationInfo, final PfoertnerService service, final Consumer<Either<String, Office>> callback) {
             this.registrationInfo = registrationInfo;
             this.service = service;
             this.callback = callback;
         }
 
         @Override
-        protected Either<String, OfficeJoinInfo> doInBackground(final Void ... parameters) {
+        protected Either<String, Office> doInBackground(final Void ... parameters) {
             try {
-                final Password password = new Password("lol");
+                final Password password = Password.loadPassword(registrationInfo);
                 final User device = User.loadDevice(registrationInfo, service, password);
                 final Authentication authToken = Authentication.authenticate(service, device, password);
                 final Office office = Office.loadOffice(registrationInfo, service, authToken);
 
                 return Either.right(
-                        OfficeJoinInfo.loadJoinCode(service, office, authToken)
+                        office
                 );
             }
 
@@ -80,12 +79,12 @@ public class InitializationActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final Either<String, OfficeJoinInfo> officeJoinInfo) {
-            callback.accept(officeJoinInfo);
+        protected void onPostExecute(final Either<String, Office> eitherErrorOrOffice) {
+            callback.accept(eitherErrorOrOffice);
         }
     }
 
-    private void showQRCode(final Context context, final Consumer<Void> closeSplashScreen, final Either<String, OfficeJoinInfo> data) {
+    private void showQRCode(final Context context, final Consumer<Void> closeSplashScreen, final Either<String, Office> data) {
         data.run(
                 errorInformation -> {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
@@ -105,9 +104,9 @@ public class InitializationActivity extends AppCompatActivity {
                     alertDialogBuilder.show();
                 },
 
-                joinInfo -> {
+                office -> {
                     final ImageView qrCodeView = findViewById(R.id.qrCodeView);
-                    final QRCode qrCode = new QRCode(joinInfo.joinCode);
+                    final QRCode qrCode = new QRCode(office.userJoinCode);
 
                     qrCodeView.setImageDrawable(qrCode);
 

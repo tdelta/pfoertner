@@ -1,5 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.retrofit;
 
+import android.content.SharedPreferences;
+
 import java.util.UUID;
 
 public class Password {
@@ -9,15 +11,17 @@ public class Password {
 
     public final String password;
 
-    public Password loadPassword(final SharedPreferences deviceRegistrationInfo){
-
+    public static Password loadPassword(final SharedPreferences deviceRegistrationInfo){
         if(deviceRegistrationInfo.contains("Password")){
             return new Password(
-                deviceRegistrationInfo.getString("Password")
+                deviceRegistrationInfo.getString("Password", "")
             );
-        } else {
+        }
+
+        else {
           // Generate a cryptographically strong random String
-          String password UUID.randomUUID().toString();
+          final String password = UUID.randomUUID().toString();
+
           // Persist to storage
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putString("Password", password);

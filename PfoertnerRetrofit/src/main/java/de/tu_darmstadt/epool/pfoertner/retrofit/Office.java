@@ -19,7 +19,7 @@ public class Office {
     if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
       office = new Office(
               deviceRegistrationInfo.getInt("OfficeId", -1),
-              "" // user join code is not persisted
+              deviceRegistrationInfo.getString("OfficeJoinCode", "")
       );
     }
 
@@ -34,6 +34,7 @@ public class Office {
         if (office != null) {
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
+          e.putString("OfficeJoinCode", office.userJoinCode);
           e.apply();
         }
       }
