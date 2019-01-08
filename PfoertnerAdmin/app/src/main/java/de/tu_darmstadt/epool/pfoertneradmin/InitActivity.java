@@ -10,11 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
-import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.retrofit.User;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;

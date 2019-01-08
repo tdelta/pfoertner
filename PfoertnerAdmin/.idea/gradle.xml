@@ -9,7 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/../PfoertnerRetrofit" />
+            <option value="$PROJECT_DIR$/../PfoertnerCommon" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

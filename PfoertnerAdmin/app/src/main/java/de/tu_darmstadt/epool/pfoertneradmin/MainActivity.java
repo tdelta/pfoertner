@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 
-import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

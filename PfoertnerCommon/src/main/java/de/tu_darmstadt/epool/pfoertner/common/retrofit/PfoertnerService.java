@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertner.retrofit;
+package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
 import retrofit2.http.Body;
 import retrofit2.http.Header;

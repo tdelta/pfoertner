@@ -1,7 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,16 +12,18 @@ import com.spencerwi.either.Either;
 
 import java.util.function.Consumer;
 
-import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.retrofit.User;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+
+import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
 
 public class InitializationActivity extends AppCompatActivity {
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
@@ -106,7 +107,9 @@ public class InitializationActivity extends AppCompatActivity {
 
                 office -> {
                     final ImageView qrCodeView = findViewById(R.id.qrCodeView);
-                    final QRCode qrCode = new QRCode(office.userJoinCode);
+                    final QRCode qrCode = new QRCode(
+                            new QRCodeData(office).serialize()
+                    );
 
                     qrCodeView.setImageDrawable(qrCode);
 

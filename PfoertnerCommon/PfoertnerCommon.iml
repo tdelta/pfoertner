@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":PfoertnerRetrofit" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../PfoertnerPanel" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":PfoertnerCommon" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../PfoertnerAdmin" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="android-gradle" name="Android-Gradle">
       <configuration>
-        <option name="GRADLE_PROJECT_PATH" value=":PfoertnerRetrofit" />
+        <option name="GRADLE_PROJECT_PATH" value=":PfoertnerCommon" />
       </configuration>
     </facet>
     <facet type="android" name="Android">
