@@ -18,6 +18,6 @@ public interface PfoertnerService {
   Call<Office> createOffice(@Header("Authorization") String authToken);
 
   @PUT("/api/offices/{id}/join")
-  Call<Office> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);
+  Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);
 }
   

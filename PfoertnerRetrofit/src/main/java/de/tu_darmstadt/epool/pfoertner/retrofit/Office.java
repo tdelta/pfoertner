@@ -19,7 +19,7 @@ public class Office {
     if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
       office = new Office(
               deviceRegistrationInfo.getInt("OfficeId", -1),
-              deviceRegistrationInfo.getString("OfficeName", "")
+              "" // user join code is not persisted
       );
     }
 
@@ -27,14 +27,13 @@ public class Office {
       // Create office
       try {
         office = service
-                .createOffice(auth.id, new OfficeInitConf("Test"))
+                .createOffice(auth.id)
                 .execute()
                 .body();
 
         if (office != null) {
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeName", office.Name);
           e.apply();
         }
       }
