@@ -25,4 +25,8 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <style name="PfoertnerStyle.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="PfoertnerStyle.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

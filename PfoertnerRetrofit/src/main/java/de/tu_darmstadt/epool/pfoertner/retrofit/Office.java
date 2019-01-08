@@ -6,11 +6,11 @@ import java.io.IOException;
 
 public class Office {
   final public int id;
-  final public String Name;
+  final public String userJoinCode;
 
-  public Office(int id, String name) {
+  public Office(int id, String userJoinCode) {
     this.id = id;
-    Name = name;
+    this.userJoinCode = userJoinCode;
   }
 
   public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
@@ -19,7 +19,7 @@ public class Office {
     if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
       office = new Office(
               deviceRegistrationInfo.getInt("OfficeId", -1),
-              deviceRegistrationInfo.getString("OfficeName", "")
+              deviceRegistrationInfo.getString("OfficeJoinCode", "")
       );
     }
 
@@ -27,14 +27,14 @@ public class Office {
       // Create office
       try {
         office = service
-                .createOffice(auth.id, new OfficeInitConf("Test"))
+                .createOffice(auth.id)
                 .execute()
                 .body();
 
         if (office != null) {
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeName", office.Name);
+          e.putString("OfficeJoinCode", office.userJoinCode);
           e.apply();
         }
       }
