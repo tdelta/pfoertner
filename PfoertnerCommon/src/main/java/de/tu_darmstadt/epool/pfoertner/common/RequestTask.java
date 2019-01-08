@@ -1,22 +1,14 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.spencerwi.either.Either;
 
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-
 public abstract class RequestTask<R> {
     final private Worker<R> worker;
 
-    public RequestTask(
-        final SharedPreferences registrationInfo,
-        final PfoertnerService service
-    ) {
+    public RequestTask() {
         this.worker = new Worker<>(
-                registrationInfo,
-                service,
                 this
         );
     }
@@ -25,7 +17,7 @@ public abstract class RequestTask<R> {
         this.worker.execute();
     }
 
-    abstract protected R doRequests(final SharedPreferences registrationInfo, final PfoertnerService service);
+    abstract protected R doRequests();
 
     protected void onSuccess(final R result) {
 
@@ -36,13 +28,9 @@ public abstract class RequestTask<R> {
     }
 
     private static class Worker<R> extends AsyncTask<Void, Void, Either<Exception, R>> {
-        private final SharedPreferences registrationInfo;
-        private final PfoertnerService service;
         private final RequestTask<R> parent;
 
-        Worker(final SharedPreferences registrationInfo, final PfoertnerService service, final RequestTask<R> parent) {
-            this.registrationInfo = registrationInfo;
-            this.service = service;
+        Worker(final RequestTask<R> parent) {
             this.parent = parent;
         }
 
@@ -50,7 +38,7 @@ public abstract class RequestTask<R> {
         protected Either<Exception, R> doInBackground(final Void ... parameters) {
             try {
                 return Either.right(
-                        parent.doRequests(registrationInfo, service)
+                        parent.doRequests()
                 );
             }
 

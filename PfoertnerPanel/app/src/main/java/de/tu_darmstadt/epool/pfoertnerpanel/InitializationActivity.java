@@ -23,13 +23,11 @@ import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
 public class InitializationActivity extends AppCompatActivity {
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
         final PfoertnerService service = PfoertnerService.makeService("http://172.18.84.214:3000");
+        final SharedPreferences registrationInfo = context.getSharedPreferences("registrationInfo", MODE_PRIVATE);
 
-        new RequestTask<Office>(
-            context.getSharedPreferences("registrationInfo", MODE_PRIVATE),
-            service
-        ) {
+        new RequestTask<Office>() {
             @Override
-            protected Office doRequests(SharedPreferences registrationInfo, PfoertnerService service) {
+            protected Office doRequests() {
                 final Password password = Password.loadPassword(registrationInfo);
                 final User device = User.loadDevice(registrationInfo, service, password);
                 final Authentication authToken = Authentication.authenticate(service, device, password);
