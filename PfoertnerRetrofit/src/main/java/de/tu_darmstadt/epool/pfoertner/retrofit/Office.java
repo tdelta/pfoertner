@@ -2,10 +2,10 @@ package de.tu_darmstadt.epool.pfoertner.retrofit;
 
 public class Office {
   final public int id;
-  final public String Name;
+  final public String userJoinCode;
 
-  public Office(int id, String name) {
+  public Office(int id, String userJoinCode) {
     this.id = id;
-    Name = name;
+    this.userJoinCode = userJoinCode;
   }
 }
