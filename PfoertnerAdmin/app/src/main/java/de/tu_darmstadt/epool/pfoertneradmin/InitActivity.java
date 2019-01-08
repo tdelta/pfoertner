@@ -11,6 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.CaptureActivity;
+
 import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
@@ -36,7 +40,6 @@ public class InitActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
-
         settings = getSharedPreferences("Settings", 0);
 
         //create retrofit client
@@ -65,37 +68,28 @@ public class InitActivity extends AppCompatActivity {
 
     public void scanQR(View view){
 
-        // Source : https://stackoverflow.com/a/8833123
-        try {
+        IntentIntegrator scanner = new IntentIntegrator(this);
+        scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
+        scanner.setCaptureActivity(CaptureActivity.class);
+        scanner.setOrientationLocked(false);
+        scanner.setBeepEnabled(false);
+        scanner.setPrompt("Place the panel barcode inside the viewfinder rectangle.");
+        scanner.initiateScan();
 
-            // Try to use the QR scanner from zxing
-            Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-            intent.putExtra("SCAN_MODE", "QR_CODE_MODE"); // "PRODUCT_MODE for bar codes
-
-            startActivityForResult(intent, 0);
-
-        } catch (Exception e) {
-
-            // If the QR scanner from zxing is not installed, the application redirects to the
-            // google play store to download the QR scanner.
-
-            Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
-            Intent marketIntent = new Intent(Intent.ACTION_VIEW,marketUri);
-            startActivity(marketIntent);
-
-        }
     }
 
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         // Handel results from QR code scanner
-        if (requestCode == 0) {
-
-            if (resultCode == RESULT_OK) {
+        if(result != null) {
+            if(result.getContents() == null) {
+                AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
+                something.setMessage("Scanvorgang wurde abgebrochen!");
+                something.show();
+            } else {
                 String token = data.getStringExtra("SCAN_RESULT");
                 AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
                 something.setMessage(token);
@@ -111,11 +105,8 @@ public class InitActivity extends AppCompatActivity {
                 Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
                 startActivity(joinOffice);
             }
-            if(resultCode == RESULT_CANCELED){
-                AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
-                something.setMessage("Scanvorgang wurde abgebrochen!");
-                something.show();
-            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 }
