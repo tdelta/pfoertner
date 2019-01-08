@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService;
+package de.tu_darmstadt.epool.pfoertner.retrofit;
 
 import retrofit2.http.Body;
 import retrofit2.http.Header;
@@ -13,6 +13,6 @@ public interface PfoertnerService {
   Call<Authentication> login(@Body final LoginCredentials credentials);
 
   @POST("/api/offices")
-  Call<Office> createOffice(@Header("Authorization") String authToken);
+  Call<Office> createOffice(@Header("Authorization") String authToken, @Body final OfficeInitConf initConf);
 }
   
