@@ -29,5 +29,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
 
+<<<<<<< HEAD
+    implementation project(path: ':PfoertnerService')
+    implementation 'com.android.support:design:28.0.0'
+=======
     implementation project(path: ':PfoertnerRetrofit')
+>>>>>>> d121f428919e4eb1ec10e4ef568dcf547c5f94ef
 }

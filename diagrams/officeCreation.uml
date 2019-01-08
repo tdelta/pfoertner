@@ -1,14 +1,14 @@
 @startuml
 activate Panel
-Panel -> Server : /api/Users(POST, body={password})
+Panel -> Server : /api/devices(POST, body={password})
 activate Server
-Panel <-- Server : 200 body={id: userId}
+Panel <-- Server : 200 body={id: deviceId, username: deviceId}
 deactivate Server
-Panel -> Server : /api/Users/login(POST, body={password})
+Panel -> Server : /api/devices/login(POST, body={username: deviceId, password})
 activate Server
 Panel <-- Server : 200 body={id: authToken, ...}
 deactivate Server
-Panel -> Server : /api/offices(POST, header={"Authentication": authToken})
+Panel -> Server : /api/offices(POST, header={"Authorization": authToken})
 activate Server
 Panel <-- Server : 200 body={id: officeId}
 deactivate Server

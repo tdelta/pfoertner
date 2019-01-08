@@ -1,6 +1,5 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,13 +12,12 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.io.IOException;
-import java.util.List;
 
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.Authentication;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.LoginCredentials;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.Password;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertneradmin.PfoertnerService.User;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.retrofit.LoginCredentials;
+import de.tu_darmstadt.epool.pfoertner.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.retrofit.User;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,7 +36,7 @@ public class InitActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_init2);
+        setContentView(R.layout.activity_init);
 
         settings = getSharedPreferences("Settings", 0);
 
@@ -65,6 +63,9 @@ public class InitActivity extends AppCompatActivity {
         SharedPreferences.Editor edit = settings.edit();
         edit.putString("password", "blabla");
         edit.commit();
+
+
+        /*
         Call<User> call = service.createUser(new Password(settings.getString("password","passwordnotset")));
 
         Log.d("success", "ich bin vor den ersten call gekommen");
@@ -127,10 +128,41 @@ public class InitActivity extends AppCompatActivity {
                 Log.d("bla", "versager");
             }
         });
-
+        */
 
 
     }
+
+
+    private static class InitTask extends AsyncTask<Void, Void, Void> {
+
+        private PfoertnerService service;
+
+        InitTask(final PfoertnerService service){
+            this.service = service;
+        }
+
+        @Override
+        protected Void doInBackground(final Void ... parameters){
+            //TODO: Somehow peusdo random create later
+            final Password password = new Password("GEHEIM!");
+            try {
+                // First api call
+                final User device = service.createUser(password).execute().body();
+
+                // Create logincredentials with the generated password and the id from the server
+                final LoginCredentials logincredentials = new LoginCredentials(password.password, device.id);
+
+                // Second api call
+                final Authentication authtoken = service.login(logincredentials).execute().body();
+                
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
     public void scanQR(View view){
 
         // Source : https://stackoverflow.com/a/8833123

@@ -2,3 +2,6 @@
 
 run:
 	node .
+
+setup:
+	npm install
