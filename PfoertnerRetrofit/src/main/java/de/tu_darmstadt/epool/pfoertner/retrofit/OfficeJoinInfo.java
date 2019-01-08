@@ -8,4 +8,8 @@ public class OfficeJoinInfo {
         this.officeId = officeId;
         this.joinCode = joinCode;
     }
+
+    public static OfficeJoinInfo loadJoinCode(final PfoertnerService service, final Office office, final Authentication auth) {
+        return new OfficeJoinInfo(office.id, "TODO"); // TODO
+    }
 }
