@@ -16,6 +16,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 }
 
 dependencies {
@@ -34,4 +38,7 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(path: ':PfoertnerCommon')
+
+    implementation "com.spencerwi:Either.java:2.1.0"
+
 }

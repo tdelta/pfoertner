@@ -11,12 +11,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.spencerwi.either.Either;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.IOException;
 
+import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.LoginCredentials;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
@@ -50,8 +52,22 @@ public class InitActivity extends AppCompatActivity {
         //get retrofit client from State
         service = state.service;
 
-        // start Asynchrone thread, which makes the init calls
-        new InitTask(service, settings).execute();
+        new InitTask(
+                service,
+                settings,
+                eitherErrorOrVoid -> {
+                    if (eitherErrorOrVoid.isLeft()) {
+                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                        alertDialogBuilder.setMessage(
+                                "We encountered a problem:\n\n" +
+                                        eitherErrorOrVoid.getLeft()
+                        );
+                        alertDialogBuilder.show();
+                    }
+                }
+        ).execute();
+
+
     }
 
 
@@ -82,19 +98,11 @@ public class InitActivity extends AppCompatActivity {
                 something.setMessage("Scanvorgang wurde abgebrochen!");
                 something.show();
             } else {
-                String token = data.getStringExtra("SCAN_RESULT");
-                AlertDialog something = new AlertDialog.Builder(InitActivity.this).create();
-                something.setMessage(token);
-                something.show();
-
-                // Save the token in persistent memory
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString("token", token);
-                editor.commit();
+                String qrCodeDataRaw = data.getStringExtra("SCAN_RESULT");
 
                 // Set new intent for entering user information
-
                 Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
+                joinOffice.putExtra("QrCodeDataRaw", qrCodeDataRaw );
                 startActivity(joinOffice);
             }
         } else {

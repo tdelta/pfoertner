@@ -6,24 +6,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
 
 public class JoinOfficeActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init2);
+
+        QRCodeData qrData = QRCodeData.deserialize(getIntent().getStringExtra("QrCodeDataRaw"));
+
     }
 
     public void createAccount(View view){
-
-        EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
-        String firstname = firstnameinput.getText().toString();
+        final EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
+        final String firstname = firstnameinput.getText().toString();
         Log.e("ERROR", firstname);
 
-        EditText lastnameinput = (EditText) findViewById(R.id.NachnameInput);
-        String lastname = lastnameinput.getText().toString();
+        final EditText lastnameinput = (EditText) findViewById(R.id.NachnameInput);
+        final String lastname = lastnameinput.getText().toString();
 
         Log.e("ERROR", lastname);
 
