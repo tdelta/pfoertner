@@ -36,7 +36,8 @@ public class InitTask extends AsyncTask<Void, Void, Void> {
 
         try {
             // First api call
-            final User device = service.createUser(password).execute().body();
+
+            final User device = User.loadDevice(settings, service, password);
             Log.d("RESULT", "ID: " +device.id);
 
 
@@ -47,7 +48,7 @@ public class InitTask extends AsyncTask<Void, Void, Void> {
             final LoginCredentials logincredentials = new LoginCredentials(password.password, device.id);
 
             // Second api call
-            final Authentication authtoken = service.login(logincredentials).execute().body();
+            final Authentication authtoken = Authentication.authenticate(service, device, password);
             Log.d("RESULT", "ID: " +authtoken.id);
             Log.d("RESULT", "UserID: " +authtoken.userId);
 
@@ -57,7 +58,7 @@ public class InitTask extends AsyncTask<Void, Void, Void> {
 
         }
         // TODO: Think about resoanable exception handling
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
         // Commit changes of password and userid to the persistend memory
