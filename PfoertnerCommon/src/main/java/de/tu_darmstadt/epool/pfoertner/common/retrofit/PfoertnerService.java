@@ -27,8 +27,8 @@ public interface PfoertnerService {
   @PUT("/api/offices/{id}/join")
   Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);
 
-  @POST("/api/persons")
-  Call<Person> createPerson(@Header("Authorization") String authToken, @Body PersonCreationData personData);
+  @POST("/api/devices/{id}/person")
+  Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
   static PfoertnerService makeService(final String hostaddr) {
     // Debug logging
