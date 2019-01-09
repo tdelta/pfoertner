@@ -1,0 +1,27 @@
+{
+  "name": "testnodejsserver",
+  "version": "1.0.0",
+  "description": "Simple restfull test server with nodejs and express",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mariadb": "^2.0.2-rc",
+    "mysql": "^2.16.0",
+    "nodejs": "^0.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/kommiker/testnodejsserver.git"
+  },
+  "author": "Marc Arnold",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/kommiker/testnodejsserver/issues"
+  },
+  "homepage": "https://gitlab.com/kommiker/testnodejsserver#readme"
+}
