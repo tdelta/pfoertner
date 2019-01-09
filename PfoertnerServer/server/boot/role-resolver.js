@@ -18,15 +18,18 @@ module.exports = function(app){
       if(!user){
         return cb(new Error(`User with id ${userId} not found`));
       }
-      if(!user.officeId){
-        // User doesnt belong to any office
-        return cb(null,false);
-      }
-      // Check if user belongs to the given office
-      if(user.officeId === context.modelId) {
-        return cb(null,true);
-      }
-      return cb(null,false);
+      user.person(function(err,person){ 
+        console.log(person);
+        if(!person || !person.officeId){
+          // User doesnt belong to any office
+          return process.nextTick(() => cb(null,false));
+        }
+        // Check if user belongs to the given office
+        if(person.officeId === context.modelId) {
+          return process.nextTick(() => cb(null,true));
+        }
+        return process.nextTick(() => cb(null,false));
+      });
     });
   });
 }
