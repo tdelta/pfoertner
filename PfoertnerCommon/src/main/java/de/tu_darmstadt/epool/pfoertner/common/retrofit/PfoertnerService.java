@@ -5,6 +5,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Path;
 import retrofit2.http.POST;
@@ -23,6 +24,9 @@ public interface PfoertnerService {
 
   @POST("/api/offices")
   Call<Office> createOffice(@Header("Authorization") String authToken);
+
+  @GET("/api/offices")
+  Call<Office> loadOffice(@Header("Authorization") String authToken);
 
   @PUT("/api/offices/{id}/join")
   Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);

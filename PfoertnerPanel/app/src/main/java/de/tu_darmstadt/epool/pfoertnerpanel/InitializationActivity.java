@@ -31,7 +31,7 @@ public class InitializationActivity extends AppCompatActivity {
                 final Password password = Password.loadPassword(registrationInfo);
                 final User device = User.loadDevice(registrationInfo, service, password);
                 final Authentication authToken = Authentication.authenticate(registrationInfo, service, device, password, context);
-                final Office office = Office.loadOffice(registrationInfo, service, authToken);
+                final Office office = Office.createOffice(registrationInfo, service, authToken);
 
                 return office;
             }
