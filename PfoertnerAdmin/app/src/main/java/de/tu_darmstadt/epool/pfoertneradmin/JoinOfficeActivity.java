@@ -18,7 +18,6 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PersonCreationData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
-import de.tu_darmstadt.epool.pfoertneradmin.tasks.JoinOfficeTask;
 import retrofit2.Retrofit;
 
 public class JoinOfficeActivity extends AppCompatActivity {
