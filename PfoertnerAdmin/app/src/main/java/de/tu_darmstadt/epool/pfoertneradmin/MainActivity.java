@@ -1,12 +1,20 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ImageView;
 
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -44,4 +52,38 @@ public class MainActivity extends AppCompatActivity {
             something.show();
         }
     }
+
+    private void showQRCode() {
+
+        final Context self = this;
+
+        new RequestTask<Office>(){
+
+            Office office;
+
+            @Override
+            protected Office doRequests(){
+                return Office.loadOffice(settings,service,authtoken);
+            }
+
+            @Override
+            protected void onSuccess(final Office office){
+
+                final ImageView qrCodeView = findViewById(R.id.qrCodeView);
+                final QRCode qrCode = new QRCode(
+                        new QRCodeData(office).serialize()
+                );
+
+                qrCodeView.setImageDrawable(qrCode);
+            }
+
+            @Override
+            protected void onException(Exception e){
+                ErrorInfoDialog.show(self, e.getMessage(), aVoid -> showQRCode());
+            }
+
+        }.execute();
+
+    }
+    
 }
