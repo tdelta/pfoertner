@@ -13,13 +13,36 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class MainActivity extends AppCompatActivity {
+    private final String TAG = "MainActivity";
+    private final MainActivity self = this;
+
     private LayoutInflater inflater;
     private ViewGroup container;
     private TableRow row;
     private int memberCount = 0;
+
+    private EventChannel eventChannel;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        eventChannel.listen();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        eventChannel.shutdown();
+    }
+
+    private void updateMembers() {
+        // TODO: Download a new list of office members and display them
+    }
 
     public enum GlobalStatus {
         DO_NOT_DISTURB, COME_IN, EXTENDED_ACCESS
@@ -39,6 +62,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         checkForPlayServices();
+
+        eventChannel = new EventChannel(this) {
+            @Override
+            protected void onEvent(EventType e) {
+                switch (e) {
+                    case AdminJoined:
+                        self.updateMembers();
+                        break;
+                }
+            }
+        };
 
         if (!this.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).getBoolean("Initialized", false)) {
             // for now, immediately start initialization screen
