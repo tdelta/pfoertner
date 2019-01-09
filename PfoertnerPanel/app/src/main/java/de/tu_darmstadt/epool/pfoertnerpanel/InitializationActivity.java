@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 
 
@@ -27,6 +28,8 @@ import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class InitializationActivity extends AppCompatActivity {
+    private static final String TAG = "InitializationActivity";
+
     public static final String CHAN_ADMIN_JOINED = "FirstAdminJoined";
     private RequestTask<Office> initTask = new RequestTask<>();
     private final InitializationActivity self = this;
@@ -94,9 +97,12 @@ public class InitializationActivity extends AppCompatActivity {
     }
 
     private void showQRCode(final Office office) {
+        final String displayedData = new QRCodeData(office).serialize();
+        Log.d(TAG, "Displaying QRData: " + displayedData);
+
         final ImageView qrCodeView = findViewById(R.id.qrCodeView);
         final QRCode qrCode = new QRCode(
-                new QRCodeData(office).serialize()
+                displayedData
         );
 
         qrCodeView.setImageDrawable(qrCode);
