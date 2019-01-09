@@ -52,4 +52,14 @@ public class Office {
 
     return office;
   }
+
+  public static void joinOffice(PfoertnerService service, Authentication authtoken, Office office)  {
+
+    try{
+      service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute();
+    }
+    catch(final IOException e){
+      throw new RuntimeException("Could not join office.");
+    }
+  }
 }
