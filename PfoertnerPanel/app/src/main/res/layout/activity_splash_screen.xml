@@ -9,18 +9,18 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/aguafina_script"
+        android:fontFamily="@font/aguafina_script_embedded"
         android:text="Pförtner"
-        android:textSize="100sp"
+        android:textAlignment="center"
         android:textColor="@android:color/white"
+        android:textSize="100sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintDimensionRatio="W,1:1"
         app:layout_constraintLeft_toRightOf="@+id/guideline2"
         app:layout_constraintRight_toLeftOf="@+id/guideline3"
-        app:layout_constraintTop_toBottomOf="@+id/guideline"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/guideline" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline3"
