@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 import retrofit2.http.Path;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -18,7 +19,7 @@ public interface PfoertnerService {
   @POST("/api/devices")
   Call<User> createUser(@Body final Password password);
 
-  @PUT("/api/devices/{id}")
+  @PATCH("/api/devices/{id}")
   Call<Void> setFcmToken(@Header("Authorization") String authToken, @Path("id") int id, @Body FcmTokenCreationData fcmTokenCreationData);
 
   @POST("/api/devices/login")
