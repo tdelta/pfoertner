@@ -32,12 +32,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    // Library for qrcode generation
-    implementation "com.google.zxing:core:3.3.3"
-
-    // Library for circular image views
-    //implementation 'com.mikhaellopez:circularimageview:3.2.0'
-
     // Library for HTTP communication
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'

@@ -9,17 +9,13 @@ import android.view.View;
 import android.widget.EditText;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
-import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinCode;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PersonCreationData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertneradmin.R;
-import de.tu_darmstadt.epool.pfoertneradmin.tasks.JoinOfficeTask;
-import retrofit2.Retrofit;
 
 public class JoinOfficeActivity extends AppCompatActivity {
 
