@@ -15,7 +15,7 @@ import de.tu_darmstadt.epool.pfoertneradmin.tasks.JoinOfficeTask;
 public class JoinOfficeActivity extends AppCompatActivity {
 
     private State state = State.getInstance();
-    private SharedPreferences settings = getSharedPreferences("Settings", 0);
+    private SharedPreferences settings;
 
 
     @Override
@@ -23,6 +23,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init2);
 
+        settings = getSharedPreferences("Settings", 0);
     }
 
     public void createAccount(View view){

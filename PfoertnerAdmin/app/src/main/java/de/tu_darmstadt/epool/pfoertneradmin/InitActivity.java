@@ -101,6 +101,7 @@ public class InitActivity extends AppCompatActivity {
                 String qrCodeDataRaw = data.getStringExtra("SCAN_RESULT");
 
                 // Set new intent for entering user information
+                Log.d("DEBUG","GOT SCAN DATA");
                 Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
                 joinOffice.putExtra("QrCodeDataRaw", qrCodeDataRaw );
                 startActivity(joinOffice);
