@@ -15,6 +15,9 @@ public interface PfoertnerService {
   @POST("/api/devices")
   Call<User> createUser(@Body final Password password);
 
+  @PUT("/api/devices/{id}")
+  Call<Void> setFcmToken(@Header("Authorization") String authToken, @Path("id") int id, @Body FcmTokenCreationData fcmTokenCreationData);
+
   @POST("/api/devices/login")
   Call<Authentication> login(@Body final LoginCredentials credentials);
 
