@@ -45,11 +45,18 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
             @Override
             protected Void doRequests() {
-                // Join Office
-                Office.joinOffice(service,authtoken, office);
+
                 // Create Person
                 Person.loadPerson(new PersonCreationData(lastName,firstName), settings, service, authtoken);
+                // Join Office
+                Office.joinOffice(service,authtoken, office);
+
                 return null;
+            }
+
+            @Override
+            protected void onSuccess(final Void v) {
+                ((JoinOfficeActivity) self).finish();
             }
 
             @Override
@@ -72,8 +79,9 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
         QRCodeData qrData = QRCodeData.deserialize(getIntent().getStringExtra("QrCodeDataRaw"));
 
+        Log.e("ERROR", "blabla");
 
-        //joinOffice(lastName, firstName, new Office(qrData.officeId, qrData.joinCode));
+        joinOffice(lastName, firstName, new Office(qrData.officeId, qrData.joinCode));
 
         // TODO: Remaining to test, server functionality isnt implemented yet
 
@@ -86,6 +94,6 @@ public class JoinOfficeActivity extends AppCompatActivity {
                 lastName).execute();
         */
 
-        finish();
+        //finish();
     }
 }

@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class Office {
                 .execute()
                 .body();
 
-        if (office != null) {
+        if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
           e.putString("OfficeJoinCode", office.userJoinCode);
@@ -56,9 +57,17 @@ public class Office {
   public static void joinOffice(PfoertnerService service, Authentication authtoken, Office office)  {
 
     try{
-      service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute();
+      Log.d("DEBUG", "vor api call");
+      Log.d("DEBUG", "" + authtoken.userId);
+      Log.d("DEBUG", "" + authtoken.id);
+      Log.d("DEBUG", "" + office.id);
+      Log.d("DEBUG", "" + office.userJoinCode);
+
+      Log.d("DEBUG", "" + service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute().code());
     }
     catch(final IOException e){
+      e.printStackTrace();
+
       throw new RuntimeException("Could not join office.");
     }
   }
