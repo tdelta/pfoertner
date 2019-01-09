@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":PfoertnerCommon" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../PfoertnerPanel" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":PfoertnerCommon" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../PfoertnerAdmin" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="android-gradle" name="Android-Gradle">
       <configuration>
@@ -113,11 +113,13 @@
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:logging-interceptor:3.5.0@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.retrofit2:retrofit:2.5.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.jakewharton.threetenabp:threetenabp-1.1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.antlr:antlr-runtime:3.1.2@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.2@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: log4j:log4j:1.2.17@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.spencerwi:Either.java:2.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.threeten:threetenbp:1.3.7:no-tzdb@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.javassist:javassist:3.20.0-GA@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.retrofit2:converter-gson:2.5.0@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.pholser:junit-quickcheck-generators:0.8.1@jar" level="project" />

@@ -59,7 +59,7 @@ public class Office {
       service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute();
     }
     catch(final IOException e){
-      throw new RuntimeException("Could not join office.");
+      throw new RuntimeException("Could not join office. Do you have an internet connection?");
     }
   }
 }

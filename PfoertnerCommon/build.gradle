@@ -27,6 +27,8 @@ dependencies {
     // Haskell's Either für Java
     implementation "com.spencerwi:Either.java:2.1.0"
 
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
+
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.pholser:junit-quickcheck-core:0.8.1'
     testImplementation 'com.pholser:junit-quickcheck-generators:0.8.1'
