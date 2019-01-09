@@ -1,8 +1,6 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.DialogFragment;
@@ -12,16 +10,16 @@ import android.view.View;
 
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences settings;
     private PfoertnerService service;
     private DialogFragment globalStatusMenu;
+    private State state = State.getInstance();
 
+    private Authentication authtoken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +35,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         // "Proof of concept" for persistence variable in memory
-        if (settings.getString("token",null ) == null){
+        if (settings.getInt("officeId",-1 ) == -1){
 
             Intent intent = new Intent(this, InitActivity.class);
             startActivity(intent);
 
 
-        } else{
-            AlertDialog something = new AlertDialog.Builder(MainActivity.this).create();
-            something.setMessage("Die App wurde bereits mit einem Token initialisiert. Willkommen im Startbereich.");
-            something.show();
         }
     }
 
@@ -55,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
+    public void gotoQRCodeAcitvity(View view) {
+        Intent intent = new Intent(this, showQRCodeActivity.class);
+        startActivity(intent);
+    }
 }

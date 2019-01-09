@@ -14,7 +14,7 @@ public class Office {
     this.userJoinCode = userJoinCode;
   }
 
-  public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
+  public static Office createOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
     Office office;
 
     if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
@@ -54,9 +54,44 @@ public class Office {
     return office;
   }
 
-  public static void joinOffice(PfoertnerService service, Authentication authtoken, Office office)  {
+  public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
+    Office office;
+    int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
+    if (officeID == -1){
+      throw new RuntimeException("Office could not be loaded. Invalid officeId was loaded.");
+    }
+
+    try {
+       office = service
+               .loadOffice(auth.id, officeID)
+                .execute()
+                .body();
+
+        if (office != null) {Log.d("DEBUG", "vor api call");
+          final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
+          e.putInt("OfficeId", office.id);
+          e.putString("OfficeJoinCode", office.userJoinCode);
+          e.apply();
+        }
+      }
+
+      catch (final IOException e) {
+        e.printStackTrace();
+        office = null;
+        // the if below will handle further steps
+      }
+
+    if (office == null) {
+      throw new RuntimeException("Could not create a new office.");
+    }
+
+    return office;
+  }
+
+  public static void joinOffice(SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
 
     try{
+
       Log.d("DEBUG", "vor api call");
       Log.d("DEBUG", "" + authtoken.userId);
       Log.d("DEBUG", "" + authtoken.id);
@@ -64,11 +99,15 @@ public class Office {
       Log.d("DEBUG", "" + office.userJoinCode);
 
       Log.d("DEBUG", "" + service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute().code());
+      SharedPreferences.Editor e = settings.edit();
+      e.putInt("officeId",office.id);
+      e.apply();
+
     }
     catch(final IOException e){
       e.printStackTrace();
 
-      throw new RuntimeException("Could not join office.");
+      throw new RuntimeException("Could not join office. Do you have an internet connection?");
     }
   }
 }

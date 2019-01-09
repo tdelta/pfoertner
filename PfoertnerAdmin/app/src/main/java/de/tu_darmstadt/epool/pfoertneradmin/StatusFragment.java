@@ -49,6 +49,8 @@ public class StatusFragment extends DialogFragment{
                 status.add("Come In!");
                 status.add("Only Urgent Matters!");
             }
+
+            textfield.setText("Current: " + status.get(selected));
         }
 
         @Override

@@ -40,7 +40,7 @@ public class User {
         }
 
         if (device == null) {
-            throw new RuntimeException("Could not register this device at the server.");
+            throw new RuntimeException("Could not register this device at the server. Do you have an internet connection?");
         }
 
         return device;
