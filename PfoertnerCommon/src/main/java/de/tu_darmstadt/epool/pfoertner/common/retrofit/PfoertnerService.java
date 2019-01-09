@@ -28,8 +28,8 @@ public interface PfoertnerService {
   @POST("/api/offices")
   Call<Office> createOffice(@Header("Authorization") String authToken);
 
-  @GET("/api/offices")
-  Call<Office> loadOffice(@Header("Authorization") String authToken);
+  @GET("/api/offices/{id}")
+  Call<Office> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
   @PUT("/api/offices/{id}/join")
   Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);

@@ -56,19 +56,14 @@ public class Office {
 
   public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
     Office office;
-
-    if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
-      office = new Office(
-              deviceRegistrationInfo.getInt("OfficeId", -1),
-              deviceRegistrationInfo.getString("OfficeJoinCode", "")
-      );
+    int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
+    if (officeID == -1){
+      throw new RuntimeException("Office could not be loaded. Invalid officeId was loaded.");
     }
 
-    else {
-      // Create office
-      try {
-        office = service
-                .loadOffice(auth.id)
+    try {
+       office = service
+               .loadOffice(auth.id, officeID)
                 .execute()
                 .body();
 
@@ -85,7 +80,6 @@ public class Office {
         office = null;
         // the if below will handle further steps
       }
-    }
 
     if (office == null) {
       throw new RuntimeException("Could not create a new office.");
@@ -94,9 +88,10 @@ public class Office {
     return office;
   }
 
-  public static void joinOffice(PfoertnerService service, Authentication authtoken, Office office)  {
+  public static void joinOffice(SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
 
     try{
+
       Log.d("DEBUG", "vor api call");
       Log.d("DEBUG", "" + authtoken.userId);
       Log.d("DEBUG", "" + authtoken.id);
@@ -104,6 +99,10 @@ public class Office {
       Log.d("DEBUG", "" + office.userJoinCode);
 
       Log.d("DEBUG", "" + service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute().code());
+      SharedPreferences.Editor e = settings.edit();
+      e.putInt("officeId",office.id);
+      e.apply();
+
     }
     catch(final IOException e){
       e.printStackTrace();
