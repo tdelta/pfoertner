@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertnerpanel.qrcode;
+package de.tu_darmstadt.epool.pfoertner.common.qrcode;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

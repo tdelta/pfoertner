@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertner.common;
+package de.tu_darmstadt.epool.pfoertner.common.qrcode;
 
 import com.google.gson.Gson;
 

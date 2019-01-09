@@ -7,6 +7,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
 
 import static org.junit.Assert.*;

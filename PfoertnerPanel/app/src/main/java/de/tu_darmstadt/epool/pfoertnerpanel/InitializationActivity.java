@@ -12,13 +12,13 @@ import java.util.function.Consumer;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertnerpanel.qrcode.QRCode;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
-import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 
 public class InitializationActivity extends AppCompatActivity {
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
