@@ -11,8 +11,12 @@
   "relations": {
     "office": {
       "type": "hasOne",
-      "model": "Office",
-      "foreignKey": "officeId"
+      "model": "Office"
+    },
+    "person": {
+      "type": "hasOne",
+      "model": "Person",
+      "foreignKey": "deviceId"
     }
   },
   "acls": [
@@ -34,6 +38,11 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "delete"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
     }
   ],
   "methods": {}

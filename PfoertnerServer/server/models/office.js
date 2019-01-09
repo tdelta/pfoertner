@@ -14,12 +14,22 @@ module.exports = function(Office) {
     next();
   });
 
-  var addUserToOffice = function(userId, officeId){
+  var addUserToOffice = function(userId, officeId,cb){
     console.log(`Adding user ${userId} to office ${officeId}`);
     app.models.Device.findById(userId,function(err, user){
       if(user){
-        user.updateAttribute('officeId',officeId,function(err){
-          if(err) console.log(err);
+        user.person(function(err,person){
+          if(person){
+            person.updateAttribute('officeId',officeId,function(err){
+              // www.callbackhell.com
+              if(err) {
+                console.log(err);
+                return cb(err);
+              } else {
+                return cb();
+              }
+            });
+          }
         });
       }
     });
@@ -39,8 +49,7 @@ module.exports = function(Office) {
         if(joinCode === instance.userJoinCode){
           // Add user to office
           let user = options.accessToken.userId;
-          addUserToOffice(user,id);
-          return cb();
+          return addUserToOffice(user,id,cb);
         } else {
           // join code was incorrect, return error
           let error = new Error('Office join code is incorrect');
