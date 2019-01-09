@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
+
 public class MainActivity extends AppCompatActivity {
     private LayoutInflater inflater;
     private ViewGroup container;
@@ -38,14 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
         checkForPlayServices();
 
-        // for now, immediately start initialization screen
-        final Intent initIntent = new Intent(
-                MainActivity.this,
-                InitializationActivity.class
-        );
+        if (!this.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).getBoolean("Initialized", false)) {
+            // for now, immediately start initialization screen
+            final Intent initIntent = new Intent(
+                    MainActivity.this,
+                    InitializationActivity.class
+            );
 
-        MainActivity.this.startActivity(initIntent);
-
+            MainActivity.this.startActivity(initIntent);
+        }
 
         inflater =  getLayoutInflater();
         container = findViewById(R.id.member_insert);

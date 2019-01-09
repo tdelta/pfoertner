@@ -1,8 +1,12 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
@@ -20,12 +24,49 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 
+import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
+
 public class InitializationActivity extends AppCompatActivity {
+    public static final String CHAN_ADMIN_JOINED = "FirstAdminJoined";
+    private RequestTask<Office> initTask = new RequestTask<>();
+    private final InitializationActivity self = this;
+
+    private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            initTask.whenDone(aVoid -> {
+                // Close initialization, as soon as a member has been registered
+
+                // Remember, that the app has been initialized:
+                final SharedPreferences.Editor e = self.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).edit();
+
+                e.putBoolean("Initialized", true);
+                e.apply();
+
+                self.finish();
+            });
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver,
+            new IntentFilter(CHAN_ADMIN_JOINED)
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
+    }
+
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
         final PfoertnerService service = PfoertnerService.makeService();
-        final SharedPreferences registrationInfo = context.getSharedPreferences("registrationInfo", MODE_PRIVATE);
+        final SharedPreferences registrationInfo = context.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
 
-        new RequestTask<Office>() {
+        this.initTask = new RequestTask<Office>() {
             @Override
             protected Office doRequests() {
                 final Password password = Password.loadPassword(registrationInfo);
@@ -47,7 +88,9 @@ public class InitializationActivity extends AppCompatActivity {
             protected void onException(Exception e) {
                 ErrorInfoDialog.show(context, e.getMessage(), aVoid -> initPanel(context, closeSplashScreen));
             }
-        }.execute();
+        };
+
+        this.initTask.execute();
     }
 
     private void showQRCode(final Office office) {

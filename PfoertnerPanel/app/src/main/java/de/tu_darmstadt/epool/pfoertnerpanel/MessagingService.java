@@ -1,11 +1,13 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -17,7 +19,9 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class MessagingService extends FirebaseMessagingService {
-    private static final String TAG = "MyFirebaseMsgService";
+    private static final String TAG = "MessagingService";
+
+    private LocalBroadcastManager broadcaster;
 
     private void registerToken(final String token) {
         final Context self = this;
@@ -39,6 +43,30 @@ public class MessagingService extends FirebaseMessagingService {
 
             //TODO, was tun bei onException?
         }.execute();
+    }
+
+    @Override
+    public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
+
+    @Override
+    public void onMessageReceived(final RemoteMessage remoteMessage) {
+        Log.d(TAG, "Received FCM message.");
+
+        if (remoteMessage.getData().containsKey("event")) {
+            switch (remoteMessage.getData().get("event")) {
+                case "ADMIN_JOINED_OFFICE":
+                    final Intent intent = new Intent(InitializationActivity.CHAN_ADMIN_JOINED);
+
+                    broadcaster.sendBroadcast(intent);
+                    break;
+            }
+        }
+
+        else if (remoteMessage.getData().size() > 0) {
+            Log.d(TAG, "Received data notification without event key");
+        }
     }
 
     @Override
