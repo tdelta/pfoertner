@@ -48,7 +48,7 @@ public class Office {
     }
 
     if (office == null) {
-      throw new RuntimeException("Could not create a new office.");
+      throw new RuntimeException("Could not create a new office. Do you have an internet connection?");
     }
 
     return office;
