@@ -6,6 +6,8 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
+
 public class State {
 
     public Authentication authtoken;
@@ -24,13 +26,11 @@ public class State {
 
     private static PfoertnerService createService(){
         // Base url of our deployment server
-        String API_BASE_URL = "http://deh.duckdns.org:3000/api/";
-
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
         Retrofit.Builder builder =
                 new Retrofit.Builder()
-                        .baseUrl(API_BASE_URL)
+                        .baseUrl(SERVER_ADDR)
                         .addConverterFactory(
                                 GsonConverterFactory.create()
                         );
