@@ -16,6 +16,8 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PersonCreationData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertneradmin.R;
+import retrofit2.Retrofit;
 
 public class JoinOfficeActivity extends AppCompatActivity {
 
@@ -45,7 +47,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
                 // Create Person
                 Person.loadPerson(new PersonCreationData(lastName,firstName), settings, service, authtoken);
                 // Join Office
-                Office.joinOffice(service,authtoken, office);
+                Office.joinOffice(settings,service,authtoken, office);
 
                 return null;
             }
