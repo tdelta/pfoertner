@@ -126,6 +126,7 @@ public class InitActivity extends AppCompatActivity {
                 Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
                 joinOffice.putExtra("QrCodeDataRaw", qrCodeDataRaw );
                 startActivity(joinOffice);
+                finish();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

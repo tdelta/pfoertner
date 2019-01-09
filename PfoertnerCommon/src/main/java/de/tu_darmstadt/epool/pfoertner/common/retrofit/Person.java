@@ -25,6 +25,7 @@ public class Person {
             final Authentication auth
     ) {
         Person person;
+        int deviceID = registrationInfo.getInt("UserId", -1);
 
         if (registrationInfo.contains("PersonId") /*person already registered*/) {
             person = new Person(
@@ -37,7 +38,7 @@ public class Person {
         else {
             // Create person
             try {
-                final Call<Person> personCall = service.createPerson(auth.id, creationData);
+                final Call<Person> personCall = service.createPerson(auth.id, deviceID ,creationData);
                 person = personCall.execute().body();
 
                 if (person != null) {
