@@ -11,4 +11,12 @@ module.exports = function(Device) {
     }
     next();
   });
+
+  Device.afterRemote('prototype.__create__person',function(ctx,person,next){
+    if(person && person.officeId){
+      delete person.officeId;
+      person.save();
+    }
+    next();
+  });
 };
