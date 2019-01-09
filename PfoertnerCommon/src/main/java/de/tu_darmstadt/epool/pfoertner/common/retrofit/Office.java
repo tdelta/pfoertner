@@ -68,7 +68,7 @@ public class Office {
     catch(final IOException e){
       e.printStackTrace();
 
-      throw new RuntimeException("Could not join office.");
+      throw new RuntimeException("Could not join office. Do you have an internet connection?");
     }
   }
 }
