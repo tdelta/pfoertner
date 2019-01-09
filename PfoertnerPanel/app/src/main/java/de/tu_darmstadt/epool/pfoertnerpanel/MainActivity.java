@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
 public class MainActivity extends AppCompatActivity {
     private LayoutInflater inflater;
     private ViewGroup container;
@@ -20,11 +23,20 @@ public class MainActivity extends AppCompatActivity {
         DO_NOT_DISTURB, COME_IN, EXTENDED_ACCESS
     }
 
+    private void checkForPlayServices() {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+
+        if (googleApiAvailability.isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS) {
+            googleApiAvailability.makeGooglePlayServicesAvailable(this);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkForPlayServices();
 
         // for now, immediately start initialization screen
         final Intent initIntent = new Intent(
@@ -41,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
         setRoom("S101/A1");
         setGlobalStatus(GlobalStatus.EXTENDED_ACCESS);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        checkForPlayServices();
+    }
+
     public void setRoom(String str){
         TextView room = findViewById(R.id.room);
         room.setText(str);

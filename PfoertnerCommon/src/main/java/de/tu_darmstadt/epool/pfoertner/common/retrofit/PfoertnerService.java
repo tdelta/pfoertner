@@ -12,6 +12,8 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.Call;
 
+import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
+
 public interface PfoertnerService {
   @POST("/api/devices")
   Call<User> createUser(@Body final Password password);
@@ -34,7 +36,7 @@ public interface PfoertnerService {
   @POST("/api/devices/{id}/person")
   Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
-  static PfoertnerService makeService(final String hostaddr) {
+  static PfoertnerService makeService() {
     // Debug logging
     final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
     interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -43,7 +45,7 @@ public interface PfoertnerService {
 
     final Retrofit retrofit = new Retrofit.Builder()
             .client(client)
-            .baseUrl(hostaddr)
+            .baseUrl(SERVER_ADDR)
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 

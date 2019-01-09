@@ -22,7 +22,7 @@ import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 
 public class InitializationActivity extends AppCompatActivity {
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
-        final PfoertnerService service = PfoertnerService.makeService("http://deh.duckdns.org:3000/api/");
+        final PfoertnerService service = PfoertnerService.makeService();
         final SharedPreferences registrationInfo = context.getSharedPreferences("registrationInfo", MODE_PRIVATE);
 
         new RequestTask<Office>() {
