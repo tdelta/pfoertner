@@ -46,8 +46,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
             @Override
             protected Void doRequests() {
                 // Join Office
-                //service.joinOffice(authtoken.id ,office.id,new OfficeJoinCode(office.userJoinCode)).execute();
-                Office.joinOffice(authtoken.id, office);
+                Office.joinOffice(service,authtoken, office);
                 // Create Person
                 Person.loadPerson(new PersonCreationData(lastName,firstName), settings, service, authtoken);
                 return null;
@@ -55,7 +54,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
             @Override
             protected void onException(Exception e) {
-                ErrorInfoDialog.show(self, e.getMessage(), aVoid -> joinOffice());
+                ErrorInfoDialog.show(self, e.getMessage(), aVoid -> joinOffice(lastName,firstName,office));
             }
         }.execute();
     }
@@ -74,7 +73,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
         QRCodeData qrData = QRCodeData.deserialize(getIntent().getStringExtra("QrCodeDataRaw"));
 
 
-        joinOffice(lastName, firstName, new Office(qrData.officeId, qrData.joinCode));
+        //joinOffice(lastName, firstName, new Office(qrData.officeId, qrData.joinCode));
 
         // TODO: Remaining to test, server functionality isnt implemented yet
 
