@@ -32,5 +32,8 @@
       "permission": "DENY"
     }
   ],
-  "methods": {}
+  "methods": {},
+  "hidden": [
+    "officeId"
+  ]
 }

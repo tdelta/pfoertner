@@ -44,7 +44,6 @@
       "property": "create"
     },
     {
-      "accessType": "READ",
       "principalType": "ROLE",
       "principalId": "officeMember",
       "permission": "ALLOW"

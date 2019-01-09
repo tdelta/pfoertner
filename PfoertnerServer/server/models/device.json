@@ -6,7 +6,11 @@
   "options": {
     "validateUpsert": true
   },
-  "properties": {},
+  "properties": {
+    "fcmToken": {
+      "type": "string"
+    }
+  },
   "validations": [],
   "relations": {
     "office": {
