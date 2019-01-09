@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -18,7 +19,9 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.IOException;
 
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.QRCodeData;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.LoginCredentials;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
@@ -40,6 +43,44 @@ public class InitActivity extends AppCompatActivity {
     private int userid;
     private Authentication authtoken;
 
+    private void initApp(){
+        final Context self = this;
+
+        new RequestTask<Void>() {
+            @Override
+            protected Void doRequests(){
+                Log.d("DEBUG", "IN initAPP");
+                final Password password = Password.loadPassword(settings);
+
+                // First api call
+
+                final User device = User.loadDevice(settings, service, password);
+                Log.d("RESULT", "ID: " +device.id);
+
+
+
+                // Create logincredentials with the generated password and the id from the server
+                final LoginCredentials logincredentials = new LoginCredentials(password.password, device.id);
+
+                // Second api call
+                final Authentication authtoken = Authentication.authenticate(service, device, password);
+                Log.d("RESULT", "ID: " +authtoken.id);
+                Log.d("RESULT", "UserID: " +authtoken.userId);
+
+                // Update the static State, because we want to access the Authentoken in
+                // MainActivity
+                State.getInstance().authtoken = authtoken;
+
+                return null;
+            }
+
+            @Override
+            protected void onException(Exception e){
+                ErrorInfoDialog.show(self, e.getMessage(), aVoid -> initApp());
+            }
+        }.execute();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,27 +93,9 @@ public class InitActivity extends AppCompatActivity {
         //get retrofit client from State
         service = state.service;
 
-        new InitTask(
-                service,
-                settings,
-                eitherErrorOrVoid -> {
-                    if (eitherErrorOrVoid.isLeft()) {
-                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                        alertDialogBuilder.setMessage(
-                                "We encountered a problem:\n\n" +
-                                        eitherErrorOrVoid.getLeft()
-                        );
-                        alertDialogBuilder.show();
-                    }
-                }
-        ).execute();
-
-
+        Log.d("DEBUG", "VOR initAPP");
+        initApp();
     }
-
-
-
-
 
     public void scanQR(View view){
 
@@ -85,8 +108,6 @@ public class InitActivity extends AppCompatActivity {
         scanner.initiateScan();
 
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
