@@ -1,30 +1,42 @@
 // Get needed express module
 const express = require('express');
-// Get needed bodyparser module
-const bodyParser = require('body-parser');
-
-// Run server
 const server = express();
-
-// Get our own database module
-const db = require('./database.js');
 
 // Get our own models
 const models = require('./models/models.js');
 
-// Get interface to firebase servers
+// Get interface to firebase
 const firebase = require('./firebase/firebase.js');
 
-// Use the bodyparser module in our server
-// We are not using server.use(bodyParser()) because the constructor is 
-// deprecated:
-// https://stackoverflow.com/questions/24330014/bodyparser-is-deprecated-express-4
+// setup authentication
+var passport = require('passport');
+var auth = require('./auth.js');
+
+var passportStrategy = auth.getStrategy(
+  'This is the secret key of server',
+  deviceId => {
+    const device = models.Device.findById(deviceId);
+
+    return device == null ?
+      undefined : device;
+  }
+);
+
+passport.use(passportStrategy);
+server.use(passport.initialize());
+
+// Get needed bodyparser module
+const bodyParser = require('body-parser');
+
+// Get our own database module
+const db = require('./database.js');
+
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
 
 // Listen on port 3030 localhost
 db.sequelize.sync()
-.then(() => server.listen(3031));
+  .then(() => server.listen(3031));
 
 // Connect to firebase 
 firebase.initialize();
@@ -77,7 +89,16 @@ server.post('/offices/:officeId/member',function(req,res){
     models.Office.findById(req.params.officeId).then(office => {
       if(office){
           if(office.joinCode === req.body.joinCode){
-              // TODO Add user to office
+              // Create office member that is connected to the logged in device
+              // and the office.
+              createOfficeMember(
+                  req.body.firstName,
+                  req.body.lastName,
+                  req.user,
+                  office
+              );
+              // Send fcm notification
+              notifyPanel(office.id);
               res.status(200);
               res.send('Successfully joined office');
           } else {
@@ -90,25 +111,107 @@ server.post('/offices/:officeId/member',function(req,res){
           res.status(404);
           res.send(`Office with id ${req.params.officeId} does not exist`);
         }
-    }
+    })
 });
 
-server.put('/office', function(req, res){
+function notifyPanel(officeId){
+    device = models.Device.findOne({
+        where:{
+            OfficeId: officeId
+        }
+    });
+    if(device.fcmToken){
+        firebase.sendData(device.fcmToken,
+            {'event': 'ADMIN_JOINED_OFFICE'}
+        );
+    }
+}
 
-    models.Office.update(
-        {RoomNumber: req.body.name}
-    ,
+function createOfficeMember(firstName, lastName, device, office){
+    officeMember = models.OfficeMember.create(
+      {
+        firstName: firstName,
+        lastName: lastName
+      }
+    );
+    officeMember.setDevice(device);
+    officeMember.setOffice(office);
+}
+
+server.put('/office', function(req, res){
+  models.Office.update(
+    {RoomNumber: req.body.name},
     {
         where: {id : 1}
     }
-    )
-
+  );
 });
 
-server.post('/offices', function(req, res){
+server.post('/devices/:id/authToken', (req, res) => {
+  if (req.params.id == null) {
+    res.status(401).json({message:'No device id given.'});
+  }
 
+  else if (req.body.password == null) {
+    res.status(401).json({message:'No password given.'});
+  }
+
+  else  {
+    const id = req.params.id;
+    const password = req.body.password;
+
+    models.Device.findByPk(id)
+      .then(device => {
+        if(device == null) {
+          res.status(401).json({message:'No such device.'});
+        }
+
+        console.log(device);
+        console.log(password);
+
+        if(device.password === password) {
+          res.json(
+            auth.genToken(device)
+          );
+        }
+        
+        else {
+          res.status(401).json({message:'Incorrect password.'});
+        }
+      });
+  }
+});
+
+server.post('/devices', (req, res) => {
+  if (req.body.password == null){
+    res.status(400).json({
+      message: 'Password needed.'
+    });
+  }
+
+  else {
+    const password = req.body.password;
+
+    models.Device.create({
+      password: password
+    })
+      .then((result) => res.send(result));
+  }
+});
+
+server.post(
+  '/offices',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
     var joinCode = 'HalloWelt';
+
+    const device = req.user;
 
     models.Office.create({joinCode: joinCode})
     .then((result) => res.send(result));
+  }
+);
+
+server.post('/offices/:id/member', function(req,res){
+
 });

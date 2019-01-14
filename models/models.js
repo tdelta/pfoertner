@@ -9,13 +9,14 @@ var Device = db.sequelize.define('Device',{
         primaryKey: true,
         autoIncrement: true
     },
-    fcmToken: Sequelize.STRING
+    fcmToken: Sequelize.STRING,
+    password: Sequelize.STRING
 });
 
 
 // Define officemember
 
-var OfficeMember = db.sequelize.define('Office',{
+var OfficeMember = db.sequelize.define('OfficeMember',{
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,

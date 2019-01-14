@@ -1,6 +1,6 @@
 # Run application
 make run:
-	node server.js
+	node_modules/nodemon/bin/nodemon.js server.js
 
 # install dependencies
 make setup:
