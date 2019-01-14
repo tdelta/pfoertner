@@ -66,8 +66,7 @@ function genToken(user) {
   );
 
   return {
-    id: 0, // can be removed, not needed for JWT
-    token: token,
+    id: 'Bearer ' + token, // can be removed, not needed for JWT
     created: created,
     ttl: ttl,
     userId: user.id
