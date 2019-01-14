@@ -12,11 +12,11 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
 
     private SharedPreferences settings;
     private PfoertnerService service;
-    private DialogFragment globalStatusMenu;
+    private StatusFragment globalStatusMenu;
     private State state = State.getInstance();
 
     private Authentication authtoken;
@@ -52,5 +52,18 @@ public class MainActivity extends AppCompatActivity {
     public void gotoQRCodeAcitvity(View view) {
         Intent intent = new Intent(this, showQRCodeActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void updateStatus(String text) {
+        globalStatusMenu.updateStatus(text);
+        globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
+
+    }
+
+    @Override
+    public void startTextInput() {
+        TextFragment textBox = new TextFragment();
+        textBox.show(getSupportFragmentManager(), "insertTextBox");
     }
 }
