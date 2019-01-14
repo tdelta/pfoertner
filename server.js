@@ -2,8 +2,6 @@
 const express = require('express');
 // Get needed bodyparser module
 const bodyParser = require('body-parser');
-// Get needed mysql module
-//const db = require('mysql');
 
 // Run server
 const server = express();
@@ -12,7 +10,7 @@ const server = express();
 const db = require('./database.js');
 
 // Get our own models
-const models = require('./models/Office.js');
+const models = require('./models/models.js');
 
 // Get interface to firebase servers
 const firebase = require('./firebase/firebase.js');
@@ -34,7 +32,7 @@ firebase.initialize();
 // START OF ENDPOINTS:
 
 // Define Endpoint: /
-server.get('/', function name(req, res) {
+server.get('/', function (req, res) {
     res.send('Hello World');    
 });
 
@@ -75,7 +73,7 @@ server.get('/offices', function(req,res){
     });
 });
 
-server.put('/offices/:officeId/join',function(req,res){
+server.post('/offices/:officeId/member',function(req,res){
     models.Office.findById(req.params.officeId).then(office => {
       if(office){
           if(office.joinCode === req.body.joinCode){
@@ -104,4 +102,13 @@ server.put('/office', function(req, res){
         where: {id : 1}
     }
     )
+
+});
+
+server.post('/offices', function(req, res){
+
+    var joinCode = 'HalloWelt';
+
+    models.Office.create({joinCode: joinCode})
+    .then((result) => res.send(result));
 });
