@@ -1,12 +1,25 @@
 // Get needed express module
 const express = require('express');
+const server = express();
+
+// setup authentication
+var passport = require('passport');
+var auth = require('./auth.js');
+
+var passportStrategy = auth.getStrategy(
+  'This is the secret key of server',
+  deviceId =>
+    // find device by id. To be implemented
+
+    return undefined;
+  }
+);
+
+passport.use(passportStrategy);
+server.use(passport.initialize());
+
 // Get needed bodyparser module
 const bodyParser = require('body-parser');
-// Get needed mysql module
-//const db = require('mysql');
-
-// Run server
-const server = express();
 
 // Get our own database module
 const db = require('./database.js');
@@ -14,16 +27,12 @@ const db = require('./database.js');
 // Get our own models
 const models = require('./models/Office.js');
 
-// Use the bodyparser module in our server
-// We are not using server.use(bodyParser()) because the constructor is 
-// deprecated:
-// https://stackoverflow.com/questions/24330014/bodyparser-is-deprecated-express-4
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
 
 // Listen on port 3030 localhost
 db.sequelize.sync()
-.then(() => server.listen(3031));
+  .then(() => server.listen(3031));
 
 // START OF ENDPOINTS:
 
@@ -78,4 +87,35 @@ server.put('/office', function(req, res){
         where: {id : 1}
     }
     )
+});
+
+
+app.post('/device/authToken', (req, res) => {
+  if (req.body.name == null) {
+    res.status(401).json({message:'No user name given.'});
+  }
+
+  else if (req.body.password == null) {
+    res.status(401).json({message:'No password given.'});
+  }
+
+  else  {
+    const name = req.body.name;
+    const password = req.body.password;
+
+    const device = findDeviceByName(name); // Todo
+
+    if(device == null) {
+      res.status(401).json({message:'No such device.'});
+    }
+
+    if(device.password === password) {
+      res.json(
+        auth.genToken(device)
+      );
+    }
+    
+    else {
+      res.status(401).json({message:'Incorrect password.'});
+    }
 });
