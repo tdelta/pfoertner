@@ -90,7 +90,7 @@ server.put('/office', function(req, res){
 
 server.post('/devices/:id/authToken', (req, res) => {
   if (req.params.id == null) {
-    res.status(401).json({message:'No user id given.'});
+    res.status(401).json({message:'No device id given.'});
   }
 
   else if (req.body.password == null) {

@@ -16,7 +16,7 @@ var Device = db.sequelize.define('Device',{
 
 // Define officemember
 
-var OfficeMember = db.sequelize.define('Office',{
+var OfficeMember = db.sequelize.define('OfficeMember',{
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
