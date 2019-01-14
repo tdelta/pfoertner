@@ -14,6 +14,9 @@ const db = require('./database.js');
 // Get our own models
 const models = require('./models/Office.js');
 
+// Get interface to firebase servers
+const firebase = require('./firebase/firebase.js');
+
 // Use the bodyparser module in our server
 // We are not using server.use(bodyParser()) because the constructor is 
 // deprecated:
@@ -24,6 +27,9 @@ server.use(bodyParser.json());
 // Listen on port 3030 localhost
 db.sequelize.sync()
 .then(() => server.listen(3031));
+
+// Connect to firebase 
+firebase.initialize();
 
 // START OF ENDPOINTS:
 
@@ -67,6 +73,26 @@ server.get('/offices', function(req,res){
     models.Office.findAll().then(offices => {
         res.send(offices);
     });
+});
+
+server.put('/offices/:officeId/join',function(req,res){
+    models.Office.findById(req.params.officeId).then(office => {
+      if(office){
+          if(office.joinCode === req.body.joinCode){
+              // TODO Add user to office
+              res.status(200);
+              res.send('Successfully joined office');
+          } else {
+              // Join code is incorrect
+              res.status(401);
+              res.send('Office join code is incorrect');
+          }
+        } else {
+          // Office was not found
+          res.status(404);
+          res.send(`Office with id ${req.params.officeId} does not exist`);
+        }
+    }
 });
 
 server.put('/office', function(req, res){
