@@ -46,9 +46,11 @@ var Office = db.sequelize.define('Office',{
 
 // Adds primary key from device to OfficeMember as a foreign key
 OfficeMember.belongsTo(Device);
+Device.hasOne(OfficeMember);
 
 //Adds primary key from Office to OfficeMember as a foreign key
 OfficeMember.belongsTo(Office);
+Office.hasMany(OfficeMember);
 
 Office.hasMany(Device);
 Device.belongsTo(Office);
