@@ -14,6 +14,7 @@ public class EventChannel {
 
     private final Context context;
     private final LocalBroadcastManager broadcaster;
+    private boolean listening = false;
 
     public EventChannel(final Context context) {
         this.context = context;
@@ -21,13 +22,19 @@ public class EventChannel {
     }
 
     public void listen() {
-        LocalBroadcastManager.getInstance(context).registerReceiver(messageReceiver,
-            new IntentFilter("events")
-        );
+        if (!listening) {
+            LocalBroadcastManager.getInstance(context).registerReceiver(messageReceiver,
+                    new IntentFilter("events")
+            );
+
+            listening = true;
+        }
     }
 
     public void shutdown() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(messageReceiver);
+
+        listening = false;
     }
 
     public void send(final EventType eventType) {
