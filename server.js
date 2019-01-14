@@ -140,6 +140,32 @@ server.post('/devices', (req, res) => {
   }
 });
 
+server.patch(
+  '/devices/:id/fcmToken',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    if (req.body.fcmToken == null) {
+      res.status(400).send({message: 'You need to provide a new fcm token.'});
+    }
+
+    else {
+      const device = req.user;
+
+      if (parseInt(req.params.id, 10) === device.id) {
+        const fcmToken = req.body.fcmToken;
+
+        device.fcmToken = fcmToken;
+
+        res.send(device);
+      }
+
+      else {
+        res.status(401).send({message: 'You cannot access devices but your own.'});
+      }
+    }
+  }
+);
+
 server.post(
   '/offices',
   passport.authenticate('jwt', { session: false }),
@@ -147,7 +173,6 @@ server.post(
     var joinCode = 'HalloWelt';
 
     const device = req.user;
-    console.log(device);
 
     models.Office.create({joinCode: joinCode})
         .then(
