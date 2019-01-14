@@ -50,6 +50,7 @@ OfficeMember.belongsTo(Device);
 //Adds primary key from Office to OfficeMember as a foreign key
 OfficeMember.belongsTo(Office);
 
+Office.hasMany(Device);
 Device.belongsTo(Office);
 
 

@@ -98,7 +98,7 @@ server.post('/devices/:id/authToken', (req, res) => {
   }
 
   else  {
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10);
     const password = req.body.password;
 
     models.Device.findById(id)
@@ -147,11 +147,37 @@ server.post(
     var joinCode = 'HalloWelt';
 
     const device = req.user;
+    console.log(device);
 
     models.Office.create({joinCode: joinCode})
-    .then((result) => res.send(result));
+        .then(
+            office => {
+                device.setOffice(office).then(() => {
+                    res.send(office);
+                });
+            }
+        );
   }
 );
+
+server.get(
+    '/devices/:id',
+    passport.authenticate('jwt', { session: false }),
+    function(req,res)
+{
+    const deviceId = parseInt(req.params.id, 10);
+    const device = req.user;
+
+    if (device.id !== deviceId) {
+        res.status(401).send({message: 'You can not access information of other devices, but only your own device.'})
+    }
+
+    else {
+        models.Device.findById(deviceId)
+            .then(result => res.send(result));
+    }
+});
+
 
 server.post('/offices/:id/member', function(req,res){
 
