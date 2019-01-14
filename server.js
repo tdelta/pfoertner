@@ -36,7 +36,7 @@ server.use(bodyParser.json());
 
 // Listen on port 3030 localhost
 db.sequelize.sync()
-  .then(() => server.listen(3031));
+  .then(() => server.listen(3000));
 
 // Connect to firebase 
 firebase.initialize();
@@ -81,19 +81,31 @@ server.get(
   '/offices/:officeId/members',
   passport.authenticate('jwt', { session: false }),
   (req,res) => {
-    findOffice(req,res).then(office => {
-        office.getOfficeMembers().then(officeMembers => {
-            req.user.getOfficeMember().then(loggedIn => {
-                if(loggedIn.OfficeId == req.params.officeId){
-                  res.status(200);
-                  res.send(officeMembers);
-                } else {
-                  res.status(401);
-                  res.send('Authorized user is not in requested office');
-                }
-            });
-        });
-    });
+    if (req.params.officeId == null) {
+      res.status(400).send({message: 'Invalid office id.'});
+    }
+
+    else {
+      findOffice(req,res).then(office => {
+          office.getOfficeMembers().then(officeMembers => {
+              const device = req.user;
+              const selectedOfficeId = parseInt(req.params.officeId, 10);
+
+              device.getOfficeMember().then(loggedIn => {
+                  if(
+                       loggedIn.OfficeId === selectedOfficeId
+                    || device.OfficeId === selectedOfficeId
+                  ) {
+                    res.status(200);
+                    res.send(officeMembers);
+                  } else {
+                    res.status(401);
+                    res.send('Authorized user is not in requested office');
+                  }
+              });
+          });
+      });
+    }
 });
         
 
