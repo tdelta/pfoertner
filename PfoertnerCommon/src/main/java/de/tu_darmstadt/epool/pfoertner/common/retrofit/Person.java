@@ -36,27 +36,30 @@ public class Person {
         }
 
         else {
-            // Create person
-            try {
-                final Call<Person> personCall = service.createPerson(auth.id, deviceID ,creationData);
-                person = personCall.execute().body();
+            throw new RuntimeException("Not implemented");
 
-                if (person != null) {
-                    final SharedPreferences.Editor e = registrationInfo.edit();
+            // TODO
+            //// Create person
+            //try {
+            //    final Call<Person> personCall = service.createPerson(auth.id, deviceID ,creationData);
+            //    person = personCall.execute().body();
 
-                    e.putInt("PersonId", person.id);
-                    e.putString("PersonFirstName", person.firstName);
-                    e.putString("PersonLastName", person.lastName);
+            //    if (person != null) {
+            //        final SharedPreferences.Editor e = registrationInfo.edit();
 
-                    e.apply();
-                }
-            }
+            //        e.putInt("PersonId", person.id);
+            //        e.putString("PersonFirstName", person.firstName);
+            //        e.putString("PersonLastName", person.lastName);
 
-            catch (final IOException e) {
-                e.printStackTrace();
-                person = null;
-                // the if below will handle further steps
-            }
+            //        e.apply();
+            //    }
+            //}
+
+            //catch (final IOException e) {
+            //    e.printStackTrace();
+            //    person = null;
+            //    // the if below will handle further steps
+            //}
         }
 
         if (person == null) {

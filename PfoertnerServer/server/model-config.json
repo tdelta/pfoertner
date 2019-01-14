@@ -19,7 +19,7 @@
     "relations": {
       "user": {
         "type": "belongsTo",
-        "model": "device",
+        "model": "Device",
         "foreignKey": "userId"
       }
     }
@@ -30,10 +30,7 @@
   },
   "RoleMapping": {
     "dataSource": "db",
-    "public": false,
-    "options": {
-      "strictObjectIDCoercion": true
-    }
+    "public": false
   },
   "Role": {
     "dataSource": "db",
@@ -44,6 +41,10 @@
     "public": true
   },
   "Device": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Person": {
     "dataSource": "db",
     "public": true
   }

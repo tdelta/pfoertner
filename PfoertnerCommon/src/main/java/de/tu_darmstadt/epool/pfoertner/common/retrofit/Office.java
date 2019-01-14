@@ -7,11 +7,11 @@ import java.io.IOException;
 
 public class Office {
   final public int id;
-  final public String userJoinCode;
+  final public String joinCode;
 
-  public Office(int id, String userJoinCode) {
+  public Office(int id, String joinCode) {
     this.id = id;
-    this.userJoinCode = userJoinCode;
+    this.joinCode = joinCode;
   }
 
   public static Office createOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
@@ -20,7 +20,7 @@ public class Office {
     if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
       office = new Office(
               deviceRegistrationInfo.getInt("OfficeId", -1),
-              deviceRegistrationInfo.getString("OfficeJoinCode", "")
+              deviceRegistrationInfo.getString("OfficeJoinData", "")
       );
     }
 
@@ -35,7 +35,7 @@ public class Office {
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeJoinCode", office.userJoinCode);
+          e.putString("OfficeJoinData", office.joinCode);
           e.apply();
         }
       }
@@ -48,7 +48,7 @@ public class Office {
     }
 
     if (office == null) {
-      throw new RuntimeException("Could not create a new office.");
+      throw new RuntimeException("Could not create a new office. Do you have an internet connection?");
     }
 
     return office;
@@ -56,7 +56,7 @@ public class Office {
 
   public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
     Office office;
-    int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
+    final int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
     if (officeID == -1){
       throw new RuntimeException("Office could not be loaded. Invalid officeId was loaded.");
     }
@@ -69,8 +69,10 @@ public class Office {
 
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
+
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeJoinCode", office.userJoinCode);
+          e.putString("OfficeJoinData", office.joinCode);
+
           e.apply();
         }
       }
@@ -82,23 +84,35 @@ public class Office {
       }
 
     if (office == null) {
-      throw new RuntimeException("Could not create a new office.");
+      Log.d("Office", "Had to load office from local storage since we could not connect.");
+
+      office = new Office(
+              deviceRegistrationInfo.getInt("OfficeId", -1),
+              deviceRegistrationInfo.getString("OfficeJoinData", "")
+      );
     }
 
     return office;
   }
 
-  public static void joinOffice(SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
-
+  public static void joinOffice(String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
     try{
 
       Log.d("DEBUG", "vor api call");
       Log.d("DEBUG", "" + authtoken.userId);
       Log.d("DEBUG", "" + authtoken.id);
       Log.d("DEBUG", "" + office.id);
-      Log.d("DEBUG", "" + office.userJoinCode);
+      Log.d("DEBUG", "" + office.joinCode);
 
-      Log.d("DEBUG", "" + service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute().code());
+      Log.d("DEBUG", "" + service.joinOffice(
+            authtoken.id,
+            office.id,
+            new OfficeJoinData(
+              office.joinCode,
+              firstName,
+              lastName
+            )
+      ).execute().code());
       SharedPreferences.Editor e = settings.edit();
       e.putInt("officeId",office.id);
       e.apply();

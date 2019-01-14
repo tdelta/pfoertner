@@ -1,11 +1,16 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.spencerwi.either.Either;
 
-public abstract class RequestTask<R> {
-    final private Worker<R> worker;
+import java.util.function.Consumer;
+
+public class RequestTask<R> {
+    private final Worker<R> worker;
+    private Consumer<Void> onDoneCB = null;
+    private boolean done = false;
 
     public RequestTask() {
         this.worker = new Worker<>(
@@ -14,16 +19,31 @@ public abstract class RequestTask<R> {
     }
 
     public final void execute() {
+        done = false;
         this.worker.execute();
     }
 
-    abstract protected R doRequests();
+    public final void whenDone(final @Nullable Consumer<Void> onDoneCB) {
+        this.onDoneCB = onDoneCB;
+
+        if (this.done) {
+            onDoneCB.accept(null);
+        }
+    }
+
+    protected R doRequests() {
+       return null;
+    }
 
     protected void onSuccess(final R result) {
 
     }
 
     protected void onException(final Exception e) {
+
+    }
+
+    protected void onDone() {
 
     }
 
@@ -55,6 +75,14 @@ public abstract class RequestTask<R> {
                     parent::onException,
                     parent::onSuccess
             );
+
+            this.parent.done = true;
+
+            if (this.parent.onDoneCB != null) {
+                this.parent.onDoneCB.accept(null);
+            }
+
+            this.parent.onDone();
         }
     }
 }
