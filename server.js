@@ -2,16 +2,20 @@
 const express = require('express');
 const server = express();
 
+// Get our own models
+const models = require('./models/models.js');
+
 // setup authentication
 var passport = require('passport');
 var auth = require('./auth.js');
 
 var passportStrategy = auth.getStrategy(
   'This is the secret key of server',
-  deviceId =>
-    // find device by id. To be implemented
+  deviceId => {
+    const device = models.Device.findById(deviceId);
 
-    return undefined;
+    return device == null ?
+      undefined : device;
   }
 );
 
@@ -24,9 +28,6 @@ const bodyParser = require('body-parser');
 // Get our own database module
 const db = require('./database.js');
 
-// Get our own models
-const models = require('./models/Office.js');
-
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
 
@@ -37,7 +38,7 @@ db.sequelize.sync()
 // START OF ENDPOINTS:
 
 // Define Endpoint: /
-server.get('/', function name(req, res) {
+server.get('/', function (req, res) {
     res.send('Hello World');    
 });
 
@@ -79,20 +80,17 @@ server.get('/offices', function(req,res){
 });
 
 server.put('/office', function(req, res){
-
-    models.Office.update(
-        {RoomNumber: req.body.name}
-    ,
+  models.Office.update(
+    {RoomNumber: req.body.name},
     {
         where: {id : 1}
     }
-    )
+  );
 });
 
-
-app.post('/device/authToken', (req, res) => {
-  if (req.body.name == null) {
-    res.status(401).json({message:'No user name given.'});
+server.post('/devices/:id/authToken', (req, res) => {
+  if (req.params.id == null) {
+    res.status(401).json({message:'No user id given.'});
   }
 
   else if (req.body.password == null) {
@@ -100,22 +98,61 @@ app.post('/device/authToken', (req, res) => {
   }
 
   else  {
-    const name = req.body.name;
+    const id = req.params.id;
     const password = req.body.password;
 
-    const device = findDeviceByName(name); // Todo
+    models.Device.findById(id)
+      .then(device => {
+        if(device == null) {
+          res.status(401).json({message:'No such device.'});
+        }
 
-    if(device == null) {
-      res.status(401).json({message:'No such device.'});
-    }
+        console.log(device);
+        console.log(password);
 
-    if(device.password === password) {
-      res.json(
-        auth.genToken(device)
-      );
-    }
-    
-    else {
-      res.status(401).json({message:'Incorrect password.'});
-    }
+        if(device.password === password) {
+          res.json(
+            auth.genToken(device)
+          );
+        }
+        
+        else {
+          res.status(401).json({message:'Incorrect password.'});
+        }
+      });
+  }
+});
+
+server.post('/devices', (req, res) => {
+  if (req.body.password == null){
+    res.status(400).json({
+      message: 'Password needed.'
+    });
+  }
+
+  else {
+    const password = req.body.password;
+
+    models.Device.create({
+      password: password
+    })
+      .then((result) => res.send(result));
+  }
+});
+
+server.post(
+  '/offices',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    var joinCode = 'HalloWelt';
+
+    const device = req.user;
+
+    models.Office.create({joinCode: joinCode})
+    .then((result) => res.send(result));
+  }
+);
+
+server.post('/offices/:id/member', function(req,res){
+
 });
