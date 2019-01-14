@@ -93,7 +93,7 @@ server.get(
 
               device.getOfficeMember().then(loggedIn => {
                   if(
-                       loggedIn.OfficeId === selectedOfficeId
+                       loggedIn != null && loggedIn.OfficeId === selectedOfficeId
                     || device.OfficeId === selectedOfficeId
                   ) {
                     res.status(200);
@@ -324,9 +324,10 @@ server.patch(
       if (parseInt(req.params.id, 10) === device.id) {
         const fcmToken = req.body.fcmToken;
 
-        device.fcmToken = fcmToken;
-        console.log(`Set fcmToken ${fcmToken}`);
-        res.send(device);
+        device.update({
+          fcmToken: fcmToken
+        })
+          .then(() => res.send(device));
       }
 
       else {
