@@ -7,34 +7,40 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 import retrofit2.http.Path;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.Call;
 
+import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
+
 public interface PfoertnerService {
-  @POST("/api/devices")
+  @POST("/devices")
   Call<User> createUser(@Body final Password password);
 
-  @PUT("/api/devices/{id}")
+  @PATCH("/devices/{id}/fcmToken")
   Call<Void> setFcmToken(@Header("Authorization") String authToken, @Path("id") int id, @Body FcmTokenCreationData fcmTokenCreationData);
 
-  @POST("/api/devices/login")
-  Call<Authentication> login(@Body final LoginCredentials credentials);
+  @POST("/devices/{id}/authToken")
+  Call<Authentication> login(@Path("id") int deviceId, @Body final LoginCredentials credentials);
 
-  @POST("/api/offices")
+  @POST("/offices")
   Call<Office> createOffice(@Header("Authorization") String authToken);
 
-  @GET("/api/offices/{id}")
+  @GET("/offices/{id}")
   Call<Office> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
-  @PUT("/api/offices/{id}/join")
-  Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);
+  @PUT("/offices/{id}/members")
+  Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
 
-  @POST("/api/devices/{id}/person")
-  Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
+  @GET("/offices/{id}/members")
+  Call<Person[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);
 
-  static PfoertnerService makeService(final String hostaddr) {
+  //@POST("/api/devices/{id}/person")
+  //Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
+
+  static PfoertnerService makeService() {
     // Debug logging
     final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
     interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -43,7 +49,7 @@ public interface PfoertnerService {
 
     final Retrofit retrofit = new Retrofit.Builder()
             .client(client)
-            .baseUrl(hostaddr)
+            .baseUrl(SERVER_ADDR)
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 

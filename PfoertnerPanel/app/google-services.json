@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "358006725454",
+    "firebase_url": "https://pfoertner-2b302.firebaseio.com",
+    "project_id": "pfoertner-2b302",
+    "storage_bucket": "pfoertner-2b302.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358006725454:android:9ca8aa2f9363dfff",
+        "android_client_info": {
+          "package_name": "de.tu_darmstadt.epool.pfoertnerpanel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "358006725454-1a7topkojvsplgg8rpb97h4r5pa3sivt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxFYRWSThPz_gOtriMZVP1aJRNYbaEfCg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
