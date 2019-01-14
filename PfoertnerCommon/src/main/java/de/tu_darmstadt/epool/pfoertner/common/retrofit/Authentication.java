@@ -63,7 +63,7 @@ public class Authentication {
         if (auth == null || auth.hasExpired(context)) {
             try {
                 auth = service
-                        .login(new LoginCredentials(password.password, user.id))
+                        .login(user.id, new LoginCredentials(password.password))
                         .execute()
                         .body();
 

@@ -23,7 +23,7 @@ public interface PfoertnerService {
   Call<Void> setFcmToken(@Header("Authorization") String authToken, @Path("id") int id, @Body FcmTokenCreationData fcmTokenCreationData);
 
   @POST("/devices/{id}/authToken")
-  Call<Authentication> login(@Body final LoginCredentials credentials);
+  Call<Authentication> login(@Path("id") int deviceId, @Body final LoginCredentials credentials);
 
   @POST("/offices")
   Call<Office> createOffice(@Header("Authorization") String authToken);

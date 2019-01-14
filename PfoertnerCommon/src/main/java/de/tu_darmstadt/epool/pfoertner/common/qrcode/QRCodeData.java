@@ -10,7 +10,7 @@ public class QRCodeData {
 
     public QRCodeData(final Office office) {
         this.officeId = office.id;
-        this.joinCode = office.userJoinCode;
+        this.joinCode = office.joinCode;
     }
 
     public String serialize() {
