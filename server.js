@@ -12,7 +12,7 @@ const server = express();
 const db = require('./database.js');
 
 // Get our own models
-const models = require('./models/Office.js');
+const models = require('./models/office.js');
 
 // Use the bodyparser module in our server
 // We are not using server.use(bodyParser()) because the constructor is 
@@ -28,7 +28,7 @@ db.sequelize.sync()
 // START OF ENDPOINTS:
 
 // Define Endpoint: /
-server.get('/', function name(req, res) {
+server.get('/', function (req, res) {
     res.send('Hello World');    
 });
 

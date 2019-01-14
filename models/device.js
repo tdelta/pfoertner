@@ -1,7 +1,7 @@
 var db = require('../database.js');
 var Sequelize = require('sequelize');
 
-var OfficeMember = require('officemember.js')
+var Office = require('./office.js');
 
 var Device = db.sequelize.define('Device',{
     id: {
@@ -15,3 +15,7 @@ var Device = db.sequelize.define('Device',{
 module.exports = {
     Device
 }
+
+
+// Define Relations
+Device.belongsTo(Office);
