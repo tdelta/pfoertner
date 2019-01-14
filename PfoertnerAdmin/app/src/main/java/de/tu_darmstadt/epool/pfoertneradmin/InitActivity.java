@@ -44,11 +44,6 @@ public class InitActivity extends AppCompatActivity {
                 final User device = User.loadDevice(settings, service, password);
                 Log.d("RESULT", "ID: " +device.id);
 
-
-
-                // Create logincredentials with the generated password and the id from the server
-                final LoginCredentials logincredentials = new LoginCredentials(password.password, device.id);
-
                 // Second api call
                 final Authentication authtoken = Authentication.authenticate(settings, service, device, password, self);
                 Log.d("RESULT", "ID: " +authtoken.id);

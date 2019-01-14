@@ -7,6 +7,8 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.io.IOException;
+
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -27,20 +29,33 @@ public class MessagingService extends FirebaseMessagingService {
         final SharedPreferences preferences = self.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
         final PfoertnerService service = PfoertnerService.makeService();
 
+        Log.d(TAG,"About to upload new token.");
         new RequestTask<Void>() {
             @Override
             protected Void doRequests() {
                 final Password pswd = Password.loadPassword(preferences);
                 final User device = User.loadDevice(preferences, service, pswd);
+
                 final Authentication authentication = Authentication.authenticate(preferences, service, device, pswd, self);
 
-                service.setFcmToken(authentication.id, device.id, new FcmTokenCreationData(token));
+                try {
+                    service.setFcmToken(authentication.id, device.id, new FcmTokenCreationData(token))
+                            .execute();
+                }
+
+                catch (final IOException e) {
+                    e.printStackTrace();
+
+                    throw new RuntimeException("Could not upload the FCM token");
+                }
 
                 return null;
             }
 
             //TODO, was tun bei onException?
         }.execute();
+
+        Log.d(TAG,"Uploaded new token.");
     }
 
     @Override
@@ -53,11 +68,19 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Received FCM message.");
 
         if (remoteMessage.getData().containsKey("event")) {
-            eventChannel.send(
-                EventChannel.EventType.valueOf(
-                     remoteMessage.getData().get("event")
-                )
-            );
+            try {
+                eventChannel.send(
+                        EventChannel.EventType.valueOf(
+                                remoteMessage.getData().get("event")
+                        )
+                );
+            }
+
+            catch (final IllegalArgumentException e) {
+                e.printStackTrace();
+
+                Log.d(TAG, "Server did send unknown event: " + remoteMessage.getData().get("event"));
+            }
         }
 
         else if (remoteMessage.getData().size() > 0) {

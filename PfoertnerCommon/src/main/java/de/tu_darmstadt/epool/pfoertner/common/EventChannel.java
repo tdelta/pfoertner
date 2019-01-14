@@ -46,9 +46,18 @@ public class EventChannel {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final String eventTypeStr = intent.getStringExtra(EVENT_TYPE_KEY);
-            final EventType eventType = EventType.valueOf(eventTypeStr);
 
-            onEvent(eventType);
+            try {
+                final EventType eventType = EventType.valueOf(eventTypeStr);
+
+                onEvent(eventType);
+            }
+
+            catch (final IllegalArgumentException e) {
+                e.printStackTrace();
+
+                //TODO better log
+            }
         }
     };
 }

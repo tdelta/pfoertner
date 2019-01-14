@@ -25,18 +25,6 @@ public class State {
     }
 
     private static PfoertnerService createService(){
-        // Base url of our deployment server
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
-        Retrofit.Builder builder =
-                new Retrofit.Builder()
-                        .baseUrl(SERVER_ADDR)
-                        .addConverterFactory(
-                                GsonConverterFactory.create()
-                        );
-
-        Retrofit retrofit = builder.client(httpClient.build()).build();
-
-        return retrofit.create(PfoertnerService.class);
+        return PfoertnerService.makeService();
     }
 }

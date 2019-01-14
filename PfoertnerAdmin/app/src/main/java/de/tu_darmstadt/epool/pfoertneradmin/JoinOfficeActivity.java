@@ -78,7 +78,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
         QRCodeData qrData = QRCodeData.deserialize(getIntent().getStringExtra("QrCodeDataRaw"));
 
-        Log.e("ERROR", "blabla");
+        Log.e("ERROR", "Read join code: " + qrData.joinCode);
 
         joinOffice(lastName, firstName, new Office(qrData.officeId, qrData.joinCode));
 

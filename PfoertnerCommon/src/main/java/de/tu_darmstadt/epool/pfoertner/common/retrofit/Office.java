@@ -7,11 +7,11 @@ import java.io.IOException;
 
 public class Office {
   final public int id;
-  final public String userJoinCode;
+  final public String joinCode;
 
-  public Office(int id, String userJoinCode) {
+  public Office(int id, String joinCode) {
     this.id = id;
-    this.userJoinCode = userJoinCode;
+    this.joinCode = joinCode;
   }
 
   public static Office createOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
@@ -27,6 +27,7 @@ public class Office {
     else {
       // Create office
       try {
+        Log.d("LOREM", auth.id);
         office = service
                 .createOffice(auth.id)
                 .execute()
@@ -35,7 +36,7 @@ public class Office {
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeJoinData", office.userJoinCode);
+          e.putString("OfficeJoinData", office.joinCode);
           e.apply();
         }
       }
@@ -70,7 +71,7 @@ public class Office {
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeJoinData", office.userJoinCode);
+          e.putString("OfficeJoinData", office.joinCode);
           e.apply();
         }
       }
@@ -95,13 +96,13 @@ public class Office {
       Log.d("DEBUG", "" + authtoken.userId);
       Log.d("DEBUG", "" + authtoken.id);
       Log.d("DEBUG", "" + office.id);
-      Log.d("DEBUG", "" + office.userJoinCode);
+      Log.d("DEBUG", "" + office.joinCode);
 
       Log.d("DEBUG", "" + service.joinOffice(
             authtoken.id,
             office.id,
             new OfficeJoinData(
-              office.userJoinCode,
+              office.joinCode,
               firstName,
               lastName
             )
