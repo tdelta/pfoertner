@@ -2,8 +2,6 @@
 const express = require('express');
 // Get needed bodyparser module
 const bodyParser = require('body-parser');
-// Get needed mysql module
-//const db = require('mysql');
 
 // Run server
 const server = express();
@@ -12,7 +10,7 @@ const server = express();
 const db = require('./database.js');
 
 // Get our own models
-const models = require('./models/office.js');
+const models = require('./models/models.js');
 
 // Use the bodyparser module in our server
 // We are not using server.use(bodyParser()) because the constructor is 
@@ -78,4 +76,18 @@ server.put('/office', function(req, res){
         where: {id : 1}
     }
     )
+
+});
+
+server.post('/offices', function(req, res){
+
+    var joinCode = 'HalloWelt';
+
+    models.Office.create({joinCode: joinCode})
+    .then((result) => res.send(result));
+});
+
+server.post('/offices/:id/member', function(req,res){
+
+
 });
