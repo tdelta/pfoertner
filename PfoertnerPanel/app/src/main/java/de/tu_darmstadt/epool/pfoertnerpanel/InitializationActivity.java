@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 
+import static android.app.Activity.RESULT_OK;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class InitializationActivity extends AppCompatActivity {
@@ -106,6 +108,7 @@ public class InitializationActivity extends AppCompatActivity {
                             e.putBoolean("Initialized", true);
                             e.apply();
 
+                            self.setResult(RESULT_OK, new Intent());
                             self.finish();
                         });
                         break;

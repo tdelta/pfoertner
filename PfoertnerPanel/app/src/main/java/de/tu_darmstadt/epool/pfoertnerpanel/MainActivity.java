@@ -1,9 +1,12 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +16,19 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+import java.io.IOException;
 
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+
+import static android.content.Context.MODE_PRIVATE;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,8 +54,63 @@ public class MainActivity extends AppCompatActivity {
         eventChannel.shutdown();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 0) {
+            updateMembers();
+        }
+    }
+
     private void updateMembers() {
-        // TODO: Download a new list of office members and display them
+        final MainActivity context = this;
+
+        final SharedPreferences preferences = context.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+
+        new RequestTask<Person[]>() {
+            @Override
+            protected Person[] doRequests() {
+               final PfoertnerService service = PfoertnerService.makeService();
+
+               final Password password = Password.loadPassword(preferences);
+               final User device = User.loadDevice(preferences, service, password);
+               final Authentication auth = Authentication.authenticate(preferences, service, device, password, context);
+               final Office office = Office.loadOffice(preferences, service, auth);
+
+               Person[] officeMembers;
+               try {
+                   officeMembers = service.getOfficeMembers(auth.id, office.id).execute().body();
+               }
+
+               catch (final IOException e) {
+                   e.printStackTrace();
+
+                   officeMembers = null;
+               }
+
+               if (officeMembers == null) {
+                   throw new RuntimeException("Could not load members of the office. Do you have an internet connection?");
+               }
+
+               return officeMembers;
+            }
+
+            @Override
+            protected void onException(Exception e) {
+                ErrorInfoDialog.show(context, e.getMessage(), (aVoid) -> context.updateMembers());
+            }
+
+            @Override
+            protected void onSuccess(final Person[] result) {
+                // TODO: Clear already added members
+
+                for (final Person p : result){
+                    context.addMember(p);
+                }
+            }
+        }.execute();
     }
 
     public enum GlobalStatus {
@@ -81,7 +150,11 @@ public class MainActivity extends AppCompatActivity {
                     InitializationActivity.class
             );
 
-            MainActivity.this.startActivity(initIntent);
+            MainActivity.this.startActivityForResult(initIntent, 0);
+        }
+
+        else {
+            updateMembers();
         }
 
         inflater =  getLayoutInflater();
@@ -97,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
 
         checkForPlayServices();
     }
+
+
 
     public void setRoom(String str){
         TextView room = findViewById(R.id.room);
@@ -128,12 +203,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void addMember(View view){
+    public void addStdMember(View view) {
+        addMember(new Person(-1, "Prof. Dr. Ing. Max Mustermann", ""));
+    }
 
+    public void addMember(final Person p){
         // set the attributes of the member to add
         String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
         Member member = new Member(this);
-        member.setName("Prof. Dr. Ing. Max Mustermann");
+        member.setName(p.firstName + " " + p.lastName);
         member.setStatus(Member.Status.OUT_OF_OFFICE);
         member.setOfficeHours(work);
         member.setImage(getDrawable(R.drawable.ic_contact_default));

@@ -27,7 +27,6 @@ public class Office {
     else {
       // Create office
       try {
-        Log.d("LOREM", auth.id);
         office = service
                 .createOffice(auth.id)
                 .execute()
@@ -57,7 +56,7 @@ public class Office {
 
   public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
     Office office;
-    int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
+    final int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
     if (officeID == -1){
       throw new RuntimeException("Office could not be loaded. Invalid officeId was loaded.");
     }
@@ -70,8 +69,10 @@ public class Office {
 
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
+
           e.putInt("OfficeId", office.id);
           e.putString("OfficeJoinData", office.joinCode);
+
           e.apply();
         }
       }
@@ -83,7 +84,12 @@ public class Office {
       }
 
     if (office == null) {
-      throw new RuntimeException("Could not create a new office.");
+      Log.d("Office", "Had to load office from local storage since we could not connect.");
+
+      office = new Office(
+              deviceRegistrationInfo.getInt("OfficeId", -1),
+              deviceRegistrationInfo.getString("OfficeJoinData", "")
+      );
     }
 
     return office;

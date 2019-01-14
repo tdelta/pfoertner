@@ -33,6 +33,8 @@ public class MessagingService extends FirebaseMessagingService {
         new RequestTask<Void>() {
             @Override
             protected Void doRequests() {
+                // TODO: Race conditions mit Main?
+
                 final Password pswd = Password.loadPassword(preferences);
                 final User device = User.loadDevice(preferences, service, pswd);
 

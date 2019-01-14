@@ -34,6 +34,9 @@ public interface PfoertnerService {
   @PUT("/offices/{id}/members")
   Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
 
+  @GET("/offices/{id}/members")
+  Call<Person[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);
+
   //@POST("/api/devices/{id}/person")
   //Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
