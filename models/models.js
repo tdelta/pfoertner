@@ -50,9 +50,8 @@ OfficeMember.belongsTo(Device);
 //Adds primary key from Office to OfficeMember as a foreign key
 OfficeMember.belongsTo(Office);
 
-// Adds primary key from Device to Office as a foreign key
-// This device is the panel app
-Office.belongsTo(Device);
+Office.hasMany(Device);
+Device.belongsTo(Office);
 
 
 module.exports = {

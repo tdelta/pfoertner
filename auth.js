@@ -31,13 +31,15 @@ function getStrategy(serverKey, findUserById) {
       if (now.isBefore(created)) {
         // token is still valid!
 
-        let user = findUserById(jwtPayload.id);
-
-        if (user) {
-          next(null, user);
-        } else {
-          next(null, false);
-        }
+        findUserById(jwtPayload.id).then(
+          user => {
+            if (user) {
+              next(null, user);
+            } else {
+              next(null, false);
+            }
+          }
+        );
       }
 
       else {

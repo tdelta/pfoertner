@@ -85,7 +85,7 @@ server.get('/offices', function(req,res){
     });
 });
 
-server.post('/offices/:officeId/member',function(req,res){
+server.post('/offices/:officeId/members',function(req,res){
     models.Office.findById(req.params.officeId).then(office => {
       if(office){
           if(office.joinCode === req.body.joinCode){
@@ -115,27 +115,29 @@ server.post('/offices/:officeId/member',function(req,res){
 });
 
 function notifyPanel(officeId){
-    device = models.Device.findOne({
+    models.Device.findOne({
         where:{
             OfficeId: officeId
         }
+    }).then(device => {
+        if(device.fcmToken){
+            firebase.sendData(device.fcmToken,
+                {'event': 'ADMIN_JOINED_OFFICE'}
+            );
+        }
     });
-    if(device.fcmToken){
-        firebase.sendData(device.fcmToken,
-            {'event': 'ADMIN_JOINED_OFFICE'}
-        );
-    }
 }
 
 function createOfficeMember(firstName, lastName, device, office){
-    officeMember = models.OfficeMember.create(
-      {
-        firstName: firstName,
-        lastName: lastName
-      }
-    );
-    officeMember.setDevice(device);
-    officeMember.setOffice(office);
+    models.OfficeMember.create(
+        {
+            firstName: firstName,
+            lastName: lastName
+        }
+    ).then(officeMember => {
+        officeMember.setDevice(device); // Not sure if this function is working correctly
+        officeMember.setOffice(office);
+    });
 }
 
 server.put('/office', function(req, res){
@@ -157,7 +159,7 @@ server.post('/devices/:id/authToken', (req, res) => {
   }
 
   else  {
-    const id = req.params.id;
+    const id = parseInt(req.params.id, 10);
     const password = req.body.password;
 
     models.Device.findByPk(id)
@@ -206,12 +208,33 @@ server.post(
     var joinCode = 'HalloWelt';
 
     const device = req.user;
+    console.log(device);
 
     models.Office.create({joinCode: joinCode})
-    .then((result) => res.send(result));
+        .then(
+            office => {
+                device.setOffice(office).then(() => {
+                    res.send(office);
+                });
+            }
+        );
   }
 );
 
-server.post('/offices/:id/member', function(req,res){
+server.get(
+    '/devices/:id',
+    passport.authenticate('jwt', { session: false }),
+    function(req,res)
+{
+    const deviceId = parseInt(req.params.id, 10);
+    const device = req.user;
 
+    if (device.id !== deviceId) {
+        res.status(401).send({message: 'You can not access information of other devices, but only your own device.'})
+    }
+
+    else {
+        models.Device.findById(deviceId)
+            .then(result => res.send(result));
+    }
 });
