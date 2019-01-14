@@ -45,7 +45,7 @@ firebase.initialize();
 
 // Define Endpoint: /
 server.get('/', function (req, res) {
-    res.send('Hello World');    
+    res.send('HelloWorld');    
 });
 
 // Define Endpoint: /somepost
@@ -60,7 +60,6 @@ server.post('/somepost', function(req, res){
     }
 
     res.send(myJson);
-
 });
 
 //Define Endpint: /sendErrorCode
@@ -71,13 +70,6 @@ server.get('/sendErrorCode',function(req,res){
     // You still can give it a message.
     res.send('This is a 400 Error Code created by Marc');
 })
-
-//Define Endpoit: /office
-server.post('/office',function(req,res){
-        
-    models.Office.create({RoomNumber: 'Audimax'})
-    .then(() => res.send('Office was created'));
-});
 
 server.get('/offices', function(req,res){
     models.Office.findAll().then(offices => {
@@ -144,6 +136,84 @@ server.post(
     });
 });
 
+server.get(
+  '/offices/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    if (req.params.id == null) {
+      res.status(400).send({message: 'The given id is invalid.'});
+    }
+
+    const device = req.user;
+    const officeId = parseInt(req.params.id, 19);
+
+    if (device.officeId === officeId) {
+      models.Office
+        .findById(officeId)
+        .then(
+          office => {
+            res.send(office);
+          }
+        );
+    }
+
+    else {
+      res.status(401).send({message: 'You do not have the permission to access this office.'});
+    }
+  }
+);
+
+server.put(
+  '/offices/:officeId/members',
+  (req, res) => {
+    if (req.params.officeId == null) {
+      res.status(400).send({message: 'The given office id is invalid.'});
+    }
+
+    else if (req.body.joinCode == null) {
+      res.status(400).send({message: 'You must provide a valid joinCode.'});
+    }
+
+    else {
+      const officeId = parseInt(req.params.officeId, 10);
+      const joinCode = req.body.joinCode;
+
+      models.Office.findById(officeId).then(
+        office => {
+          if(office) {
+            if(office.joinCode === joinCode){
+                // Create office member that is connected to the logged in device
+                // and the office.
+                createOfficeMember( // TODO: Asynchronität beachten
+                    req.body.firstName,
+                    req.body.lastName,
+                    req.user,
+                    office
+                );
+
+                // Send fcm notification
+                notifyPanel(office.id);
+
+                res.status(200);
+                res.send('Successfully joined office');
+            } else {
+                // Join code is incorrect
+                res.status(401);
+                res.send('Office join code is incorrect');
+            }
+          }
+          
+          else {
+            // Office was not found
+            res.status(404);
+            res.send(`Office with id ${req.params.officeId} does not exist`);
+          }
+        }
+      );
+    }
+  }
+);
+
 function notifyPanel(officeId){
     models.Device.findOne({
         where:{
@@ -197,9 +267,6 @@ server.post('/devices/:id/authToken', (req, res) => {
         if(device == null) {
           res.status(401).json({message:'No such device.'});
         }
-
-        console.log(device);
-        console.log(password);
 
         if(device.password === password) {
           res.json(
@@ -261,7 +328,7 @@ server.post(
   '/offices',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    var joinCode = 'HalloWelt';
+    var joinCode = 'Hallo Welt';
 
     const device = req.user;
 
