@@ -45,9 +45,10 @@ public class JoinOfficeActivity extends AppCompatActivity {
             protected Void doRequests() {
 
                 // Create Person
-                Person.loadPerson(new PersonCreationData(lastName,firstName), settings, service, authtoken);
+                // TODO
+                // Person.loadPerson(new PersonCreationData(lastName,firstName), settings, service, authtoken);
                 // Join Office
-                Office.joinOffice(settings,service,authtoken, office);
+                Office.joinOffice(firstName, lastName, settings, service, authtoken, office);
 
                 return null;
             }

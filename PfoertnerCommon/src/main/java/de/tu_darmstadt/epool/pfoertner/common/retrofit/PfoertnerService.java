@@ -16,26 +16,26 @@ import retrofit2.Call;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
 public interface PfoertnerService {
-  @POST("/api/devices")
+  @POST("/devices")
   Call<User> createUser(@Body final Password password);
 
-  @PATCH("/api/devices/{id}")
+  @PATCH("/devices/{id}/fcmToken")
   Call<Void> setFcmToken(@Header("Authorization") String authToken, @Path("id") int id, @Body FcmTokenCreationData fcmTokenCreationData);
 
-  @POST("/api/devices/login")
+  @POST("/devices/{id}/authToken")
   Call<Authentication> login(@Body final LoginCredentials credentials);
 
-  @POST("/api/offices")
+  @POST("/offices")
   Call<Office> createOffice(@Header("Authorization") String authToken);
 
-  @GET("/api/offices/{id}")
+  @GET("/offices/{id}")
   Call<Office> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
-  @PUT("/api/offices/{id}/join")
-  Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinCode joinCode);
+  @PUT("/offices/{id}/members")
+  Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
 
-  @POST("/api/devices/{id}/person")
-  Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
+  //@POST("/api/devices/{id}/person")
+  //Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
   static PfoertnerService makeService() {
     // Debug logging
