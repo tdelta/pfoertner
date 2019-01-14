@@ -7,6 +7,7 @@
     "body-parser": "^1.18.3",
     "caminte": "^0.4.1",
     "express": "^4.16.4",
+    "firebase-admin": "^6.5.0",
     "jsonwebtoken": "^8.4.0",
     "mariadb": "^2.0.2-rc",
     "moment": "^2.23.0",

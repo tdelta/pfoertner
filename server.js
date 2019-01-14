@@ -85,33 +85,63 @@ server.get('/offices', function(req,res){
     });
 });
 
-server.post('/offices/:officeId/members',function(req,res){
-    models.Office.findById(req.params.officeId).then(office => {
-      if(office){
-          if(office.joinCode === req.body.joinCode){
-              // Create office member that is connected to the logged in device
-              // and the office.
-              createOfficeMember(
-                  req.body.firstName,
-                  req.body.lastName,
-                  req.user,
-                  office
-              );
-              // Send fcm notification
-              notifyPanel(office.id);
-              res.status(200);
-              res.send('Successfully joined office');
-          } else {
-              // Join code is incorrect
-              res.status(401);
-              res.send('Office join code is incorrect');
-          }
+server.get(
+  '/offices/:officeId/members',
+  passport.authenticate('jwt', { session: false }),
+  (req,res) => {
+    findOffice(req,res).then(office => {
+        office.getOfficeMembers().then(officeMembers => {
+            req.user.getOfficeMember().then(loggedIn => {
+                if(loggedIn.OfficeId == req.params.officeId){
+                  res.status(200);
+                  res.send(officeMembers);
+                } else {
+                  res.status(401);
+                  res.send('Authorized user is not in requested office');
+                }
+            });
+        });
+    });
+});
+        
+
+function findOffice(req,res){
+    return new Promise(function(response){
+        models.Office.findById(req.params.officeId).then(office => {
+            if(office){
+                response(office);
+            } else {
+                res.status(404);
+                res.send(`Office with id ${req.params.officeId} does not exist`);
+            }
+        });
+    });
+}
+
+server.post(
+  '/offices/:officeId/members',
+  passport.authenticate('jwt', { session: false }),
+  (req,res) => {
+    findOffice(req,res).then(office => {
+        if(office.joinCode === req.body.joinCode){
+            // Create office member that is connected to the logged in device
+            // and the office.
+            createOfficeMember(
+                req.body.firstName,
+                req.body.lastName,
+                req.user,
+                office
+            );
+            // Send fcm notification
+            notifyPanel(office.id);
+            res.status(200);
+            res.send('Successfully joined office');
         } else {
-          // Office was not found
-          res.status(404);
-          res.send(`Office with id ${req.params.officeId} does not exist`);
+            // Join code is incorrect
+            res.status(401);
+            res.send('Office join code is incorrect');
         }
-    })
+    });
 });
 
 function notifyPanel(officeId){
@@ -122,7 +152,7 @@ function notifyPanel(officeId){
     }).then(device => {
         if(device.fcmToken){
             firebase.sendData(device.fcmToken,
-                {'event': 'ADMIN_JOINED_OFFICE'}
+                {'event': 'AdminJoined'}
             );
         }
     });
@@ -135,7 +165,7 @@ function createOfficeMember(firstName, lastName, device, office){
             lastName: lastName
         }
     ).then(officeMember => {
-        officeMember.setDevice(device); // Not sure if this function is working correctly
+        officeMember.setDevice(device);
         officeMember.setOffice(office);
     });
 }
@@ -216,7 +246,7 @@ server.patch(
         const fcmToken = req.body.fcmToken;
 
         device.fcmToken = fcmToken;
-
+        console.log(`Set fcmToken ${fcmToken}`);
         res.send(device);
       }
 
