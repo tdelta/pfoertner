@@ -20,7 +20,7 @@ public class Office {
     if (deviceRegistrationInfo.contains("OfficeId") /*office already registered*/) {
       office = new Office(
               deviceRegistrationInfo.getInt("OfficeId", -1),
-              deviceRegistrationInfo.getString("OfficeJoinCode", "")
+              deviceRegistrationInfo.getString("OfficeJoinData", "")
       );
     }
 
@@ -35,7 +35,7 @@ public class Office {
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeJoinCode", office.userJoinCode);
+          e.putString("OfficeJoinData", office.userJoinCode);
           e.apply();
         }
       }
@@ -70,7 +70,7 @@ public class Office {
         if (office != null) {Log.d("DEBUG", "vor api call");
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
           e.putInt("OfficeId", office.id);
-          e.putString("OfficeJoinCode", office.userJoinCode);
+          e.putString("OfficeJoinData", office.userJoinCode);
           e.apply();
         }
       }
@@ -88,8 +88,7 @@ public class Office {
     return office;
   }
 
-  public static void joinOffice(SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
-
+  public static void joinOffice(String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
     try{
 
       Log.d("DEBUG", "vor api call");
@@ -98,7 +97,15 @@ public class Office {
       Log.d("DEBUG", "" + office.id);
       Log.d("DEBUG", "" + office.userJoinCode);
 
-      Log.d("DEBUG", "" + service.joinOffice(authtoken.id, office.id, new OfficeJoinCode(office.userJoinCode)).execute().code());
+      Log.d("DEBUG", "" + service.joinOffice(
+            authtoken.id,
+            office.id,
+            new OfficeJoinData(
+              office.userJoinCode,
+              firstName,
+              lastName
+            )
+      ).execute().code());
       SharedPreferences.Editor e = settings.edit();
       e.putInt("officeId",office.id);
       e.apply();
