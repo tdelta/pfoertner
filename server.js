@@ -3,10 +3,16 @@ const express = require('express');
 // Get needed bodyparser module
 const bodyParser = require('body-parser');
 // Get needed mysql module
-const db = require('mysql');
+//const db = require('mysql');
 
 // Run server
 const server = express();
+
+// Get our own database module
+const db = require('./database.js');
+
+// Get our own models
+const models = require('./models/Office.js');
 
 // Use the bodyparser module in our server
 // We are not using server.use(bodyParser()) because the constructor is 
@@ -16,7 +22,8 @@ server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
 
 // Listen on port 3030 localhost
-server.listen(3031);
+db.sequelize.sync()
+.then(() => server.listen(3031));
 
 // START OF ENDPOINTS:
 
@@ -44,26 +51,31 @@ server.post('/somepost', function(req, res){
 server.get('/sendErrorCode',function(req,res){
 
     // This is how you can set the http response status code 
-    res.status(400)
+    res.status(400);
     // You still can give it a message.
-    res.send('This is a 400 Error Code created by Marc')
-
+    res.send('This is a 400 Error Code created by Marc');
 })
 
-var conncection = db.createConnection({ // Open a new connection                                                                                                                                           
-    user: 'root',
-    host: '127.0.0.1',
-    port: 3306,
-    password: 'GEHEIM',
-    // Without socketPath the connection alway refused.
-    // Solutio found on: https://stackoverflow.com/questions/30266221/node-js-mysql-error-connect-econnrefused
-    socketPath: '/run/mysqld/mysqld.sock'
+//Define Endpoit: /office
+server.post('/office',function(req,res){
+        
+    models.Office.create({RoomNumber: 'Audimax'})
+    .then(() => res.send('Office was created'));
 });
 
-conncection.connect(function(err){
-    if(err){
-        console.log('Something went wrong.' + err.stack);
-    } else{
-        console.log('connected');
+server.get('/offices', function(req,res){
+    models.Office.findAll().then(offices => {
+        res.send(offices);
+    });
+});
+
+server.put('/office', function(req, res){
+
+    models.Office.update(
+        {RoomNumber: req.body.name}
+    ,
+    {
+        where: {id : 1}
     }
+    )
 });

@@ -5,10 +5,13 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "caminte": "^0.4.1",
     "express": "^4.16.4",
     "mariadb": "^2.0.2-rc",
     "mysql": "^2.16.0",
-    "nodejs": "^0.0.0"
+    "nodejs": "^0.0.0",
+    "sequelize": "^4.42.0",
+    "sqlite3": "^4.0.6"
   },
   "devDependencies": {},
   "scripts": {
