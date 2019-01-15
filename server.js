@@ -106,8 +106,7 @@ server.get(
           });
       });
     }
-});
-        
+}); 
 
 function findOffice(req,res){
     return new Promise(function(response){
@@ -159,19 +158,24 @@ server.get(
     const device = req.user;
     const officeId = parseInt(req.params.id, 19);
 
-    if (device.officeId === officeId) {
-      models.Office
-        .findById(officeId)
-        .then(
-          office => {
-            res.send(office);
-          }
-        );
-    }
+    device.getOfficeMember().then(loggedIn => {
+        if(
+             loggedIn != null && loggedIn.OfficeId === officeId
+          || device.OfficeId === officeId
+        ) {
+          models.Office
+            .findById(officeId)
+            .then(
+              office => {
+                res.send(office);
+              }
+            );
+        }
 
-    else {
-      res.status(401).send({message: 'You do not have the permission to access this office.'});
-    }
+        else {
+          res.status(401).send({message: 'You do not have the permission to access this office.'});
+        }
+    });
   }
 );
 
