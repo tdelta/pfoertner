@@ -43,7 +43,8 @@ public class showQRCodeActivity extends AppCompatActivity {
 
             @Override
             protected Office doRequests(){
-                return new Office(1,"9Our4FiGPCy2CcdkyjHMPlzVM1nTkHVz"); /*Office.loadOffice(settings,service,authtoken);*/
+                //return new Office(1,"9Our4FiGPCy2CcdkyjHMPlzVM1nTkHVz");
+                return Office.loadOffice(settings,service,authtoken);
             }
 
             @Override
