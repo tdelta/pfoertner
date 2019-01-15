@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 var models = require('../models/models.js');
+// Get interface to firebase
+const firebase = require('./firebase/firebase.js');
 
 var util = require('util');
 

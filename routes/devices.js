@@ -5,6 +5,9 @@ var auth = require('../authInit.js');
 
 var models = require('../models/models.js');
 
+// Get interface to firebase
+const firebase = require('./firebase/firebase.js');
+
 router.post('/', (req, res) => {
     if (req.body.password == null){
       res.status(400).json({
