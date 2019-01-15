@@ -1,12 +1,13 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.content.Context;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
     private LayoutInflater inflater;
     private ViewGroup container;
-    private TableRow row;
     private int memberCount = 0;
 
     private EventChannel eventChannel;
@@ -104,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onSuccess(final Person[] result) {
-                // TODO: Clear already added members
+                // Clear already added members
+                removeMembers();
 
                 for (final Person p : result){
                     context.addMember(p);
@@ -204,50 +205,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addStdMember(View view) {
-        addMember(new Person(-1, "Prof. Dr. Ing. Max Mustermann", ""));
+        addMember(new Person(-1, "Mustermann", "Prof. Dr. Ing. Max"));
+    }
+
+    public void removeMembers(){
+        FragmentManager fm = getSupportFragmentManager();
+        for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            fm.popBackStack();
+        }
+        memberCount=0;
+
     }
 
     public void addMember(final Person p){
         // set the attributes of the member to add
         String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
-        Member member = new Member(this);
+        Member member = new Member();
+
         member.setName(p.firstName + " " + p.lastName);
         member.setStatus(Member.Status.OUT_OF_OFFICE);
         member.setOfficeHours(work);
-        member.setImage(getDrawable(R.drawable.ic_contact_default));
+        //member.setImage(getDrawable(R.drawable.ic_contact_default));
 
         switch(memberCount){
             case 0:{
-                row = (TableRow) inflater.inflate(R.layout.table_row, container, false);
-                inflater.inflate(R.layout.space, row);
-                row.addView(member.getView());
-                inflater.inflate(R.layout.space, row);
-                container.addView(row);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.member_one, member);
+                transaction.addToBackStack(null);
+                transaction.commit();
                 memberCount++;
                 break;
             }
             case 1:{
-                row.addView(member.getView());
-                inflater.inflate(R.layout.space, row);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.member_two, member);
+                transaction.addToBackStack(null);
+
+                transaction.commit();
                 memberCount++;
                 break;
             }
             case 2:{
-                row = (TableRow) inflater.inflate(R.layout.table_row, container, false);
-                inflater.inflate(R.layout.space, row);
-                row.addView(member.getView());
-                inflater.inflate(R.layout.space, row);
-                container.addView(row);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.member_three, member);
+                transaction.addToBackStack(null);
+                transaction.commit();
                 memberCount++;
                 break;
             }
             case 3:{
-                row.addView(member.getView());
-                inflater.inflate(R.layout.space, row);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.member_four, member);
+                transaction.addToBackStack(null);
+                transaction.commit();
                 memberCount++;
                 break;
             }
+
         }
+
     }
 
 
