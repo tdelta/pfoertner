@@ -15,4 +15,5 @@
     <string name="do_not_disturb">Do Not Disturb!</string>
     <string name="extended_access">&#032;Extended Access&#032;</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="office_time_board">office_time_board</string>
 </resources>
