@@ -33,15 +33,11 @@ router.post(
   );
 
 
-function notifyPanel(officeId){
-    models.Device.findOne({
-        where:{
-            OfficeId: officeId
-        }
-    }).then(device => {
+function notifyPanel(office,eventName){
+    office.getDevice().then(device => {
         if(device.fcmToken){
             firebase.sendData(device.fcmToken,
-                {'event': 'AdminJoined'}
+                {'event': eventName}
             );
         }
     });
@@ -59,8 +55,31 @@ function createOfficeMember(firstName, lastName, device, office){
     });
 }
 
+function authenticateOfficeMember(req,res) {
+  return new Promise(function(response){
+      if (req.params.officeId == null) {
+        res.status(400).send({message: 'The given id is invalid.'});
+      }
+  
+      const device = req.user;
+      const officeId = parseInt(req.params.officeId, 10);
+  
+      device.getOfficeMember().then(loggedIn => {
+          if(
+               loggedIn != null && loggedIn.OfficeId === officeId
+            || device.OfficeId === officeId
+          ){
+              console.log('Office member authenticated');
+              response();
+          } else {
+              res.status(401).send({message: 'You do not have the permission to access this office.'});
+          }
+      });
+  });
+}
+
 router.get(
-    '/:id',
+    '/:officeId',
     auth.authFun(),
     (req, res) => {
       if (req.params.id == null) {
@@ -68,7 +87,7 @@ router.get(
       }
   
       const device = req.user;
-      const officeId = parseInt(req.params.id, 19);
+      const officeId = parseInt(req.params.id, 10);
   
       device.getOfficeMember().then(loggedIn => {
           if(
@@ -91,6 +110,24 @@ router.get(
     }
 );
 
+router.patch(
+    '/:officeId',
+    auth.authFun(),
+    (req, res) => {
+        console.log('Patching office');
+        authenticateOfficeMember(req,res).then(() => {
+            findOffice(req,res).then(office => {
+              console.log(office);
+                office.update(req.body).then(office => {
+                    res.status(200);
+                    res.send(office);
+                    notifyPanel(office,'OfficeDataUpdated');
+                });
+            });
+        });
+    });
+
+
 router.post(
     '/:officeId/members',
     auth.authFun(),
@@ -106,7 +143,7 @@ router.post(
                   office
               );
               // Send fcm notification
-              notifyPanel(office.id);
+              notifyPanel(office,'AdminJoined');
               res.status(200);
               res.send('Successfully joined office');
           } else {
