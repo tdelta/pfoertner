@@ -1,6 +1,5 @@
 var db = require('../database.js');
 var Sequelize = require('sequelize');
-
 var Office = require('./office.js');
 
 var Device = db.sequelize.define('Device',{
@@ -9,13 +8,8 @@ var Device = db.sequelize.define('Device',{
         primaryKey: true,
         autoIncrement: true
     },
-    fcmToken: Sequelize.STRING
+    fcmToken: Sequelize.STRING,
+    password: Sequelize.STRING
 });
 
-module.exports = {
-    Device
-}
-
-
-// Define Relations
-Device.belongsTo(Office);
+module.exports = Device;
