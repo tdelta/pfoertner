@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
 
 
         // "Proof of concept" for persistence variable in memory
-        if (settings.getInt("officeId",-1 ) == -1){
+        if (settings.getInt("OfficeId",-1 ) == -1){
 
             Intent intent = new Intent(this, InitActivity.class);
             startActivity(intent);
