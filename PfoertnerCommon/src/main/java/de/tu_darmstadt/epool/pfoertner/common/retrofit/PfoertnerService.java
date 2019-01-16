@@ -6,6 +6,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.HEAD;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.Path;
@@ -36,6 +37,9 @@ public interface PfoertnerService {
 
   @GET("/offices/{id}/members")
   Call<Person[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);
+
+  @PATCH("offices/{id}")
+  Call<Void> updateOfficeData(@Header("Authorization") String authToken,@Path("id") int id, Office office);
 
   //@POST("/api/devices/{id}/person")
   //Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
