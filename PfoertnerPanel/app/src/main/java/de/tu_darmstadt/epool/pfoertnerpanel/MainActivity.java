@@ -114,8 +114,35 @@ public class MainActivity extends AppCompatActivity {
         }.execute();
     }
 
-    public enum GlobalStatus {
-        DO_NOT_DISTURB, COME_IN, EXTENDED_ACCESS
+    private void updateOfficeData(){
+        updateOfficeData(0);
+    }
+
+    private void updateOfficeData(int numTries) {
+        if(numTries>2) return;
+        new RequestTask<Office>() {
+            @Override
+            protected Office doRequests() {
+                final SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+                final PfoertnerService service = PfoertnerService.makeService();
+
+                final Password password = Password.loadPassword(preferences);
+                final User device = User.loadDevice(preferences, service, password);
+                final Authentication auth = Authentication.authenticate(preferences, service, device, password, self);
+
+                final Office office = Office.loadOffice(preferences, service, auth);
+                return office;
+            }
+            @Override
+            protected void onException(Exception e){
+                updateOfficeData(numTries + 1);
+            }
+            @Override
+            protected void onSuccess(Office office){
+                Log.d("Office-Data","received office status "+office.status);
+                setGlobalStatus(office.status);
+            }
+        }.execute();
     }
 
     private void checkForPlayServices() {
@@ -140,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
                     case AdminJoined:
                         self.updateMembers();
                         break;
+                    case OfficeDataUpdated:
+                        self.updateOfficeData();
                 }
             }
         };
@@ -162,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
         container = findViewById(R.id.member_insert);
 
         setRoom("S101/A1");
-        setGlobalStatus(GlobalStatus.EXTENDED_ACCESS);
+        setGlobalStatus("Extended Access");
     }
 
     @Override
@@ -179,26 +208,28 @@ public class MainActivity extends AppCompatActivity {
         room.setText(str);
     }
 
-    public void setGlobalStatus(MainActivity.GlobalStatus stat){
+    public void setGlobalStatus(String status){
         TextView global = findViewById(R.id.global_status);
-        switch (stat){
-            case COME_IN:{
-                global.setText(getString(R.string.come_in));
+        global.setText(status);
+        switch (status){
+            case "Come In!":{
                 global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
                 global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
                 break;
             }
-            case DO_NOT_DISTURB:{
-                global.setText(getString(R.string.do_not_disturb));
+            case "Do Not Disturb!":{
                 global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
                 global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
                 break;
             }
-            case EXTENDED_ACCESS:{
-                global.setText(getString(R.string.extended_access));
+            case "Extended Access":{
                 global.setTextColor(ContextCompat.getColor(this, android.R.color.white));
                 global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
                 break;
+            }
+            default: {
+                global.setTextColor(ContextCompat.getColor(this, android.R.color.black));
+                global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
             }
         }
 
