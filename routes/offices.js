@@ -82,7 +82,7 @@ router.get(
     '/:officeId',
     auth.authFun(),
     (req, res) => {
-      if (req.params.id == null) {
+      if (req.params.officeId == null) {
         res.status(400).send({message: 'The given id is invalid.'});
       }
   
