@@ -87,7 +87,7 @@ router.get(
       }
   
       const device = req.user;
-      const officeId = parseInt(req.params.id, 10);
+      const officeId = parseInt(req.params.officeId, 10);
   
       device.getOfficeMember().then(loggedIn => {
           if(
