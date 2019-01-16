@@ -1,25 +1,29 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 
+import android.accounts.AuthenticatorException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
 
 public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
+    private static final String TAG = "PfoertnerAdmin_MainActivity";
 
     private SharedPreferences settings;
     private PfoertnerService service;
     private StatusFragment globalStatusMenu;
     private State state = State.getInstance();
-
-    private Authentication authtoken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,31 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
             startActivity(intent);
 
 
+        } else {
+            new RequestTask<Authentication>(){
+                @Override
+                protected Authentication doRequests(){
+                    Log.d(TAG, "Loading auth token...");
+                    final Authentication authtoken = Authentication.authenticate(
+                            settings,
+                            service,
+                            User.loadDevice(settings, service, Password.loadPassword(settings)),
+                            Password.loadPassword(settings),
+                            MainActivity.this
+                    );
+
+                    Log.d(TAG, "Got auth token.");
+
+                    return authtoken;
+                }
+
+                @Override
+                protected void onSuccess(final Authentication auth) {
+                    State.getInstance().authtoken = auth;
+
+                    Log.d(TAG, "Refreshed auth token of global State object.");
+                }
+            }.execute();
         }
     }
 
