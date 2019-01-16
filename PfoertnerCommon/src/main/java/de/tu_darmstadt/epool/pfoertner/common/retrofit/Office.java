@@ -8,6 +8,7 @@ import java.io.IOException;
 public class Office {
   final public int id;
   final public String joinCode;
+  public String status;
 
   public Office(int id, String joinCode) {
     this.id = id;

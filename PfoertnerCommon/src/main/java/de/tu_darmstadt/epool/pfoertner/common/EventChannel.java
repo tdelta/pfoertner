@@ -9,7 +9,8 @@ import android.support.v4.content.LocalBroadcastManager;
 public class EventChannel {
     private static String EVENT_TYPE_KEY = "event";
     public enum EventType {
-        AdminJoined
+        AdminJoined,
+        OfficeDataUpdated
     }
 
     private final Context context;
