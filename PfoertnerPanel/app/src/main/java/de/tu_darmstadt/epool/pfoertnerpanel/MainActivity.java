@@ -139,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             protected void onSuccess(Office office){
-                Log.d("Office-Data","received office status "+office.status);
                 setGlobalStatus(office.status);
             }
         }.execute();
