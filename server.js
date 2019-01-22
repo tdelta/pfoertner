@@ -8,7 +8,6 @@ const models = require('./models/models.js');
 // Get interface to firebase
 const firebase = require('./firebase/firebase.js');
 
-
 const auth = require('./authInit.js');
 
 auth.passport.use(auth.passportStrategy);
@@ -20,20 +19,20 @@ const bodyParser = require('body-parser');
 // Get our own database module
 const db = require('./database.js');
 
-server.use(bodyParser.urlencoded({extended: true}));
+server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
 
-// Listen on port 3030 localhost
-db.sequelize.sync()
-  .then(() => server.listen(3000));
+// Listen on port 3000 localhost
+db.sequelize.sync().then(() => server.listen(3000));
 
-// Connect to firebase 
+// Connect to firebase
 firebase.initialize();
-
 
 // Get routes
 const officesroutes = require('./routes/offices.js');
 const devicesroutes = require('./routes/devices.js');
+const officemembersroutes = require('./routes/officesmembers.js');
 
 server.use('/offices', officesroutes);
 server.use('/devices', devicesroutes);
+server.use('/officemembers', officemembersroutes);

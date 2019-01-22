@@ -1,16 +1,15 @@
 var db = require('../database.js');
 var Sequelize = require('sequelize');
 
-
-var Office = db.sequelize.define('Office',{
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    joinCode: Sequelize.STRING,
-    roomNumber: Sequelize.STRING,
-    status: Sequelize.STRING
+var Office = db.sequelize.define('Office', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  joinCode: Sequelize.STRING,
+  roomNumber: Sequelize.STRING,
+  status: Sequelize.STRING,
 });
 
-module.exports = Office
+module.exports = Office;

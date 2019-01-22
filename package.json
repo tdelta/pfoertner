@@ -19,9 +19,12 @@
     "sequelize": "^4.42.0",
     "sqlite3": "^4.0.6"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "prettier": "^1.16.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write './**/*.js*'"
   },
   "repository": {
     "type": "git",

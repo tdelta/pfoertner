@@ -5,9 +5,8 @@ var Sequelize = require('sequelize');
 var Device = require('./device.js');
 // Define officemember
 var OfficeMember = require('./officemember.js');
-// Define office 
+// Define office
 var Office = require('./office.js');
-
 
 // Define relations
 
@@ -22,9 +21,8 @@ Office.hasMany(OfficeMember);
 Office.hasMany(Device);
 Device.belongsTo(Office);
 
-
 module.exports = {
-    Office,
-    Device,
-    OfficeMember
-}
+  Office,
+  Device,
+  OfficeMember,
+};

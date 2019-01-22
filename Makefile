@@ -6,3 +6,6 @@ make run:
 make setup:
 	npm install
 
+make format:
+	npm run-script format
+
