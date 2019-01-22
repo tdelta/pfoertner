@@ -49,12 +49,10 @@ router.get('/:id', auth.authFun(), function(req, res) {
   const device = req.user;
 
   if (device.id !== deviceId) {
-    res
-      .status(401)
-      .send({
-        message:
-          'You can not access information of other devices, but only your own device.',
-      });
+    res.status(401).send({
+      message:
+        'You can not access information of other devices, but only your own device.',
+    });
   } else {
     models.Device.findById(deviceId).then(result => res.send(result));
   }

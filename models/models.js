@@ -18,7 +18,7 @@ Device.hasOne(OfficeMember);
 OfficeMember.belongsTo(Office);
 Office.hasMany(OfficeMember);
 
-Office.hasMany(Device);
+Office.hasOne(Device);
 Device.belongsTo(Office);
 
 module.exports = {
