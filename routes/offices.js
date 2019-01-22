@@ -9,6 +9,25 @@ var util = require('util');
 
 var auth = require('../authInit.js');
 
+/**
+ * ENDPOINT: /offices/
+ * 
+ * ATTENTION: YOU HAVE TO BE AUTHENTICATED FOR THIS
+ * ACTION.
+ * 
+ * A request to that endpoint creates a new Office object
+ * in the database and returns it.
+ * 
+ * EXAMPLE RETURN VALUE:
+ * 
+ * {
+  "id": 4,
+  "joinCode": "Hallo Welt",
+  "updatedAt": "2019-01-22T17:58:37.868Z",
+  "createdAt": "2019-01-22T17:58:37.868Z"
+    }
+ * 
+ */
 router.post('/', auth.authFun(), (req, res) => {
   var joinCode = 'Hallo Welt';
 
@@ -61,11 +80,9 @@ router.get('/:id', auth.authFun(), (req, res) => {
         res.send(office);
       });
     } else {
-      res
-        .status(401)
-        .send({
-          message: 'You do not have the permission to access this office.',
-        });
+      res.status(401).send({
+        message: 'You do not have the permission to access this office.',
+      });
     }
   });
 });
