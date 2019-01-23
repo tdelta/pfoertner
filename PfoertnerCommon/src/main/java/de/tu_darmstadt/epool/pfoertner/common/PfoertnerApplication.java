@@ -29,7 +29,7 @@ public class PfoertnerApplication extends Application {
     // Needs to be called in a RequestTask
     public void init() {
         if (hadBeenInitialized) {
-            throw new IllegalStateException("The application has already been initialized.");
+            return;
         }
 
         this.password = Password.loadPassword(this.preferences);
