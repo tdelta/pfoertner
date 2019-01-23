@@ -151,19 +151,19 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="?android:attr/listPreferredItemHeight"
-        android:gravity="center_vertical"
-        android:paddingEnd="?android:attr/scrollbarSize"
         android:background="?android:attr/selectableItemBackground"
-        android:focusable="true"
         android:clickable="true"
-        >
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:onClick="getPicture"
+        android:paddingEnd="?android:attr/scrollbarSize">
 
         <FrameLayout
-            android:minWidth="58dip"
-            android:foregroundGravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:foregroundGravity="center"
+            android:minWidth="58dip">
 
 
             <ImageView
@@ -178,8 +178,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dip"
-            android:layout_marginEnd="6dip"
             android:layout_marginTop="6dip"
+            android:layout_marginEnd="6dip"
             android:layout_marginBottom="6dip"
             android:layout_weight="1">
 
@@ -207,11 +207,18 @@
         </RelativeLayout>
 
         <!-- Preference should place its actual preference widget here. -->
-        <LinearLayout android:id="@android:id/widget_frame"
+        <LinearLayout
+            android:id="@android:id/widget_frame"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="vertical" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageViewtest"
+        android:layout_width="match_parent"
+        android:layout_height="254dp"
+        app:srcCompat="@android:color/black" />
 </LinearLayout>

@@ -4,11 +4,19 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 import android.accounts.AuthenticatorException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -81,6 +89,40 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
     public void gotoQRCodeAcitvity(View view) {
         Intent intent = new Intent(this, showQRCodeActivity.class);
         startActivity(intent);
+    }
+
+    public void getPicture(View view){
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+
+        Log.d(TAG, "in on result");
+        // nur als test anzeige
+        ImageView imagetest = (ImageView) findViewById(R.id.imageViewtest);
+
+        if (reqCode == 1) {
+            try {
+                final Uri imageUri = data.getData();
+                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                imagetest.setImageBitmap(selectedImage);
+
+                //TODO: send picture to server
+
+                Log.d(TAG, "pic loaded");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(MainActivity.this, "Something went wrong, with choosing a picture!", Toast.LENGTH_LONG).show();
+            }
+
+        }else {
+            Toast.makeText(MainActivity.this, "You haven't picked Image!",Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
