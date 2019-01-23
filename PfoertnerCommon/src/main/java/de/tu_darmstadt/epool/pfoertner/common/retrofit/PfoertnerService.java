@@ -33,7 +33,7 @@ public interface PfoertnerService {
   Call<Office> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
   @POST("/offices/{id}/members")
-  Call<Void> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
+  Call<Person> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
 
   @GET("/offices/{id}/members")
   Call<Person[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);

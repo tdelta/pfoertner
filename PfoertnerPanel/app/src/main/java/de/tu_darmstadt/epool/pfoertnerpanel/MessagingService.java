@@ -10,59 +10,77 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
-
-import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";
     private EventChannel eventChannel;
 
-    private void registerToken(final String token) {
-        final Context self = this;
+    private RequestTask<Void> initTask =
+            new RequestTask<Void>() {
+                @Override
+                protected Void doRequests() {
+                    // TODO: Race conditions mit Main?
+                    final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
 
-        final SharedPreferences preferences = self.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
-        final PfoertnerService service = PfoertnerService.makeService();
+                    app.init();
 
-        Log.d(TAG,"About to upload new token.");
-        new RequestTask<Void>() {
-            @Override
-            protected Void doRequests() {
-                // TODO: Race conditions mit Main?
-
-                final Password pswd = Password.loadPassword(preferences);
-                final User device = User.loadDevice(preferences, service, pswd);
-
-                final Authentication authentication = Authentication.authenticate(preferences, service, device, pswd, self);
-
-                try {
-                    service.setFcmToken(authentication.id, device.id, new FcmTokenCreationData(token))
-                            .execute();
+                    return null;
                 }
 
-                catch (final IOException e) {
+                @Override
+                protected void onException(Exception e) {
+                    Log.d(TAG, "Failed to initialize app. Server might be unreachable. Will retry.");
                     e.printStackTrace();
 
-                    throw new RuntimeException("Could not upload the FCM token");
+                    // Maybe slow down retries..?
+                    init();
+                }
+            };
+
+    private void registerToken(final String token) {
+        Log.d(TAG,"About to upload new token.");
+
+        initTask.whenDone(aVoid -> {
+            new RequestTask<Void>() {
+                @Override
+                protected Void doRequests() {
+                    // TODO: Race conditions mit Main?
+                    final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
+
+                    try {
+                        app.getService()
+                                .setFcmToken(app.getAuthentication().id, app.getDevice().id, new FcmTokenCreationData(token))
+                                .execute();
+                    }
+
+                    catch (final IOException e) {
+                        e.printStackTrace();
+
+                        throw new RuntimeException("Could not upload the FCM token");
+                    }
+
+                    return null;
                 }
 
-                return null;
-            }
+                //TODO, was tun bei onException?
+            }.execute();
 
-            //TODO, was tun bei onException?
-        }.execute();
+            Log.d(TAG,"Uploaded new token.");
+        });
+    }
 
-        Log.d(TAG,"Uploaded new token.");
+    private void init() {
+        this.initTask.execute();
     }
 
     @Override
     public void onCreate() {
         eventChannel = new EventChannel(this);
+
+        init();
     }
 
     @Override
