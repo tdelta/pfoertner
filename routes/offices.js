@@ -42,10 +42,10 @@ router.post('/', auth.authFun(), (req, res) => {
 
 /**
  * TODO: MARTIN FRAGEN
- * 
- * 
- * @param {*} office 
- * @param {*} eventName 
+ *
+ *
+ * @param {*} office
+ * @param {*} eventName
  */
 function notifyPanel(office, eventName) {
   office.getDevice().then(device => {
@@ -60,7 +60,7 @@ function notifyPanel(office, eventName) {
  * officemember models in the data base
  *
  * @param {*} firstName firstname of the created officemember model
- * @param {*} lastName lastname of the created officemember model 
+ * @param {*} lastName lastname of the created officemember model
  * @param {*} device device to which the created officemember belongs
  * @param {*} office office to which the created officemember belongs
  */
@@ -75,65 +75,30 @@ function createOfficeMember(firstName, lastName, device, office) {
   });
 }
 
-
-/**
- * ENDPOINT: GET /offices/:id
- * 
- * ATTENTION: YOU HAVE TO BE AUTHENTICATED FOR THIS
- * ACTION.
- * 
- * Nochmal Martin fragen.
- * 
- * 
- */
-router.get('/:id', auth.authFun(), (req, res) => {
-  if (req.params.id == null) {
-    res.status(400).send({ message: 'The given id is invalid.' });
-  }
-
-  const device = req.user;
-  const officeId = parseInt(req.params.id, 10);
-
-  device.getOfficeMember().then(loggedIn => {
-    if (
-      (loggedIn != null && loggedIn.OfficeId === officeId) ||
-      device.OfficeId === officeId
-    ) {
-      models.Office.findById(officeId).then(office => {
-        res.send(office);
-      });
-    } else {
-      res.status(401).send({
-        message: 'You do not have the permission to access this office.',
-      });
-    }
-  });
-});
-
 /**
  * ENDPOINT: POST /offices/:officeId/members
- * 
+ *
  * ATTENTION: YOU HAVE TO BE AUTHENTICATED FOR THIS
- * ACTION.  
- * 
+ * ACTION.
+ *
  * This endpoint creates and adds a new officemember to an existing
  * office. If you have an valide joinCode, this endpoint
  * returns the newly created officemember object as a json(look below for
  * definition). If the joinCode isn't valid, return a 401 response code
  * with an error message.c
- * 
- * The body of the request for this endpoint must have 
+ *
+ * The body of the request for this endpoint must have
  * the following form:
- * 
+ *
  * Example request body:
  * {
  *  'firstName': 'someName',
  *  'lastName' : 'somelastName',
  *  'joinCode' : 'anValideAuthToken'
  * }
- * 
+ *
  * Example response body:
- * 
+ *
  * {
  *  "id": 1,
  *  "firstName": "Max",
@@ -172,14 +137,14 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
 
 /**
  * ENDPOINT: GET /offices/:officesId/members
- * 
+ *
  * ATTENTION: YOU HAVE TO BE AUTHENTICATED FOR THIS
  * ACTION.
- * 
+ *
  * This functions returns all officemembers of an
  * office. There has to be an officemembers which belongs
- * to the authenticated device and that officemember has to 
- * be a member of the request office 
+ * to the authenticated device and that officemember has to
+ * be a member of the request office
  *
  */
 router.get('/:officeId/members', auth.authFun(), (req, res) => {
@@ -213,11 +178,10 @@ router.get('/:officeId/members', auth.authFun(), (req, res) => {
   }
 });
 
-
 /**
  * Helper function to find an office.
- * 
- * @param {*} req contains the officeId for the office you are looking for 
+ *
+ * @param {*} req contains the officeId for the office you are looking for
  * @param {*} res contains the office you are looking for or a 404 response code.
  */
 function findOffice(req, res) {
@@ -234,51 +198,70 @@ function findOffice(req, res) {
 }
 
 /**
- * TODO: MARTIN FRAGEN
- * 
- * 
- * @param {*} req 
- * @param {*} res 
+ * This is a helper function to ensure that any request to
+ * a office, which requires authorization, can only be done by
+ * a user which is authorized and which is a member of the requested
+ * office.
+ *
+ *
+ * @param {*} req request
+ * @param {*} res response
  */
 function authenticateOfficeMember(req, res) {
   return new Promise(function(response) {
+    // Check whether there is a valid officeId in
+    // the request
     if (req.params.officeId == null) {
       res.status(400).send({ message: 'The given id is invalid.' });
     }
 
     const device = req.user;
-    const officeId = parseInt(req.params.officeId, 10);
+    // The request do not have an correct authorization header
+    if (device === null) {
+      res.status(401).send({
+        message: 'You do not have the permission to access this office',
+      });
+    }
+    // The request do have an correct authorization header
+    else {
+      const officeId = parseInt(req.params.officeId, 10);
 
-    device.getOfficeMember().then(loggedIn => {
-      if (
-        (loggedIn != null && loggedIn.OfficeId === officeId) ||
-        device.OfficeId === officeId
-      ) {
-        console.log('Office member authenticated');
-        response();
-      } else {
-        res
-          .status(401)
-          .send({
+      device.getOfficeMember().then(loggedIn => {
+        // Check whether a officemember belongs to the authorized device
+        // and whether that officemember is a part of the office
+        if (
+          (loggedIn != null && loggedIn.OfficeId === officeId) ||
+          device.OfficeId === officeId
+        ) {
+          console.log('Office member authenticated');
+          response();
+        }
+        // No user belongs to the device or the user belonging to the
+        // is not part of the office
+        else {
+          res.status(401).send({
             message: 'You do not have the permission to access this office.',
           });
-      }
-    });
+        }
+      });
+    }
   });
 }
 
 /**
  * TODO: MARTIN FRAGEN
- * 
- * 
- * @param {*} req 
- * @param {*} res 
+ *
+ *
+ * @param {*} req
+ * @param {*} res
  */
 router.patch('/:officeId', auth.authFun(), (req, res) => {
   console.log('Patching office');
   authenticateOfficeMember(req, res).then(() => {
     findOffice(req, res).then(office => {
       console.log(office);
+      // Only server should set the joinCode
+      delete req.body.joinCode;
       office.update(req.body).then(office => {
         res.status(200);
         res.send(office);
@@ -289,36 +272,23 @@ router.patch('/:officeId', auth.authFun(), (req, res) => {
 });
 
 /**
- * TODO: MARTIN FRAGEN
- * 
- * 
- * @param {*} req 
- * @param {*} res 
+ * ENDPOINT: GET /offices/:id
+ *
+ * ATTENTION: YOU HAVE TO BE AUTHENTICATED FOR THIS
+ * ACTION.
+ *
+ * Nochmal Martin fragen.
+ *
+ *
  */
 router.get('/:officeId', auth.authFun(), (req, res) => {
-  if (req.params.officeId == null) {
-    res.status(400).send({ message: 'The given id is invalid.' });
-  }
-
-  const device = req.user;
   const officeId = parseInt(req.params.officeId, 10);
 
-  device.getOfficeMember().then(loggedIn => {
-    if (
-      (loggedIn != null && loggedIn.OfficeId === officeId) ||
-      device.OfficeId === officeId
-    ) {
-      models.Office.findById(officeId).then(office => {
-        res.send(office);
-      });
-    } else {
-      res
-        .status(401)
-        .send({
-          message: 'You do not have the permission to access this office.',
-        });
-    }
-  });
+  authenticateOfficeMember(req, res).then(
+    models.Office.findById(officeId).then(office => {
+      res.send(office);
+    })
+  );
 });
 
 module.exports = router;
