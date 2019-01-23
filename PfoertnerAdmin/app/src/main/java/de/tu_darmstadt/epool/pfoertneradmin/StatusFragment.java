@@ -13,9 +13,22 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+
+import static android.content.Context.MODE_PRIVATE;
+import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class StatusFragment extends DialogFragment {
     private static int selected;
@@ -92,6 +105,7 @@ public class StatusFragment extends DialogFragment {
                             e.putInt("globalStatusSelected", selected);
                             textfield.setText("Current: " + status.get(selected));
                             e.apply();
+                            sendStatus(status.get(selected));
 
 
                         }
@@ -114,6 +128,30 @@ public class StatusFragment extends DialogFragment {
             throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
         }
+    }
+
+    private void sendStatus(String status){
+        PfoertnerApplication app = PfoertnerApplication.get(getContext());
+        final Context context = getContext();
+        new RequestTask<Void>() {
+            @Override
+            protected Void doRequests() throws Exception {
+                Office office = app.getOffice();
+                office.status = status;
+                office = app.getService().updateOfficeData(
+                        app.getAuthentication().id,
+                        office.id,
+                        office)
+                        .execute().body();
+                app.setOffice(office);
+                return null;
+            }
+
+            @Override
+            protected void onException(Exception e) {
+                ErrorInfoDialog.show(context, e.getMessage(), (aVoid) -> sendStatus(status));
+            }
+        }.execute();
     }
 
 }
