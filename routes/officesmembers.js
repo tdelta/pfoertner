@@ -50,7 +50,7 @@ router.patch('/:id/picture', (req, res) => {
 })
 
 router.get('/:id/picture', (req, res) => {
-  res.sendFile(__dirname +'/uploads/' + req.params.id + '.jpg');
+  res.sendFile('~/testnodejsserver/uploads/' + req.params.id + '.jpg');
 })
 
 module.exports = router;
