@@ -56,15 +56,25 @@ public class Office {
   }
 
   public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
-    Office office;
     final int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
     if (officeID == -1){
       throw new RuntimeException("Office could not be loaded. Invalid officeId was loaded.");
     }
 
+    return Office.loadOffice(
+            officeID,
+            deviceRegistrationInfo,
+            service,
+            auth
+    );
+  }
+
+  public static Office loadOffice(final int officeId, final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
+    Office office;
+
     try {
        office = service
-               .loadOffice(auth.id, officeID)
+               .loadOffice(auth.id, officeId)
                 .execute()
                 .body();
 
@@ -96,33 +106,31 @@ public class Office {
     return office;
   }
 
-  public static void joinOffice(String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken, Office office)  {
+  public static Person joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
     try{
-
-      Log.d("DEBUG", "vor api call");
-      Log.d("DEBUG", "" + authtoken.userId);
-      Log.d("DEBUG", "" + authtoken.id);
-      Log.d("DEBUG", "" + office.id);
-      Log.d("DEBUG", "" + office.joinCode);
-
-      Log.d("DEBUG", "" + service.joinOffice(
+      final Person person = service.joinOffice(
             authtoken.id,
-            office.id,
+            officeId,
             new OfficeJoinData(
-              office.joinCode,
+              joinCode,
               firstName,
               lastName
             )
-      ).execute().code());
-      SharedPreferences.Editor e = settings.edit();
-      e.putInt("OfficeId",office.id);
-      e.apply();
+      ).execute().body();
 
+      // TODO save Person in preferences
+
+      return person;
     }
-    catch(final IOException e){
+
+    catch(final IOException e) {
       e.printStackTrace();
 
       throw new RuntimeException("Could not join office. Do you have an internet connection?");
     }
+  }
+
+  public static boolean hadBeenRegistered(final SharedPreferences settings) {
+      return settings.contains("OfficeId");
   }
 }
