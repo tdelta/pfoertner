@@ -76,4 +76,11 @@ public class InitActivity extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
+
+    @Override
+    public void onBackPressed(){
+        // prevent the user from removing the splash screen from the activity stack. (pressing back button)
+        // instead, move the entire app into the background
+        moveTaskToBack(true);
+    }
 }

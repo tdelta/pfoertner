@@ -31,11 +31,11 @@ import static android.content.Context.MODE_PRIVATE;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class StatusFragment extends DialogFragment {
-    private static int selected;
-    private static int tempSelected;
-    private static List<String> status;
-    private static SharedPreferences settings;
-    private static TextView textfield;
+    private int selected;
+    private int tempSelected;
+    private List<String> status;
+    private PfoertnerApplication app;
+    private TextView textfield;
     private StatusDialogListener listener;
 
     /* The activity that creates an instance of this dialog fragment must
@@ -44,77 +44,78 @@ public class StatusFragment extends DialogFragment {
         public void startTextInput();
     }
 
-        public static StatusFragment newInstance(Activity activity){
-            StatusFragment fragment = new StatusFragment();
-            fragment.setArguments(activity);
-            return fragment;
+    public static StatusFragment newInstance(Activity activity){
+        StatusFragment fragment = new StatusFragment();
+        fragment.setArguments(activity);
+        return fragment;
+    }
+
+    public void setArguments(Activity activity){
+        app = PfoertnerApplication.get(activity);
+        SharedPreferences settings = app.getSettings();
+        textfield = activity.findViewById(R.id.summary);
+        selected = settings.getInt("globalStatusSelected", 0);
+
+        if (settings.contains("globalStatusModes")){
+            Gson gson = new Gson();
+            String statusJSON =  settings.getString("globalStatusModes", null);
+            status = Arrays.asList(gson.fromJson(statusJSON, String[].class));
+        }
+        else{
+            status = new ArrayList<String>();
+            status.add("Do Not Disturb!");
+            status.add("Come In!");
+            status.add("Only Urgent Matters!");
         }
 
-        public void setArguments(Activity activity){
-            settings = activity.getPreferences( 0);
-            textfield = activity.findViewById(R.id.summary);
-            selected = settings.getInt("globalStatusSelected", 0);
+        textfield.setText("Current: " + status.get(selected));
+    }
 
-            if (settings.contains("globalStatusModes")){
-                Gson gson = new Gson();
-                String statusJSON =  settings.getString("globalStatusModes", null);
-                status = Arrays.asList(gson.fromJson(statusJSON, String[].class));
-            }
-            else{
-                status = new ArrayList<String>();
-                status.add("Do Not Disturb!");
-                status.add("Come In!");
-                status.add("Only Urgent Matters!");
-            }
-
-            textfield.setText("Current: " + status.get(selected));
+    public void updateStatus(String text){
+        System.out.println(text.getClass() + " | " + text + "|");
+        if (!text.trim().equals("") && !status.contains(text.trim())) {
+            status.add(text.trim());
+            Gson gson = new Gson();
+            final SharedPreferences.Editor e = app.getSettings().edit();
+            e.putString("globalStatusModes", gson.toJson(status));
+            e.apply();
         }
+    }
 
-        public void updateStatus(String text){
-            System.out.println(text.getClass() + " | " + text + "|");
-            if (!text.trim().equals("") && !status.contains(text.trim())) {
-                status.add(text.trim());
-                Gson gson = new Gson();
-                final SharedPreferences.Editor e = settings.edit();
-                e.putString("globalStatusModes", gson.toJson(status));
-                e.apply();
-            }
-        }
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            AlertDialog status_select = new AlertDialog.Builder(getActivity())
-                    .setTitle("Select Status")
-                    .setSingleChoiceItems(status.toArray(new String[0]), selected,new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            tempSelected = which;
-                        }
-                    })
-                    .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            listener.startTextInput();
-                        }
-                    })
-                    .setPositiveButton( "OK", new DialogInterface.OnClickListener() {
-                        public void onClick( DialogInterface dialog, int whichButton)
-                        {
-                            selected = tempSelected;
-                            final SharedPreferences.Editor e = settings.edit();
-                            e.putInt("globalStatusSelected", selected);
-                            textfield.setText("Current: " + status.get(selected));
-                            e.apply();
-                            sendStatus(status.get(selected));
+        AlertDialog status_select = new AlertDialog.Builder(getActivity())
+                .setTitle("Select Status")
+                .setSingleChoiceItems(status.toArray(new String[0]), selected,new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        tempSelected = which;
+                    }
+                })
+                .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listener.startTextInput();
+                    }
+                })
+                .setPositiveButton( "OK", new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface dialog, int whichButton)
+                    {
+                        selected = tempSelected;
+                        final SharedPreferences.Editor e = app.getSettings().edit();
+                        e.putInt("globalStatusSelected", selected);
+                        textfield.setText("Current: " + status.get(selected));
+                        e.apply();
+                        sendStatus(status.get(selected));
 
 
-                        }
-                    })
-                    .create();
+                    }
+                })
+                .create();
 
 
-            return status_select;
-        }
+        return status_select;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -131,14 +132,13 @@ public class StatusFragment extends DialogFragment {
     }
 
     private void sendStatus(String status){
-        PfoertnerApplication app = PfoertnerApplication.get(getContext());
         final Context context = getContext();
         new RequestTask<Void>() {
             @Override
             protected Void doRequests() throws Exception {
                 Office office = app.getOffice();
                 office.status = status;
-                office = app.getService().updateOfficeData(
+                app.getService().updateOfficeData(
                         app.getAuthentication().id,
                         office.id,
                         office)
