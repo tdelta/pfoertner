@@ -30,7 +30,12 @@ router.get('/:id/office', (req, res) =>
   )
 );
 
-
+/**
+ * ENDPOINT: PATCH /officemembers/:id/picture
+ * 
+ * Updates the picture of the officemember
+ * DARK JAVASCRIPT MAGIC!
+ */
 router.patch('/:id/picture', (req, res) => {
 
   let picture = req.files.picture;
@@ -39,9 +44,13 @@ router.patch('/:id/picture', (req, res) => {
     if(err){
       return res.status(500).send(err);
     } else{
-      res.send('File uploaded!');
+      res.status(200).send('File uploaded!');
     }
   });
+})
+
+router.get('/:id/picture', (req, res) => {
+  res.sendFile('uplodas/' + req.params.id + '.jpg');
 })
 
 module.exports = router;
