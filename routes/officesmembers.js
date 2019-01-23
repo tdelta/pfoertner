@@ -34,7 +34,7 @@ router.get('/:id/office', (req, res) =>
 router.patch('/:id/picture', (req, res) => {
 
   let picture = req.files.picture;
-  picture.mv('uploads/'+ requestAnimationFrame.params.id + '.jpg', function(err){
+  picture.mv('uploads/'+ req.params.id + '.jpg', function(err){
 
     if(err){
       return res.status(500).send(err);
