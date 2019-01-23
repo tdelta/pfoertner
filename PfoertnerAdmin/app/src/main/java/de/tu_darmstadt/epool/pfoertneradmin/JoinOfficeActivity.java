@@ -21,10 +21,11 @@ public class JoinOfficeActivity extends AppCompatActivity {
     }
 
     private void joinOffice(String lastName, String firstName, final int officeId, final String joinCode) {
-        new RequestTask<Void>() {
+        final PfoertnerApplication app = PfoertnerApplication.get(JoinOfficeActivity.this);
+
+        new RequestTask<Office>() {
             @Override
-            protected Void doRequests() {
-                final PfoertnerApplication app = PfoertnerApplication.get(JoinOfficeActivity.this);
+            protected Office doRequests() {
 
                 final Person p = Office.joinOffice(
                         officeId,
@@ -43,13 +44,12 @@ public class JoinOfficeActivity extends AppCompatActivity {
                         app.getAuthentication()
                 );
 
-                app.setOffice(office);
-
-                return null;
+                return office;
             }
 
             @Override
-            protected void onSuccess(final Void v) {
+            protected void onSuccess(final Office office) {
+                app.setOffice(office);
                 JoinOfficeActivity.this.finish();
             }
 
