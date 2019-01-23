@@ -5,6 +5,8 @@ var router = express.Router();
 // Get the required models
 var models = require('../models/models.js');
 
+
+
 // ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // List all users created in the database
 router.get('/', (req, res) => {
@@ -27,5 +29,19 @@ router.get('/:id/office', (req, res) =>
     officemember.getOffice().then(office => res.send(office))
   )
 );
+
+
+router.patch('/:id/picture', (req, res) => {
+
+  let picture = req.files.picture;
+  picture.mv('uploads/'+ requestAnimationFrame.params.id + '.jpg', function(err){
+
+    if(err){
+      return res.status(500).send(err);
+    } else{
+      res.send('File uploaded!');
+    }
+  });
+})
 
 module.exports = router;

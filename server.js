@@ -16,11 +16,15 @@ server.use(auth.passport.initialize());
 // Get needed bodyparser module
 const bodyParser = require('body-parser');
 
+// Get the multer for imageupload
+var fileupload = require('express-fileupload');
+
 // Get our own database module
 const db = require('./database.js');
 
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
+server.use(fileupload());
 
 // Listen on port 3000 localhost
 db.sequelize.sync().then(() => server.listen(3000));
