@@ -31,7 +31,7 @@ public class RequestTask<R> {
         }
     }
 
-    protected R doRequests() {
+    protected R doRequests() throws Exception {
        return null;
     }
 

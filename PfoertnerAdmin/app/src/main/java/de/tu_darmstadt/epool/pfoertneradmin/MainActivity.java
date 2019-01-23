@@ -28,11 +28,10 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
             Intent intent = new Intent(this, InitActivity.class);
             startActivity(intent);
         } else {
-            new RequestTask<Authentication>(){
+            new RequestTask<Void>(){
                 @Override
-                protected Authentication doRequests(){
+                protected Void doRequests(){
                     app.init();
-
                     return null;
                 }
 
@@ -47,11 +46,9 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        globalStatusMenu = StatusFragment.newInstance(this);
-
         init();
+        setContentView(R.layout.activity_main);
+        globalStatusMenu = StatusFragment.newInstance(this);
     }
 
     public void editGlobalInfo(View view){
