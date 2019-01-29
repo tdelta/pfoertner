@@ -11,6 +11,7 @@ var OfficeMember = db.sequelize.define('OfficeMember', {
   lastName: Sequelize.STRING,
   status: Sequelize.STRING,
   email: Sequelize.STRING,
+  picture: Sequelize.STRING,
 });
 
 module.exports = OfficeMember;
