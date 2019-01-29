@@ -5,8 +5,6 @@ var router = express.Router();
 // Get the required models
 var models = require('../models/models.js');
 
-
-
 // ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // List all users created in the database
 router.get('/', (req, res) => {
@@ -32,26 +30,47 @@ router.get('/:id/office', (req, res) =>
 
 /**
  * ENDPOINT: PATCH /officemembers/:id/picture
- * 
+ *
  * Updates the picture of the officemember
  * DARK JAVASCRIPT MAGIC!
  */
 router.patch('/:id/picture', (req, res) => {
-
   let picture = req.files.picture;
-  picture.mv('uploads/'+ req.params.id + '.jpg', function(err){
+  const officememberid = parseInt(req.params.id, 10);
 
-    if(err){
+  picture.mv('uploads/' + req.params.id + '.jpg', function(err) {
+    if (err) {
       return res.status(500).send(err);
-    } else{
-      res.status(200).send('File uploaded!');
+    } else {
+      models.OfficeMember.findById(officememberid).then(officemember => {
+        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
+        res.status(200).send('File uploaded!');
+      });
     }
   });
-})
+});
 
+/**
+ * ENDPOINT: GET /officemembers/
+ *
+ * Get the picture of the officemember
+ *
+ */
 router.get('/:id/picture', (req, res) => {
-  console.log("hi");
-  res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
-})
+  const officememberid = parseInt(req.params.id, 10);
+
+  models.OfficeMember.findById(officememberid).then(member => {
+    if (member == null) {
+      res.status('404').send('There is no person to your id');
+    } else {
+      console.log('Vor dem GetPicture bin ich noch');
+      if (member.picture == null) {
+        res.status('404').send('There is no picture to your person');
+      } else {
+        res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
+      }
+    }
+  });
+});
 
 module.exports = router;
