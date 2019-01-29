@@ -2,8 +2,13 @@
 var express = require('express');
 var router = express.Router();
 
+var auth = require('../authInit.js');
+
 // Get the required models
 var models = require('../models/models.js');
+
+var notify = require('../notify.js');
+var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 
 // ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // List all users created in the database
@@ -50,6 +55,76 @@ router.patch('/:id/picture', (req, res) => {
     }
   });
 });
+
+/**
+ * ENDPOINT: PATCH /officemembers/:id
+ *
+ * Patches general information of an office member
+ */
+router.patch('/:officeMemberId', auth.authFun(), (req, res) => {
+  const officeMemberId = parseInt(req.params.officeMemberId, 10);
+  console.log('Patching officemember');
+
+  authenticateOfficeMember(req, res).then(() => {
+    models.OfficeMember.findById(officeMemberId).then(officemember => {
+      // Only server should set the id
+      delete req.body.id;
+      officemember.update(req.body).then(officemember => {
+        res.status(200);
+        res.send(officemember);
+
+        officemember.getOffice().then(office => {
+          if (office != null) {
+            // TODO optimize to only update the affected member
+            notifyOfficeSubscribers(office, 'OfficeMemberUpdated');
+          }
+
+          else {
+            console.log("Could not notify office members, that one of them got updated");
+          }
+        });
+      });
+    });
+  });
+});
+
+function authenticateOfficeMember(req, res) {
+  return new Promise(function(response) {
+    // Check whether there is a valid officeId in
+    // the request
+    if (req.params.officeMemberId == null) {
+      res.status(400).send({ message: 'The given id is invalid.' });
+    }
+
+    const device = req.user;
+    // The request do not have an correct authorization header
+    if (device === null) {
+      res.status(401).send({
+        message: 'You do not have the permission to access this officemember',
+      });
+    }
+    // The request do have an correct authorization header
+    else {
+      const officeMemberId = parseInt(req.params.officeMemberId, 10);
+
+      device.getOfficeMember().then(loggedIn => {
+        // Check whether a officemember belongs to the authorized device
+        // and whether that officemember is a part of the office
+        if (loggedIn.id === officeMemberId) {
+          console.log('Office member authenticated');
+          response();
+        }
+        // No user belongs to the device or the user belonging to the device
+        // is not the authenticated office member
+        else {
+          res.status(401).send({
+            message: 'You do not have the permission to access this officemember.',
+          });
+        }
+      });
+    }
+  });
+}
 
 /**
  * ENDPOINT: GET /officemembers/
