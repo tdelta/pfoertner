@@ -59,14 +59,20 @@ router.patch('/:id/picture', (req, res) => {
 router.get('/:id/picture', (req, res) => {
   const officememberid = parseInt(req.params.id, 10);
 
+  // Get the officemember matching the given id
   models.OfficeMember.findById(officememberid).then(member => {
+    // If no officemember with this id is found, return 404
     if (member == null) {
       res.status('404').send('There is no person to your id');
-    } else {
-      console.log('Vor dem GetPicture bin ich noch');
+    }
+    // There is an officemember matching the id
+    else {
+      // Check wether there is a picture connected to the requested officemember
       if (member.picture == null) {
+        // If there is no picture, return 404
         res.status('404').send('There is no picture to your person');
       } else {
+        // If there is a picture, return 200 and the picture
         res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
       }
     }
@@ -74,3 +80,4 @@ router.get('/:id/picture', (req, res) => {
 });
 
 module.exports = router;
+req.params.id + '.jpg';
