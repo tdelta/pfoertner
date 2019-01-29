@@ -57,7 +57,7 @@ function notifyOfficeSubscribers(office, eventName) {
   office.getOfficeMembers().then(officeMembers => {
     officeMembers
       .filter(member => member.fcmToken != null)
-      .foreach(member => {
+      .forEach(member => {
         firebase.sendData(
           member.fcmToken,
           { event: eventName }
@@ -143,6 +143,15 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
       res.status(401);
       res.send('Office join code is incorrect');
     }
+  });
+});
+
+// ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
+// Send a notification event to all devices of an office
+router.post('/:officeId/notify', (req, res) => {
+  findOffice(req, res).then(office => {
+    notifyOfficeSubscribers(office, req.body.event);
+    res.status(200).send('notified.');
   });
 });
 
