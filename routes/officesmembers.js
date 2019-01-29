@@ -51,7 +51,7 @@ router.patch('/:id/picture', (req, res) => {
 
 router.get('/:id/picture', (req, res) => {
   console.log("hi");
-  res.sendFile('uploads/' + req.params.id + '.jpg');
+  res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
 })
 
 module.exports = router;
