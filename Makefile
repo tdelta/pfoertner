@@ -1,11 +1,13 @@
+.PHONY: run setup format
+
 # Run application
-make run:
+run:
 	node_modules/nodemon/bin/nodemon.js server.js
 
 # install dependencies
-make setup:
+setup:
 	npm install
 
-make format:
+format:
 	npm run-script format
 

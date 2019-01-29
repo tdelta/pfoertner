@@ -47,11 +47,22 @@ router.post('/', auth.authFun(), (req, res) => {
  * @param {*} office
  * @param {*} eventName
  */
-function notifyPanel(office, eventName) {
+function notifyOfficeSubscribers(office, eventName) {
   office.getDevice().then(device => {
     if (device.fcmToken) {
       firebase.sendData(device.fcmToken, { event: eventName });
     }
+  });
+
+  office.getOfficeMembers().then(officeMembers => {
+    officeMembers
+      .filter(member => member.fcmToken != null)
+      .foreach(member => {
+        firebase.sendData(
+          member.fcmToken,
+          { event: eventName }
+        );
+      });
   });
 }
 
@@ -123,7 +134,7 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
       ).then(member => {
         newOfficeMember = member;
         // Send fcm notification
-        notifyPanel(office, 'AdminJoined');
+        notifyOfficeSubscribers(office, 'AdminJoined');
         res.status(200);
         res.send(newOfficeMember);
       });
@@ -265,7 +276,7 @@ router.patch('/:officeId', auth.authFun(), (req, res) => {
       office.update(req.body).then(office => {
         res.status(200);
         res.send(office);
-        notifyPanel(office, 'OfficeDataUpdated');
+        notifyOfficeSubscribers(office, 'OfficeDataUpdated');
       });
     });
   });
