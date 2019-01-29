@@ -56,12 +56,19 @@ function notifyOfficeSubscribers(office, eventName) {
 
   office.getOfficeMembers().then(officeMembers => {
     officeMembers
-      .filter(member => member.fcmToken != null)
       .forEach(member => {
-        firebase.sendData(
-          member.fcmToken,
-          { event: eventName }
-        );
+        member.getDevice().then(device => {
+          if (device.fcmToken != null) {
+            firebase.sendData(
+              member.fcmToken,
+              { event: eventName }
+            );
+          }
+
+          else {
+            console.log("Could not notify an office member, since it did not set an fcm token.");
+          }
+        });
       });
   });
 }
