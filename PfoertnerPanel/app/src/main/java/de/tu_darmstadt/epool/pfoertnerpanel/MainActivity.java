@@ -4,35 +4,31 @@ import android.provider.CalendarContract;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.io.IOException;
+import java.util.function.Calendar;
+
 import java.util.Calendar;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
-import static android.content.Context.MODE_PRIVATE;
-import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
@@ -43,6 +39,41 @@ public class MainActivity extends AppCompatActivity {
     private int memberCount = 0;
 
     private EventChannel eventChannel;
+
+    private void init() {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        new RequestTask<Void>() {
+            @Override
+            protected Void doRequests() {
+                app.init();
+
+                return null;
+            }
+
+            @Override
+            protected void onSuccess(Void result) {
+                if (!app.getSettings().getBoolean("Initialized", false)) {
+                    // for now, immediately start initialization screen
+                    final Intent initIntent = new Intent(
+                            MainActivity.this,
+                            InitializationActivity.class
+                    );
+
+                    MainActivity.this.startActivityForResult(initIntent, 0);
+                }
+
+                else {
+                    updateOfficeData(aVoid -> updateMembers());
+                }
+            }
+
+            @Override
+            protected void onException(Exception e) {
+                ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init());
+            }
+        }.execute();
+    }
 
     @Override
     protected void onStart() {
@@ -67,23 +98,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMembers() {
-        final MainActivity context = this;
-
-        final SharedPreferences preferences = context.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
-
         new RequestTask<Person[]>() {
             @Override
             protected Person[] doRequests() {
-               final PfoertnerService service = PfoertnerService.makeService();
-
-               final Password password = Password.loadPassword(preferences);
-               final User device = User.loadDevice(preferences, service, password);
-               final Authentication auth = Authentication.authenticate(preferences, service, device, password, context);
-               final Office office = Office.loadOffice(preferences, service, auth);
-
+               final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
                Person[] officeMembers;
                try {
-                   officeMembers = service.getOfficeMembers(auth.id, office.id).execute().body();
+                   officeMembers = app.getService().getOfficeMembers(
+                           app.getAuthentication().id,
+                           app.getOffice().id)
+                           .execute()
+                           .body();
                }
 
                catch (final IOException e) {
@@ -101,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onException(Exception e) {
-                ErrorInfoDialog.show(context, e.getMessage(), (aVoid) -> context.updateMembers());
+                ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> MainActivity.this.updateMembers());
             }
 
             @Override
@@ -110,38 +135,50 @@ public class MainActivity extends AppCompatActivity {
                 removeMembers();
 
                 for (final Person p : result){
-                    context.addMember(p);
+                    MainActivity.this.addMember(p);
                 }
             }
         }.execute();
     }
 
-    private void updateOfficeData(){
-        updateOfficeData(0);
+    private void updateOfficeData(final Consumer<Void> cb) {
+        updateOfficeData(0, cb);
     }
 
-    private void updateOfficeData(int numTries) {
+    private void updateOfficeData(){
+        updateOfficeData(0, (aVoid) -> {});
+    }
+
+    private void updateOfficeData(final int numTries, final Consumer<Void> cb) {
         if(numTries>2) return;
+
+        final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
+
         new RequestTask<Office>() {
             @Override
             protected Office doRequests() {
-                final SharedPreferences preferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
-                final PfoertnerService service = PfoertnerService.makeService();
 
-                final Password password = Password.loadPassword(preferences);
-                final User device = User.loadDevice(preferences, service, password);
-                final Authentication auth = Authentication.authenticate(preferences, service, device, password, self);
+                final Office office = Office.loadOffice(
+                        app.getSettings(),
+                        app.getService(),
+                        app.getAuthentication()
+                );
 
-                final Office office = Office.loadOffice(preferences, service, auth);
                 return office;
             }
             @Override
             protected void onException(Exception e){
-                updateOfficeData(numTries + 1);
+                updateOfficeData(numTries + 1, cb);
             }
             @Override
             protected void onSuccess(Office office){
-                setGlobalStatus(office.status);
+                app.setOffice(office);
+
+                if (office.status != null) {
+                    setGlobalStatus(office.status);
+                }
+
+                cb.accept(null);
             }
         }.execute();
     }
@@ -161,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
         checkForPlayServices();
 
-        eventChannel = new EventChannel(this) {
+        eventChannel = new EventChannel(MainActivity.this) {
             @Override
             protected void onEvent(EventType e) {
                 switch (e) {
@@ -174,26 +211,15 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        if (!this.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).getBoolean("Initialized", false)) {
-            // for now, immediately start initialization screen
-            final Intent initIntent = new Intent(
-                    MainActivity.this,
-                    InitializationActivity.class
-            );
-
-            MainActivity.this.startActivityForResult(initIntent, 0);
-        }
-
-        else {
-            updateMembers();
-        }
-
         inflater =  getLayoutInflater();
         container = findViewById(R.id.member_insert);
 
         setRoom("S101/A1");
         setGlobalStatus("Extended Access");
+
+        init();
     }
+
 
     @Override
     protected void onResume() {
@@ -201,8 +227,6 @@ public class MainActivity extends AppCompatActivity {
 
         checkForPlayServices();
     }
-
-
 
     public void setRoom(String str){
         TextView room = findViewById(R.id.room);
@@ -293,9 +317,7 @@ public class MainActivity extends AppCompatActivity {
                 memberCount++;
                 break;
             }
-
         }
-
     }
     public void addCalendarEvent(View view) {
         Intent intent = new Intent(this, Appointment.class);
