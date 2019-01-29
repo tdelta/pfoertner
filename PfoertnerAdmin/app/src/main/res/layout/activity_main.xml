@@ -156,7 +156,7 @@
         android:focusable="true"
         android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeight"
-        android:onClick="getPicture"
+        android:onClick="gotoPictureUploader"
         android:paddingEnd="?android:attr/scrollbarSize">
 
         <FrameLayout
@@ -216,9 +216,4 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imageViewtest"
-        android:layout_width="match_parent"
-        android:layout_height="254dp"
-        app:srcCompat="@android:color/black" />
 </LinearLayout>
