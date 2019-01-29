@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -122,9 +121,6 @@ public class StatusFragment extends DialogFragment {
                     final String statusText = status.get(selected);
 
                     sendStatus(statusText);
-
-                    // Remove as soon as server notifications for the admin app are implemented
-                    textfield.setText(statusText);
                 })
                 .create();
 

@@ -8,6 +8,7 @@ import android.view.View;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 
@@ -43,6 +44,10 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
     }
 
     private void onInitialized() {
+        MainActivity.this.startService(
+                new Intent(MainActivity.this, SyncService.class)
+        );
+
         globalStatusMenu = StatusFragment.newInstance(this);
     }
 

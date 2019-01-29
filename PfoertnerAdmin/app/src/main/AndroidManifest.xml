@@ -33,6 +33,13 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".showQRCodeActivity"></activity>
+
+        <service android:name="de.tu_darmstadt.epool.pfoertner.common.MessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
     </application>
 
 </manifest>
