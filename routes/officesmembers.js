@@ -80,4 +80,3 @@ router.get('/:id/picture', (req, res) => {
 });
 
 module.exports = router;
-req.params.id + '.jpg';
