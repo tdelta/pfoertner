@@ -43,7 +43,8 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
+        const newEmailValue = '/uploads/' + req.params.id + '.jpg';
+        officemember.update({picture: newEmailValue});
         res.status(200).send('File uploaded!');
       });
     }
