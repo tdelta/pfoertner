@@ -13,23 +13,17 @@ import java.util.function.Consumer;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
-
-import static android.app.Activity.RESULT_OK;
-import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class InitializationActivity extends AppCompatActivity {
     private static final String TAG = "InitializationActivity";
 
-    private RequestTask<Office> initTask = new RequestTask<>();
+    private RequestTask<Void> initTask;
 
     private EventChannel eventChannel;
 
@@ -46,23 +40,25 @@ public class InitializationActivity extends AppCompatActivity {
     }
 
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
-        final PfoertnerService service = PfoertnerService.makeService();
-        final SharedPreferences registrationInfo = context.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+        final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
 
-        this.initTask = new RequestTask<Office>() {
+        this.initTask = new RequestTask<Void>() {
             @Override
-            protected Office doRequests() {
-                final Password password = Password.loadPassword(registrationInfo);
-                final User device = User.loadDevice(registrationInfo, service, password);
-                final Authentication authToken = Authentication.authenticate(registrationInfo, service, device, password, context);
-                final Office office = Office.createOffice(registrationInfo, service, authToken);
+            protected Void doRequests() {
+                final Office office = Office.createOffice(
+                        app.getSettings(),
+                        app.getService(),
+                        app.getAuthentication()
+                );
 
-                return office;
+                app.setOffice(office);
+
+                return null;
             }
 
             @Override
-            protected void onSuccess(Office result) {
-                showQRCode(result);
+            protected void onSuccess(Void result) {
+                showQRCode(app.getOffice());
 
                 closeSplashScreen.accept(null);
             }
@@ -93,7 +89,6 @@ public class InitializationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialization);
 
-        final InitializationActivity self = this;
         eventChannel = new EventChannel(this) {
             @Override
             protected void onEvent(EventType eventType) {
@@ -103,13 +98,15 @@ public class InitializationActivity extends AppCompatActivity {
                             // Close initialization, as soon as a member has been registered
 
                             // Remember, that the app has been initialized:
-                            final SharedPreferences.Editor e = self.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).edit();
+                            final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
+
+                            final SharedPreferences.Editor e = app.getSettings().edit();
 
                             e.putBoolean("Initialized", true);
                             e.apply();
 
-                            self.setResult(RESULT_OK, new Intent());
-                            self.finish();
+                            InitializationActivity.this.setResult(RESULT_OK, new Intent());
+                            InitializationActivity.this.finish();
                         });
                         break;
                 }
