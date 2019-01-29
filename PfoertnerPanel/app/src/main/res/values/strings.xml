@@ -11,7 +11,7 @@
     <string name="come_in">Come In</string>
     <string name="available">available</string>
     <string name="absent">absent</string>
-    <string name="out_of_office">out of office</string>
+    <string name="out_of_office">out of officeData</string>
     <string name="do_not_disturb">Do Not Disturb!</string>
     <string name="extended_access">&#032;Extended Access&#032;</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
