@@ -79,9 +79,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 0) {
-            final PfoertnerApplication app = PfoertnerApplication.get(this);
-            updateMembers();
-            setGlobalStatus(app.getOffice().getStatus());
+            onOfficeInitialized();
         }
     }
 
@@ -165,18 +163,24 @@ public class MainActivity extends AppCompatActivity {
                 protected void onSuccess(Office office){
                     app.setOffice(office);
 
-                    setGlobalStatus(office.getStatus());
-                    updateMembers();
-
-                    app.getOffice().addObserver(new OfficeObserver() {
-                        @Override
-                        public void onStatusChanged(final String newStatus) {
-                            setGlobalStatus(newStatus);
-                        }
-                    });
+                    MainActivity.this.onOfficeInitialized();
                 }
             }.execute();
         }
+    }
+
+    private void onOfficeInitialized() {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        setGlobalStatus(app.getOffice().getStatus());
+        updateMembers();
+
+        app.getOffice().addObserver(new OfficeObserver() {
+            @Override
+            public void onStatusChanged(final String newStatus) {
+                setGlobalStatus(newStatus);
+            }
+        });
     }
 
     private void checkForPlayServices() {

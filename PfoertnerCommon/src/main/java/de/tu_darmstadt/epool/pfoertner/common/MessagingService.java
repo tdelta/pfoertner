@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertnerpanel;
+package de.tu_darmstadt.epool.pfoertner.common;
 
 import android.util.Log;
 
@@ -7,9 +7,6 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.IOException;
 
-import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
-import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
 
 public class MessagingService extends FirebaseMessagingService {
@@ -78,6 +75,7 @@ public class MessagingService extends FirebaseMessagingService {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "Messaging service startet.");
         eventChannel = new EventChannel(this);
 
         init();
