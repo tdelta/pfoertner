@@ -8,17 +8,22 @@ import com.spencerwi.either.Either;
 import java.util.function.Consumer;
 
 public class RequestTask<R> {
-    private final Worker<R> worker;
+    private Worker<R> worker;
     private Consumer<Void> onDoneCB = null;
-    private boolean done = false;
+    private boolean done = true;
 
     public RequestTask() {
-        this.worker = new Worker<>(
-                this
-        );
     }
 
     public final void execute() {
+        if (!done) {
+            throw new IllegalStateException("A RequestTask can not be executed twice at the same time. You can only call execute() if the task is not running at the same time.");
+        }
+
+        this.worker = new Worker<>(
+                this
+        );
+
         done = false;
         this.worker.execute();
     }
@@ -27,6 +32,7 @@ public class RequestTask<R> {
         this.onDoneCB = onDoneCB;
 
         if (this.done) {
+            this.onDoneCB = null; // delete old callback, since it should only be called once, when the Task is done
             onDoneCB.accept(null);
         }
     }
@@ -78,8 +84,10 @@ public class RequestTask<R> {
 
             this.parent.done = true;
 
-            if (this.parent.onDoneCB != null) {
-                this.parent.onDoneCB.accept(null);
+            final Consumer<Void> onDoneCB = this.parent.onDoneCB;
+            if (onDoneCB != null) {
+                this.parent.onDoneCB = null; // delete old callback, since it should only be called the first time the task finishes
+                onDoneCB.accept(null);
             }
 
             this.parent.onDone();

@@ -1,38 +1,37 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 
 public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
     private StatusFragment globalStatusMenu;
 
-    public void init() {
+    private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
-        if (!Office.hadBeenRegistered(app.getSettings())){
+        if (!Office.hadBeenRegistered(app.getSettings())) {
             Intent intent = new Intent(this, InitActivity.class);
-            startActivity(intent);
+            MainActivity.this.startActivityForResult(intent, 0);
         } else {
             new RequestTask<Void>(){
                 @Override
                 protected Void doRequests(){
                     app.init();
                     return null;
+                }
+
+                @Override
+                protected void onSuccess(Void result) {
+                    MainActivity.this.onInitialized();
                 }
 
                 @Override
@@ -43,17 +42,30 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         }
     }
 
+    private void onInitialized() {
+        globalStatusMenu = StatusFragment.newInstance(this);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init();
         setContentView(R.layout.activity_main);
-        globalStatusMenu = StatusFragment.newInstance(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 0) {
+            onInitialized();
+        }
     }
 
     public void editGlobalInfo(View view){
-        globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
-
+        if (globalStatusMenu != null) {
+            globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
+        }
     }
 
     public void gotoQRCodeAcitvity(View view) {
@@ -63,9 +75,10 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
 
     @Override
     public void updateStatus(String text) {
-        globalStatusMenu.updateStatus(text);
-        globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
-
+        if (globalStatusMenu != null) {
+            globalStatusMenu.updateStatus(text);
+            globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
+        }
     }
 
     @Override

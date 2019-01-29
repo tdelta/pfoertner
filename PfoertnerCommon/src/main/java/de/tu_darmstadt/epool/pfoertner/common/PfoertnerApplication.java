@@ -9,10 +9,11 @@ import java.util.Optional;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
@@ -108,6 +109,10 @@ public class PfoertnerApplication extends Application {
         catch (final Throwable e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public boolean hasOffice() {
+        return this.maybeOffice.isPresent();
     }
 
     public void setOffice(final Office office) {

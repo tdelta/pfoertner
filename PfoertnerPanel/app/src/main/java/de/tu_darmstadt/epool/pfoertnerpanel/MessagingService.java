@@ -1,7 +1,5 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -73,7 +71,9 @@ public class MessagingService extends FirebaseMessagingService {
     }
 
     private void init() {
-        this.initTask.execute();
+        this.initTask.whenDone(
+                aVoid -> this.initTask.execute()
+        );
     }
 
     @Override

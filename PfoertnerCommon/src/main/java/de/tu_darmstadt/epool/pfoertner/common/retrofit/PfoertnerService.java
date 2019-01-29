@@ -6,12 +6,10 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.HEAD;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.Path;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
 import retrofit2.Call;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
@@ -27,10 +25,10 @@ public interface PfoertnerService {
   Call<Authentication> login(@Path("id") int deviceId, @Body final LoginCredentials credentials);
 
   @POST("/offices")
-  Call<Office> createOffice(@Header("Authorization") String authToken);
+  Call<OfficeData> createOffice(@Header("Authorization") String authToken);
 
   @GET("/offices/{id}")
-  Call<Office> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
+  Call<OfficeData> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
   @POST("/offices/{id}/members")
   Call<Person> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
@@ -39,7 +37,7 @@ public interface PfoertnerService {
   Call<Person[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);
 
   @PATCH("/offices/{id}")
-  Call<Office> updateOfficeData(@Header("Authorization") String authToken,@Path("id") int id,@Body Office office);
+  Call<OfficeData> updateOfficeData(@Header("Authorization") String authToken,@Path("id") int id,@Body OfficeData office);
 
   //@POST("/api/devices/{id}/person")
   //Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);

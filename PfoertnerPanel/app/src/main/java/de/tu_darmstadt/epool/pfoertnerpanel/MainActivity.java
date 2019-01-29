@@ -15,24 +15,25 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
-    private final MainActivity self = this;
+
+    private EventChannel eventChannel;
 
     private LayoutInflater inflater;
     private ViewGroup container;
-    private int memberCount = 0;
 
-    private EventChannel eventChannel;
+    private int memberCount = 0;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -47,19 +48,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onSuccess(Void result) {
-                if (!app.getSettings().getBoolean("Initialized", false)) {
-                    // for now, immediately start initialization screen
-                    final Intent initIntent = new Intent(
-                            MainActivity.this,
-                            InitializationActivity.class
-                    );
+                MainActivity.this.startService(
+                        new Intent(MainActivity.this, SyncService.class)
+                );
 
-                    MainActivity.this.startActivityForResult(initIntent, 0);
-                }
-
-                else {
-                    updateOfficeData(aVoid -> updateMembers());
-                }
+                initOffice();
             }
 
             @Override
@@ -72,22 +65,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        eventChannel.listen();
+        this.eventChannel.listen();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        eventChannel.shutdown();
+        this.eventChannel.shutdown();
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 0) {
+            final PfoertnerApplication app = PfoertnerApplication.get(this);
             updateMembers();
+            setGlobalStatus(app.getOffice().getStatus());
         }
     }
 
@@ -100,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                try {
                    officeMembers = app.getService().getOfficeMembers(
                            app.getAuthentication().id,
-                           app.getOffice().id)
+                           app.getOffice().getId())
                            .execute()
                            .body();
                }
@@ -135,46 +129,54 @@ public class MainActivity extends AppCompatActivity {
         }.execute();
     }
 
-    private void updateOfficeData(final Consumer<Void> cb) {
-        updateOfficeData(0, cb);
-    }
-
-    private void updateOfficeData(){
-        updateOfficeData(0, (aVoid) -> {});
-    }
-
-    private void updateOfficeData(final int numTries, final Consumer<Void> cb) {
-        if(numTries>2) return;
-
+    private void initOffice() {
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
 
-        new RequestTask<Office>() {
-            @Override
-            protected Office doRequests() {
+        if (!app.getSettings().getBoolean("Initialized", false)) {
+            // for now, immediately start initialization screen
+            final Intent initIntent = new Intent(
+                    MainActivity.this,
+                    InitializationActivity.class
+            );
 
-                final Office office = Office.loadOffice(
-                        app.getSettings(),
-                        app.getService(),
-                        app.getAuthentication()
-                );
+            MainActivity.this.startActivityForResult(initIntent, 0);
+        }
 
-                return office;
-            }
-            @Override
-            protected void onException(Exception e){
-                updateOfficeData(numTries + 1, cb);
-            }
-            @Override
-            protected void onSuccess(Office office){
-                app.setOffice(office);
+        else {
+            new RequestTask<Office>() {
+                @Override
+                protected Office doRequests() {
 
-                if (office.status != null) {
-                    setGlobalStatus(office.status);
+                    final Office office = Office.loadOffice(
+                            app.getSettings(),
+                            app.getService(),
+                            app.getAuthentication()
+                    );
+
+                    return office;
                 }
 
-                cb.accept(null);
-            }
-        }.execute();
+                @Override
+                protected void onException(Exception e){
+                    ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> initOffice());
+                }
+
+                @Override
+                protected void onSuccess(Office office){
+                    app.setOffice(office);
+
+                    setGlobalStatus(office.getStatus());
+                    updateMembers();
+
+                    app.getOffice().addObserver(new OfficeObserver() {
+                        @Override
+                        public void onStatusChanged(final String newStatus) {
+                            setGlobalStatus(newStatus);
+                        }
+                    });
+                }
+            }.execute();
+        }
     }
 
     private void checkForPlayServices() {
@@ -197,10 +199,8 @@ public class MainActivity extends AppCompatActivity {
             protected void onEvent(EventType e) {
                 switch (e) {
                     case AdminJoined:
-                        self.updateMembers();
+                        MainActivity.this.updateMembers();
                         break;
-                    case OfficeDataUpdated:
-                        self.updateOfficeData();
                 }
             }
         };
@@ -228,30 +228,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setGlobalStatus(String status){
-        TextView global = findViewById(R.id.global_status);
-        global.setText(status);
-        switch (status){
-            case "Come In!":{
-                global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-                global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
-                break;
-            }
-            case "Do Not Disturb!":{
-                global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-                global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
-                break;
-            }
-            case "Extended Access":{
-                global.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-                global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-                break;
-            }
-            default: {
-                global.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-                global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+        if (status != null) {
+            TextView global = findViewById(R.id.global_status);
+            global.setText(status);
+            switch (status) {
+                case "Come In!": {
+                    global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    break;
+                }
+                case "Do Not Disturb!": {
+                    global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    break;
+                }
+                case "Extended Access": {
+                    global.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+                    break;
+                }
+                default: {
+                    global.setTextColor(ContextCompat.getColor(this, android.R.color.black));
+                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                }
             }
         }
 
+        else {
+            // TODO: Remove status, if none set?
+        }
     }
 
     public void addStdMember(View view) {
