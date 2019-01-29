@@ -29,18 +29,21 @@
             android:name=".SplashScreenActivity"
             android:label="@string/title_activity_splash_screen"
             android:launchMode="singleTop"
-            android:theme="@style/PfoertnerStyle"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:theme="@style/PfoertnerStyle" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <service android:name="de.tu_darmstadt.epool.pfoertnerpanel.MessagingService">
+        <service android:name=".MessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".Appointment"
+            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.provider.CalendarContract;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
@@ -295,6 +297,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
+    public void addCalendarEvent(View view) {
+        Intent intent = new Intent(this, Appointment.class);
+        startActivity(intent);
+    }
 
 }

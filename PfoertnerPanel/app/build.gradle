@@ -47,6 +47,9 @@ dependencies {
     // Haskell's Either für Java
     implementation "com.spencerwi:Either.java:2.1.0"
 
+    // annotations für calendarview listener
+    implementation 'com.android.support:support-annotations:28.0.0'
+
     // Debugging
     implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
 
