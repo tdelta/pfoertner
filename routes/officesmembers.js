@@ -43,8 +43,7 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        const newEmailValue = '/uploads/' + req.params.id + '.jpg';
-        officemember.update({ picture: newEmailValue });
+        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
         res.status(200).send('File uploaded!');
       });
     }
@@ -52,7 +51,7 @@ router.patch('/:id/picture', (req, res) => {
 });
 
 /**
- * ENDPOINT: GET /officemembers/:id/picture
+ * ENDPOINT: GET /officemembers/
  *
  * Get the picture of the officemember
  *
@@ -76,28 +75,6 @@ router.get('/:id/picture', (req, res) => {
         // If there is a picture, return 200 and the picture
         res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
       }
-    }
-  });
-});
-
-/**
- * ENDPOINT: PATCH /officemembers/:id/status
- * Updates the officemember with the status given
- * in the request body
- *
- */
-router.patch('/:id/status', (req, res) => {
-  const officememberid = parseInt(req.params.id, 10);
-  console.log("DEBUG:" + req.body.status);
-  models.OfficeMember.findById(officememberid).then(member => {
-    if (member !== null) {
-      member
-        .update({ status: req.body.status })
-        .then(res.status('200').send('Status has been updated successfully'));
-    } else {
-      res
-        .status('404')
-        .send('There is no officemember matching to the given id');
     }
   });
 });

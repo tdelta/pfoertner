@@ -9,6 +9,9 @@ var util = require('util');
 
 var auth = require('../authInit.js');
 
+var notify = require('../notify.js');
+var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
+
 /**
  * ENDPOINT: POST /offices/
  * 
@@ -41,6 +44,7 @@ router.post('/', auth.authFun(), (req, res) => {
 });
 
 /**
+<<<<<<< HEAD
  * TODO: MARTIN FRAGEN
  *
  *
@@ -64,6 +68,8 @@ function notifyOfficeSubscribers(office, eventName) {
 }
 
 /**
+=======
+>>>>>>> c2132ed2c4b13cc3c1219efce4a317e1d53e3c24
  * This helper function returns a promise to create a perstitent
  * officemember models in the data base
  *
