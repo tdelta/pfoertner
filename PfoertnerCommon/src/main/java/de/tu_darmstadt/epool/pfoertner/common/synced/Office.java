@@ -236,6 +236,7 @@ public class Office extends Observable<OfficeObserver> {
 
         this.id = data.id;
         this.joinCode = data.joinCode;
+        this.status = data.status;
 
         this.setMembers(members);
     }
