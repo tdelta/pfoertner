@@ -7,6 +7,8 @@ var Device = require('./device.js');
 var OfficeMember = require('./officemember.js');
 // Define office
 var Office = require('./office.js');
+// Define appointment
+var Appointment = require('./appointment.js');
 
 // Define relations
 
@@ -21,8 +23,13 @@ Office.hasMany(OfficeMember);
 Office.hasOne(Device);
 Device.belongsTo(Office);
 
+//Appointment has a foireign key pointing to an office member
+Appointment.belongsTo(OfficeMember);
+OfficeMember.hasMany(Appointment);
+
 module.exports = {
   Office,
   Device,
   OfficeMember,
+  Appointment,
 };

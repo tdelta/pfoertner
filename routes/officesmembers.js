@@ -2,13 +2,14 @@
 var express = require('express');
 var router = express.Router();
 
-var auth = require('../authInit.js');
-
 // Get the required models
 var models = require('../models/models.js');
 
+var firebase = require('../firebase/firebase.js');
 var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
+
+var auth = require('../authInit.js');
 
 // ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // List all users created in the database
@@ -48,10 +49,38 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        const newEmailValue = '/uploads/' + req.params.id + '.jpg';
-        officemember.update({picture: newEmailValue});
+        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
         res.status(200).send('File uploaded!');
       });
+    }
+  });
+});
+
+/**
+ * ENDPOINT: GET /officemembers/
+ *
+ * Get the picture of the officemember
+ *
+ */
+router.get('/:id/picture', (req, res) => {
+  const officememberid = parseInt(req.params.id, 10);
+
+  // Get the officemember matching the given id
+  models.OfficeMember.findById(officememberid).then(member => {
+    // If no officemember with this id is found, return 404
+    if (member == null) {
+      res.status('404').send('There is no person to your id');
+    }
+    // There is an officemember matching the id
+    else {
+      // Check wether there is a picture connected to the requested officemember
+      if (member.picture == null) {
+        // If there is no picture, return 404
+        res.status('404').send('There is no picture to your person');
+      } else {
+        // If there is a picture, return 200 and the picture
+        res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
+      }
     }
   });
 });
@@ -76,11 +105,15 @@ router.patch('/:officeMemberId', auth.authFun(), (req, res) => {
         officemember.getOffice().then(office => {
           if (office != null) {
             // TODO optimize to only update the affected member
-            notifyOfficeSubscribers(office, 'OfficeMemberUpdated', officeMemberId.toString());
-          }
-
-          else {
-            console.log("Could not notify office members, that one of them got updated");
+            notifyOfficeSubscribers(
+              office,
+              'OfficeMemberUpdated',
+              officeMemberId.toString()
+            );
+          } else {
+            console.log(
+              'Could not notify office members, that one of them got updated'
+            );
           }
         });
       });
@@ -118,7 +151,8 @@ function authenticateOfficeMember(req, res) {
         // is not the authenticated office member
         else {
           res.status(401).send({
-            message: 'You do not have the permission to access this officemember.',
+            message:
+              'You do not have the permission to access this officemember.',
           });
         }
       });
@@ -127,7 +161,7 @@ function authenticateOfficeMember(req, res) {
 }
 
 /**
- * ENDPOINT: GET /officemembers/
+ * ENDPOINT: GET /officemembers/:id/picture
  *
  * Get the picture of the officemember
  *
@@ -151,6 +185,95 @@ router.get('/:id/picture', (req, res) => {
         // If there is a picture, return 200 and the picture
         res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
       }
+    }
+  });
+});
+
+/**
+ * Endpoint to create an appointment that belongs to an office member
+ */
+router.post('/:id/appointment', auth.authFun(), (req, res) => {
+  let start = req.body.start;
+  let end = req.body.end;
+  if (!start || !end) {
+    res.status('400').send('You must specify a start and end date');
+    return;
+  }
+
+  authenticatePanel(req, res).then(officemember => {
+    models.Appointment.create({ start: start, end: end }).then(appointment => {
+      appointment.setOfficeMember(officemember);
+      officemember.getDevice().then(device => {
+        firebase.sendNotification(
+          device.fcmToken,
+          'New Notification request',
+          'Hello!',
+          {}
+        );
+        res.status('200').send('Successfully sent appointment request');
+      });
+    });
+  });
+});
+
+/**
+ * fullfills a promise with the requested officemember, only if the requestor is
+ * authenticated as a panel and the requested member belongs to the corresponding office
+ * @result a promise with an officemember
+ */
+authenticatePanel = function(req, res) {
+  return new Promise(response => {
+    const officememberid = parseInt(req.params.id, 10);
+
+    // Get the officemember matching the given id
+    models.OfficeMember.findById(officememberid).then(member => {
+      // If no officemember with this id is found, return 404
+      if (member == null) {
+        res.status('404').send('There is no person to your id');
+      }
+      // There is an officemember matching the id
+      else {
+        member.getOffice().then(office => {
+          if (office == null) {
+            res
+              .status('401')
+              .send(
+                'The requested office member does not belong to any office'
+              );
+          } else if (office.id === req.user.OfficeId) {
+            // The office of the requested office member matches the office id
+            // of the requesting device (the panel)
+            console.log('Calling response');
+            response(member);
+          } else {
+            res
+              .status('401')
+              .send('You are not allowed to access this office member');
+          }
+        });
+      }
+    });
+  });
+};
+
+/**
+ * ENDPOINT: PATCH /officemembers/:id/status
+ * Updates the officemember with the status given
+ * in the request body
+ *
+ */
+router.patch('/:id/status', (req, res) => {
+  const officememberid = parseInt(req.params.id, 10);
+  console.log('DEBUG:' + req.body.status);
+  models.OfficeMember.findById(officememberid).then(member => {
+    if (member !== null) {
+      member
+        .update({ status: req.body.status })
+        .then(res.status('200').send('Status has been updated successfully'));
+    } else {
+      res
+        .status('404')
+        .send('There is no officemember matching to the given id');
     }
   });
 });

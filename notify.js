@@ -16,11 +16,9 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
       if (payload != null) {
         message = {
           event: eventName,
-          payload: payload
-        }
-      }
-
-      else {
+          payload: payload,
+        };
+      } else {
         message = { event: eventName };
       }
 
@@ -29,24 +27,20 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
   });
 
   office.getOfficeMembers().then(officeMembers => {
-    officeMembers
-      .forEach(member => {
-        member.getDevice().then(device => {
-          if (device.fcmToken != null) {
-            firebase.sendData(
-              device.fcmToken,
-              { event: eventName }
-            );
-          }
-
-          else {
-            console.log("Could not notify an office member, since it did not set an fcm token.");
-          }
-        });
+    officeMembers.forEach(member => {
+      member.getDevice().then(device => {
+        if (device.fcmToken != null) {
+          firebase.sendData(device.fcmToken, { event: eventName });
+        } else {
+          console.log(
+            'Could not notify an office member, since it did not set an fcm token.'
+          );
+        }
       });
+    });
   });
 }
 
 module.exports = {
-  notifyOfficeSubscribers: notifyOfficeSubscribers
+  notifyOfficeSubscribers: notifyOfficeSubscribers,
 };
