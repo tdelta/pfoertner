@@ -7,7 +7,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:orientation="vertical"
-tools:context=".pictureUpload"
+tools:context=".PictureUpload"
     android:layout_gravity="center_horizontal">
 
 <!--<ImageView-->
@@ -43,5 +43,12 @@ tools:context=".pictureUpload"
         android:text="Click me to upload picture!"
         android:textAlignment="center"
         android:textSize="22sp" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="setFirstName"
+        android:text="Change first name" />
 
 </LinearLayout>
