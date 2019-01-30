@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
@@ -15,6 +16,7 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
     private StatusFragment globalStatusMenu;
+    private StatusFragment ownStatusMenu;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -75,6 +77,11 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
 
     public void gotoQRCodeAcitvity(View view) {
         Intent intent = new Intent(this, showQRCodeActivity.class);
+        startActivity(intent);
+    }
+
+    public void gotoPictureUploader(View view){
+        Intent intent = new Intent(this, pictureUpload.class);
         startActivity(intent);
     }
 

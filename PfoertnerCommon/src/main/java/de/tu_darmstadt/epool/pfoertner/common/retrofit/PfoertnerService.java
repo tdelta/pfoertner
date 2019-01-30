@@ -1,16 +1,23 @@
 package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.POST;
 import retrofit2.Call;
+import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
@@ -44,6 +51,14 @@ public interface PfoertnerService {
 
   @PATCH("/officemembers/{id}")
   Call<MemberData> updateMember(@Header("Authorization") String authToken, @Path("id") int id, @Body MemberData member);
+
+  @Multipart
+  @PATCH("/officemembers/{id}/picture")
+  Call<ResponseBody> uploadPicture(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Path("id") int id);
+
+  @GET("/officemembers/{id}/picture")
+  @Streaming
+  Call<ResponseBody> downloadPicture(@Path("id") int id);
 
   //@POST("/api/devices/{id}/person")
   //Call<MemberData> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
