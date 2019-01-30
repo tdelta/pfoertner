@@ -10,8 +10,8 @@ import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class JoinOfficeActivity extends AppCompatActivity {
     @Override
@@ -26,8 +26,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
         new RequestTask<Office>() {
             @Override
             protected Office doRequests() {
-
-                final Person p = Office.joinOffice(
+                final MemberData m = Office.joinOffice(
                         officeId,
                         joinCode,
                         firstName,
