@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class Office extends Observable<OfficeObserver> {
     private final int id;
     private String joinCode;
     private String status;
-    private List<Member> members;
+    private List<Member> members = new ArrayList<>(0);
 
     public int getId() {
         return id;
@@ -175,10 +176,6 @@ public class Office extends Observable<OfficeObserver> {
             writeMembersToLocalStorage(settings, updatedMembersData);
 
             Office.this.setMembers(updatedMembersData);
-
-            Office.this.notifyEachObserver(
-                    OfficeObserver::onMembersChanged
-            );
         }
 
         @Override
@@ -242,9 +239,26 @@ public class Office extends Observable<OfficeObserver> {
     }
 
     private void setMembers(final MemberData[] members) {
-        this.members = Arrays.stream(members)
-                .map(memberData -> new Member(this, memberData))
-                .collect(Collectors.toList());
+        final List<Member> replacementList = new ArrayList<>(members.length);
+
+        for (final MemberData data : members) {
+            final Optional<Member> maybeMember = this.getMemberById(data.id);
+            final Member member;
+
+            if (maybeMember.isPresent()) {
+                member = maybeMember.get();
+                member.updateByData(data);
+            }
+
+            else {
+                member = new Member(this, data);
+            }
+
+            replacementList.add(member);
+        }
+
+        this.members = replacementList;
+        this.notifyEachObserver(OfficeObserver::onMembersChanged);
     }
 
     public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {

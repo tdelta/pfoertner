@@ -15,13 +15,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.function.Consumer;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -64,33 +68,91 @@ public class PictureUpload extends AppCompatActivity {
         });
 
 
+        app.getOffice().getMemberById(
+                app.getMemberId()
+        ).ifPresent(
+                member -> {
+                    final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
+                    final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
+
+                    firstNameTextView.setText(member.getFirstName());
+                    lastNameTextView.setText(member.getLastName());
+
+                    member.addObserver(
+                            new MemberObserver() {
+                                @Override
+                                public void onFirstNameChanged(String newFirstName) {
+                                    firstNameTextView.setText(newFirstName);
+                                }
+
+                                @Override
+                                public void onLastNameChanged(String newLastName) {
+                                    lastNameTextView.setText(newLastName);
+                                }
+                            }
+                    );
+                }
+        );
     }
 
     public void setFirstName(final View btn) {
+        promptForString(
+                "Please enter a new first name.",
+                newFirstName -> {
+                    final AdminApplication app = AdminApplication.get(this);
+
+                    app.getOffice().getMemberById(
+                            app.getMemberId()
+                    ).ifPresent(
+                            member -> member.setFirstName(
+                                    app.getService(),
+                                    app.getAuthentication(),
+                                    newFirstName
+                            )
+                    );
+                }
+        );
+    }
+
+    public void setLastName(final View btn) {
+        promptForString(
+                "Please enter a new last name.",
+               newLastName -> {
+                   final AdminApplication app = AdminApplication.get(this);
+
+                   app.getOffice().getMemberById(
+                           app.getMemberId()
+                   ).ifPresent(
+                           member -> member.setLastName(
+                                   app.getService(),
+                                   app.getAuthentication(),
+                                   newLastName
+                           )
+                   );
+               }
+        );
+    }
+
+    private void promptForString(final String message, final Consumer<String> onPositiveButton) {
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
-        alertBuilder.setMessage("Please enter a new first name.");
+        alertBuilder.setMessage(message);
 
         final EditText input = new EditText(this);
 
         alertBuilder.setView(input);
         alertBuilder.setPositiveButton("Submit", (dialog, i) -> {
-            final AdminApplication app = AdminApplication.get(this);
+            final String newText = input.getText().toString();
 
-            app.getOffice().getMemberById(
-                    app.getMemberId()
-            ).ifPresent(
-                    member -> member.setFirstName(
-                            app.getService(),
-                            app.getAuthentication(),
-                            input.getText().toString()
-                    )
-            );
+            if (!newText.isEmpty()) {
+                onPositiveButton.accept(input.getText().toString());
+            }
         });
 
         final AlertDialog alert = alertBuilder.create();
         alert.show();
     }
+
 
     public void getPicture(View view){
         ActivityCompat.requestPermissions(PictureUpload.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);

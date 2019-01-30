@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addStdMember(View view) {
-        addMember(new MemberData(-1, "Mustermann", "Prof. Dr. Ing. Max"));
+        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann"));
     }
 
     public void removeMembers(){
