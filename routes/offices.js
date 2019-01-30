@@ -58,10 +58,7 @@ function notifyOfficeSubscribers(office, eventName) {
     officeMembers
       .filter(member => member.fcmToken != null)
       .forEach(member => {
-        firebase.sendData(
-          member.fcmToken,
-          { event: eventName }
-        );
+        firebase.sendData(member.fcmToken, { event: eventName });
       });
   });
 }
