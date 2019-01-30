@@ -153,7 +153,7 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
 // Send a notification event to all devices of an office
 router.post('/:officeId/notify', (req, res) => {
   findOffice(req, res).then(office => {
-    notifyOfficeSubscribers(office, req.body.event);
+    notifyOfficeSubscribers(office, req.body.event, req.body.payload);
     res.status(200).send('notified.');
   });
 });
