@@ -22,12 +22,13 @@ sendMessage = function(deviceToken, message) {
     });
 };
 
-module.exports.sendNotification = function(deviceToken, title, body, data) {
+module.exports.sendNotification = function(deviceToken, title, body, activity, data) {
   var message = {
     token: deviceToken,
     notification: {
       title: title,
       body: body,
+      click_action: activity,
     },
     data: data,
   };

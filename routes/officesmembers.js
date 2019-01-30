@@ -204,6 +204,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
           device.fcmToken,
           'New Notification request',
           'Hello!',
+          'AppointmentRequest',
           {}
         );
         res.status('200').send('Successfully sent appointment request');
