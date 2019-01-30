@@ -43,6 +43,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
     private StatusFragment globalStatusMenu;
+    private StatusFragment ownStatusMenu;
 
     public void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
