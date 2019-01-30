@@ -4,6 +4,7 @@
     package="de.tu_darmstadt.epool.pfoertneradmin">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <application
         android:allowBackup="true"
@@ -32,6 +33,12 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".showQRCodeActivity"></activity>
+
+        <service
+            android:name="de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 </manifest>
