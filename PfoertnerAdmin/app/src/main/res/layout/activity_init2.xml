@@ -42,7 +42,9 @@
             android:id="@+id/VornameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Vorname" />
+            android:hint="Vorname"
+            android:inputType="text|textNoSuggestions|textPersonName"
+            android:singleLine="true" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -63,7 +65,9 @@
             android:id="@+id/NachnameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nachname" />
+            android:hint="Nachname"
+            android:inputType="text|textNoSuggestions|textPersonName"
+            android:singleLine="true" />
 
     </android.support.design.widget.TextInputLayout>
 

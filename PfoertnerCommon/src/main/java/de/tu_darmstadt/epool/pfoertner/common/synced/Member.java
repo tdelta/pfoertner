@@ -142,6 +142,21 @@ public class Member extends Observable<MemberObserver> {
         );
     }
 
+    void updateByData(final MemberData data) {
+        final String oldFirstName = Member.this.firstName;
+        final String oldLastName = Member.this.lastName;
+
+        Member.this.firstName = data.firstName;
+        if (!oldFirstName.equals(data.firstName)) {
+            Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(Member.this.firstName));
+        }
+
+        Member.this.lastName = data.lastName;
+        if (!oldLastName.equals(data.lastName)) {
+            Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(Member.this.lastName));
+        }
+    }
+
     private class DownloadMemberTask extends RequestTask<MemberData> {
         private SharedPreferences settings;
         private PfoertnerService service;
@@ -170,18 +185,7 @@ public class Member extends Observable<MemberObserver> {
             // Office übernimmt momentan lokale Speicherung, sollte besser nach hier ausgelagert werden
             Office.writeMembersToLocalStorage(this.settings, Member.this.office.membersToData());
 
-            final String oldFirstName = Member.this.firstName;
-            final String oldLastName = Member.this.lastName;
-
-            Member.this.firstName = updatedMemberData.firstName;
-            if (!oldFirstName.equals(updatedMemberData.firstName)) {
-                Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(Member.this.firstName));
-            }
-
-            Member.this.lastName = updatedMemberData.lastName;
-            if (!oldFirstName.equals(updatedMemberData.firstName)) {
-                Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(Member.this.lastName));
-            }
+            Member.this.updateByData(updatedMemberData);
         }
 
         @Override

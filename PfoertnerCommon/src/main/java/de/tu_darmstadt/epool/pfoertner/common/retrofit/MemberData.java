@@ -9,7 +9,7 @@ public class MemberData {
     public final String lastName;
     public final String firstName;
 
-    public MemberData(final int id, final String lastName, final String firstName){
+    public MemberData(final int id, final String firstName, final String lastName){
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
