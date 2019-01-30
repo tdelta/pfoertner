@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -16,14 +17,15 @@ import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class InitializationActivity extends AppCompatActivity {
     private static final String TAG = "InitializationActivity";
 
-    private RequestTask<Void> initTask;
+    private RequestTask<Office> initTask;
 
     private EventChannel eventChannel;
 
@@ -42,34 +44,44 @@ public class InitializationActivity extends AppCompatActivity {
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
         final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
 
-        this.initTask = new RequestTask<Void>() {
+        this.initTask = new RequestTask<Office>() {
             @Override
-            protected Void doRequests() {
+            protected Office doRequests() {
                 final Office office = Office.createOffice(
                         app.getSettings(),
                         app.getService(),
                         app.getAuthentication()
                 );
 
-                app.setOffice(office);
-
-                return null;
+                return office;
             }
 
             @Override
-            protected void onSuccess(Void result) {
+            protected void onSuccess(final Office office) {
+                app.setOffice(office);
                 showQRCode(app.getOffice());
+
+                office.addObserver(
+                        new OfficeObserver() {
+                            @Override
+                            public void onJoinCodeChanged(String newJoinCode) {
+                                InitializationActivity.this.showQRCode(office);
+                            }
+                        }
+                );
 
                 closeSplashScreen.accept(null);
             }
 
             @Override
-            protected void onException(Exception e) {
+            protected void onException(final Exception e) {
                 ErrorInfoDialog.show(context, e.getMessage(), aVoid -> initPanel(context, closeSplashScreen));
             }
         };
 
-        this.initTask.execute();
+        this.initTask.whenDone(
+                aVoid -> this.initTask.execute()
+        );
     }
 
     private void showQRCode(final Office office) {
@@ -91,7 +103,7 @@ public class InitializationActivity extends AppCompatActivity {
 
         eventChannel = new EventChannel(this) {
             @Override
-            protected void onEvent(EventType eventType) {
+            protected void onEvent(final EventType eventType, final @Nullable String payload) {
                 switch (eventType) {
                     case AdminJoined:
                         initTask.whenDone(aVoid -> {

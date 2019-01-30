@@ -1,7 +1,5 @@
-package de.tu_darmstadt.epool.pfoertnerpanel;
+package de.tu_darmstadt.epool.pfoertner.common;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -9,9 +7,6 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.IOException;
 
-import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
-import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
 
 public class MessagingService extends FirebaseMessagingService {
@@ -73,11 +68,14 @@ public class MessagingService extends FirebaseMessagingService {
     }
 
     private void init() {
-        this.initTask.execute();
+        this.initTask.whenDone(
+                aVoid -> this.initTask.execute()
+        );
     }
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "Messaging service startet.");
         eventChannel = new EventChannel(this);
 
         init();
@@ -92,7 +90,8 @@ public class MessagingService extends FirebaseMessagingService {
                 eventChannel.send(
                         EventChannel.EventType.valueOf(
                                 remoteMessage.getData().get("event")
-                        )
+                        ),
+                        remoteMessage.getData().getOrDefault("payload", null)
                 );
             }
 
@@ -104,7 +103,7 @@ public class MessagingService extends FirebaseMessagingService {
         }
 
         else if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Received data notification without event key");
+            Log.d(TAG, "Received data notification without event key.");
         }
     }
 

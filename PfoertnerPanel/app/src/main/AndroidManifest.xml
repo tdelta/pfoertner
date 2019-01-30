@@ -37,14 +37,18 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <service android:name=".MessagingService">
+        <service android:name="de.tu_darmstadt.epool.pfoertner.common.MessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+<<<<<<< HEAD
 
         <activity android:name=".Appointment"
             android:screenOrientation="landscape"></activity>
+=======
+        <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
+>>>>>>> origin/master
     </application>
 
 </manifest>

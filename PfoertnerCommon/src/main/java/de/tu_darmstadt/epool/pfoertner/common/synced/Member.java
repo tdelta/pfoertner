@@ -1,0 +1,169 @@
+package de.tu_darmstadt.epool.pfoertner.common.synced;
+
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
+
+public class Member extends Observable<MemberObserver> {
+    private static final String TAG = "Member";
+
+    private final int id;
+    private String lastName;
+    private String firstName;
+
+    private final Office office;
+
+    private final DownloadMemberTask downloadMemberTask = new DownloadMemberTask();
+    private final UploadMemberTask uploadMemberTask = new UploadMemberTask();
+
+    Member(final Office office, final MemberData data) {
+        super();
+
+        this.id = data.id;
+        this.lastName = data.lastName;
+        this.firstName = data.firstName;
+        this.office = office;
+    }
+
+    public void upload(final PfoertnerService service, final Authentication auth, final MemberData data) {
+        this.uploadMemberTask.whenDone(
+                aVoid -> this.uploadMemberTask.execute(
+                        service,
+                        auth,
+                        data
+                )
+        );
+    }
+
+    public MemberData toData() {
+        return new MemberData(
+                this.id,
+                this.firstName,
+                this.lastName
+        );
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
+        final MemberData data = new MemberData(
+                this.id,
+                this.firstName,
+                newLastName
+        );
+
+        upload(service, auth, data);
+    }
+
+    public void setFirstName(final PfoertnerService service, final Authentication auth, final String newFirstName) {
+        final MemberData data = new MemberData(
+                this.id,
+                newFirstName,
+                this.lastName
+        );
+
+        upload(service, auth, data);
+    }
+
+    public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+        this.downloadMemberTask.whenDone(
+                aVoid -> downloadMemberTask.execute(preferences, service, auth)
+        );
+    }
+
+    private class DownloadMemberTask extends RequestTask<MemberData> {
+        private SharedPreferences settings;
+        private PfoertnerService service;
+        private Authentication auth;
+
+        public void execute(final SharedPreferences settings, final PfoertnerService service, final Authentication auth) {
+            this.settings = settings;
+            this.service = service;
+            this.auth = auth;
+
+            super.execute();
+        }
+
+        @Override
+        public MemberData doRequests() throws Exception {
+            final MemberData updatedMemberData = service
+                    .loadMember(this.auth.id, Member.this.id)
+                    .execute()
+                    .body();
+
+            return updatedMemberData;
+        }
+
+        @Override
+        protected void onSuccess(final MemberData updatedMemberData) {
+            // Office übernimmt momentan lokale Speicherung, sollte besser nach hier ausgelagert werden
+            Office.writeMembersToLocalStorage(this.settings, Member.this.office.membersToData());
+
+            final String oldFirstName = Member.this.firstName;
+            final String oldLastName = Member.this.lastName;
+
+            Member.this.firstName = updatedMemberData.firstName;
+            if (!oldFirstName.equals(updatedMemberData.firstName)) {
+                Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(Member.this.firstName));
+            }
+
+            Member.this.lastName = updatedMemberData.lastName;
+            if (!oldFirstName.equals(updatedMemberData.firstName)) {
+                Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(Member.this.lastName));
+            }
+        }
+
+        @Override
+        protected void onException(Exception e) {
+            // TODO: Retry?
+            Log.e(TAG, "Failed to download new member data.");
+        }
+    }
+
+    private class UploadMemberTask extends RequestTask<Void> {
+        private PfoertnerService service;
+        private Authentication auth;
+        private MemberData data;
+
+        public void execute(final PfoertnerService service, final Authentication auth, final MemberData data) {
+            this.service = service;
+            this.auth = auth;
+            this.data = data;
+
+            super.execute();
+        }
+
+        @Override
+        public Void doRequests() throws Exception {
+            service.updateMember(
+                    this.auth.id,
+                    this.data.id,
+                    this.data
+            ).execute();
+
+            return null;
+        }
+
+        @Override
+        protected void onException(Exception e) {
+            // TODO: Retry?
+            Log.e(TAG, "Failed to update member data on the server.");
+        }
+    }
+}

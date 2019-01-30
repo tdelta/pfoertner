@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -13,22 +12,13 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
-
-import static android.content.Context.MODE_PRIVATE;
-import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
 public class StatusFragment extends DialogFragment {
     private int selected;
@@ -41,7 +31,7 @@ public class StatusFragment extends DialogFragment {
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks. */
     public interface StatusDialogListener {
-        public void startTextInput();
+        void startTextInput();
     }
 
     public static StatusFragment newInstance(Activity activity){
@@ -51,28 +41,65 @@ public class StatusFragment extends DialogFragment {
     }
 
     public void setArguments(Activity activity){
-        app = PfoertnerApplication.get(activity);
-        SharedPreferences settings = app.getSettings();
         textfield = activity.findViewById(R.id.summary);
-        selected = settings.getInt("globalStatusSelected", 0);
+
+        app = PfoertnerApplication.get(activity);
+
+        final SharedPreferences settings = app.getSettings();
 
         if (settings.contains("globalStatusModes")){
             Gson gson = new Gson();
             String statusJSON =  settings.getString("globalStatusModes", null);
             status = Arrays.asList(gson.fromJson(statusJSON, String[].class));
         }
+
         else{
-            status = new ArrayList<String>();
+            status = new ArrayList<>();
             status.add("Do Not Disturb!");
             status.add("Come In!");
             status.add("Only Urgent Matters!");
         }
 
-        textfield.setText("Current: " + status.get(selected));
+        app.getOffice().addObserver(
+                new OfficeObserver() {
+                    @Override
+                    public void onStatusChanged(final String newStatus) {
+                        final int selected = status.indexOf(newStatus);
+
+                        if (selected >= 0) {
+                            final SharedPreferences.Editor e = app.getSettings().edit();
+
+                            e.putInt("globalStatusSelected", selected);
+                            e.apply();
+                        }
+
+                        textfield.setText("Current: " + newStatus);
+                    }
+                }
+        );
+
+        final String currentStatus = app.getOffice().getStatus();
+        if (currentStatus == null) {
+            textfield.setText("None selected currently.");
+        }
+
+        else {
+            final int i = status.indexOf(currentStatus);
+            if (i >= 0) {
+                selected = i;
+            }
+
+            else {
+                selected = 0;
+            }
+
+            textfield.setText("Current: " + currentStatus);
+        }
     }
 
     public void updateStatus(String text){
         System.out.println(text.getClass() + " | " + text + "|");
+
         if (!text.trim().equals("") && !status.contains(text.trim())) {
             status.add(text.trim());
             Gson gson = new Gson();
@@ -84,35 +111,18 @@ public class StatusFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         AlertDialog status_select = new AlertDialog.Builder(getActivity())
                 .setTitle("Select Status")
-                .setSingleChoiceItems(status.toArray(new String[0]), selected,new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        tempSelected = which;
-                    }
-                })
-                .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        listener.startTextInput();
-                    }
-                })
-                .setPositiveButton( "OK", new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface dialog, int whichButton)
-                    {
-                        selected = tempSelected;
-                        final SharedPreferences.Editor e = app.getSettings().edit();
-                        e.putInt("globalStatusSelected", selected);
-                        textfield.setText("Current: " + status.get(selected));
-                        e.apply();
-                        sendStatus(status.get(selected));
+                .setSingleChoiceItems(status.toArray(new String[0]), selected, (dialog, which) -> tempSelected = which)
+                .setNeutralButton("Create New", (dialog, which) -> listener.startTextInput())
+                .setPositiveButton( "OK", (dialog, whichButton) -> {
+                    selected = tempSelected;
 
+                    final String statusText = status.get(selected);
 
-                    }
+                    sendStatus(statusText);
                 })
                 .create();
-
 
         return status_select;
     }
@@ -132,26 +142,12 @@ public class StatusFragment extends DialogFragment {
     }
 
     private void sendStatus(String status){
-        final Context context = getContext();
-        new RequestTask<Void>() {
-            @Override
-            protected Void doRequests() throws Exception {
-                Office office = app.getOffice();
-                office.status = status;
-                app.getService().updateOfficeData(
-                        app.getAuthentication().id,
-                        office.id,
-                        office)
-                        .execute().body();
-                app.setOffice(office);
-                return null;
-            }
+        final Office office = app.getOffice();
 
-            @Override
-            protected void onException(Exception e) {
-                ErrorInfoDialog.show(context, e.getMessage(), (aVoid) -> sendStatus(status));
-            }
-        }.execute();
+        office.setStatus(
+                app.getService(),
+                app.getAuthentication(),
+                status
+        );
     }
-
 }
