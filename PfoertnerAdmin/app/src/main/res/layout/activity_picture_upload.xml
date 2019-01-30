@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+tools:context=".pictureUpload"
+    android:layout_gravity="center_horizontal">
+
+<!--<ImageView-->
+    <!--android:id="@+id/imageViewtest"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="254dp"-->
+    <!--app:srcCompat="@android:color/black" />-->
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="32dp" />
+
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/profile_image"
+        android:layout_width="325dp"
+        android:layout_height="325dp"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:onClick="getPicture"
+        android:src="@drawable/ic_contact_default"
+        app:civ_border_color="@color/zxing_status_text"
+        app:civ_border_width="2dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Click me to upload picture!"
+        android:textAlignment="center"
+        android:textSize="22sp" />
+
+</LinearLayout>
