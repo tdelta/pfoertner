@@ -8,10 +8,23 @@ const firebase = require('./firebase/firebase.js');
  * @param {*} office
  * @param {*} eventName
  */
-function notifyOfficeSubscribers(office, eventName) {
+function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
   office.getDevice().then(device => {
     if (device.fcmToken) {
-      firebase.sendData(device.fcmToken, { event: eventName });
+      let message;
+
+      if (payload != null) {
+        message = {
+          event: eventName,
+          payload: payload
+        }
+      }
+
+      else {
+        message = { event: eventName };
+      }
+
+      firebase.sendData(device.fcmToken, message);
     }
   });
 

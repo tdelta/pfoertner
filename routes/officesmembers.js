@@ -76,7 +76,7 @@ router.patch('/:officeMemberId', auth.authFun(), (req, res) => {
         officemember.getOffice().then(office => {
           if (office != null) {
             // TODO optimize to only update the affected member
-            notifyOfficeSubscribers(office, 'OfficeMemberUpdated');
+            notifyOfficeSubscribers(office, 'OfficeMemberUpdated', officeMemberId.toString());
           }
 
           else {
