@@ -6,7 +6,9 @@ import android.util.Log;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.synced.helpers.ResourceInitProtocol;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 
@@ -29,6 +31,59 @@ public class Member extends Observable<MemberObserver> {
         this.lastName = data.lastName;
         this.firstName = data.firstName;
         this.office = office;
+    }
+
+    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
+        return new ResourceInitProtocol<MemberData>(
+    "Could not join office. Do you have an internet connection?"
+        ) {
+            @Override
+            protected MemberData tryLoadFromServer() throws Exception {
+                final MemberData memberData = service.joinOffice(
+                        authtoken.id,
+                        officeId,
+                        new OfficeJoinData(
+                                joinCode,
+                                firstName,
+                                lastName
+                        )
+                ).execute().body();
+
+                return memberData;
+            }
+
+            @Override
+            protected void saveToStorage(MemberData data) {
+                final SharedPreferences.Editor e = settings.edit();
+
+                e.putInt("MemberId", data.id);
+
+                e.commit();
+            }
+        }.execute();
+    }
+
+    public static int loadMemberId(final SharedPreferences preferences) {
+        final Integer memberId = new ResourceInitProtocol<Integer>(
+                "Could not load own member id"
+        ) {
+            @Override
+            protected Integer tryLoadFromStorage() throws Exception {
+                if (preferences.contains("MemberId")) {
+                    return preferences.getInt("MemberId", -1);
+                }
+
+                else {
+                    return null;
+                }
+            }
+        }.execute();
+
+        return memberId;
+    }
+
+    public static boolean hadJoined(final SharedPreferences preferences) {
+        return preferences.contains("MemberId");
     }
 
     public void upload(final PfoertnerService service, final Authentication auth, final MemberData data) {

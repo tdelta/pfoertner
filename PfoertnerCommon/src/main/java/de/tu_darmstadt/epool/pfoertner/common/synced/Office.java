@@ -5,9 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,10 +13,9 @@ import java.util.stream.Collectors;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.helpers.ResourceInitProtocol;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
@@ -374,87 +371,9 @@ public class Office extends Observable<OfficeObserver> {
         }.execute();
     }
 
-    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
-        return new ResourceInitProtocol<MemberData>(
-    "Could not join office. Do you have an internet connection?"
-        ) {
-            @Override
-            protected MemberData tryLoadFromServer() throws Exception {
-                final MemberData memberData = service.joinOffice(
-                        authtoken.id,
-                        officeId,
-                        new OfficeJoinData(
-                                joinCode,
-                                firstName,
-                                lastName
-                        )
-                ).execute().body();
-
-                return memberData;
-            }
-        }.execute();
-    }
-
     public static boolean hadBeenRegistered(final SharedPreferences settings) {
         return settings.contains("OfficeId");
     }
 
-    static class ResourceInitProtocol<T> {
-        private final String errorMsg;
-
-        public ResourceInitProtocol() {
-            this.errorMsg = null;
-        }
-
-        public ResourceInitProtocol(final String errorMsg) {
-            this.errorMsg = errorMsg;
-        }
-
-        protected T tryLoadFromServer() throws Exception {
-            return null;
-        }
-
-        protected T tryLoadFromStorage() throws Exception {
-            return null;
-        }
-
-        protected void saveToStorage(final T data) { }
-
-        public final T execute() {
-            T data;
-
-            try {
-                data = tryLoadFromServer();
-
-                if (data != null) {
-                    saveToStorage(data);
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-
-                data = null;
-            }
-
-            try {
-                if (data == null) {
-                    data = tryLoadFromStorage();
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-
-                data = null;
-            }
-
-            if (data == null) {
-                throw new RuntimeException(
-                        this.errorMsg == null ?
-                                  "Could not load resource. Neither from the server nor from local storage."
-                                : this.errorMsg
-                );
-            }
-
-            return data;
-        }
-    }
 }
 
