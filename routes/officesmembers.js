@@ -79,4 +79,20 @@ router.get('/:id/picture', (req, res) => {
   });
 });
 
+
+findOfficeMember = function(req,res) => {      
+  const officememberid = parseInt(req.params.id, 10);
+
+  // Get the officemember matching the given id
+  models.OfficeMember.findById(officememberid).then(member => {
+    // If no officemember with this id is found, return 404
+    if (member == null) {
+      res.status('404').send('There is no person to your id');
+    }
+    // There is an officemember matching the id
+    else {
+      return member;
+    }
+  }
+}
 module.exports = router;
