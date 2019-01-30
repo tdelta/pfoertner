@@ -236,6 +236,7 @@ function authenticateOfficeMember(req, res) {
     // the request
     if (req.params.officeId == null) {
       res.status(400).send({ message: 'The given id is invalid.' });
+      return;
     }
 
     const device = req.user;
