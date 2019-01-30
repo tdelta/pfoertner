@@ -8,7 +8,8 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 import static org.junit.Assert.*;
 
@@ -21,7 +22,7 @@ public class QRCodeDataTest {
 
     @Property
     public void serializationIdentity(final int id, final String rawJoinCode) {
-        final Office office = new Office(0, rawJoinCode);
+        final Office office = new Office(new OfficeData(0, rawJoinCode));
         final QRCodeData data = new QRCodeData(office);
 
         final String serialized = data.serialize();

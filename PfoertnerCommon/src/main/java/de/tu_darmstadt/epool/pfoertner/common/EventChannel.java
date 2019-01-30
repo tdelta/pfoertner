@@ -4,13 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 public class EventChannel {
     private static String EVENT_TYPE_KEY = "event";
+    private static String EVENT_PAYLOAD_KEY = "payload";
     public enum EventType {
         AdminJoined,
-        OfficeDataUpdated
+        OfficeDataUpdated,
+        OfficeMemberUpdated
     }
 
     private final Context context;
@@ -38,15 +41,16 @@ public class EventChannel {
         listening = false;
     }
 
-    public void send(final EventType eventType) {
+    public void send(final EventType eventType, final @Nullable String payload) {
         final Intent intent = new Intent("events");
 
         intent.putExtra(EVENT_TYPE_KEY, eventType.name());
+        intent.putExtra(EVENT_PAYLOAD_KEY, payload);
 
         broadcaster.sendBroadcast(intent);
     }
 
-    protected void onEvent(final EventType e) {
+    protected void onEvent(final EventType e, final @Nullable String payload) {
 
     }
 
@@ -54,11 +58,12 @@ public class EventChannel {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final String eventTypeStr = intent.getStringExtra(EVENT_TYPE_KEY);
+            final String payload = intent.getStringExtra(EVENT_PAYLOAD_KEY);
 
             try {
                 final EventType eventType = EventType.valueOf(eventTypeStr);
 
-                onEvent(eventType);
+                onEvent(eventType, payload);
             }
 
             catch (final IllegalArgumentException e) {

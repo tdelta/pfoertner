@@ -11,70 +11,49 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
+
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
+import de.tu_darmstadt.epool.pfoertner.common.SyncService;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 
 public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
-
-    private SharedPreferences settings;
-    private PfoertnerService service;
+    private final static int MY_PERMISSIONS_READ_CALENDAR = 1;
     private StatusFragment globalStatusMenu;
-    private State state = State.getInstance();
+    private StatusFragment ownStatusMenu;
 
-    public final static int MY_PERMISSIONS_READ_CALENDAR = 1;
+    private void init() {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        //create retrofit client
-        service =  State.getInstance().service;
-
-        settings = getSharedPreferences("Settings", 0);
-
-        globalStatusMenu = StatusFragment.newInstance(this);
-
-
-        // "Proof of concept" for persistence variable in memory
-        if (settings.getInt("OfficeId",-1 ) == -1){
-
+        if (!Office.hadBeenRegistered(app.getSettings())) {
             Intent intent = new Intent(this, InitActivity.class);
-            startActivity(intent);
-
-
+            MainActivity.this.startActivityForResult(intent, 0);
         } else {
-            new RequestTask<Authentication>(){
+            new RequestTask<Void>(){
                 @Override
-                protected Authentication doRequests(){
-                    Log.d(TAG, "Loading auth token...");
-                    final Authentication authtoken = Authentication.authenticate(
-                            settings,
-                            service,
-                            User.loadDevice(settings, service, Password.loadPassword(settings)),
-                            Password.loadPassword(settings),
-                            MainActivity.this
-                    );
-
-                    Log.d(TAG, "Got auth token.");
-
-                    return authtoken;
+                protected Void doRequests(){
+                    app.init();
+                    return null;
                 }
 
                 @Override
-                protected void onSuccess(final Authentication auth) {
-                    State.getInstance().authtoken = auth;
+                protected void onSuccess(Void result) {
+                    MainActivity.this.onInitialized();
+                }
 
-                    Log.d(TAG, "Refreshed auth token of global State object.");
+                @Override
+                protected void onException(Exception e){
+                    ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init());
                 }
             }.execute();
         }
@@ -82,9 +61,34 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         startCalenderService();
     }
 
-    public void editGlobalInfo(View view){
-        globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
+    private void onInitialized() {
+        MainActivity.this.startService(
+                new Intent(MainActivity.this, SyncService.class)
+        );
 
+        globalStatusMenu = StatusFragment.newInstance(this);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        init();
+        setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 0) {
+            onInitialized();
+        }
+    }
+
+    public void editGlobalInfo(View view){
+        if (globalStatusMenu != null) {
+            globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
+        }
     }
 
     public void gotoQRCodeAcitvity(View view) {
@@ -92,11 +96,17 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         startActivity(intent);
     }
 
+    public void gotoPictureUploader(View view){
+        Intent intent = new Intent(this, pictureUpload.class);
+        startActivity(intent);
+    }
+
     @Override
     public void updateStatus(String text) {
-        globalStatusMenu.updateStatus(text);
-        globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
-
+        if (globalStatusMenu != null) {
+            globalStatusMenu.updateStatus(text);
+            globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
+        }
     }
 
     @Override
