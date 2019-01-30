@@ -3,6 +3,7 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 
@@ -49,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         MainActivity.this.startService(
                 new Intent(MainActivity.this, SyncService.class)
         );
+
+        final AdminApplication app = AdminApplication.get(this);
+
+        Log.d(TAG, "App has been initialized. We are member #" + String.valueOf(app.getMemberId()));
 
         globalStatusMenu = StatusFragment.newInstance(this);
     }

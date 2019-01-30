@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,7 @@ import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class JoinOfficeActivity extends AppCompatActivity {
@@ -21,12 +23,12 @@ public class JoinOfficeActivity extends AppCompatActivity {
     }
 
     private void joinOffice(String lastName, String firstName, final int officeId, final String joinCode) {
-        final PfoertnerApplication app = PfoertnerApplication.get(JoinOfficeActivity.this);
+        final AdminApplication app = AdminApplication.get(JoinOfficeActivity.this);
 
-        new RequestTask<Office>() {
+        new RequestTask<Pair<Office, MemberData>>() {
             @Override
-            protected Office doRequests() {
-                final MemberData m = Office.joinOffice(
+            protected Pair<Office, MemberData> doRequests() {
+                final MemberData m = Member.joinOffice(
                         officeId,
                         joinCode,
                         firstName,
@@ -43,12 +45,14 @@ public class JoinOfficeActivity extends AppCompatActivity {
                         app.getAuthentication()
                 );
 
-                return office;
+                return new Pair<>(office, m);
             }
 
             @Override
-            protected void onSuccess(final Office office) {
-                app.setOffice(office);
+            protected void onSuccess(final Pair<Office, MemberData> result) {
+                app.setOffice(result.first);
+                app.setMemberId(result.second.id);
+
                 JoinOfficeActivity.this.finish();
             }
 

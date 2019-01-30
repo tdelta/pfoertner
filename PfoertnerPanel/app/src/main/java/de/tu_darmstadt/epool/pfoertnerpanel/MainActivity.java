@@ -105,31 +105,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
-            new RequestTask<Office>() {
-                @Override
-                protected Office doRequests() {
-
-                    final Office office = Office.loadOffice(
-                            app.getSettings(),
-                            app.getService(),
-                            app.getAuthentication()
-                    );
-
-                    return office;
-                }
-
-                @Override
-                protected void onException(Exception e){
-                    ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> initOffice());
-                }
-
-                @Override
-                protected void onSuccess(Office office){
-                    app.setOffice(office);
-
-                    MainActivity.this.onOfficeInitialized();
-                }
-            }.execute();
+            onOfficeInitialized();
         }
     }
 
