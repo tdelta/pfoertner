@@ -33,6 +33,12 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".showQRCodeActivity"></activity>
+        <activity android:name=".AppointmentRequestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.AppointmentRequest" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
