@@ -10,7 +10,7 @@ module.exports.initialize = function() {
   });
 };
 
-sendMessage = function(deviceToken, message){
+sendMessage = function(deviceToken, message) {
   admin
     .messaging()
     .send(message)
@@ -20,20 +20,19 @@ sendMessage = function(deviceToken, message){
     .catch(error => {
       console.log('Error sending message:', error);
     });
-}
+};
 
-module.exports.sendNotification = function(deviceToken, title, body, data){
+module.exports.sendNotification = function(deviceToken, title, body, data) {
   var message = {
     token: deviceToken,
-    notification:
-      {
-        title: title,
-        body: body
-      },
+    notification: {
+      title: title,
+      body: body,
+    },
     data: data,
   };
   sendMessage(deviceToken, message);
-}
+};
 
 // sends data to the app. this is not displayed as a notification when the app is in the background
 module.exports.sendData = function(deviceToken, data) {
