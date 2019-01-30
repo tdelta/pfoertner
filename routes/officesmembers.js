@@ -2,8 +2,14 @@
 var express = require('express');
 var router = express.Router();
 
+var auth = require('../authInit.js');
+
 // Get the required models
 var models = require('../models/models.js');
+
+var firebase = require('../firebase/firebase.js');
+var notify = require('../notify.js');
+var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 
 // ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // List all users created in the database
@@ -43,12 +49,83 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
+        const newEmailValue = '/uploads/' + req.params.id + '.jpg';
+        officemember.update({picture: newEmailValue});
         res.status(200).send('File uploaded!');
       });
     }
   });
 });
+
+/**
+ * ENDPOINT: PATCH /officemembers/:id
+ *
+ * Patches general information of an office member
+ */
+router.patch('/:officeMemberId', auth.authFun(), (req, res) => {
+  const officeMemberId = parseInt(req.params.officeMemberId, 10);
+  console.log('Patching officemember');
+
+  authenticateOfficeMember(req, res).then(() => {
+    models.OfficeMember.findById(officeMemberId).then(officemember => {
+      // Only server should set the id
+      delete req.body.id;
+      officemember.update(req.body).then(officemember => {
+        res.status(200);
+        res.send(officemember);
+
+        officemember.getOffice().then(office => {
+          if (office != null) {
+            // TODO optimize to only update the affected member
+            notifyOfficeSubscribers(office, 'OfficeMemberUpdated');
+          }
+
+          else {
+            console.log("Could not notify office members, that one of them got updated");
+          }
+        });
+      });
+    });
+  });
+});
+
+function authenticateOfficeMember(req, res) {
+  return new Promise(function(response) {
+    // Check whether there is a valid officeId in
+    // the request
+    if (req.params.officeMemberId == null) {
+      res.status(400).send({ message: 'The given id is invalid.' });
+    }
+
+    const device = req.user;
+    // The request do not have an correct authorization header
+    if (device === null) {
+      res.status(401).send({
+        message: 'You do not have the permission to access this officemember',
+      });
+    }
+    // The request do have an correct authorization header
+    else {
+      const officeMemberId = parseInt(req.params.officeMemberId, 10);
+
+      device.getOfficeMember().then(loggedIn => {
+        // Check whether a officemember belongs to the authorized device
+        // and whether that officemember is a part of the office
+        if (loggedIn.id === officeMemberId) {
+          console.log('Office member authenticated');
+          response();
+        }
+        // No user belongs to the device or the user belonging to the device
+        // is not the authenticated office member
+        else {
+          res.status(401).send({
+            message: 'You do not have the permission to access this officemember.',
+          });
+        }
+      });
+    }
+  });
+}
 
 /**
  * ENDPOINT: GET /officemembers/
@@ -79,20 +156,52 @@ router.get('/:id/picture', (req, res) => {
   });
 });
 
+router.post('/:id/appointment',auth.authFun(),(req,res) => {
 
-findOfficeMember = function(req,res) => {      
-  const officememberid = parseInt(req.params.id, 10);
-
-  // Get the officemember matching the given id
-  models.OfficeMember.findById(officememberid).then(member => {
-    // If no officemember with this id is found, return 404
-    if (member == null) {
-      res.status('404').send('There is no person to your id');
-    }
-    // There is an officemember matching the id
-    else {
-      return member;
-    }
+  let start = req.body.start;
+  let end = req.body.end;
+  if(!start || !end){
+    res.status('400').send('You must specify a start and end date');
+    return;
   }
+
+  authenticatePanel(req,res).then(officemember => {
+    models.Appointment.create({start: start, end: end}).then(appointment => {
+      appointment.setOfficeMember(officemember);
+      officemember.getDevice().then(device => {
+        firebase.sendNotification(device.fcmToken,'New Notification request','Hello!',{});
+        res.status('200').send('Successfully sent appointment request');
+      });
+    });
+  });
+});
+
+authenticatePanel = function(req,res){
+  return new Promise(response => {
+    const officememberid = parseInt(req.params.id, 10);
+
+    // Get the officemember matching the given id
+    models.OfficeMember.findById(officememberid).then(member => {
+      // If no officemember with this id is found, return 404
+      if (member == null) {
+        res.status('404').send('There is no person to your id');
+      }
+      // There is an officemember matching the id
+      else {
+        member.getOffice().then(office => {
+          if(office == null){
+            res.status('401').send('The requested office member does not belong to any office');
+          }
+          else if(office.id === req.user.OfficeId){
+            console.log('Calling response');
+            response(member);
+          }
+          else {
+            res.status('401').send('You are not allowed to access this office member');
+          }
+        });
+      }
+    });
+  });
 }
 module.exports = router;

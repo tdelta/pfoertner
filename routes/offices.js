@@ -9,6 +9,9 @@ var util = require('util');
 
 var auth = require('../authInit.js');
 
+var notify = require('../notify.js');
+var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
+
 /**
  * ENDPOINT: POST /offices/
  * 
@@ -39,32 +42,6 @@ router.post('/', auth.authFun(), (req, res) => {
     });
   });
 });
-
-/**
- * TODO: MARTIN FRAGEN
- *
- *
- * @param {*} office
- * @param {*} eventName
- */
-function notifyOfficeSubscribers(office, eventName) {
-  office.getDevice().then(device => {
-    if (device.fcmToken) {
-      firebase.sendData(device.fcmToken, { event: eventName });
-    }
-  });
-
-  office.getOfficeMembers().then(officeMembers => {
-    officeMembers
-      .filter(member => member.fcmToken != null)
-      .foreach(member => {
-        firebase.sendData(
-          member.fcmToken,
-          { event: eventName }
-        );
-      });
-  });
-}
 
 /**
  * This helper function returns a promise to create a perstitent
@@ -143,6 +120,15 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
       res.status(401);
       res.send('Office join code is incorrect');
     }
+  });
+});
+
+// ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
+// Send a notification event to all devices of an office
+router.post('/:officeId/notify', (req, res) => {
+  findOffice(req, res).then(office => {
+    notifyOfficeSubscribers(office, req.body.event);
+    res.status(200).send('notified.');
   });
 });
 

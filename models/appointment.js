@@ -9,6 +9,6 @@ var Appointment = db.sequelize.define('Appointment', {
   },
   start: Sequelize.DATE,
   end: Sequelize.DATE,
-}
+});
 
-
+module.exports = Appointment;
