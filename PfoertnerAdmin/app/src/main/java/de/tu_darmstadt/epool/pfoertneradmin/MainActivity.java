@@ -13,10 +13,10 @@ import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 
-public class MainActivity extends AppCompatActivity implements TextFragment.TextDialogListener, StatusFragment.StatusDialogListener {
+public class MainActivity extends AppCompatActivity implements GlobalTextFragment.TextDialogListener, GlobalStatusFragment.StatusDialogListener {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
-    private StatusFragment globalStatusMenu;
-    private StatusFragment ownStatusMenu;
+    private GlobalStatusFragment globalStatusMenu;
+    private PersonalStatusFragment personalStatusMenu;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
                 new Intent(MainActivity.this, SyncService.class)
         );
 
-        globalStatusMenu = StatusFragment.newInstance(this);
+        globalStatusMenu = GlobalStatusFragment.newInstance(this);
+        personalStatusMenu = PersonalStatusFragment.newInstance(this);
     }
 
     @Override
@@ -75,6 +76,13 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         }
     }
 
+
+    public void editPersonalStatus(View view){
+        if (personalStatusMenu != null) {
+            personalStatusMenu.show(getSupportFragmentManager(), "personalStatusMenu");
+        }
+    }
+
     public void gotoQRCodeAcitvity(View view) {
         Intent intent = new Intent(this, showQRCodeActivity.class);
         startActivity(intent);
@@ -86,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
     }
 
     @Override
-    public void updateStatus(String text) {
+    public void updateGlobalStatus(String text) {
         if (globalStatusMenu != null) {
             globalStatusMenu.updateStatus(text);
             globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
@@ -94,8 +102,23 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
     }
 
     @Override
-    public void startTextInput() {
-        TextFragment textBox = new TextFragment();
+    public void updatePersonalStatus(String text){
+        if (personalStatusMenu != null){
+            personalStatusMenu.updateStatus(text);
+            personalStatusMenu.show(getSupportFragmentManager(), "personalStatusMenu");
+        }
+    }
+
+
+    @Override
+    public void startGlobalTextInput() {
+        GlobalTextFragment textBox = new GlobalTextFragment();
+        textBox.show(getSupportFragmentManager(), "insertTextBox");
+    }
+
+    @Override
+    public void startPersonalTextInput(){
+        PersonalTextFragment textBox = new PersonalTextFragment();
         textBox.show(getSupportFragmentManager(), "insertTextBox");
     }
 }
