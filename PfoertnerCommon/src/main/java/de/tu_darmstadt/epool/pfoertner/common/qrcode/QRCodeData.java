@@ -2,15 +2,15 @@ package de.tu_darmstadt.epool.pfoertner.common.qrcode;
 
 import com.google.gson.Gson;
 
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class QRCodeData {
     public final int officeId;
     public final String joinCode;
 
     public QRCodeData(final Office office) {
-        this.officeId = office.id;
-        this.joinCode = office.joinCode;
+        this.officeId = office.getId();
+        this.joinCode = office.getJoinCode();
     }
 
     public String serialize() {

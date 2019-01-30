@@ -3,8 +3,6 @@ package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -30,7 +28,6 @@ public class Authentication {
     }
 
     public boolean hasExpired(final Context context) {
-        AndroidThreeTen.init(context);
 
         final LocalDateTime creationDate = LocalDateTime.parse(created, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         final LocalDateTime now = LocalDateTime.now();

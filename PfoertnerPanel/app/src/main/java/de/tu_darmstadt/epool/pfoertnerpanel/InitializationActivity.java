@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -13,23 +14,18 @@ import java.util.function.Consumer;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
-
-import static android.app.Activity.RESULT_OK;
-import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class InitializationActivity extends AppCompatActivity {
     private static final String TAG = "InitializationActivity";
 
-    private RequestTask<Office> initTask = new RequestTask<>();
+    private RequestTask<Office> initTask;
 
     private EventChannel eventChannel;
 
@@ -46,34 +42,46 @@ public class InitializationActivity extends AppCompatActivity {
     }
 
     private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
-        final PfoertnerService service = PfoertnerService.makeService();
-        final SharedPreferences registrationInfo = context.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+        final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
 
         this.initTask = new RequestTask<Office>() {
             @Override
             protected Office doRequests() {
-                final Password password = Password.loadPassword(registrationInfo);
-                final User device = User.loadDevice(registrationInfo, service, password);
-                final Authentication authToken = Authentication.authenticate(registrationInfo, service, device, password, context);
-                final Office office = Office.createOffice(registrationInfo, service, authToken);
+                final Office office = Office.createOffice(
+                        app.getSettings(),
+                        app.getService(),
+                        app.getAuthentication()
+                );
 
                 return office;
             }
 
             @Override
-            protected void onSuccess(Office result) {
-                showQRCode(result);
+            protected void onSuccess(final Office office) {
+                app.setOffice(office);
+                showQRCode(app.getOffice());
+
+                office.addObserver(
+                        new OfficeObserver() {
+                            @Override
+                            public void onJoinCodeChanged(String newJoinCode) {
+                                InitializationActivity.this.showQRCode(office);
+                            }
+                        }
+                );
 
                 closeSplashScreen.accept(null);
             }
 
             @Override
-            protected void onException(Exception e) {
+            protected void onException(final Exception e) {
                 ErrorInfoDialog.show(context, e.getMessage(), aVoid -> initPanel(context, closeSplashScreen));
             }
         };
 
-        this.initTask.execute();
+        this.initTask.whenDone(
+                aVoid -> this.initTask.execute()
+        );
     }
 
     private void showQRCode(final Office office) {
@@ -93,23 +101,24 @@ public class InitializationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialization);
 
-        final InitializationActivity self = this;
         eventChannel = new EventChannel(this) {
             @Override
-            protected void onEvent(EventType eventType) {
+            protected void onEvent(final EventType eventType, final @Nullable String payload) {
                 switch (eventType) {
                     case AdminJoined:
                         initTask.whenDone(aVoid -> {
                             // Close initialization, as soon as a member has been registered
 
                             // Remember, that the app has been initialized:
-                            final SharedPreferences.Editor e = self.getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).edit();
+                            final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
+
+                            final SharedPreferences.Editor e = app.getSettings().edit();
 
                             e.putBoolean("Initialized", true);
                             e.apply();
 
-                            self.setResult(RESULT_OK, new Intent());
-                            self.finish();
+                            InitializationActivity.this.setResult(RESULT_OK, new Intent());
+                            InitializationActivity.this.finish();
                         });
                         break;
                 }

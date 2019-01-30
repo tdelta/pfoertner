@@ -1,7 +1,5 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -9,58 +7,54 @@ import android.view.View;
 import android.widget.EditText;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Office;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PersonCreationData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertneradmin.R;
-import retrofit2.Retrofit;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class JoinOfficeActivity extends AppCompatActivity {
-
-    private State state = State.getInstance();
-    private SharedPreferences settings;
-    private PfoertnerService service;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init2);
-
-        settings = getSharedPreferences("Settings", 0);
-        service = state.service;
     }
 
-    private void joinOffice(String lastName, String firstName, Office office) {
-        Context self = this;
-        Authentication authtoken = state.authtoken;
+    private void joinOffice(String lastName, String firstName, final int officeId, final String joinCode) {
+        final PfoertnerApplication app = PfoertnerApplication.get(JoinOfficeActivity.this);
 
-        new RequestTask<Void>() {
-
-
+        new RequestTask<Office>() {
             @Override
-            protected Void doRequests() {
+            protected Office doRequests() {
+                final MemberData m = Office.joinOffice(
+                        officeId,
+                        joinCode,
+                        firstName,
+                        lastName,
+                        app.getSettings(),
+                        app.getService(),
+                        app.getAuthentication()
+                );
 
-                // Create Person
-                // TODO
-                // Person.loadPerson(new PersonCreationData(lastName,firstName), settings, service, authtoken);
-                // Join Office
-                Office.joinOffice(firstName, lastName, settings, service, authtoken, office);
+                final Office office = Office.loadOffice(
+                        officeId,
+                        app.getSettings(),
+                        app.getService(),
+                        app.getAuthentication()
+                );
 
-                return null;
+                return office;
             }
 
             @Override
-            protected void onSuccess(final Void v) {
-                ((JoinOfficeActivity) self).finish();
+            protected void onSuccess(final Office office) {
+                app.setOffice(office);
+                JoinOfficeActivity.this.finish();
             }
 
             @Override
             protected void onException(Exception e) {
-                ErrorInfoDialog.show(self, e.getMessage(), aVoid -> joinOffice(lastName,firstName,office));
+                ErrorInfoDialog.show(JoinOfficeActivity.this, e.getMessage(), aVoid -> joinOffice(lastName,firstName,officeId,joinCode));
             }
         }.execute();
     }
@@ -80,19 +74,6 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
         Log.e("ERROR", "Read join code: " + qrData.joinCode);
 
-        joinOffice(lastName, firstName, new Office(qrData.officeId, qrData.joinCode));
-
-        // TODO: Remaining to test, server functionality isnt implemented yet
-
-        /*
-        new JoinOfficeTask(state.service,
-                settings, state.authtoken,
-                new Office(qrData.officeId,
-                        qrData.joinCode),
-                firstName,
-                lastName).execute();
-        */
-
-        //finish();
+        joinOffice(lastName, firstName, qrData.officeId, qrData.joinCode);
     }
 }

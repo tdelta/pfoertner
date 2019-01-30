@@ -26,6 +26,10 @@ dependencies {
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:design:28.0.0'
 
+    //FCM
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+
     // Library for qrcode generation
     implementation "com.google.zxing:core:3.3.3"
 

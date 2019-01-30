@@ -29,7 +29,7 @@ public class CalendarService extends Service {
         }
     }
     private void startCalenderObserver(){
-            getApplication().getContentResolver().registerContentObserver(CalendarContract.Calendars.CONTENT_URI.,
+            getApplication().getContentResolver().registerContentObserver(CalendarContract.Calendars.CONTENT_URI,
         true,new CalendarObserver(new Handler()));
 
     }
