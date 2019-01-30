@@ -3,16 +3,24 @@ package de.tu_darmstadt.epool.pfoertner.common.synced;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import java.io.IOException;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.observers.Observable;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
 public class Office extends Observable<OfficeObserver> {
     private final static String TAG = "Office";
@@ -20,6 +28,7 @@ public class Office extends Observable<OfficeObserver> {
     private final int id;
     private String joinCode;
     private String status;
+    private List<Member> members;
 
     public int getId() {
         return id;
@@ -33,7 +42,16 @@ public class Office extends Observable<OfficeObserver> {
         return status;
     }
 
-    private static void writeToLocalStorage(final SharedPreferences preferences, final OfficeData data) {
+    public List<Member> getMembers() { return members; }
+
+    public Optional<Member> getMemberById(final int id) {
+        return getMembers()
+                .stream()
+                .filter(member -> member.getId() == id)
+                .findFirst();
+    }
+
+    private static void writeOfficeToLocalStorage(final SharedPreferences preferences, final OfficeData data) {
         final SharedPreferences.Editor e = preferences.edit();
 
         e.putInt("OfficeId", data.id);
@@ -47,7 +65,7 @@ public class Office extends Observable<OfficeObserver> {
         e.apply();
     }
 
-    private static OfficeData loadFromLocalStorage(final SharedPreferences preferences) {
+    private static OfficeData loadOfficeFromLocalStorage(final SharedPreferences preferences) {
         return new OfficeData(
                 preferences.getInt("OfficeId", -1),
                 preferences.getString("OfficeJoinData", ""),
@@ -55,6 +73,31 @@ public class Office extends Observable<OfficeObserver> {
                           preferences.getString("OfficeStatus", null)
                         : null
         );
+    }
+
+    private static MemberData[] loadMembersFromLocalStorage(final SharedPreferences preferences) {
+        final Gson gson = new Gson();
+
+        final String memberJson =  preferences.getString("OfficeMembers", null);
+
+        if (memberJson == null) {
+            return null;
+        }
+
+        else {
+            return gson.fromJson(memberJson, MemberData[].class);
+        }
+    }
+
+    static void writeMembersToLocalStorage(final SharedPreferences preferences, final MemberData[] data) {
+        final Gson gson = new Gson();
+
+        final SharedPreferences.Editor e = preferences.edit();
+        final String memberJson =  gson.toJson(data);
+
+        e.putString("OfficeMembers", memberJson);
+
+        e.commit();
     }
 
     private class DownloadOfficeTask extends RequestTask<OfficeData> {
@@ -83,7 +126,7 @@ public class Office extends Observable<OfficeObserver> {
 
         @Override
         protected void onSuccess(final OfficeData updatedOfficeData) {
-            writeToLocalStorage(this.settings, updatedOfficeData);
+            writeOfficeToLocalStorage(this.settings, updatedOfficeData);
 
             final String oldJoinCode = Office.this.joinCode;
             final String oldStatus = Office.this.status;
@@ -100,6 +143,45 @@ public class Office extends Observable<OfficeObserver> {
             ) {
                 Office.this.notifyEachObserver(officeObserver -> officeObserver.onStatusChanged(Office.this.status));
             }
+        }
+
+        @Override
+        protected void onException(Exception e) {
+            // TODO: Retry?
+            Log.e(TAG, "Failed to download new office data.");
+        }
+    }
+
+    private class DownloadMembersTask extends RequestTask<MemberData[]> {
+        // TODO: Refactor! Shares many similarities with the other methods
+        private SharedPreferences settings;
+        private PfoertnerService service;
+        private Authentication auth;
+
+        public void execute(final SharedPreferences settings, final PfoertnerService service, final Authentication auth) {
+            this.settings = settings;
+            this.service = service;
+            this.auth = auth;
+
+            super.execute();
+        }
+
+        @Override
+        public MemberData[] doRequests() throws Exception {
+            final MemberData[] members = loadMembers(Office.this.id, settings, service, auth);
+
+            return members;
+        }
+
+        @Override
+        protected void onSuccess(final MemberData[] updatedMembersData) {
+            writeMembersToLocalStorage(settings, updatedMembersData);
+
+            Office.this.setMembers(updatedMembersData);
+
+            Office.this.notifyEachObserver(
+                    OfficeObserver::onMembersChanged
+            );
         }
 
         @Override
@@ -143,17 +225,39 @@ public class Office extends Observable<OfficeObserver> {
 
     private final DownloadOfficeTask downloadOfficeTask = new DownloadOfficeTask();
     private final UploadOfficeTask uploadOfficeTask = new UploadOfficeTask();
+    private final DownloadMembersTask downloadMembersTask = new DownloadMembersTask();
 
-    public Office(final OfficeData data) {
+    MemberData[] membersToData() {
+        return this.members
+                .stream()
+                .map(Member::toData)
+                .toArray(MemberData[]::new);
+    }
+
+    private Office(final OfficeData data, final MemberData[] members) {
         super();
 
         this.id = data.id;
         this.joinCode = data.joinCode;
+
+        this.setMembers(members);
+    }
+
+    private void setMembers(final MemberData[] members) {
+        this.members = Arrays.stream(members)
+                .map(memberData -> new Member(this, memberData))
+                .collect(Collectors.toList());
     }
 
     public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
         this.downloadOfficeTask.whenDone(
                 aVoid -> downloadOfficeTask.execute(preferences, service, auth)
+        );
+    }
+
+    public void updateMembersAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+        this.downloadMembersTask.whenDone(
+                aVoid -> downloadMembersTask.execute(preferences, service, auth)
         );
     }
 
@@ -174,108 +278,183 @@ public class Office extends Observable<OfficeObserver> {
     }
 
     public static Office createOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
-        OfficeData officeData;
+        final OfficeData officeData;
 
         if (preferences.contains("OfficeId") /*officeData already registered*/) {
-            officeData = loadFromLocalStorage(preferences);
+            officeData = loadOfficeFromLocalStorage(preferences);
         }
 
         else {
-            // Create officeData
-            try {
-                officeData = service
-                        .createOffice(auth.id)
-                        .execute()
-                        .body();
-
-                if (officeData != null) {
-                    writeToLocalStorage(preferences, officeData);
+            officeData = new ResourceInitProtocol<OfficeData>(
+                    "Could not create a new officeData. Do you have an internet connection?"
+            ) {
+                @Override
+                protected OfficeData tryLoadFromServer() throws Exception {
+                    return service
+                            .createOffice(auth.id)
+                            .execute()
+                            .body();
                 }
-            }
 
-            catch (final IOException e) {
-                e.printStackTrace();
-                officeData = null;
-                // the if below will handle further steps
-            }
+                @Override
+                protected void saveToStorage(final OfficeData data) {
+                    writeOfficeToLocalStorage(preferences, data);
+                }
+            }.execute();
         }
 
-        if (officeData == null) {
-            throw new RuntimeException("Could not create a new officeData. Do you have an internet connection?");
-        }
+        final MemberData[] members = loadMembers(officeData.id, preferences, service, auth);
 
-        return new Office(officeData);
+        return new Office(officeData, members);
     }
 
-    public static Office loadOffice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Authentication auth) {
-        final int officeID = deviceRegistrationInfo.getInt("OfficeId", -1);
+    public static Office loadOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+        final int officeID = preferences.getInt("OfficeId", -1);
         if (officeID == -1){
             throw new RuntimeException("OfficeData could not be loaded. Invalid officeId was loaded.");
         }
 
         return Office.loadOffice(
                 officeID,
-                deviceRegistrationInfo,
+                preferences,
                 service,
                 auth
         );
     }
 
     public static Office loadOffice(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
-        OfficeData officeData;
-
-        try {
-            officeData = service
-                    .loadOffice(auth.id, officeId)
-                    .execute()
-                    .body();
-
-            if (officeData != null) {Log.d("DEBUG", "vor api call");
-                writeToLocalStorage(preferences, officeData);
+        final OfficeData officeData = new ResourceInitProtocol<OfficeData>() {
+            @Override
+            protected OfficeData tryLoadFromServer() throws Exception {
+                return service
+                        .loadOffice(auth.id, officeId)
+                        .execute()
+                        .body();
             }
-        }
 
-        catch (final IOException e) {
-            e.printStackTrace();
-            officeData = null;
-            // the if below will handle further steps
-        }
+            @Override
+            protected OfficeData tryLoadFromStorage() throws Exception {
+                Log.d(TAG, "Had to load officeData from local storage since we could not connect.");
 
-        if (officeData == null) {
-            Log.d(TAG, "Had to load officeData from local storage since we could not connect.");
+                return loadOfficeFromLocalStorage(preferences);
+            }
 
-            officeData = loadFromLocalStorage(preferences);
-        }
+            @Override
+            protected void saveToStorage(final OfficeData data) {
+                writeOfficeToLocalStorage(preferences, data);
+            }
+        }.execute();
 
-        return new Office(officeData);
+        final MemberData[] members = loadMembers(officeId, preferences, service, auth);
+
+        return new Office(officeData, members);
     }
 
-    public static Person joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
-        try{
-            final Person person = service.joinOffice(
-                    authtoken.id,
-                    officeId,
-                    new OfficeJoinData(
-                            joinCode,
-                            firstName,
-                            lastName
-                    )
-            ).execute().body();
+    private static MemberData[] loadMembers(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+        return new ResourceInitProtocol<MemberData[]>(
+                "Could not load members of office."
+        ) {
+            @Override
+            protected MemberData[] tryLoadFromServer() throws Exception {
+                return service.getOfficeMembers(
+                        auth.id,
+                        officeId
+                ).execute().body();
+            }
 
-            // TODO save Person in preferences
+            @Override
+            protected MemberData[] tryLoadFromStorage() {
+                return loadMembersFromLocalStorage(preferences);
+            }
 
-            return person;
-        }
+            @Override
+            protected void saveToStorage(final MemberData[] data) {
+                writeMembersToLocalStorage(preferences, data);
+            }
+        }.execute();
+    }
 
-        catch(final IOException e) {
-            e.printStackTrace();
+    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
+        return new ResourceInitProtocol<MemberData>(
+    "Could not join office. Do you have an internet connection?"
+        ) {
+            @Override
+            protected MemberData tryLoadFromServer() throws Exception {
+                final MemberData memberData = service.joinOffice(
+                        authtoken.id,
+                        officeId,
+                        new OfficeJoinData(
+                                joinCode,
+                                firstName,
+                                lastName
+                        )
+                ).execute().body();
 
-            throw new RuntimeException("Could not join office. Do you have an internet connection?");
-        }
+                return memberData;
+            }
+        }.execute();
     }
 
     public static boolean hadBeenRegistered(final SharedPreferences settings) {
         return settings.contains("OfficeId");
+    }
+
+    static class ResourceInitProtocol<T> {
+        private final String errorMsg;
+
+        public ResourceInitProtocol() {
+            this.errorMsg = null;
+        }
+
+        public ResourceInitProtocol(final String errorMsg) {
+            this.errorMsg = errorMsg;
+        }
+
+        protected T tryLoadFromServer() throws Exception {
+            return null;
+        }
+
+        protected T tryLoadFromStorage() throws Exception {
+            return null;
+        }
+
+        protected void saveToStorage(final T data) { }
+
+        public final T execute() {
+            T data;
+
+            try {
+                data = tryLoadFromServer();
+
+                if (data != null) {
+                    saveToStorage(data);
+                }
+            } catch (final Exception e) {
+                e.printStackTrace();
+
+                data = null;
+            }
+
+            try {
+                if (data == null) {
+                    data = tryLoadFromStorage();
+                }
+            } catch (final Exception e) {
+                e.printStackTrace();
+
+                data = null;
+            }
+
+            if (data == null) {
+                throw new RuntimeException(
+                        this.errorMsg == null ?
+                                  "Could not load resource. Neither from the server nor from local storage."
+                                : this.errorMsg
+                );
+            }
+
+            return data;
+        }
     }
 }
 

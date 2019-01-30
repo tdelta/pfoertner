@@ -14,21 +14,17 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
-import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Person;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
-
-    private EventChannel eventChannel;
 
     private LayoutInflater inflater;
     private ViewGroup container;
@@ -65,13 +61,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        this.eventChannel.listen();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        this.eventChannel.shutdown();
     }
 
     @Override
@@ -84,47 +78,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMembers() {
-        new RequestTask<Person[]>() {
-            @Override
-            protected Person[] doRequests() {
-               final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
-               Person[] officeMembers;
-               try {
-                   officeMembers = app.getService().getOfficeMembers(
-                           app.getAuthentication().id,
-                           app.getOffice().getId())
-                           .execute()
-                           .body();
-               }
+        // Clear already added members
+        removeMembers();
 
-               catch (final IOException e) {
-                   e.printStackTrace();
+        final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
 
-                   officeMembers = null;
-               }
-
-               if (officeMembers == null) {
-                   throw new RuntimeException("Could not load members of the office. Do you have an internet connection?");
-               }
-
-               return officeMembers;
-            }
-
-            @Override
-            protected void onException(Exception e) {
-                ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> MainActivity.this.updateMembers());
-            }
-
-            @Override
-            protected void onSuccess(final Person[] result) {
-                // Clear already added members
-                removeMembers();
-
-                for (final Person p : result){
-                    MainActivity.this.addMember(p);
-                }
-            }
-        }.execute();
+        for (final de.tu_darmstadt.epool.pfoertner.common.synced.Member m : app.getOffice().getMembers()){
+            this.addMember(m);
+        }
     }
 
     private void initOffice() {
@@ -180,6 +141,12 @@ public class MainActivity extends AppCompatActivity {
             public void onStatusChanged(final String newStatus) {
                 setGlobalStatus(newStatus);
             }
+
+            @Override
+            public void onMembersChanged() {
+                updateMembers();
+                // TODO: Members einzaln updaten
+            }
         });
     }
 
@@ -198,17 +165,6 @@ public class MainActivity extends AppCompatActivity {
 
         checkForPlayServices();
 
-        eventChannel = new EventChannel(MainActivity.this) {
-            @Override
-            protected void onEvent(EventType e) {
-                switch (e) {
-                    case AdminJoined:
-                        MainActivity.this.updateMembers();
-                        break;
-                }
-            }
-        };
-
         inflater =  getLayoutInflater();
         container = findViewById(R.id.member_insert);
 
@@ -226,12 +182,12 @@ public class MainActivity extends AppCompatActivity {
         checkForPlayServices();
     }
 
-    public void setRoom(String str){
+    public void setRoom(final String str){
         TextView room = findViewById(R.id.room);
         room.setText(str);
     }
 
-    public void setGlobalStatus(String status){
+    public void setGlobalStatus(final String status){
         if (status != null) {
             TextView global = findViewById(R.id.global_status);
             global.setText(status);
@@ -264,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addStdMember(View view) {
-        addMember(new Person(-1, "Mustermann", "Prof. Dr. Ing. Max"));
+        addMember(new MemberData(-1, "Mustermann", "Prof. Dr. Ing. Max"));
     }
 
     public void removeMembers(){
@@ -276,12 +232,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void addMember(final Person p){
+    public void addMember(final de.tu_darmstadt.epool.pfoertner.common.synced.Member m) {
+        addMember(m.toData());
+    }
+
+    public void addMember(final MemberData m){
         // set the attributes of the member to add
         String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
         Member member = new Member();
 
-        member.setName(p.firstName + " " + p.lastName);
+        member.setName(m.firstName + " " + m.lastName);
         member.setStatus(Member.Status.OUT_OF_OFFICE);
         member.setOfficeHours(work);
         //member.setImage(getDrawable(R.drawable.ic_contact_default));

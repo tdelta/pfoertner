@@ -90,7 +90,8 @@ public class MessagingService extends FirebaseMessagingService {
                 eventChannel.send(
                         EventChannel.EventType.valueOf(
                                 remoteMessage.getData().get("event")
-                        )
+                        ),
+                        remoteMessage.getData().getOrDefault("payload", null)
                 );
             }
 
@@ -102,7 +103,7 @@ public class MessagingService extends FirebaseMessagingService {
         }
 
         else if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Received data notification without event key");
+            Log.d(TAG, "Received data notification without event key.");
         }
     }
 

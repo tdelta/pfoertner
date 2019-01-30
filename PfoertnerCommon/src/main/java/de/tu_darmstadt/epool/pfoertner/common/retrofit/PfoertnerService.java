@@ -31,16 +31,22 @@ public interface PfoertnerService {
   Call<OfficeData> loadOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
   @POST("/offices/{id}/members")
-  Call<Person> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
+  Call<MemberData> joinOffice(@Header("Authorization") String authToken, @Path("id") int id, @Body OfficeJoinData data);
 
   @GET("/offices/{id}/members")
-  Call<Person[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);
+  Call<MemberData[]> getOfficeMembers(@Header("Authorization") String authToken, @Path("id") int id);
 
   @PATCH("/offices/{id}")
   Call<OfficeData> updateOfficeData(@Header("Authorization") String authToken,@Path("id") int id,@Body OfficeData office);
 
+  @GET("/officemembers/{id}")
+  Call<MemberData> loadMember(@Header("Authorization") String authToken, @Path("id") int memberId);
+
+  @PATCH("/officemembers/{id}")
+  Call<MemberData> updateMember(@Header("Authorization") String authToken, @Path("id") int id, @Body MemberData member);
+
   //@POST("/api/devices/{id}/person")
-  //Call<Person> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
+  //Call<MemberData> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
   static PfoertnerService makeService() {
     // Debug logging

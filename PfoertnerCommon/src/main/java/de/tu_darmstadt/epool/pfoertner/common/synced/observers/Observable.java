@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertner.common.retrofit.observers;
+package de.tu_darmstadt.epool.pfoertner.common.synced.observers;
 
 import java.util.ArrayList;
 import java.util.List;
