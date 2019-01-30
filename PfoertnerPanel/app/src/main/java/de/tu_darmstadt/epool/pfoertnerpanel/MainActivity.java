@@ -15,11 +15,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 
+import java.util.List;
+
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
@@ -144,10 +147,38 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onMembersChanged() {
+                registerForMemberChanges();
+
                 updateMembers();
                 // TODO: Members einzaln updaten
             }
         });
+
+        registerForMemberChanges();
+    }
+
+    private void registerForMemberChanges() {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        final MemberObserver observer = new MemberObserver() {
+            @Override
+            public void onFirstNameChanged(String newFirstName) {
+                updateMembers();
+            }
+
+            @Override
+            public void onLastNameChanged(String newFirstName) {
+                updateMembers();
+            }
+        };
+
+        // TODO: Effizienter, nur für einzelne Members
+        final List<de.tu_darmstadt.epool.pfoertner.common.synced.Member> members = app.getOffice().getMembers();
+
+        for (final de.tu_darmstadt.epool.pfoertner.common.synced.Member member : members) {
+            member.deleteObserver(observer);
+            member.addObserver(observer);
+        }
     }
 
     private void checkForPlayServices() {
