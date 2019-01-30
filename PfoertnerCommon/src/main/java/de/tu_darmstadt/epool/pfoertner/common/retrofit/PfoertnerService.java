@@ -18,6 +18,8 @@ import retrofit2.http.Path;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.Call;
+import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
@@ -48,7 +50,11 @@ public interface PfoertnerService {
 
   @Multipart
   @PATCH("/officemembers/{id}/picture")
-  Call<ResponseBody> upload(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Path("id") int id);
+  Call<ResponseBody> uploadPicture(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Path("id") int id);
+
+  @GET("/officemembers/{id}/picture")
+  @Streaming
+  Call<ResponseBody> downloadPicture(@Path("id") int id);
 
 
   //@POST("/api/devices/{id}/person")

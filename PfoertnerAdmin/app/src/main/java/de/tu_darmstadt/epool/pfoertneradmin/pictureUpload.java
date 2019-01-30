@@ -12,15 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -37,6 +39,34 @@ public class pictureUpload extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture_upload);
+
+
+        final PfoertnerApplication app2 = PfoertnerApplication.get(this);
+
+        CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
+
+        //TODO: warning hardcode personid
+        Call<ResponseBody> call = app2.getService().downloadPicture(1);
+
+        call.enqueue(new Callback<ResponseBody>() {
+                         @Override
+                         public void onResponse(Call<ResponseBody> call,
+                                                Response<ResponseBody> response) {
+
+                             if(response.code() == 200) {
+                                 InputStream input = response.body().byteStream();
+                                 Bitmap selectedImage2 = BitmapFactory.decodeStream(input);
+                                 imagetest.setImageBitmap(selectedImage2);
+                             }
+                         }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                             Log.d(TAG, "picturedownload failed");
+            }
+        });
+
+
     }
 
     public void getPicture(View view){
@@ -50,8 +80,6 @@ public class pictureUpload extends AppCompatActivity {
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        // nur als test anzeige
-//        ImageView imagetest = (ImageView) findViewById(R.id.imageViewtest);
         CircleImageView imagetest2 = (CircleImageView) findViewById(R.id.profile_image);
 
         if (reqCode == 1) {
@@ -61,7 +89,6 @@ public class pictureUpload extends AppCompatActivity {
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-//                imagetest.setImageBitmap(selectedImage);
                 imagetest2.setImageBitmap(selectedImage);
 
                 //TODO: send picture to server
@@ -81,22 +108,7 @@ public class pictureUpload extends AppCompatActivity {
 
     private void sendFile(Uri fileUri){
         final PfoertnerApplication app = PfoertnerApplication.get(this);
-//        File file = null;
-
-//        try {
-//            final InputStream imageStream = getContentResolver().openInputStream(fileUri);
-//            OutputStream output = new FileOutputStream(file);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-
-
-        Log.d(TAG, fileUri.toString());
-        Log.d(TAG, fileUri.getPath());
-        Log.d(TAG, getPath(fileUri));
-//        File file = new File("/storage/emulated/0/Download/4EtP0n3.jpg");
         File file = new File(getPath(fileUri));
-
         // create RequestBody instance from file
         RequestBody requestFile =
                 RequestBody.create(
@@ -115,7 +127,8 @@ public class pictureUpload extends AppCompatActivity {
                         okhttp3.MultipartBody.FORM, descriptionString);
 
         // finally, execute the request
-        Call<ResponseBody> call = app.getService().upload(description, body, app.getDevice().id);
+        //TODO: warning hardcode personid
+        Call<ResponseBody> call = app.getService().uploadPicture(description, body, 1);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call,
