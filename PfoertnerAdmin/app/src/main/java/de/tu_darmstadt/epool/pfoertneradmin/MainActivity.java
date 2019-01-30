@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
     }
 
     public void gotoPictureUploader(View view){
-        Intent intent = new Intent(this, pictureUpload.class);
+        Intent intent = new Intent(this, PictureUpload.class);
         startActivity(intent);
     }
 
