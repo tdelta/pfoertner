@@ -3,21 +3,33 @@ package de.tu_darmstadt.epool.pfoertneradmin.calendar;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.CalendarContract;
 
 
 public class CalendarObserver extends ContentObserver {
 
-    Account account;
+    // Projection array. Creating indices for this array instead of doing
+    // dynamic lookups improves performance.
+    private static final String[] EVENT_PROJECTION = new String[] {
+            CalendarContract.Calendars._ID,                           // 0
+            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
+            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
+            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
+    };
+    private ContentResolver resolver;
+
 
     /**
      * Creates a content observer.
      *
      * @param handler The handler to run {@link #onChange} on, or null if none.
      */
-    public CalendarObserver(Handler handler) {
+    public CalendarObserver(Handler handler, ContentResolver resolver) {
         super(handler);
+        this.resolver = resolver;
         System.out.println("New observer created");
     }
 
@@ -49,6 +61,19 @@ public class CalendarObserver extends ContentObserver {
          */
         System.out.println("Change in calendar registered!");
         System.out.println(changeUri);
+
+        Cursor cursor = resolver.query(Uri.parse("content://com.android.calendar/events"),
+                EVENT_PROJECTION,
+                null,
+                null,
+                null);
+
+
+        if (cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+               //TODO: Do something with the events
+            }
+        }
     }
 
 
