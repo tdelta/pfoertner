@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin.calendar;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -29,8 +30,9 @@ public class CalendarService extends Service {
         }
     }
     private void startCalenderObserver(){
-            getApplication().getContentResolver().registerContentObserver(CalendarContract.Calendars.CONTENT_URI,
-        true,new CalendarObserver(new Handler()));
+        ContentResolver resolver = getApplication().getContentResolver();
+        resolver.registerContentObserver(CalendarContract.Calendars.CONTENT_URI,
+        true,new CalendarObserver(new Handler(), resolver));
 
     }
 
