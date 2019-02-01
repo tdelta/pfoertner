@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -18,7 +19,7 @@ import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class InitializationActivity extends AppCompatActivity {
@@ -102,7 +103,7 @@ public class InitializationActivity extends AppCompatActivity {
 
         eventChannel = new EventChannel(this) {
             @Override
-            protected void onEvent(EventType eventType) {
+            protected void onEvent(final EventType eventType, final @Nullable String payload) {
                 switch (eventType) {
                     case AdminJoined:
                         initTask.whenDone(aVoid -> {

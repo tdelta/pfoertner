@@ -47,8 +47,12 @@ public class PfoertnerApplication extends Application {
             this.maybeOffice = Optional.empty();
         }
 
+        onInit();
+
         this.hadBeenInitialized = true;
     }
+
+    protected void onInit() { }
 
     @Override
     public void onCreate() {
@@ -59,7 +63,7 @@ public class PfoertnerApplication extends Application {
         this.preferences = getSharedPreferences(PREFERENCES_NAME,0);
     }
 
-    private void checkInitStatus() {
+    protected void checkInitStatus() {
         if (!hadBeenInitialized) {
             throw new IllegalStateException("The application has to be initialized before you can use most methods!");
         }

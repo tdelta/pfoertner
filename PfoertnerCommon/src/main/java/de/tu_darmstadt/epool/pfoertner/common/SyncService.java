@@ -3,7 +3,13 @@ package de.tu_darmstadt.epool.pfoertner.common;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.util.List;
+import java.util.Optional;
+
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class SyncService extends Service {
     private static final String TAG = "SyncService";
@@ -20,13 +26,17 @@ public class SyncService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         eventChannel = new EventChannel(SyncService.this) {
             @Override
-            protected void onEvent(EventType e) {
+            protected void onEvent(final EventType e, final @Nullable String payload) {
                 switch (e) {
                     case AdminJoined:
                         SyncService.this.updateMembers();
                         break;
+                    case OfficeMemberUpdated:
+                        SyncService.this.updateMember(payload);
+                        break;
                     case OfficeDataUpdated:
                         SyncService.this.updateOfficeData();
+                        break;
                 }
             }
         };
@@ -37,7 +47,49 @@ public class SyncService extends Service {
     }
 
     private void updateMembers() {
-        // TODO
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        if (app.hasOffice()) {
+            app.getOffice().updateMembersAsync(app.getSettings(), app.getService(), app.getAuthentication());
+        }
+
+        else {
+            Log.e(TAG, "Tried to update members, but office is not initialized.");
+        }
+    }
+
+    private void updateMember(final @Nullable String payload) {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        if (app.hasOffice()) {
+            if (payload == null) {
+                Log.e(TAG, "Tried to update member, but there was no payload!");
+            }
+            
+            else {
+                try {
+                    final Optional<Member> maybeMember = app.getOffice().getMemberById(
+                            Integer.parseInt(payload)
+                    );
+
+                    maybeMember.ifPresent(
+                            member -> member.updateAsync(app.getSettings(), app.getService(), app.getAuthentication())
+                    );
+
+                    if (!maybeMember.isPresent()) {
+                        Log.e(TAG, "Tried to update member, but there is no member with that id.");
+                    }
+                }
+
+                catch (final NumberFormatException e) {
+                    Log.e(TAG, "Tried to update member, but the payload was invalid.");
+                }
+            }
+        }
+
+        else {
+            Log.e(TAG, "Tried to update a member, but office is not initialized.");
+        }
     }
 
     private void updateOfficeData() {
