@@ -143,7 +143,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onLastNameChanged(String newFirstName) {
+            public void onLastNameChanged(String newLastName) {
+                updateMembers();
+            }
+
+            @Override
+            public void onStatusChanged(String newStatus) {
                 updateMembers();
             }
         };
@@ -227,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addStdMember(View view) {
-        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann"));
+        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann", ""));
     }
 
     public void removeMembers(){
@@ -249,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         Member member = new Member();
 
         member.setName(m.firstName + " " + m.lastName);
-        member.setStatus(Member.Status.OUT_OF_OFFICE);
+        member.setStatus(m.status == null ? "" : m.status);
         member.setOfficeHours(work);
         //member.setImage(getDrawable(R.drawable.ic_contact_default));
 

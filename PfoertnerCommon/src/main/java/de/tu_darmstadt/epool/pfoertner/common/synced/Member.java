@@ -18,6 +18,7 @@ public class Member extends Observable<MemberObserver> {
     private final int id;
     private String lastName;
     private String firstName;
+    private String status;
 
     private final Office office;
 
@@ -33,7 +34,7 @@ public class Member extends Observable<MemberObserver> {
         this.office = office;
     }
 
-    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
+    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, String status, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
         return new ResourceInitProtocol<MemberData>(
     "Could not join office. Do you have an internet connection?"
         ) {
@@ -45,7 +46,8 @@ public class Member extends Observable<MemberObserver> {
                         new OfficeJoinData(
                                 joinCode,
                                 firstName,
-                                lastName
+                                lastName,
+                                status
                         )
                 ).execute().body();
 
@@ -100,7 +102,8 @@ public class Member extends Observable<MemberObserver> {
         return new MemberData(
                 this.id,
                 this.firstName,
-                this.lastName
+                this.lastName,
+                this.status
         );
     }
 
@@ -120,7 +123,8 @@ public class Member extends Observable<MemberObserver> {
         final MemberData data = new MemberData(
                 this.id,
                 this.firstName,
-                newLastName
+                newLastName,
+                this.status
         );
 
         upload(service, auth, data);
@@ -130,7 +134,19 @@ public class Member extends Observable<MemberObserver> {
         final MemberData data = new MemberData(
                 this.id,
                 newFirstName,
-                this.lastName
+                this.lastName,
+                this.status
+        );
+
+        upload(service, auth, data);
+    }
+
+    public void setStatus(final PfoertnerService service, final Authentication auth, final String newStatus) {
+        final MemberData data = new MemberData(
+                this.id,
+                this.firstName,
+                this.lastName,
+                newStatus
         );
 
         upload(service, auth, data);
@@ -145,6 +161,7 @@ public class Member extends Observable<MemberObserver> {
     void updateByData(final MemberData data) {
         final String oldFirstName = Member.this.firstName;
         final String oldLastName = Member.this.lastName;
+        final String oldStatus = Member.this.status;
 
         Member.this.firstName = data.firstName;
         if (!oldFirstName.equals(data.firstName)) {
@@ -154,6 +171,15 @@ public class Member extends Observable<MemberObserver> {
         Member.this.lastName = data.lastName;
         if (!oldLastName.equals(data.lastName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(Member.this.lastName));
+        }
+
+        Member.this.status = data.status;
+        if (
+                data.status == null && oldStatus != null
+             || data.status != null && oldStatus == null
+             || data.status != null && oldStatus != null && !oldStatus.equals(data.status)
+        ) {
+            Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(Member.this.status));
         }
     }
 
