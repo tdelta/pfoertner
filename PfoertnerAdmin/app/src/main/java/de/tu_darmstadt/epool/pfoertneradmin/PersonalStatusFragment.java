@@ -12,14 +12,16 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class PersonalStatusFragment extends AbstractStatusFragment {
     private int selected;
     private int tempSelected;
     private List<String> status;
-    private PfoertnerApplication app;
+    private AdminApplication app;
     private TextView textfield;
 
     public static PersonalStatusFragment newInstance(Activity activity){
@@ -33,7 +35,7 @@ public class PersonalStatusFragment extends AbstractStatusFragment {
     public void setArguments(Activity activity) {
         textfield = activity.findViewById(R.id.summary2);
 
-        app = PfoertnerApplication.get(activity);
+        app = AdminApplication.get(activity);
 
         final SharedPreferences settings = app.getSettings();
 
@@ -87,12 +89,15 @@ public class PersonalStatusFragment extends AbstractStatusFragment {
     @Override
     protected void sendStatus(String status) {
         textfield.setText(status);
-//        final Office office = app.getOffice();
-//
-//        office.setStatus(
-//                app.getService(),
-//                app.getAuthentication(),
-//                status
-//        );
+
+        final Optional<Member> maybeMember = app.getOffice().getMemberById(app.getMemberId());
+
+        maybeMember.ifPresent(
+                member -> member.setStatus(
+                        app.getService(),
+                        app.getAuthentication(),
+                        status
+                )
+        );
     }
 }
