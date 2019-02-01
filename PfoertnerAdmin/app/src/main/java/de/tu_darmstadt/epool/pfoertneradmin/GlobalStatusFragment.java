@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
+import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
 public class GlobalStatusFragment extends AbstractStatusFragment {
     private int selected;
