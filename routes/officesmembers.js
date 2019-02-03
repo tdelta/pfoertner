@@ -219,7 +219,8 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
               title: 'Decline',
               intent: 'DeclineAppointmentRequest',
             },
-          ]
+          ],
+          ''
         );
         res.status('200').send('Successfully sent appointment request');
       });
