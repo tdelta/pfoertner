@@ -39,6 +39,13 @@ dependencies {
     // Haskell's Either für Java
     implementation "com.spencerwi:Either.java:2.1.0"
 
+    // Google Java Core libs
+    // implementation group: 'com.google.guava', name: 'guava', version: '15.0'
+
+    // CommonsIO helper library
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    // time libs
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
 
     testImplementation 'junit:junit:4.12'

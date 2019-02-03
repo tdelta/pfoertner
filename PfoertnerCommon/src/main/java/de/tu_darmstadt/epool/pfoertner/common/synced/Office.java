@@ -5,11 +5,10 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -155,11 +154,13 @@ public class Office extends Observable<OfficeObserver> {
         private SharedPreferences settings;
         private PfoertnerService service;
         private Authentication auth;
+        private File filesDir;
 
-        public void execute(final SharedPreferences settings, final PfoertnerService service, final Authentication auth) {
+        public void execute(final SharedPreferences settings, final PfoertnerService service, final Authentication auth, final File filesDir) {
             this.settings = settings;
             this.service = service;
             this.auth = auth;
+            this.filesDir = filesDir;
 
             super.execute();
         }
@@ -175,7 +176,7 @@ public class Office extends Observable<OfficeObserver> {
         protected void onSuccess(final MemberData[] updatedMembersData) {
             writeMembersToLocalStorage(settings, updatedMembersData);
 
-            Office.this.setMembers(updatedMembersData);
+            Office.this.setMembers(settings, service, auth, filesDir, updatedMembersData);
         }
 
         @Override
@@ -228,17 +229,17 @@ public class Office extends Observable<OfficeObserver> {
                 .toArray(MemberData[]::new);
     }
 
-    private Office(final OfficeData data, final MemberData[] members) {
+    private Office(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir, final OfficeData data, final MemberData[] members) {
         super();
 
         this.id = data.id;
         this.joinCode = data.joinCode;
         this.status = data.status;
 
-        this.setMembers(members);
+        this.setMembers(preferences, service, auth, filesDir, members);
     }
 
-    private void setMembers(final MemberData[] members) {
+    private void setMembers(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir, final MemberData[] members) {
         final List<Member> replacementList = new ArrayList<>(members.length);
 
         for (final MemberData data : members) {
@@ -247,11 +248,15 @@ public class Office extends Observable<OfficeObserver> {
 
             if (maybeMember.isPresent()) {
                 member = maybeMember.get();
-                member.updateByData(data);
+
+                if (!member.downloadPictureIfNecessary(preferences, service, auth, data, filesDir)) {
+                    member.updateByData(data);
+                }
             }
 
             else {
                 member = new Member(this, data);
+                member.downloadPictureIfNecessary(preferences, service, auth, data, filesDir);
             }
 
             replacementList.add(member);
@@ -267,9 +272,9 @@ public class Office extends Observable<OfficeObserver> {
         );
     }
 
-    public void updateMembersAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+    public void updateMembersAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         this.downloadMembersTask.whenDone(
-                aVoid -> downloadMembersTask.execute(preferences, service, auth)
+                aVoid -> downloadMembersTask.execute(preferences, service, auth, filesDir)
         );
     }
 
@@ -289,7 +294,7 @@ public class Office extends Observable<OfficeObserver> {
         );
     }
 
-    public static Office createOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+    public static Office createOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         final OfficeData officeData;
 
         if (preferences.contains("OfficeId") /*officeData already registered*/) {
@@ -317,10 +322,10 @@ public class Office extends Observable<OfficeObserver> {
 
         final MemberData[] members = loadMembers(officeData.id, preferences, service, auth);
 
-        return new Office(officeData, members);
+        return new Office(preferences, service, auth, filesDir, officeData, members);
     }
 
-    public static Office loadOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+    public static Office loadOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         final int officeID = preferences.getInt("OfficeId", -1);
         if (officeID == -1){
             throw new RuntimeException("OfficeData could not be loaded. Invalid officeId was loaded.");
@@ -330,11 +335,12 @@ public class Office extends Observable<OfficeObserver> {
                 officeID,
                 preferences,
                 service,
-                auth
+                auth,
+                filesDir
         );
     }
 
-    public static Office loadOffice(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
+    public static Office loadOffice(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         final OfficeData officeData = new ResourceInitProtocol<OfficeData>() {
             @Override
             protected OfficeData tryLoadFromServer() throws Exception {
@@ -359,7 +365,7 @@ public class Office extends Observable<OfficeObserver> {
 
         final MemberData[] members = loadMembers(officeId, preferences, service, auth);
 
-        return new Office(officeData, members);
+        return new Office(preferences, service, auth, filesDir, officeData, members);
     }
 
     private static MemberData[] loadMembers(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {

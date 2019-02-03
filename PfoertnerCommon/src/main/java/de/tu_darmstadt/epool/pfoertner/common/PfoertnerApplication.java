@@ -39,7 +39,7 @@ public class PfoertnerApplication extends Application {
 
         if (Office.hadBeenRegistered(this.preferences)) {
             this.maybeOffice = Optional.of(
-                    Office.loadOffice(this.preferences, this.service, this.authentication)
+                    Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
             );
         }
 
