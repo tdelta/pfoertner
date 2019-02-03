@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
+
     <TextView
         android:id="@+id/title"
         android:layout_width="44dp"
@@ -14,7 +15,7 @@
         android:ellipsize="marquee"
         android:fadingEdge="horizontal"
         android:singleLine="true"
-        android:text="Mo"
+        android:text="day"
         android:textAlignment="center"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white" />
@@ -30,7 +31,8 @@
         android:layout_marginEnd="21dp"
         android:layout_marginBottom="21dp"
         android:maxLines="4"
-        android:text="22-12"
+        android:text="date"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/white" />
+
 </merge>
