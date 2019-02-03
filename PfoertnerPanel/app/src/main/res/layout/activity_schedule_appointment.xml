@@ -31,68 +31,9 @@
         card_view:layout_constraintTop_toTopOf="parent">
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/days"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
-                android:id="@+id/bla"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:background="@color/colorPrimary"
-                android:clickable="true"
-                android:elevation="15dp"
-                tools:layout_editor_absoluteX="91dp"
-                tools:layout_editor_absoluteY="40dp" />
-
-            <include
-                android:id="@+id/include5"
-                layout="@layout/calendardayview"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/include4"
-                tools:layout_editor_absoluteY="136dp" />
-
-            <include
-                android:id="@+id/include4"
-                layout="@layout/calendardayview"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                card_view:layout_constraintEnd_toStartOf="@+id/include5"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/include3"
-                tools:layout_editor_absoluteY="136dp" />
-
-            <include
-                android:id="@+id/include3"
-                layout="@layout/calendardayview"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                card_view:layout_constraintEnd_toStartOf="@+id/include4"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/include"
-                tools:layout_editor_absoluteY="136dp" />
-
-            <include
-                android:id="@+id/include"
-                layout="@layout/calendardayview"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                card_view:layout_constraintEnd_toStartOf="@+id/include3"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/include2"
-                tools:layout_editor_absoluteY="136dp" />
-
-            <include
-                android:id="@+id/include2"
-                layout="@layout/calendardayview"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                card_view:layout_constraintEnd_toStartOf="@+id/include"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="136dp" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -104,6 +45,146 @@
                 android:text="Please select a day within the next two weeks"
                 android:textSize="24sp"
                 card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day9"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day9"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day8"
+                card_view:layout_constraintTop_toBottomOf="@+id/day4" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day8"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day8"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toStartOf="@+id/day9"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day7"
+                card_view:layout_constraintTop_toBottomOf="@+id/day3" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day7"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day7"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toStartOf="@+id/day8"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day6"
+                card_view:layout_constraintTop_toBottomOf="@+id/day2" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day6"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day6"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toStartOf="@+id/day7"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day5"
+                card_view:layout_constraintTop_toBottomOf="@+id/day1" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day5"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day5"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toStartOf="@+id/day6"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toBottomOf="@+id/day0" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day4"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day4"
+                card_view:layout_constraintBottom_toTopOf="@+id/day9"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day3"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day3"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day3"
+                card_view:layout_constraintBottom_toTopOf="@+id/day8"
+                card_view:layout_constraintEnd_toStartOf="@+id/day4"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day2"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day2"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day2"
+                card_view:layout_constraintBottom_toTopOf="@+id/day7"
+                card_view:layout_constraintEnd_toStartOf="@+id/day3"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day1"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day1"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day1"
+                card_view:layout_constraintBottom_toTopOf="@+id/day6"
+                card_view:layout_constraintEnd_toStartOf="@+id/day2"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/day0"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/day0"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                android:onClick="day0"
+                card_view:layout_constraintBottom_toTopOf="@+id/day5"
+                card_view:layout_constraintEnd_toStartOf="@+id/day1"
+                card_view:layout_constraintHorizontal_bias="0.5"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
 
