@@ -47,7 +47,8 @@ public class PictureUpload extends AppCompatActivity {
         final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
 
         //TODO: warning hardcode personid
-        Call<ResponseBody> call = app.getService().downloadPicture(1);
+        Log.d(TAG, "MemberID: " + app.getMemberId());
+        Call<ResponseBody> call = app.getService().downloadPicture(app.getMemberId());
 
         call.enqueue(new Callback<ResponseBody>() {
                          @Override
@@ -214,7 +215,7 @@ public class PictureUpload extends AppCompatActivity {
 
         // finally, execute the request
         //TODO: warning hardcode personid
-        final Call<ResponseBody> call = app.getService().uploadPicture(description, body, 1);
+        final Call<ResponseBody> call = app.getService().uploadPicture(description, body, app.getMemberId());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call,
