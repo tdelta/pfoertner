@@ -51,7 +51,7 @@ router.patch('/:id/picture', (req, res) => {
       models.OfficeMember.findById(officememberid).then(officemember => {
         console.log("Das Officemember" + officemember);
         officemember
-          .setPicture('/uploads/' + req.params.id + '.jpg')
+          .update({picture : '/uploads/' + req.params.id + '.jpg'})
           .then(() => res.status(200).send('File uploaded!'));
       });
     }
