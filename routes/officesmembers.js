@@ -49,8 +49,9 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
-        res.status(200).send('File uploaded!');
+        officemember
+          .setPicture('/uploads/' + req.params.id + '.jpg')
+          .then(() => res.status(200).send('File uploaded!'));
       });
     }
   });
