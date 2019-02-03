@@ -34,6 +34,66 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <de.tu_darmstadt.epool.pfoertnerpanel.DayView
+                android:id="@+id/bla"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:elevation="15dp"
+                tools:layout_editor_absoluteX="91dp"
+                tools:layout_editor_absoluteY="40dp" />
+
+            <include
+                android:id="@+id/include5"
+                layout="@layout/calendardayview"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/include4"
+                tools:layout_editor_absoluteY="136dp" />
+
+            <include
+                android:id="@+id/include4"
+                layout="@layout/calendardayview"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                card_view:layout_constraintEnd_toStartOf="@+id/include5"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/include3"
+                tools:layout_editor_absoluteY="136dp" />
+
+            <include
+                android:id="@+id/include3"
+                layout="@layout/calendardayview"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                card_view:layout_constraintEnd_toStartOf="@+id/include4"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/include"
+                tools:layout_editor_absoluteY="136dp" />
+
+            <include
+                android:id="@+id/include"
+                layout="@layout/calendardayview"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                card_view:layout_constraintEnd_toStartOf="@+id/include3"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toEndOf="@+id/include2"
+                tools:layout_editor_absoluteY="136dp" />
+
+            <include
+                android:id="@+id/include2"
+                layout="@layout/calendardayview"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                card_view:layout_constraintEnd_toStartOf="@+id/include"
+                card_view:layout_constraintHorizontal_bias="0.5"
+                card_view:layout_constraintStart_toStartOf="parent"
+                tools:layout_editor_absoluteY="136dp" />
+
             <TextView
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
@@ -46,487 +106,6 @@
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout8"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout9"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout7"
-                card_view:layout_constraintTop_toBottomOf="@+id/relativeLayout3">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Thu"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout5"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout6"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toBottomOf="@+id/relativeLayout0">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Mo"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout6"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout7"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout5"
-                card_view:layout_constraintTop_toBottomOf="@+id/relativeLayout1">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Tue"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout7"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout8"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout6"
-                card_view:layout_constraintTop_toBottomOf="@+id/relativeLayout2">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Wed"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout9"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout8"
-                card_view:layout_constraintTop_toBottomOf="@+id/relativeLayout4">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Fri"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout3"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toTopOf="@+id/relativeLayout8"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout4"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout2"
-                card_view:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Thu"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout4"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toTopOf="@+id/relativeLayout9"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout3"
-                card_view:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Fri"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout2"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toTopOf="@+id/relativeLayout7"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout3"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout1"
-                card_view:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Wed"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout1"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toTopOf="@+id/relativeLayout6"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout2"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/relativeLayout0"
-                card_view:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Tue"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/relativeLayout0"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary"
-                android:elevation="15dp"
-                card_view:layout_constraintBottom_toTopOf="@+id/relativeLayout5"
-                card_view:layout_constraintEnd_toStartOf="@+id/relativeLayout1"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@android:id/title"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="21dp"
-                    android:layout_marginTop="13dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="marquee"
-                    android:fadingEdge="horizontal"
-                    android:singleLine="true"
-                    android:text="Mo"
-                    android:textAlignment="center"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:id="@+id/summary"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="21dp"
-                    android:layout_marginBottom="21dp"
-                    android:maxLines="4"
-                    android:text="22-12"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
 
         </android.support.constraint.ConstraintLayout>
 
