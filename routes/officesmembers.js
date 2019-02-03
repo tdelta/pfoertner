@@ -49,6 +49,7 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
+        console.log("Das Officemember" + officemember);
         officemember
           .setPicture('/uploads/' + req.params.id + '.jpg')
           .then(() => res.status(200).send('File uploaded!'));
