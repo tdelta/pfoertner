@@ -133,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
         registerForMemberChanges();
     }
 
+    public void test(View view){
+        Intent intent = new Intent(this, ScheduleAppointment.class);
+        startActivity(intent);
+    }
+
     private void registerForMemberChanges() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
