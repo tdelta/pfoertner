@@ -55,7 +55,7 @@ router.patch('/:id/picture', (req, res) => {
         officemember
           .update({
             picture: '/uploads/' + req.params.id + '.jpg',
-            pictureMD5: hash
+            pictureMD5: hash,
           })
           .then(() => res.status(200).send('File uploaded!'));
       });
@@ -254,7 +254,10 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
               intent: 'DeclineAppointmentRequest',
             },
           ],
-          ''
+          {
+            start: start,
+            end: end,
+          }
         );
         res.status('200').send('Successfully sent appointment request');
       });
