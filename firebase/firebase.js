@@ -29,15 +29,18 @@ module.exports.sendNotification = function(
   buttons,
   data
 ) {
-  buttons = JSON.stringify(buttons);
-  data = JSON.stringify(data);
+  let notification = {
+    title: title,
+    body: body,
+    buttons: buttons,
+    data: data,
+  };
+  notification = JSON.stringify(notification);
+
   var message = {
     token: deviceToken,
     data: {
-      title: title,
-      body: body,
-      buttons: buttons,
-      data: data,
+      notification: notification,
     },
   };
   sendMessage(deviceToken, message);
