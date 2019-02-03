@@ -51,13 +51,23 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        console.log('Das Officemember' + officemember);
-        officemember
-          .update({
-            picture: '/uploads/' + req.params.id + '.jpg',
-            pictureMD5: hash
-          })
-          .then(() => res.status(200).send('File uploaded!'));
+        officemember.getOffice().then(office => {
+          console.log('Das Officemember' + officemember);
+          officemember
+            .update({
+              picture: '/uploads/' + req.params.id + '.jpg',
+              pictureMD5: hash,
+            })
+            .then(() => {
+              notifyOfficeSubscribers(
+                office,
+                'OfficeMemberUpdated',
+                officememberid.toString()
+              );
+
+              res.status(200).send('File uploaded!');
+            });
+        });
       });
     }
   });
