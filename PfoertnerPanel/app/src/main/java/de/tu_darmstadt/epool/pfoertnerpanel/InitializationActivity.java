@@ -50,7 +50,8 @@ public class InitializationActivity extends AppCompatActivity {
                 final Office office = Office.createOffice(
                         app.getSettings(),
                         app.getService(),
-                        app.getAuthentication()
+                        app.getAuthentication(),
+                        app.getFilesDir()
                 );
 
                 return office;

@@ -42,7 +42,8 @@ public class JoinOfficeActivity extends AppCompatActivity {
                         officeId,
                         app.getSettings(),
                         app.getService(),
-                        app.getAuthentication()
+                        app.getAuthentication(),
+                        app.getFilesDir()
                 );
 
                 return new Pair<>(office, m);
