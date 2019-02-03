@@ -41,7 +41,9 @@ router.get('/:id/office', (req, res) =>
  * DARK JAVASCRIPT MAGIC!
  */
 router.patch('/:id/picture', (req, res) => {
-  let picture = req.files.picture;
+  const picture = req.files.picture;
+  const hash = req.files.picture.md5();
+
   const officememberid = parseInt(req.params.id, 10);
 
   picture.mv('uploads/' + req.params.id + '.jpg', function(err) {
@@ -50,6 +52,7 @@ router.patch('/:id/picture', (req, res) => {
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
         officemember.setPicture('/uploads/' + req.params.id + '.jpg');
+        officemember.setPictureHash(hash);
         res.status(200).send('File uploaded!');
       });
     }
@@ -57,7 +60,7 @@ router.patch('/:id/picture', (req, res) => {
 });
 
 /**
- * ENDPOINT: GET /officemembers/
+ * ENDPOINT: GET /officemembers/:id/picture
  *
  * Get the picture of the officemember
  *
@@ -80,6 +83,35 @@ router.get('/:id/picture', (req, res) => {
       } else {
         // If there is a picture, return 200 and the picture
         res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
+      }
+    }
+  });
+});
+
+/**
+ * ENDPOINT: GET /officemembers/:id/picture/md5
+ *
+ * Get the md5 hash of the picture of the officemember
+ *
+ */
+router.get('/:id/picture/md5', (req, res) => {
+  const officememberid = parseInt(req.params.id, 10);
+
+  // Get the officemember matching the given id
+  models.OfficeMember.findById(officememberid).then(member => {
+    // If no officemember with this id is found, return 404
+    if (member == null) {
+      res.status('404').send('There is no person to your id');
+    }
+    // There is an officemember matching the id
+    else {
+      // Check wether there is a picture hash connected to the requested officemember
+      if (member.pictureMD5 == null) {
+        // If there is no picture, return 404
+        res.status('404').send('There is no picture to your person');
+      } else {
+        // If there is a picture hash, return 200 and the hash
+        res.status('200').send(member.pictureMD5);
       }
     }
   });
