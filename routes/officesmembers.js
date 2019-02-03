@@ -49,9 +49,9 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        console.log("Das Officemember" + officemember);
+        console.log('Das Officemember' + officemember);
         officemember
-          .update({picture : '/uploads/' + req.params.id + '.jpg'})
+          .update({ picture: '/uploads/' + req.params.id + '.jpg' })
           .then(() => res.status(200).send('File uploaded!'));
       });
     }
@@ -208,10 +208,18 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
       officemember.getDevice().then(device => {
         firebase.sendNotification(
           device.fcmToken,
-          'New Notification request',
-          'Hello!',
-          'AppointmentRequest',
-          {}
+          'New Appointment request',
+          'From ' + start + ' to ' + end,
+          [
+            {
+              title: 'Accept',
+              intent: 'AcceptAppointmentRequest',
+            },
+            {
+              title: 'Decline',
+              intent: 'DeclineAppointmentRequest',
+            },
+          ]
         );
         res.status('200').send('Successfully sent appointment request');
       });
