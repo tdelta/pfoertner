@@ -49,8 +49,10 @@ router.patch('/:id/picture', (req, res) => {
       return res.status(500).send(err);
     } else {
       models.OfficeMember.findById(officememberid).then(officemember => {
-        officemember.setPicture('/uploads/' + req.params.id + '.jpg');
-        res.status(200).send('File uploaded!');
+        console.log("Das Officemember" + officemember);
+        officemember
+          .update({picture : '/uploads/' + req.params.id + '.jpg'})
+          .then(() => res.status(200).send('File uploaded!'));
       });
     }
   });
@@ -105,7 +107,11 @@ router.patch('/:officeMemberId', auth.authFun(), (req, res) => {
         officemember.getOffice().then(office => {
           if (office != null) {
             // TODO optimize to only update the affected member
-            notifyOfficeSubscribers(office, 'OfficeMemberUpdated');
+            notifyOfficeSubscribers(
+              office,
+              'OfficeMemberUpdated',
+              officeMemberId.toString()
+            );
           } else {
             console.log(
               'Could not notify office members, that one of them got updated'

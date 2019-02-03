@@ -44,32 +44,6 @@ router.post('/', auth.authFun(), (req, res) => {
 });
 
 /**
-<<<<<<< HEAD
- * TODO: MARTIN FRAGEN
- *
- *
- * @param {*} office
- * @param {*} eventName
- */
-function notifyOfficeSubscribers(office, eventName) {
-  office.getDevice().then(device => {
-    if (device.fcmToken) {
-      firebase.sendData(device.fcmToken, { event: eventName });
-    }
-  });
-
-  office.getOfficeMembers().then(officeMembers => {
-    officeMembers
-      .filter(member => member.fcmToken != null)
-      .forEach(member => {
-        firebase.sendData(member.fcmToken, { event: eventName });
-      });
-  });
-}
-
-/**
-=======
->>>>>>> c2132ed2c4b13cc3c1219efce4a317e1d53e3c24
  * This helper function returns a promise to create a perstitent
  * officemember models in the data base
  *
@@ -153,7 +127,7 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
 // Send a notification event to all devices of an office
 router.post('/:officeId/notify', (req, res) => {
   findOffice(req, res).then(office => {
-    notifyOfficeSubscribers(office, req.body.event);
+    notifyOfficeSubscribers(office, req.body.event, req.body.payload);
     res.status(200).send('notified.');
   });
 });
