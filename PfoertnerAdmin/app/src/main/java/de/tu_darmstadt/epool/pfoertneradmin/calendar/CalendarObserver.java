@@ -14,12 +14,14 @@ public class CalendarObserver extends ContentObserver {
     // Projection array. Creating indices for this array instead of doing
     // dynamic lookups improves performance.
     private static final String[] EVENT_PROJECTION = new String[] {
-            CalendarContract.Calendars._ID,                           // 0
-            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
-            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
-            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
+            CalendarContract.Events.TITLE,                         // 0
+            CalendarContract.Events.DTSTART,                       // 1
+            CalendarContract.Events.DTEND,                         // 2
     };
+    private String selection = "(" + CalendarContract.Events.TITLE + " = 'Office Hour')";
     private ContentResolver resolver;
+
+    private static CalendarObserver instance;
 
 
     /**
@@ -27,10 +29,17 @@ public class CalendarObserver extends ContentObserver {
      *
      * @param handler The handler to run {@link #onChange} on, or null if none.
      */
-    public CalendarObserver(Handler handler, ContentResolver resolver) {
+    private CalendarObserver(Handler handler, ContentResolver resolver) {
         super(handler);
         this.resolver = resolver;
         System.out.println("New observer created");
+    }
+
+    public static CalendarObserver getCalendarObserver(Handler handler, ContentResolver resolver) {
+        if (instance != null)
+            instance = new CalendarObserver(handler, resolver);
+
+        return instance;
     }
 
     /*
@@ -64,20 +73,17 @@ public class CalendarObserver extends ContentObserver {
 
         Cursor cursor = resolver.query(Uri.parse("content://com.android.calendar/events"),
                 EVENT_PROJECTION,
-                null,
+                selection,
                 null,
                 null);
 
 
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-               //TODO: Do something with the events
+                System.out.println(cursor.getString(0) + "|" + cursor.getString(1) + "|" + cursor.getString(2));
+                //TODO: Send the events
             }
         }
     }
-
-
-
-
 }
 
