@@ -50,4 +50,6 @@ dependencies {
     implementation project(path: ':PfoertnerCommon')
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'com.spencerwi:Either.java:2.1.0'
+
+    compile 'com.google.android.gms:play-services-auth:16.0.1'
 }
