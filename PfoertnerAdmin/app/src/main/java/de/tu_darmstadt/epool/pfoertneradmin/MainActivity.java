@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
 
                 @Override
                 protected void onException(Exception e){
-                    ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init());
+                    ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init(),false);
                 }
             }.execute();
         }
