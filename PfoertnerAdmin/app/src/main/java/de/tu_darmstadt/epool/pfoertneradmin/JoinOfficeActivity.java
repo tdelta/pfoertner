@@ -54,7 +54,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
             @Override
             protected void onException(Exception e) {
-                ErrorInfoDialog.show(JoinOfficeActivity.this, e.getMessage(), aVoid -> joinOffice(lastName,firstName,officeId,joinCode));
+                ErrorInfoDialog.show(JoinOfficeActivity.this, e.getMessage(), aVoid -> joinOffice(lastName,firstName,officeId,joinCode),false);
             }
         }.execute();
     }
