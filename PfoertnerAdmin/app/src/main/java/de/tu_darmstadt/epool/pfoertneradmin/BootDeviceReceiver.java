@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import de.tu_darmstadt.epool.pfoertner.common.MessagingService;
+import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarObserver;
+import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
 
 public class BootDeviceReceiver extends BroadcastReceiver {
     @Override
@@ -19,5 +21,8 @@ public class BootDeviceReceiver extends BroadcastReceiver {
 
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,startTime,intervalTime,pendingIntent);
+
+        Intent calendarIntent = new Intent(context, CalendarService.class);
+        context.startService(calendarIntent);
     }
 }
