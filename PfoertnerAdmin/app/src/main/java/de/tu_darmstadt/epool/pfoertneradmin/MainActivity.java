@@ -11,8 +11,18 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.Task;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
@@ -74,6 +84,16 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         super.onCreate(savedInstanceState);
         init();
         setContentView(R.layout.activity_main);
+
+        String serverClientId = getString(R.string.server_client_id);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(new Scope("https://www.googleapis.com/auth/admin.directory.resource.calendar.readonly"))
+                .requestServerAuthCode(serverClientId)
+                .requestEmail()
+                .build();
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent,100);
     }
 
     @Override
@@ -82,6 +102,16 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
 
         if(requestCode == 0) {
             onInitialized();
+        }
+        else if(requestCode==100){
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try{
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                String authCode = account.getServerAuthCode();
+                Log.d("AUTHCODE",authCode);
+            } catch (ApiException e){
+                Log.d("AUTHCODE","could not sign in");
+            }
         }
     }
 
