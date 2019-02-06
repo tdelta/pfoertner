@@ -23,23 +23,20 @@ public class CalendarObserver extends ContentObserver {
 
     private static CalendarObserver instance;
 
+    private long lastTimeofCall = 0L;
+    private long lastTimeofUpdate = 0L;
+    private long threshold_time = 10000;
+
 
     /**
      * Creates a content observer.
      *
      * @param handler The handler to run {@link #onChange} on, or null if none.
      */
-    private CalendarObserver(Handler handler, ContentResolver resolver) {
+    public CalendarObserver(Handler handler, ContentResolver resolver) {
         super(handler);
         this.resolver = resolver;
         System.out.println("New observer created");
-    }
-
-    public static CalendarObserver getCalendarObserver(Handler handler, ContentResolver resolver) {
-        if (instance != null)
-            instance = new CalendarObserver(handler, resolver);
-
-        return instance;
     }
 
     /*
@@ -68,21 +65,29 @@ public class CalendarObserver extends ContentObserver {
          * To maintain backward compatibility, assume that
          * changeUri is null.
          */
-        System.out.println("Change in calendar registered!");
-        System.out.println(changeUri);
 
-        Cursor cursor = resolver.query(Uri.parse("content://com.android.calendar/events"),
-                EVENT_PROJECTION,
-                selection,
-                null,
-                null);
+        // ugly hack to ignore multiple triggers, but accepted answer on stackoverflow
+        // https://stackoverflow.com/questions/10173996/content-observer-onchange-method-called-twice-after-1-change-in-cursor/10767455
+        lastTimeofCall = System.currentTimeMillis();
+
+        if(lastTimeofCall - lastTimeofUpdate > threshold_time){
+            System.out.println("Change in calendar registered!");
+            System.out.println(changeUri);
+
+            Cursor cursor = resolver.query(Uri.parse("content://com.android.calendar/events"),
+                    EVENT_PROJECTION,
+                    selection,
+                    null,
+                    null);
 
 
-        if (cursor.getCount() > 0) {
-            while (cursor.moveToNext()) {
-                System.out.println(cursor.getString(0) + "|" + cursor.getString(1) + "|" + cursor.getString(2));
-                //TODO: Send the events
+            if (cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    System.out.println(cursor.getString(0) + "|" + cursor.getString(1) + "|" + cursor.getString(2));
+                    //TODO: Send the events
+                }
             }
+                lastTimeofUpdate = System.currentTimeMillis();
         }
     }
 }
