@@ -10,7 +10,9 @@ import android.view.View;
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -58,13 +60,25 @@ public class ScheduleAppointment extends AppCompatActivity {
                 try {
                     final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
+                    GoogleTokenResponse tokenResponse =
+                            new GoogleAuthorizationCodeTokenRequest(
+                                    HTTP_TRANSPORT,
+                                    JacksonFactory.getDefaultInstance(),
+                                    "https://www.googleapis.com/oauth2/v4/token",
+                                    CLIENT_ID,
+                                    CLIENT_SECRET,
+                                    OAUTH2,
+                                    "").execute();
+
+                    String accessToken = tokenResponse.getAccessToken();
+
                     Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(OAUTH2);
                     credential = new GoogleCredential.Builder()
                             .setTransport(HTTP_TRANSPORT)
                             .setJsonFactory(JacksonFactory.getDefaultInstance())
                             .setClientSecrets(CLIENT_ID,CLIENT_SECRET)
                             .build();
-                    credential.setAccessToken(OAUTH2);
+                    credential.setAccessToken(accessToken);
                     Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credential)
                             .setApplicationName("Pfoertner")
                             .build();
