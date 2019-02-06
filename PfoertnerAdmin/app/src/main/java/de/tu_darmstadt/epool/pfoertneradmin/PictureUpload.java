@@ -69,8 +69,11 @@ public class PictureUpload extends AppCompatActivity {
     }
 
     public void setFirstName(final View btn) {
+        final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
+
         promptForString(
                 "Please enter a new first name.",
+                firstNameTextView.getText().toString(),
                 newFirstName -> {
                     final AdminApplication app = AdminApplication.get(this);
 
@@ -88,8 +91,11 @@ public class PictureUpload extends AppCompatActivity {
     }
 
     public void setLastName(final View btn) {
+        final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
+
         promptForString(
                 "Please enter a new last name.",
+               lastNameTextView.getText().toString(),
                newLastName -> {
                    final AdminApplication app = AdminApplication.get(this);
 
@@ -106,14 +112,15 @@ public class PictureUpload extends AppCompatActivity {
         );
     }
 
-    private void promptForString(final String message, final Consumer<String> onPositiveButton) {
+    private void promptForString(final String message, final String initialText, final Consumer<String> onPositiveButton) {
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
         alertBuilder.setMessage(message);
 
         final EditText input = new EditText(this);
-
         alertBuilder.setView(input);
+        input.setText(initialText);
+
         alertBuilder.setPositiveButton("Submit", (dialog, i) -> {
             final String newText = input.getText().toString();
 

@@ -3,10 +3,8 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
 import android.widget.TextView;
 
@@ -20,25 +18,19 @@ import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
-public class StatusFragment extends DialogFragment {
+public class GlobalStatusFragment extends AbstractStatusFragment {
     private int selected;
     private int tempSelected;
     private List<String> status;
     private PfoertnerApplication app;
     private TextView textfield;
-    private StatusDialogListener listener;
 
-    /* The activity that creates an instance of this dialog fragment must
-     * implement this interface in order to receive event callbacks. */
-    public interface StatusDialogListener {
-        void startTextInput();
-    }
-
-    public static StatusFragment newInstance(Activity activity){
-        StatusFragment fragment = new StatusFragment();
+    public static GlobalStatusFragment newInstance(Activity activity){
+        GlobalStatusFragment fragment = new GlobalStatusFragment();
         fragment.setArguments(activity);
         return fragment;
     }
+
 
     public void setArguments(Activity activity){
         textfield = activity.findViewById(R.id.summary);
@@ -112,9 +104,9 @@ public class StatusFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog status_select = new AlertDialog.Builder(getActivity())
-                .setTitle("Select Status")
+                .setTitle("Select Global Status")
                 .setSingleChoiceItems(status.toArray(new String[0]), selected, (dialog, which) -> tempSelected = which)
-                .setNeutralButton("Create New", (dialog, which) -> listener.startTextInput())
+                .setNeutralButton("Create New", (dialog, which) -> listener.startGlobalTextInput())
                 .setPositiveButton( "OK", (dialog, whichButton) -> {
                     selected = tempSelected;
 
@@ -127,21 +119,9 @@ public class StatusFragment extends DialogFragment {
         return status_select;
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        // Verify that the host activity implements the callback interface
-        try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
-            listener = (StatusDialogListener) context;
-        } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(context.toString()
-                    + " must implement NoticeDialogListener");
-        }
-    }
 
-    private void sendStatus(String status){
+
+    protected void sendStatus(String status){
         final Office office = app.getOffice();
 
         office.setStatus(
