@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope("https://www.googleapis.com/auth/admin.directory.resource.calendar.readonly"))
                 .requestServerAuthCode(serverClientId)
+                .requestIdToken(serverClientId)
                 .requestEmail()
                 .build();
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -109,8 +110,11 @@ public class MainActivity extends AppCompatActivity implements TextFragment.Text
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 String authCode = account.getServerAuthCode();
                 Log.d("AUTHCODE",authCode);
+                Log.d("AUTHCODE",account.getIdToken());
             } catch (ApiException e){
                 Log.d("AUTHCODE","could not sign in");
+            } catch (RuntimeException e){
+                e.printStackTrace();
             }
         }
     }
