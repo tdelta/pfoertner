@@ -22,7 +22,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_init2);
     }
 
-    private void joinOffice(String lastName, String firstName, final int officeId, final String joinCode) {
+    private void joinOffice(String lastName, String firstName, String status, final int officeId, final String joinCode) {
         final AdminApplication app = AdminApplication.get(JoinOfficeActivity.this);
 
         new RequestTask<Pair<Office, MemberData>>() {
@@ -33,6 +33,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
                         joinCode,
                         firstName,
                         lastName,
+                        status,
                         app.getSettings(),
                         app.getService(),
                         app.getAuthentication()
@@ -59,7 +60,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
             @Override
             protected void onException(Exception e) {
-                ErrorInfoDialog.show(JoinOfficeActivity.this, e.getMessage(), aVoid -> joinOffice(lastName,firstName,officeId,joinCode));
+                ErrorInfoDialog.show(JoinOfficeActivity.this, e.getMessage(), aVoid -> joinOffice(lastName,firstName,status,officeId,joinCode));
             }
         }.execute();
     }
@@ -79,6 +80,6 @@ public class JoinOfficeActivity extends AppCompatActivity {
 
         Log.e("ERROR", "Read join code: " + qrData.joinCode);
 
-        joinOffice(lastName, firstName, qrData.officeId, qrData.joinCode);
+        joinOffice(lastName, firstName, "", qrData.officeId, qrData.joinCode);
     }
 }
