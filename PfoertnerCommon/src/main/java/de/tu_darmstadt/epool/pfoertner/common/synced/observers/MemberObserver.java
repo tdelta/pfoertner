@@ -4,4 +4,5 @@ public interface MemberObserver {
     default void onFirstNameChanged(final String newFirstName) {}
     default void onLastNameChanged(final String newFirstName) {}
     default void onStatusChanged(final String newStatus){}
+    default void onServerAuthCodeChanged(final String newServerAuthCode) {}
 }

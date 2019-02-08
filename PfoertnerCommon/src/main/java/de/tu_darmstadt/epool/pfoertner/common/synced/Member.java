@@ -3,6 +3,9 @@ package de.tu_darmstadt.epool.pfoertner.common.synced;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.annotations.Expose;
+
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
@@ -15,10 +18,13 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 public class Member extends Observable<MemberObserver> {
     private static final String TAG = "Member";
 
-    private final int id;
-    private String lastName;
-    private String firstName;
-    private String status;
+    @Expose private final int id;
+    @Expose private String lastName;
+    @Expose private String firstName;
+    @Expose private String status;
+    @Expose private String accessToken;
+
+    private String serverAuthCode;
 
     private final Office office;
 
@@ -119,6 +125,15 @@ public class Member extends Observable<MemberObserver> {
         return firstName;
     }
 
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(final SharedPreferences settings, final String accessToken){
+        this.accessToken = accessToken;
+        Office.writeMembersToLocalStorage(settings,this.office.membersToData());
+    }
+
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
         final MemberData data = new MemberData(
                 this.id,
@@ -159,27 +174,33 @@ public class Member extends Observable<MemberObserver> {
     }
 
     void updateByData(final MemberData data) {
-        final String oldFirstName = Member.this.firstName;
-        final String oldLastName = Member.this.lastName;
-        final String oldStatus = Member.this.status;
+        final String oldFirstName = this.firstName;
+        final String oldLastName = this.lastName;
+        final String oldStatus = this.status;
+        final String oldServerAuthCode = this.serverAuthCode;
 
-        Member.this.firstName = data.firstName;
+        this.firstName = data.firstName;
         if (!oldFirstName.equals(data.firstName)) {
-            Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(Member.this.firstName));
+            this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(this.firstName));
         }
 
-        Member.this.lastName = data.lastName;
+        this.lastName = data.lastName;
         if (!oldLastName.equals(data.lastName)) {
-            Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(Member.this.lastName));
+            this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(this.lastName));
         }
 
-        Member.this.status = data.status;
+        this.serverAuthCode = data.serverAuthCode;
+        if(!oldServerAuthCode.equals(data.serverAuthCode)){
+            this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(this.serverAuthCode));
+        }
+
+        this.status = data.status;
         if (
                 data.status == null && oldStatus != null
              || data.status != null && oldStatus == null
              || data.status != null && oldStatus != null && !oldStatus.equals(data.status)
         ) {
-            Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(Member.this.status));
+            this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(this.status));
         }
     }
 
