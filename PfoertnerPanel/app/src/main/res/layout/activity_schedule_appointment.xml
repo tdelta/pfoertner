@@ -43,7 +43,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="Please select a day within the next two weeks"
-                android:textSize="24sp"
+                android:textSize="42sp"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
@@ -55,7 +55,7 @@
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day9"
+                android:onClick="week1day4"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -69,7 +69,7 @@
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day8"
+                android:onClick="week1day3"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintEnd_toStartOf="@+id/day9"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -83,7 +83,7 @@
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day7"
+                android:onClick="week1day2"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintEnd_toStartOf="@+id/day8"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -97,7 +97,7 @@
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day6"
+                android:onClick="week1day1"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintEnd_toStartOf="@+id/day7"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -111,7 +111,7 @@
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day5"
+                android:onClick="week1day0"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintEnd_toStartOf="@+id/day6"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -122,10 +122,11 @@
                 android:id="@+id/day4"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
+                android:layout_marginTop="32dp"
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day4"
+                android:onClick="week0day4"
                 card_view:layout_constraintBottom_toTopOf="@+id/day9"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -136,10 +137,11 @@
                 android:id="@+id/day3"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
+                android:layout_marginTop="32dp"
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day3"
+                android:onClick="week0day3"
                 card_view:layout_constraintBottom_toTopOf="@+id/day8"
                 card_view:layout_constraintEnd_toStartOf="@+id/day4"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -150,10 +152,11 @@
                 android:id="@+id/day2"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
+                android:layout_marginTop="32dp"
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day2"
+                android:onClick="week0day2"
                 card_view:layout_constraintBottom_toTopOf="@+id/day7"
                 card_view:layout_constraintEnd_toStartOf="@+id/day3"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -164,10 +167,11 @@
                 android:id="@+id/day1"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
+                android:layout_marginTop="32dp"
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day1"
+                android:onClick="week0day1"
                 card_view:layout_constraintBottom_toTopOf="@+id/day6"
                 card_view:layout_constraintEnd_toStartOf="@+id/day2"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -178,10 +182,11 @@
                 android:id="@+id/day0"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
+                android:layout_marginTop="32dp"
                 android:background="@color/colorPrimary"
                 android:clickable="true"
                 android:elevation="15dp"
-                android:onClick="day0"
+                android:onClick="week0day0"
                 card_view:layout_constraintBottom_toTopOf="@+id/day5"
                 card_view:layout_constraintEnd_toStartOf="@+id/day1"
                 card_view:layout_constraintHorizontal_bias="0.5"
@@ -213,16 +218,62 @@
         card_view:layout_constraintStart_toStartOf="parent"
         card_view:layout_constraintTop_toBottomOf="@+id/cardView">
 
-        <TextView
-            android:layout_width="470dp"
-            android:layout_height="match_parent"
-            android:padding="20dp"
-            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-      do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-      sunt in culpa qui officia deserunt mollit anim id est laborum" />
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Available office hours"
+                android:textSize="42sp"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <HorizontalScrollView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toBottomOf="@+id/textView4">
+
+                <LinearLayout
+                    android:id="@+id/officehours"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <de.tu_darmstadt.epool.pfoertnerpanel.TimeslotView
+                        android:id="@+id/test1"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginRight="30dp"
+                        android:background="@color/colorPrimary"
+                        android:elevation="15dp" />
+
+                    <de.tu_darmstadt.epool.pfoertnerpanel.TimeslotView
+                        android:id="@+id/test2"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginRight="30dp"
+                        android:background="@color/colorPrimary"
+                        android:elevation="15dp" />
+
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+        </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 
 </android.support.constraint.ConstraintLayout>
