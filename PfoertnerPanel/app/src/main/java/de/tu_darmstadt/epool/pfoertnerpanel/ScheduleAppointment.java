@@ -1,48 +1,30 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.content.res.AssetManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.threeten.bp.LocalDateTime;
-
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 
 public class ScheduleAppointment extends AppCompatActivity {
     LocalDateTime now;
     String TAG = "Schedule ";
-    DayView day = null;
     DayView days[];
+    final int selected = 0xFFEB3Bff;
+    final int nothing = 0xbdbdbdff;
+    final int normal = 0xFF8BC34A;
+    int currentDay;
 
-
-    private static String OAUTH2 = "4/6QAxEqPuggLbxOli8_qoybBrYx9mltS-snaBAUR4zozGFEnm1wNbrHcmX0SDX6prrT1xhAjWLtqMu6KeciicAD8";
-    private static String ACCESS_TOKEN = "ya29.GluoBmlsITwsJGYAQQpNLSCypo6wYgSaNChLfJ7jZvxjPws87V9wbZpdXaD8OSbE14dsjjQCO2qy7L-kymlXULOqHDMkx7hU-7KmSkTsfxo5UHAl-rwfm40Kk0ZN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_schedule_appointment);
-        days = new DayView[10];
+        days = new DayView[12];
 
 
         days[0] = (DayView) findViewById(R.id.day0);
@@ -55,102 +37,156 @@ public class ScheduleAppointment extends AppCompatActivity {
         days[3].setTitle("Thu");
         days[4] = (DayView) findViewById(R.id.day4);
         days[4].setTitle("Fri");
-        days[5] = (DayView) findViewById(R.id.day5);
-        days[5].setTitle("Mo");
-        days[6] = (DayView) findViewById(R.id.day6);
-        days[6].setTitle("Tue");
-        days[7] = (DayView) findViewById(R.id.day7);
-        days[7].setTitle("Wed");
-        days[8] = (DayView) findViewById(R.id.day8);
-        days[8].setTitle("Thu");
-        days[9] = (DayView) findViewById(R.id.day9);
-        days[9].setTitle("Fri");
+        days[7] = (DayView) findViewById(R.id.day5);
+        days[7].setTitle("Mo");
+        days[8] = (DayView) findViewById(R.id.day6);
+        days[8].setTitle("Tue");
+        days[9] = (DayView) findViewById(R.id.day7);
+        days[9].setTitle("Wed");
+        days[10] = (DayView) findViewById(R.id.day8);
+        days[10].setTitle("Thu");
+        days[11] = (DayView) findViewById(R.id.day9);
+        days[11].setTitle("Fri");
 
-        //ueberlegungen
         now = LocalDateTime.now();
 
         switch (now.getDayOfWeek().toString()){
-            case "Monday":
-                colorDays(1);
-                setDate(1);
+            case "MONDAY":
+                currentDay = 0;
+                colorDaysPassed(currentDay);
+                setDate(currentDay,0);
                 break;
-            case "Tuesday":
-                colorDays(2);
-                setDate(2);
+            case "TUESDAY":
+                currentDay = 1;
+                colorDaysPassed(currentDay);
+                setDate(currentDay,0);
                 break;
-            case "Wednesday":
-                colorDays(3);
-                setDate(3);
+            case "WEDNESDAY":
+                currentDay = 2;
+                colorDaysPassed(currentDay);
+                setDate(currentDay,0);
                 break;
-            case "Thursday":
-                setDate(4);
-                colorDays(4);
+            case "THURSDAY":
+                currentDay = 3;
+                setDate(currentDay,0);
+                colorDaysPassed(currentDay);
                 break;
-            case "Friday":
-                setDate(5);
-                colorDays(5);
+            case "FRIDAY":
+                currentDay = 4;
+                setDate(currentDay,0);
+                colorDaysPassed(currentDay);
                 break;
             default:
-                colorDays(0);
+                colorDaysPassed(currentDay);
+                switch (now.getDayOfWeek().toString()){
+                    case "SATURDAY":
+                        currentDay = 0;
+                        setDate(currentDay,2);
+                        break;
+                    case "SUNDAY":
+                        currentDay = 0;
+                        setDate(currentDay,1);
+                        break;
+                }
                 break;
         }
 
 
     }
 
-    public void day0(View view){
-        Log.d(TAG, "day0");
-    }
+    public void week0day0(View view){
+        colorDaysPassed(currentDay);
+        days[0].setBackgroundColor(selected);
+        Log.d(TAG, "week0day0");
+        LinearLayout slots = (LinearLayout) findViewById(R.id.officehours);
+        TimeslotView test = new TimeslotView(this);
+        TimeslotView test2 = new TimeslotView(this);
 
-    public void day1(View view){
-        Log.d(TAG, "day1");
-    }
+        test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-    public void day2(View view){
-        Log.d(TAG, "day2");
-    }
-
-    public void day3(View view){
-        Log.d(TAG, "day3");
-    }
-
-    public void day4(View view){
-        Log.d(TAG, "day4");
-    }
-
-    public void day5(View view){
-        Log.d(TAG, "day5");
-    }
-
-    public void day6(View view){
-        Log.d(TAG, "day6");
-    }
-
-    public void day7(View view){
-        Log.d(TAG, "day7");
-    }
-
-    public void day8(View view){
-        Log.d(TAG, "day8");
-    }
-
-    public void day9(View view){
-        Log.d(TAG, "day9");
-    }
-
-    private void setDate(int start){
+            }
+        });
+        slots.removeAllViews();
+//        slots.addView(new TimeslotView(this));
+        slots.addView(test,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        slots.addView(test2,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
     }
 
-    private void colorDays(int start){
+
+    public void week0day1(View view){
+        colorDaysPassed(currentDay);
+        days[1].setBackgroundColor(selected);
+        Log.d(TAG, "week0day1 " + view.getId());
+    }
+
+    public void week0day2(View view){
+        colorDaysPassed(currentDay);
+        days[2].setBackgroundColor(selected);
+        Log.d(TAG, "week0day2" + view.getId());
+    }
+
+    public void week0day3(View view){
+        colorDaysPassed(currentDay);
+        days[3].setBackgroundColor(selected);
+        Log.d(TAG, "week0day3");
+    }
+
+    public void week0day4(View view){
+        colorDaysPassed(currentDay);
+        days[4].setBackgroundColor(selected);
+        Log.d(TAG, "week0day4");
+    }
+
+    public void week1day0(View view){
+        colorDaysPassed(currentDay);
+        days[7].setBackgroundColor(selected);
+        Log.d(TAG, "week1day0");
+    }
+
+    public void week1day1(View view){
+        colorDaysPassed(currentDay);
+        days[8].setBackgroundColor(selected);
+        Log.d(TAG, "week1day1");
+    }
+
+    public void week1day2(View view){
+        colorDaysPassed(currentDay);
+        days[9].setBackgroundColor(selected);
+        Log.d(TAG, "week1day2");
+    }
+
+    public void week1day3(View view){
+        colorDaysPassed(currentDay);
+        days[10].setBackgroundColor(selected);
+        Log.d(TAG, "week1day3");
+    }
+
+    public void week1day4(View view){
+        colorDaysPassed(currentDay);
+        days[11].setBackgroundColor(selected);
+        Log.d(TAG, "week1day4");
+    }
+
+    private void setDate(int start, int weekend){
+        for(int i = start;i<12;i++){
+            if (i!= 5 && i != 6){
+                days[i].setDate(now.plusDays(i-start+weekend).getDayOfMonth()+"-"+now.getMonthValue());
+        }
+        }
+        for(int i = 0; i<start;i++){
+            days[i].setDate(now.plusDays(i-start).getDayOfMonth()+"-"+now.getMonthValue());
+        }
+    }
+
+    private void colorDaysPassed(int start){
         for(int i = 0;i<start;i++){
-            days[i].setBackgroundColor(0xbdbdbdff);
-        }
-        for(int i = start;i<10;i++){
-            days[i].setDate(now.getDayOfMonth()+"-"+now.getMonthValue());
-            now.plusDays(100);
+            days[i].setBackgroundColor(nothing);
         }
     }
+
 
 
 }
