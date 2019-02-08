@@ -115,10 +115,10 @@ public class CalendarApi implements MemberObserver {
                         context.getResources().getString(R.string.clientSecret))
                 .setServiceAccountId("110420475534815932936")
                 .setServiceAccountPrivateKeyId("e43d0751b099d3a3186c4477431a1ebf955780f5")
-                .setServiceAccountPrivateKey(key)
+          //      .setServiceAccountPrivateKey(key)
                 .setServiceAccountScopes(SCOPES)
                 .build();
-        credential.setAccessToken(ACCESS_TOKEN);
+        //credential.setAccessToken(ACCESS_TOKEN);
 
         Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credential)
                 .setApplicationName("Pfoertner")
