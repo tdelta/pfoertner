@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
@@ -34,6 +35,7 @@ public class TimeslotView extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.timeslotview, this, true);
+        this.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
 
     }
 }
