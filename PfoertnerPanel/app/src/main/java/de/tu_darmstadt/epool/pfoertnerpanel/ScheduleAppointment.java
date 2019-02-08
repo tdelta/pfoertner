@@ -90,6 +90,8 @@ public class ScheduleAppointment extends AppCompatActivity {
         Log.d(TAG, "week0day0");
         LinearLayout slots = (LinearLayout) findViewById(R.id.officehours);
         TimeslotView test = new TimeslotView(this);
+        TimeslotView test2 = new TimeslotView(this);
+
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,6 +101,8 @@ public class ScheduleAppointment extends AppCompatActivity {
         slots.removeAllViews();
 //        slots.addView(new TimeslotView(this));
         slots.addView(test,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        slots.addView(test2,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
     }
 
     public void week0day1(View view){
