@@ -1,7 +1,9 @@
 package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
+import com.google.gson.annotations.Expose;
+
 public class FcmTokenCreationData {
-    public final String fcmToken;
+    @Expose public final String fcmToken;
 
     public FcmTokenCreationData(final String fcmToken) {
         this.fcmToken = fcmToken;

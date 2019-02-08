@@ -1,5 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
+import com.google.gson.GsonBuilder;
+
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -73,7 +75,7 @@ public interface PfoertnerService {
     final Retrofit retrofit = new Retrofit.Builder()
             .client(client)
             .baseUrl(SERVER_ADDR)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()))
             .build();
 
     final PfoertnerService service = retrofit.create(PfoertnerService.class);
