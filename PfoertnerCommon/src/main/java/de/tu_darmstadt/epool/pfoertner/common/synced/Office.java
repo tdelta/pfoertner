@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,8 +88,8 @@ public class Office extends Observable<OfficeObserver> {
         }
     }
 
-    static void writeMembersToLocalStorage(final SharedPreferences preferences, final MemberData[] data) {
-        final Gson gson = new Gson();
+    static void writeMembersToLocalStorage(final SharedPreferences preferences, final Member[] data) {
+        final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
         final SharedPreferences.Editor e = preferences.edit();
         final String memberJson =  gson.toJson(data);
@@ -220,13 +221,6 @@ public class Office extends Observable<OfficeObserver> {
     private final DownloadOfficeTask downloadOfficeTask = new DownloadOfficeTask();
     private final UploadOfficeTask uploadOfficeTask = new UploadOfficeTask();
     private final DownloadMembersTask downloadMembersTask = new DownloadMembersTask();
-
-    MemberData[] membersToData() {
-        return this.members
-                .stream()
-                .map(Member::toData)
-                .toArray(MemberData[]::new);
-    }
 
     private Office(final OfficeData data, final MemberData[] members) {
         super();
