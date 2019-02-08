@@ -18,11 +18,11 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 public class Member extends Observable<MemberObserver> {
     private static final String TAG = "Member";
 
-    @Expose private final int id;
-    @Expose private String lastName;
-    @Expose private String firstName;
-    @Expose private String status;
-    @Expose private String accessToken;
+    private final int id;
+    private String lastName;
+    private String firstName;
+    private String status;
+    private String accessToken;
 
     private String serverAuthCode;
 
