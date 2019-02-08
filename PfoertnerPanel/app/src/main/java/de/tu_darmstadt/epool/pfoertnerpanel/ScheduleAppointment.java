@@ -14,8 +14,10 @@ public class ScheduleAppointment extends AppCompatActivity {
     LocalDateTime now;
     String TAG = "Schedule ";
     DayView days[];
-    final int selected = 0xFFEB3BFF;
+    final int selected = 0xFFEB3Bff;
     final int nothing = 0xbdbdbdff;
+    final int normal = 0xFF8BC34A;
+    int currentDay;
 
 
     @Override
@@ -50,33 +52,40 @@ public class ScheduleAppointment extends AppCompatActivity {
 
         switch (now.getDayOfWeek().toString()){
             case "MONDAY":
-                colorDaysPassed(0);
-                setDate(0,0);
+                currentDay = 0;
+                colorDaysPassed(currentDay);
+                setDate(currentDay,0);
                 break;
             case "TUESDAY":
-                colorDaysPassed(1);
-                setDate(1,0);
+                currentDay = 1;
+                colorDaysPassed(currentDay);
+                setDate(currentDay,0);
                 break;
             case "WEDNESDAY":
-                colorDaysPassed(2);
-                setDate(2,0);
+                currentDay = 2;
+                colorDaysPassed(currentDay);
+                setDate(currentDay,0);
                 break;
             case "THURSDAY":
-                setDate(3,0);
-                colorDaysPassed(3);
+                currentDay = 3;
+                setDate(currentDay,0);
+                colorDaysPassed(currentDay);
                 break;
             case "FRIDAY":
-                setDate(4,0);
-                colorDaysPassed(4);
+                currentDay = 4;
+                setDate(currentDay,0);
+                colorDaysPassed(currentDay);
                 break;
             default:
-                colorDaysPassed(0);
+                colorDaysPassed(currentDay);
                 switch (now.getDayOfWeek().toString()){
                     case "SATURDAY":
-                        setDate(0,2);
+                        currentDay = 0;
+                        setDate(currentDay,2);
                         break;
                     case "SUNDAY":
-                        setDate(0,1);
+                        currentDay = 0;
+                        setDate(currentDay,1);
                         break;
                 }
                 break;
@@ -86,6 +95,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     public void week0day0(View view){
+        colorDaysPassed(currentDay);
         days[0].setBackgroundColor(selected);
         Log.d(TAG, "week0day0");
         LinearLayout slots = (LinearLayout) findViewById(R.id.officehours);
@@ -101,39 +111,58 @@ public class ScheduleAppointment extends AppCompatActivity {
         slots.addView(test,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
     }
 
+
     public void week0day1(View view){
-        Log.d(TAG, "week0day1");
+        colorDaysPassed(currentDay);
+        days[1].setBackgroundColor(selected);
+        Log.d(TAG, "week0day1 " + view.getId());
     }
 
     public void week0day2(View view){
-        Log.d(TAG, "week0day2");
+        colorDaysPassed(currentDay);
+        days[2].setBackgroundColor(selected);
+        Log.d(TAG, "week0day2" + view.getId());
     }
 
     public void week0day3(View view){
+        colorDaysPassed(currentDay);
+        days[3].setBackgroundColor(selected);
         Log.d(TAG, "week0day3");
     }
 
     public void week0day4(View view){
+        colorDaysPassed(currentDay);
+        days[4].setBackgroundColor(selected);
         Log.d(TAG, "week0day4");
     }
 
     public void week1day0(View view){
+        colorDaysPassed(currentDay);
+        days[7].setBackgroundColor(selected);
         Log.d(TAG, "week1day0");
     }
 
     public void week1day1(View view){
+        colorDaysPassed(currentDay);
+        days[8].setBackgroundColor(selected);
         Log.d(TAG, "week1day1");
     }
 
     public void week1day2(View view){
+        colorDaysPassed(currentDay);
+        days[9].setBackgroundColor(selected);
         Log.d(TAG, "week1day2");
     }
 
     public void week1day3(View view){
+        colorDaysPassed(currentDay);
+        days[10].setBackgroundColor(selected);
         Log.d(TAG, "week1day3");
     }
 
     public void week1day4(View view){
+        colorDaysPassed(currentDay);
+        days[11].setBackgroundColor(selected);
         Log.d(TAG, "week1day4");
     }
 
