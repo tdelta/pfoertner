@@ -37,6 +37,7 @@ public class Member extends Observable<MemberObserver> {
         this.id = data.id;
         this.lastName = data.lastName;
         this.firstName = data.firstName;
+        this.accessToken = data.accessToken;
         this.office = office;
     }
 
@@ -109,7 +110,8 @@ public class Member extends Observable<MemberObserver> {
                 this.id,
                 this.firstName,
                 this.lastName,
-                this.status
+                this.status,
+                this.accessToken
         );
     }
 
@@ -131,7 +133,7 @@ public class Member extends Observable<MemberObserver> {
 
     public void setAccessToken(final SharedPreferences settings, final String accessToken){
         this.accessToken = accessToken;
-        Office.writeMembersToLocalStorage(settings,this.office.membersToData());
+        Office.writeMembersToLocalStorage(settings, this.office.membersToData());
     }
 
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
@@ -139,7 +141,8 @@ public class Member extends Observable<MemberObserver> {
                 this.id,
                 this.firstName,
                 newLastName,
-                this.status
+                this.status,
+                this.accessToken
         );
 
         upload(service, auth, data);
@@ -150,7 +153,8 @@ public class Member extends Observable<MemberObserver> {
                 this.id,
                 newFirstName,
                 this.lastName,
-                this.status
+                this.status,
+                this.accessToken
         );
 
         upload(service, auth, data);
@@ -161,7 +165,8 @@ public class Member extends Observable<MemberObserver> {
                 this.id,
                 this.firstName,
                 this.lastName,
-                newStatus
+                newStatus,
+                this.accessToken
         );
 
         upload(service, auth, data);

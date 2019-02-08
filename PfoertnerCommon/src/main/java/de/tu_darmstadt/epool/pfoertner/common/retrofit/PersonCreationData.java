@@ -1,9 +1,11 @@
 package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
+import com.google.gson.annotations.Expose;
+
 public class PersonCreationData {
 
-    public final String lastName;
-    public final String firstName;
+    @Expose public final String lastName;
+    @Expose public final String firstName;
 
     public PersonCreationData(String lastName, String firstName){
         this.lastName = lastName;

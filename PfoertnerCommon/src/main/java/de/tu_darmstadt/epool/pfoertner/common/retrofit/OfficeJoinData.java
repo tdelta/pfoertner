@@ -1,10 +1,12 @@
 package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
+import com.google.gson.annotations.Expose;
+
 public class OfficeJoinData {
-  private final String joinCode;
-  private final String firstName;
-  private final String lastName;
-  private final String status;
+  @Expose private final String joinCode;
+  @Expose private final String firstName;
+  @Expose private final String lastName;
+  @Expose private final String status;
 
 
   public OfficeJoinData(final String joinCode, final String firstName, final String lastName, final String status){
