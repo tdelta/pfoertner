@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -197,11 +198,16 @@ public class ScheduleAppointment extends AppCompatActivity {
                 timeSlot.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d(TAG, "test");
+                        gotoMakeAppointment(v);
                     }
                 });
                 slots.addView(timeSlot);
             }
         }
+    }
+
+    public void gotoMakeAppointment(View view){
+        Intent intent = new Intent(this, MakeAppointment.class);
+        startActivity(intent);
     }
 }
