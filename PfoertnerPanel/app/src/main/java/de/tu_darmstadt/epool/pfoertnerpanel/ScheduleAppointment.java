@@ -1,39 +1,28 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.os.Build;
-import android.support.constraint.ConstraintLayout;
+import android.content.res.AssetManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpExecuteInterceptor;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
-import com.google.api.client.util.store.DataStore;
-import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
-import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.GeneralSecurityException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
@@ -45,76 +34,12 @@ public class ScheduleAppointment extends AppCompatActivity {
     DayView days[];
 
 
-    private static String CLIENT_ID = "245397489411-pm7par3q4kjlik44v5ofqfsrdtnb5k3a.apps.googleusercontent.com";
-    private static String CLIENT_SECRET = "l2uMcyKEIGug9ZpiGWOMmj0p";
-    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
-    private static String OAUTH2 = "4/6QBy_77oPImozNez-pxefmwAIXYSBr56a9l_KFfncYOqn_TKpHCGcVbiy-BoQnAFEHcRrzjOJED4j_1RpZnDCJA";
+    private static String OAUTH2 = "4/6QAxEqPuggLbxOli8_qoybBrYx9mltS-snaBAUR4zozGFEnm1wNbrHcmX0SDX6prrT1xhAjWLtqMu6KeciicAD8";
+    private static String ACCESS_TOKEN = "ya29.GluoBmlsITwsJGYAQQpNLSCypo6wYgSaNChLfJ7jZvxjPws87V9wbZpdXaD8OSbE14dsjjQCO2qy7L-kymlXULOqHDMkx7hU-7KmSkTsfxo5UHAl-rwfm40Kk0ZN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        new RequestTask<Void>(){
-            @Override
-            public Void doRequests(){
-                try {
-                    final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-
-                    GoogleTokenResponse tokenResponse =
-                            new GoogleAuthorizationCodeTokenRequest(
-                                    HTTP_TRANSPORT,
-                                    JacksonFactory.getDefaultInstance(),
-                                    "https://www.googleapis.com/oauth2/v4/token",
-                                    CLIENT_ID,
-                                    CLIENT_SECRET,
-                                    OAUTH2,
-                                    "").execute();
-
-                    String accessToken = tokenResponse.getAccessToken();
-
-                    Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod()).setAccessToken(OAUTH2);
-                    credential = new GoogleCredential.Builder()
-                            .setTransport(HTTP_TRANSPORT)
-                            .setJsonFactory(JacksonFactory.getDefaultInstance())
-                            .setClientSecrets(CLIENT_ID,CLIENT_SECRET)
-                            .build();
-                    credential.setAccessToken(accessToken);
-                    Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credential)
-                            .setApplicationName("Pfoertner")
-                            .build();
-
-                    DateTime now = new DateTime(System.currentTimeMillis());
-                    Events events = service.events().list("primary")
-                            .setMaxResults(10)
-                            .setTimeMin(now)
-                            .setOrderBy("startTime")
-                            .setSingleEvents(true)
-                            .execute();
-                    List<Event> items = events.getItems();
-                    for (Event event : items) {
-                        Log.d("Calendar", event.getStart().toPrettyString());
-                    }
-                } catch (RuntimeException e){
-                    e.printStackTrace();
-                }
-
-                catch (IOException e){
-                    Log.d("Calendar","IOException");
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            protected void onException(Exception e){
-                e.printStackTrace();
-            }
-
-            @Override
-            protected void onSuccess(final Void result){
-
-            }
-        }.execute();
 
         setContentView(R.layout.activity_schedule_appointment);
         days = new DayView[10];

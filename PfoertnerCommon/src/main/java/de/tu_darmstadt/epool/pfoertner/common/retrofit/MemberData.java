@@ -9,6 +9,9 @@ public class MemberData {
     public final String lastName;
     public final String firstName;
     public final String status;
+    public String serverAuthCode;
+
+
 
     public MemberData(final int id, final String firstName, final String lastName, final String status){
         this.id = id;
