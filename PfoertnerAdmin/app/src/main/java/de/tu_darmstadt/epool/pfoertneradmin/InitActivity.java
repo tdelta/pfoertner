@@ -28,6 +28,11 @@ public class InitActivity extends AppCompatActivity {
             }
 
             @Override
+            protected void onSuccess(Void result) {
+                InitActivity.this.setContentView(R.layout.activity_init);
+            }
+
+            @Override
             protected void onException(Exception e){
                 ErrorInfoDialog.show(InitActivity.this, e.getMessage(), aVoid -> initApp(),false);
             }
@@ -37,7 +42,6 @@ public class InitActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_init);
 
         initApp();
     }

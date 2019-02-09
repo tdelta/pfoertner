@@ -3,19 +3,28 @@ package de.tu_darmstadt.epool.pfoertner.common.synced;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.annotations.Expose;
+
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.synced.helpers.ResourceInitProtocol;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 
 public class Member extends Observable<MemberObserver> {
     private static final String TAG = "Member";
 
-    private final int id;
-    private String lastName;
-    private String firstName;
+    @Expose private final int id;
+    @Expose private String lastName;
+    @Expose private String firstName;
+    @Expose private String status;
+    @Expose private String accessToken;
+
+    private String serverAuthCode;
 
     private final Office office;
 
@@ -29,6 +38,60 @@ public class Member extends Observable<MemberObserver> {
         this.lastName = data.lastName;
         this.firstName = data.firstName;
         this.office = office;
+    }
+
+    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, String status, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
+        return new ResourceInitProtocol<MemberData>(
+    "Could not join office. Do you have an internet connection?"
+        ) {
+            @Override
+            protected MemberData tryLoadFromServer() throws Exception {
+                final MemberData memberData = service.joinOffice(
+                        authtoken.id,
+                        officeId,
+                        new OfficeJoinData(
+                                joinCode,
+                                firstName,
+                                lastName,
+                                status
+                        )
+                ).execute().body();
+
+                return memberData;
+            }
+
+            @Override
+            protected void saveToStorage(MemberData data) {
+                final SharedPreferences.Editor e = settings.edit();
+
+                e.putInt("MemberId", data.id);
+
+                e.commit();
+            }
+        }.execute();
+    }
+
+    public static int loadMemberId(final SharedPreferences preferences) {
+        final Integer memberId = new ResourceInitProtocol<Integer>(
+                "Could not load own member id"
+        ) {
+            @Override
+            protected Integer tryLoadFromStorage() throws Exception {
+                if (preferences.contains("MemberId")) {
+                    return preferences.getInt("MemberId", -1);
+                }
+
+                else {
+                    return null;
+                }
+            }
+        }.execute();
+
+        return memberId;
+    }
+
+    public static boolean hadJoined(final SharedPreferences preferences) {
+        return preferences.contains("MemberId");
     }
 
     public void upload(final PfoertnerService service, final Authentication auth, final MemberData data) {
@@ -45,7 +108,8 @@ public class Member extends Observable<MemberObserver> {
         return new MemberData(
                 this.id,
                 this.firstName,
-                this.lastName
+                this.lastName,
+                this.status
         );
     }
 
@@ -61,11 +125,21 @@ public class Member extends Observable<MemberObserver> {
         return firstName;
     }
 
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(final SharedPreferences settings, final String accessToken){
+        this.accessToken = accessToken;
+        Office.writeMembersToLocalStorage(settings,this.office.membersToData());
+    }
+
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
         final MemberData data = new MemberData(
                 this.id,
                 this.firstName,
-                newLastName
+                newLastName,
+                this.status
         );
 
         upload(service, auth, data);
@@ -75,7 +149,19 @@ public class Member extends Observable<MemberObserver> {
         final MemberData data = new MemberData(
                 this.id,
                 newFirstName,
-                this.lastName
+                this.lastName,
+                this.status
+        );
+
+        upload(service, auth, data);
+    }
+
+    public void setStatus(final PfoertnerService service, final Authentication auth, final String newStatus) {
+        final MemberData data = new MemberData(
+                this.id,
+                this.firstName,
+                this.lastName,
+                newStatus
         );
 
         upload(service, auth, data);
@@ -85,6 +171,37 @@ public class Member extends Observable<MemberObserver> {
         this.downloadMemberTask.whenDone(
                 aVoid -> downloadMemberTask.execute(preferences, service, auth)
         );
+    }
+
+    void updateByData(final MemberData data) {
+        final String oldFirstName = this.firstName;
+        final String oldLastName = this.lastName;
+        final String oldStatus = this.status;
+        final String oldServerAuthCode = this.serverAuthCode;
+
+        this.firstName = data.firstName;
+        if (!oldFirstName.equals(data.firstName)) {
+            this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(this.firstName));
+        }
+
+        this.lastName = data.lastName;
+        if (!oldLastName.equals(data.lastName)) {
+            this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(this.lastName));
+        }
+
+        this.serverAuthCode = data.serverAuthCode;
+        if(!oldServerAuthCode.equals(data.serverAuthCode)){
+            this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(this.serverAuthCode));
+        }
+
+        this.status = data.status;
+        if (
+                data.status == null && oldStatus != null
+             || data.status != null && oldStatus == null
+             || data.status != null && oldStatus != null && !oldStatus.equals(data.status)
+        ) {
+            this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(this.status));
+        }
     }
 
     private class DownloadMemberTask extends RequestTask<MemberData> {
@@ -115,18 +232,7 @@ public class Member extends Observable<MemberObserver> {
             // Office übernimmt momentan lokale Speicherung, sollte besser nach hier ausgelagert werden
             Office.writeMembersToLocalStorage(this.settings, Member.this.office.membersToData());
 
-            final String oldFirstName = Member.this.firstName;
-            final String oldLastName = Member.this.lastName;
-
-            Member.this.firstName = updatedMemberData.firstName;
-            if (!oldFirstName.equals(updatedMemberData.firstName)) {
-                Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(Member.this.firstName));
-            }
-
-            Member.this.lastName = updatedMemberData.lastName;
-            if (!oldFirstName.equals(updatedMemberData.firstName)) {
-                Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(Member.this.lastName));
-            }
+            Member.this.updateByData(updatedMemberData);
         }
 
         @Override

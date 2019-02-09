@@ -12,7 +12,6 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
@@ -48,8 +47,12 @@ public class PfoertnerApplication extends Application {
             this.maybeOffice = Optional.empty();
         }
 
+        onInit();
+
         this.hadBeenInitialized = true;
     }
+
+    protected void onInit() { }
 
     @Override
     public void onCreate() {
@@ -60,7 +63,7 @@ public class PfoertnerApplication extends Application {
         this.preferences = getSharedPreferences(PREFERENCES_NAME,0);
     }
 
-    private void checkInitStatus() {
+    protected void checkInitStatus() {
         if (!hadBeenInitialized) {
             throw new IllegalStateException("The application has to be initialized before you can use most methods!");
         }

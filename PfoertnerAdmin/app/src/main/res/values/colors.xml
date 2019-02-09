@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--
     <color name="colorPrimary">#FF283593</color>
     <color name="colorPrimaryDark">#1a237e</color>
     <color name="colorAccent">#8c9eff</color>
@@ -8,5 +9,16 @@
     <color name="accent_material_dark">#8c9eff</color>
     <color name="background_material_dark">#303f9f</color>
     <color name="foreground_material_dark">#e8eaf6</color>
+    -->
+
+
+    <color name="pfoertner_light_primary">#03A9F4</color>
+    <color name="pfoertner_light_primary_dark">#0288D1</color>
+    <color name="pfoertner_light_primary_light">#B3E5FC</color>
+    <color name="pfoertner_light_accent">#FF9800</color>
+    <color name="pfoertner_light_primary_text">#212121</color>
+    <color name="pfoertner_light_secondary_text">#757575</color>
+    <color name="pfoertner_light_icons">#FFFFFF</color>
+    <color name="pfoertner_light_divider">#BDBDBD</color>
 
 </resources>

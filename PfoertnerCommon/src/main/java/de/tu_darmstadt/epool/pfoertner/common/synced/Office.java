@@ -4,10 +4,10 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,10 +15,9 @@ import java.util.stream.Collectors;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeData;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertner.common.synced.helpers.ResourceInitProtocol;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
@@ -28,7 +27,7 @@ public class Office extends Observable<OfficeObserver> {
     private final int id;
     private String joinCode;
     private String status;
-    private List<Member> members;
+    private List<Member> members = new ArrayList<>(0);
 
     public int getId() {
         return id;
@@ -89,8 +88,8 @@ public class Office extends Observable<OfficeObserver> {
         }
     }
 
-    static void writeMembersToLocalStorage(final SharedPreferences preferences, final MemberData[] data) {
-        final Gson gson = new Gson();
+    static void writeMembersToLocalStorage(final SharedPreferences preferences, final Member[] data) {
+        final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
         final SharedPreferences.Editor e = preferences.edit();
         final String memberJson =  gson.toJson(data);
@@ -178,10 +177,6 @@ public class Office extends Observable<OfficeObserver> {
             writeMembersToLocalStorage(settings, updatedMembersData);
 
             Office.this.setMembers(updatedMembersData);
-
-            Office.this.notifyEachObserver(
-                    OfficeObserver::onMembersChanged
-            );
         }
 
         @Override
@@ -227,26 +222,37 @@ public class Office extends Observable<OfficeObserver> {
     private final UploadOfficeTask uploadOfficeTask = new UploadOfficeTask();
     private final DownloadMembersTask downloadMembersTask = new DownloadMembersTask();
 
-    MemberData[] membersToData() {
-        return this.members
-                .stream()
-                .map(Member::toData)
-                .toArray(MemberData[]::new);
-    }
-
     private Office(final OfficeData data, final MemberData[] members) {
         super();
 
         this.id = data.id;
         this.joinCode = data.joinCode;
+        this.status = data.status;
 
         this.setMembers(members);
     }
 
     private void setMembers(final MemberData[] members) {
-        this.members = Arrays.stream(members)
-                .map(memberData -> new Member(this, memberData))
-                .collect(Collectors.toList());
+        final List<Member> replacementList = new ArrayList<>(members.length);
+
+        for (final MemberData data : members) {
+            final Optional<Member> maybeMember = this.getMemberById(data.id);
+            final Member member;
+
+            if (maybeMember.isPresent()) {
+                member = maybeMember.get();
+                member.updateByData(data);
+            }
+
+            else {
+                member = new Member(this, data);
+            }
+
+            replacementList.add(member);
+        }
+
+        this.members = replacementList;
+        this.notifyEachObserver(OfficeObserver::onMembersChanged);
     }
 
     public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
@@ -374,87 +380,9 @@ public class Office extends Observable<OfficeObserver> {
         }.execute();
     }
 
-    public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
-        return new ResourceInitProtocol<MemberData>(
-    "Could not join office. Do you have an internet connection?"
-        ) {
-            @Override
-            protected MemberData tryLoadFromServer() throws Exception {
-                final MemberData memberData = service.joinOffice(
-                        authtoken.id,
-                        officeId,
-                        new OfficeJoinData(
-                                joinCode,
-                                firstName,
-                                lastName
-                        )
-                ).execute().body();
-
-                return memberData;
-            }
-        }.execute();
-    }
-
     public static boolean hadBeenRegistered(final SharedPreferences settings) {
         return settings.contains("OfficeId");
     }
 
-    static class ResourceInitProtocol<T> {
-        private final String errorMsg;
-
-        public ResourceInitProtocol() {
-            this.errorMsg = null;
-        }
-
-        public ResourceInitProtocol(final String errorMsg) {
-            this.errorMsg = errorMsg;
-        }
-
-        protected T tryLoadFromServer() throws Exception {
-            return null;
-        }
-
-        protected T tryLoadFromStorage() throws Exception {
-            return null;
-        }
-
-        protected void saveToStorage(final T data) { }
-
-        public final T execute() {
-            T data;
-
-            try {
-                data = tryLoadFromServer();
-
-                if (data != null) {
-                    saveToStorage(data);
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-
-                data = null;
-            }
-
-            try {
-                if (data == null) {
-                    data = tryLoadFromStorage();
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-
-                data = null;
-            }
-
-            if (data == null) {
-                throw new RuntimeException(
-                        this.errorMsg == null ?
-                                  "Could not load resource. Neither from the server nor from local storage."
-                                : this.errorMsg
-                );
-            }
-
-            return data;
-        }
-    }
 }
 
