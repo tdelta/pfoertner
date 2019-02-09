@@ -1,24 +1,12 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 
-import PfoertnerCommon.R;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
 
 public class MessagingService extends FirebaseMessagingService {
@@ -90,11 +78,6 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Messaging service startet.");
         eventChannel = new EventChannel(this);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("appointments", "Appointment Requests", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("Notifications for new appointments requested at the door panel");
-            getSystemService(NotificationManager.class).createNotificationChannel(channel);
-        }
         init();
     }
 
@@ -102,12 +85,7 @@ public class MessagingService extends FirebaseMessagingService {
     public void onMessageReceived(final RemoteMessage remoteMessage) {
         Log.d(TAG, "Received FCM message.");
 
-        if(remoteMessage.getData().containsKey("notification")){
-            Log.d(TAG,"Building a notification");
-            displayNotification(remoteMessage.getData().get("notification"));
-        }
-
-        else if (remoteMessage.getData().containsKey("event")) {
+        if (remoteMessage.getData().containsKey("event")) {
             try {
                 eventChannel.send(
                         EventChannel.EventType.valueOf(
@@ -125,7 +103,7 @@ public class MessagingService extends FirebaseMessagingService {
         }
 
         else if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Received data notification without event or notification key.");
+            Log.d(TAG, "Received data notification without event key.");
         }
     }
 
@@ -134,44 +112,5 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Refreshed token: " + token);
 
         registerToken(token);
-    }
-
-    public void displayNotification(String notificationContent){
-        try {
-            JSONObject notificationJson = new JSONObject(notificationContent);
-            String title = notificationJson.getString("title");
-            String body  = notificationJson.getString("body");
-
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(),"appointments")
-                    .setSmallIcon(R.drawable.common_full_open_on_phone)
-                    .setContentTitle(title)
-                    .setContentText(body);
-
-            JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
-            if(buttonsJson != null){
-                for(int i = 0;i < buttonsJson.length();i++){
-                    String buttonText = buttonsJson.getJSONObject(i).getString("title");
-                    String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
-
-                    Intent buttonIntent = new Intent(intentUrl);
-                    buttonIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    buttonIntent.putExtra("data",notificationJson.optString("data"));
-                    PendingIntent pendingIntent = PendingIntent.getActivity(
-                        getApplicationContext(),
-                        i,
-                        buttonIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
-                    NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
-                    notificationBuilder.addAction(action);
-                }
-            }
-
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(0, notificationBuilder.build());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.d(TAG,"Could not parse JSON payload of notification");
-        }
     }
 }

@@ -10,15 +10,15 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
     <application
-        android:name="de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication"
+        android:name=".AdminApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/PfoertnerDark">
-        <activity android:name=".pictureUpload"></activity>
+        android:theme="@style/PfoertnerLight"
+        android:supportsRtl="true">
+        <activity android:name=".PictureUpload"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
