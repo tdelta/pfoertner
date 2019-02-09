@@ -4,6 +4,9 @@ import android.content.SharedPreferences;
 
 import java.util.UUID;
 
+// Only fields with the Expose annotation will be sent to the server
+// Other fields will only be persisted in local memory
+
 public class Password {
     public Password(final String password) {
         this.password = password;
