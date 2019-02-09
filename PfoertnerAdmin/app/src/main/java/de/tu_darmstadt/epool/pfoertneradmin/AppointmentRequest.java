@@ -54,11 +54,11 @@ public class AppointmentRequest extends AppCompatActivity{
 
     private void writeCalendarWithPermission(Date start, Date end){
         try{
-            LocalCalendar.getInstance(this).writeEvent(start,end);
+            LocalCalendar.getInstance(this,"lol").writeEvent(start,end);
             finish();
         } catch (SecurityException e){
             // This point in the code should never be reached
-            ErrorInfoDialog.show(this, "You have to grant the permission to write into the calendar", aVoid ->writeCalendarEvent(start,end),true);
+            ErrorInfoDialog.show(this, "You have to grant the permission to write into the calendar", aVoid ->writeCalendarEvent(start,end));
         }
     }
 
@@ -87,7 +87,7 @@ public class AppointmentRequest extends AppCompatActivity{
             }
         } else if(this.start != null && this.end != null) {
             // The permission was not granted, but the user requested writing into the calendar
-            ErrorInfoDialog.show(this, "You have to grant the permission to write into the calendar", aVoid ->writeCalendarEvent(start,end),true);
+            ErrorInfoDialog.show(this, "You have to grant the permission to write into the calendar", aVoid ->writeCalendarEvent(start,end));
         }
     }
 }

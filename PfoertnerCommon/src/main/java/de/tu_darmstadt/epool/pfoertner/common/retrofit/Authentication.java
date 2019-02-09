@@ -3,17 +3,22 @@ package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.annotations.Expose;
+
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 
+// Only fields with the Expose annotation will be sent to the server
+// Other fields will only be persisted in local memory
+
 public class Authentication {
-    public final String id;
-    public final int ttl;
-    public final String created;
-    public final int userId;
+    @Expose public final String id;
+    @Expose public final int ttl;
+    @Expose public final String created;
+    @Expose public final int userId;
 
     public Authentication(
             final String id,
