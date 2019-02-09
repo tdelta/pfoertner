@@ -50,7 +50,7 @@ public class SyncService extends Service {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         if (app.hasOffice()) {
-            app.getOffice().updateMembersAsync(app.getSettings(), app.getService(), app.getAuthentication());
+            app.getOffice().updateMembersAsync(app.getSettings(), app.getService(), app.getAuthentication(), app.getFilesDir());
         }
 
         else {
@@ -73,7 +73,7 @@ public class SyncService extends Service {
                     );
 
                     maybeMember.ifPresent(
-                            member -> member.updateAsync(app.getSettings(), app.getService(), app.getAuthentication())
+                            member -> member.updateAsync(app.getSettings(), app.getService(), app.getAuthentication(), app.getFilesDir())
                     );
 
                     if (!maybeMember.isPresent()) {

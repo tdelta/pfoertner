@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addMember(final de.tu_darmstadt.epool.pfoertner.common.synced.Member m) {
-        addMember(m.toData());
+        addMember(m.getMemberData());
     }
 
     public void addMember(final MemberData m){
