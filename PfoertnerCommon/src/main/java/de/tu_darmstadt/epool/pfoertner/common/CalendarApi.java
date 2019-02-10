@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.google.android.gms.common.internal.AuthAccountRequest;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
@@ -33,7 +35,13 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 public class CalendarApi implements MemberObserver {
 
     private static final String TAG = "Calendar";
-    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
+    private static final List<String> SCOPES = Arrays.asList(new String[]{
+            CalendarScopes.CALENDAR_READONLY,
+            "https://www.googleapis.com/auth/plus.me",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/calendar"}
+        );
+
     private static final String clientId = "626288801350-vk790l2a56u0m25p63q36asu4tv7gnsr.apps.googleusercontent.com";
     private static final String clientSecret = "wHAYULXTwsZWMQ827ITPIEVr";
     private static final String credentialsPath = "pfoertner-e43d0751b099.p12";
@@ -50,6 +58,7 @@ public class CalendarApi implements MemberObserver {
         this.member = member;
         key = loadKey();
         member.addObserver(this);
+        if(member.getAccessToken()!=null)
         Log.d("Access token",member.getAccessToken());
     }
 
@@ -88,7 +97,7 @@ public class CalendarApi implements MemberObserver {
 
             @Override
             public void onSuccess(String result){
-                Log.d(TAG,"Successfully authenticated at Google");
+                Log.d(TAG,result);
                 PfoertnerApplication app = PfoertnerApplication.get(CalendarApi.this.context);
                 CalendarApi.this.member.setAccessToken(app.getSettings(),result);
                 getCalendarIdTask.execute();
