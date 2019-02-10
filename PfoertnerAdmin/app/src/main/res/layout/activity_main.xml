@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="de.tu_darmstadt.epool.pfoertneradmin.MainActivity"
-    tools:openDrawer="start"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -23,16 +22,23 @@
             app:titleTextColor="@android:color/primary_text_dark"
             />
 
+        <de.tu_darmstadt.epool.pfoertneradmin.PersonalStatusView
+            android:id="@+id/personalStatusView"
+            android:layout_width="match_parent"
+            android:onClick="editPersonalStatus"
+            android:layout_height="230dp">
+        </de.tu_darmstadt.epool.pfoertneradmin.PersonalStatusView>
+
         <android.support.v7.widget.CardView
             android:layout_margin="16dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/main_activity"
                 tools:context=".MainActivity">
@@ -57,11 +63,11 @@
 
 
                         <ImageView
-                            android:id="@android:id/icon"
+                            android:id="@+id/globalStatusIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            app:srcCompat="@android:drawable/ic_menu_mapmode" />
+                            app:srcCompat="@drawable/ic_thumb_up_green_24dp" />
                     </FrameLayout>
 
                     <RelativeLayout
@@ -86,76 +92,6 @@
 
                         <TextView
                             android:id="@+id/summary"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@android:id/title"
-                            android:layout_alignStart="@android:id/title"
-                            android:maxLines="4"
-                            android:text="Current: Do Not Disturb!"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textColor="?android:attr/textColorSecondary" />
-
-                    </RelativeLayout>
-
-                    <!-- Preference should place its actual preference widget here. -->
-                    <LinearLayout
-                        android:id="@android:id/widget_frame"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="?android:attr/listPreferredItemHeight"
-                    android:onClick="editPersonalStatus"
-                    android:paddingEnd="?android:attr/scrollbarSize">
-
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:foregroundGravity="center"
-                        android:minWidth="58dip">
-
-
-                        <ImageView
-                            android:id="@android:id/icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            app:srcCompat="@android:drawable/ic_menu_mapmode" />
-                    </FrameLayout>
-
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dip"
-                        android:layout_marginTop="6dip"
-                        android:layout_marginEnd="6dip"
-                        android:layout_marginBottom="6dip"
-                        android:layout_weight="1">
-
-                        <TextView
-                            android:id="@android:id/title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="marquee"
-                            android:fadingEdge="horizontal"
-                            android:singleLine="true"
-                            android:text="Personal Status"
-                            android:textAppearance="?android:attr/textAppearanceLarge"
-                            android:textColor="?android:attr/textColorPrimary" />
-
-                        <TextView
-                            android:id="@+id/summary2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@android:id/title"
