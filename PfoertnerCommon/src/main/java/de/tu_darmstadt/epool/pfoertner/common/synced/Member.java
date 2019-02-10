@@ -199,11 +199,15 @@ public class Member extends Observable<MemberObserver> {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
 
-        if (!oldMember.firstName.equals(data.firstName)) {
+        if (
+                oldMember.firstName == null && data.firstName != null
+                || !oldMember.firstName.equals(data.firstName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(data.firstName));
         }
 
-        if (!oldMember.lastName.equals(data.lastName)) {
+        if (
+                oldMember.lastName == null && data.lastName != null
+                || !oldMember.lastName.equals(data.lastName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(data.lastName));
         }
 
