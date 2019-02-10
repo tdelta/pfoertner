@@ -1,11 +1,8 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -18,21 +15,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.function.Consumer;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class PictureUpload extends AppCompatActivity {
     private static final String TAG = "PictureUpload";
@@ -44,40 +30,20 @@ public class PictureUpload extends AppCompatActivity {
 
         final AdminApplication app = AdminApplication.get(this);
 
-        final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
-
-        //TODO: warning hardcode personid
-        Log.d(TAG, "MemberID: " + app.getMemberId());
-        Call<ResponseBody> call = app.getService().downloadPicture(app.getMemberId());
-
-        call.enqueue(new Callback<ResponseBody>() {
-                         @Override
-                         public void onResponse(Call<ResponseBody> call,
-                                                Response<ResponseBody> response) {
-
-                             if(response.code() == 200) {
-                                 InputStream input = response.body().byteStream();
-                                 Bitmap selectedImage2 = BitmapFactory.decodeStream(input);
-                                 imagetest.setImageBitmap(selectedImage2);
-                             }
-                         }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                             Log.d(TAG, "picturedownload failed");
-            }
-        });
-
-
         app.getOffice().getMemberById(
                 app.getMemberId()
         ).ifPresent(
                 member -> {
                     final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
                     final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
+                    final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
 
                     firstNameTextView.setText(member.getFirstName());
                     lastNameTextView.setText(member.getLastName());
+
+                    member
+                            .getPicture(app.getFilesDir())
+                            .ifPresent(imagetest::setImageBitmap);
 
                     member.addObserver(
                             new MemberObserver() {
@@ -90,6 +56,12 @@ public class PictureUpload extends AppCompatActivity {
                                 public void onLastNameChanged(String newLastName) {
                                     lastNameTextView.setText(newLastName);
                                 }
+
+                                @Override
+                                public void onPictureChanged() {
+                                    member.getPicture(app.getFilesDir())
+                                            .ifPresent(imagetest::setImageBitmap);
+                                }
                             }
                     );
                 }
@@ -97,8 +69,11 @@ public class PictureUpload extends AppCompatActivity {
     }
 
     public void setFirstName(final View btn) {
+        final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
+
         promptForString(
                 "Please enter a new first name.",
+                firstNameTextView.getText().toString(),
                 newFirstName -> {
                     final AdminApplication app = AdminApplication.get(this);
 
@@ -116,8 +91,11 @@ public class PictureUpload extends AppCompatActivity {
     }
 
     public void setLastName(final View btn) {
+        final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
+
         promptForString(
                 "Please enter a new last name.",
+               lastNameTextView.getText().toString(),
                newLastName -> {
                    final AdminApplication app = AdminApplication.get(this);
 
@@ -134,14 +112,15 @@ public class PictureUpload extends AppCompatActivity {
         );
     }
 
-    private void promptForString(final String message, final Consumer<String> onPositiveButton) {
+    private void promptForString(final String message, final String initialText, final Consumer<String> onPositiveButton) {
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
         alertBuilder.setMessage(message);
 
         final EditText input = new EditText(this);
-
         alertBuilder.setView(input);
+        input.setText(initialText);
+
         alertBuilder.setPositiveButton("Submit", (dialog, i) -> {
             final String newText = input.getText().toString();
 
@@ -166,68 +145,40 @@ public class PictureUpload extends AppCompatActivity {
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
-
         if (reqCode == 1) {
-            try {
-                if(data != null){
+            if(data != null) {
 
-                final Uri imageUri = data.getData();
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                imagetest.setImageBitmap(selectedImage);
+                final Uri pictureUri = data.getData();
 
-                //TODO: send picture to server
-                sendFile(data.getData());
+                if (pictureUri != null) {
+                    final AdminApplication app = AdminApplication.get(this);
 
-                Log.d(TAG, "pic loaded");
+                    app
+                            .getOffice()
+                            .getMemberById(
+                                    app.getMemberId()
+                            )
+                            .ifPresent(
+                                    member -> member.setPicture(
+                                            app.getService(),
+                                            app.getAuthentication(),
+                                            getContentResolver().getType(pictureUri),
+                                            getPath(pictureUri)
+                                    )
+                            );
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Toast.makeText(PictureUpload.this, "Something went wrong, with choosing a picture!", Toast.LENGTH_LONG).show();
+
+                else {
+                    Log.d(TAG, "Could not send a new image. No image data was returnded by the intent.");
+                }
             }
 
+            else {
+                Log.d(TAG, "Could not send a new image. No image data was returnded by the intent.");
+            }
         }else {
-            Toast.makeText(PictureUpload.this, "You haven't picked Image!",Toast.LENGTH_LONG).show();
+            Toast.makeText(PictureUpload.this, "You haven't picked an image!",Toast.LENGTH_LONG).show();
         }
-    }
-
-    private void sendFile(Uri fileUri){
-        final AdminApplication app = AdminApplication.get(this);
-
-        final File file = new File(getPath(fileUri));
-        // create RequestBody instance from file
-        RequestBody requestFile =
-                RequestBody.create(
-                        MediaType.parse(getContentResolver().getType(fileUri)),
-                        file
-                );
-
-        // MultipartBody.Part is used to send also the actual file name
-        final MultipartBody.Part body =
-                MultipartBody.Part.createFormData("picture", file.getName(), requestFile);
-
-        // add another part within the multipart request
-        final String descriptionString = "hello, this is description speaking";
-        final RequestBody description =
-                RequestBody.create(
-                        okhttp3.MultipartBody.FORM, descriptionString);
-
-        // finally, execute the request
-        //TODO: warning hardcode personid
-        final Call<ResponseBody> call = app.getService().uploadPicture(description, body, app.getMemberId());
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call,
-                                   Response<ResponseBody> response) {
-                Log.v("Upload", "success");
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("Upload error:", t.getMessage());
-            }
-        });
     }
 
     public String getPath(Uri uri)

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 
+import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
@@ -34,6 +35,8 @@ public class Member extends Observable<MemberObserver> {
     private MemberData memberData;
 
     private final Office office;
+
+    private CalendarApi calendarApi;
 
     private final DownloadMemberTask downloadMemberTask = new DownloadMemberTask();
     private final UploadMemberTask uploadMemberTask = new UploadMemberTask();
@@ -158,6 +161,14 @@ public class Member extends Observable<MemberObserver> {
         return memberData.oauthToken;
     }
 
+    public void setCalendarApi(CalendarApi calendarApi){
+        this.calendarApi = calendarApi;
+    }
+
+    public CalendarApi getCalendarApi() {
+        return calendarApi;
+    }
+
     public void setAccessToken(final SharedPreferences settings, final String accessToken){
         memberData.oauthToken = accessToken;
         Office.writeMembersToLocalStorage(settings, office.membersToData());
@@ -208,11 +219,16 @@ public class Member extends Observable<MemberObserver> {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
 
-        if (!oldMember.firstName.equals(data.firstName)) {
+        if (
+                oldMember.firstName == null && data.firstName != null
+                || !oldMember.firstName.equals(data.firstName)
+            ) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(data.firstName));
         }
 
-        if (!oldMember.lastName.equals(data.lastName)) {
+        if (
+                oldMember.lastName == null && data.lastName != null
+                || !oldMember.lastName.equals(data.lastName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(data.lastName));
         }
 
@@ -230,11 +246,17 @@ public class Member extends Observable<MemberObserver> {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(data.status));
         }
 
-        if (!data.calendarId.equals(oldMember.calendarId)){
+        if (
+                data.calendarId == null && oldMember.calendarId != null
+                || data.calendarId != null && !data.calendarId.equals(oldMember.calendarId)
+            ){
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onCalendarIdChanged(data.calendarId));
         }
 
-        if (!data.serverAuthCode.equals(oldMember.serverAuthCode)){
+        if (
+                data.serverAuthCode == null && oldMember.serverAuthCode != null
+                ||data.serverAuthCode != null && !data.serverAuthCode.equals(oldMember.serverAuthCode)
+            ){
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
         }
     }
@@ -323,10 +345,10 @@ public class Member extends Observable<MemberObserver> {
 
                         IOUtils.copy(in, out);
 
+                        Member.this.updateByData(updatedMemberData);
+
                         // Office übernimmt momentan lokale Speicherung, sollte besser nach hier ausgelagert werden
                         Office.writeMembersToLocalStorage(this.settings, Member.this.office.membersToData());
-
-                        Member.this.updateByData(updatedMemberData);
 
                         // update again, if the picture changed while downloading it
                         Member.this.updateAsync(this.settings, this.service, this.auth, this.filesDir);

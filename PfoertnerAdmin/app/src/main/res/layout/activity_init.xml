@@ -7,6 +7,7 @@
     tools:context=".InitActivity">
 
     <TextView
+        android:textColor="@color/pfoertner_light_primary_dark"
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -31,10 +32,11 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/colorPrimaryDark"
         android:onClick="scanQR"
         android:text="@string/scan_qr"
         android:textSize="14sp"
+        android:backgroundTint="@color/pfoertner_light_primary_dark"
+        android:textColor="@android:color/primary_text_dark"
         app:layout_constraintBottom_toTopOf="@+id/PleaseOpenTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

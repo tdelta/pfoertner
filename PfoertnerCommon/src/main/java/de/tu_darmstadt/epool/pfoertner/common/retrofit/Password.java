@@ -2,6 +2,8 @@ package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
 import android.content.SharedPreferences;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.UUID;
 
 // Only fields with the Expose annotation will be sent to the server
@@ -12,7 +14,7 @@ public class Password {
         this.password = password;
     }
 
-    public final String password;
+    @Expose public final String password;
 
     public static Password loadPassword(final SharedPreferences deviceRegistrationInfo){
         if(deviceRegistrationInfo.contains("Password")){
