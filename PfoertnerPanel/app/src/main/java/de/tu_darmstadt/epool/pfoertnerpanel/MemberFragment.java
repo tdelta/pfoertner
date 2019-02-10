@@ -14,12 +14,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
-public class Member extends Fragment {
+public class MemberFragment extends Fragment {
     //private LinkedList<TextView> texts = new LinkedList<>();
     private String name = "Max Mustermann";
     private String status = "";
+    private Drawable picture;
     private String[] officeHours = {};
 
     @Override
@@ -34,17 +36,14 @@ public class Member extends Fragment {
 
     }
 
-
     public void setStatus(final String status){
         this.status = status;
     }
 
-    /*
-    public void setImage(Drawable drawable){
-        ImageView pic = getView().findViewById(R.id.profile_picture);
-        pic.setImageDrawable(drawable);
+    public void setPicture(final Drawable drawable){
+        this.picture = drawable;
     }
-*/
+
     public void setOfficeHours(String[] officeHours){
         this.officeHours = officeHours;
     }
@@ -57,8 +56,7 @@ public class Member extends Fragment {
             name = outState.getString("name");
             status = outState.getString("status");
             officeHours = outState.getStringArray("officeHours");
-    }
-
+        }
     }
 
     @Override
@@ -115,8 +113,24 @@ public class Member extends Fragment {
                 info.addView(text);
             }
         }
+        // set picture
+        final ImageView pic = getView().findViewById(R.id.profile_picture);
+        if (this.picture != null) {
+            pic.setImageDrawable(this.picture);
+        }
 
+        else {
+            try {
+                final Drawable defaultPic = getContext().getDrawable(R.drawable.ic_contact_default);
+
+                if (defaultPic != null) {
+                    pic.setImageDrawable(defaultPic);
+                }
+            }
+
+            catch (final NullPointerException npe) {
+                npe.printStackTrace();
+            }
+        }
     }
-
-
 }
