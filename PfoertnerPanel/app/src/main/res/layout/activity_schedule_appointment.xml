@@ -35,19 +35,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="Please select a day within the next two weeks"
-                android:textSize="42sp"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
-
             <de.tu_darmstadt.epool.pfoertnerpanel.DayView
                 android:id="@+id/day9"
                 android:layout_width="85dp"
@@ -229,7 +216,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="Available office hours"
+                android:text="Please select a day within the next two weeks office hours"
+                android:textColor="@android:color/black"
                 android:textSize="42sp"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
@@ -251,26 +239,7 @@
                     android:id="@+id/officehours"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <de.tu_darmstadt.epool.pfoertnerpanel.TimeslotView
-                        android:id="@+id/test1"
-                        android:layout_width="120dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginRight="30dp"
-                        android:background="@color/colorPrimary"
-                        android:elevation="15dp" />
-
-                    <de.tu_darmstadt.epool.pfoertnerpanel.TimeslotView
-                        android:id="@+id/test2"
-                        android:layout_width="120dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginRight="30dp"
-                        android:background="@color/colorPrimary"
-                        android:elevation="15dp" />
-
-
-                </LinearLayout>
+                    android:orientation="horizontal"/>
             </HorizontalScrollView>
 
         </android.support.constraint.ConstraintLayout>

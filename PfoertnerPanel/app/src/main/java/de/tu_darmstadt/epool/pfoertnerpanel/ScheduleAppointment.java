@@ -5,7 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 import org.threeten.bp.LocalDateTime;
 import java.util.LinkedList;
 
@@ -19,6 +23,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     int currentDay;
     LinearLayout slots;
     LinkedList<String>[] calendarSlots;
+    TextView officeHours;
 
 
     @Override
@@ -118,6 +123,8 @@ public class ScheduleAppointment extends AppCompatActivity {
                 }
                 break;
         }
+
+        officeHours = findViewById(R.id.textView4);
     }
 
     public void weekDay(View view){
@@ -191,8 +198,10 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
+
     private void createTimeSlot(int day){
         if(calendarSlots[day] != null) {
+            officeHours.setText("Available office hours");
             for (String x : calendarSlots[day]) {
                 TimeslotView timeSlot = new TimeslotView(this);
                 timeSlot.setOnClickListener(new View.OnClickListener() {
@@ -201,8 +210,12 @@ public class ScheduleAppointment extends AppCompatActivity {
                         gotoMakeAppointment(v);
                     }
                 });
-                slots.addView(timeSlot);
+                FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams)slots.getLayoutParams();
+                timeSlotMarginParams.setMargins(0, 0, 15, 0);
+                slots.addView(timeSlot, timeSlotMarginParams);
             }
+        }else{
+            officeHours.setText("Sorry no office hours on this day");
         }
     }
 
