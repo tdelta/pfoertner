@@ -3,10 +3,15 @@ package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 import java.io.IOException;
 import android.content.SharedPreferences;
 
+import com.google.gson.annotations.Expose;
+
 import retrofit2.Call;
 
+// Only fields with the Expose annotation will be sent to the server
+// Other fields will only be persisted in local memory
+
 public class User {
-    public final int id;
+    @Expose public final int id;
 
     public User(final int id) {
         this.id = id;

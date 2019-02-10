@@ -1,6 +1,5 @@
 <resources>
-
-
+    <!--
     <style name="PfoertnerDark" parent="Theme.AppCompat.NoActionBar" >
         <item name="android:colorPrimaryDark">@color/primary_dark_material_dark</item>
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
@@ -9,6 +8,21 @@
         <item name="android:colorAccent">@color/accent_material_dark</item>
         <item name="android:colorForeground">@color/foreground_material_dark</item>
     </style>
+    -->
 
+    <style name="PfoertnerLight" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="android:colorPrimaryDark">@color/pfoertner_light_primary_dark</item>
+        <item name="android:colorPrimary">@color/pfoertner_light_primary</item>
+        <item name="android:colorAccent">@color/pfoertner_light_accent</item>
+        <item name="android:textColorPrimary">@color/pfoertner_light_primary_text</item>
+        <item name="android:textColorSecondary">@color/pfoertner_light_secondary_text</item>
+        <item name="colorPrimary">@color/pfoertner_light_primary</item>
+        <item name="colorPrimaryDark">@color/pfoertner_light_primary_dark</item>
+        <item name="colorAccent">@color/pfoertner_light_accent</item>
+    </style>
 
+    <style name="PfoertnerLight.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="android:background">@color/pfoertner_light_primary</item>
+        <item name="android:textColor">@android:color/primary_text_dark</item>
+    </style>
 </resources>
