@@ -14,4 +14,12 @@ public class MemberData {
     @Expose public String serverAuthCode;
     @Expose public String calendarId;
     public String oauthToken;
+
+    public MemberData(final int id, final String firstName, final String lastName, final String pictureMD5, final String status){
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.pictureMD5 = pictureMD5;
+        this.status = status;
+    }
 }
