@@ -1,5 +1,8 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
@@ -17,14 +20,15 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
@@ -86,8 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
 
-        for (final de.tu_darmstadt.epool.pfoertner.common.synced.Member m : app.getOffice().getMembers()){
+        for (final Member m : app.getOffice().getMembers()){
             this.addMember(m);
+            m.setCalendarApi(new CalendarApi(m,this));
         }
     }
 
@@ -156,12 +161,17 @@ public class MainActivity extends AppCompatActivity {
             public void onStatusChanged(String newStatus) {
                 updateMembers();
             }
+
+            @Override
+            public void onPictureChanged() {
+                updateMembers();
+            }
         };
 
         // TODO: Effizienter, nur für einzelne Members
-        final List<de.tu_darmstadt.epool.pfoertner.common.synced.Member> members = app.getOffice().getMembers();
+        final List<Member> members = app.getOffice().getMembers();
 
-        for (final de.tu_darmstadt.epool.pfoertner.common.synced.Member member : members) {
+        for (final Member member : members) {
             member.deleteObserver(observer);
             member.addObserver(observer);
         }
@@ -237,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addStdMember(View view) {
-        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann", "", ""));
+        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann", "", "Away"), null);
     }
 
     public void removeMembers(){
@@ -249,24 +259,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void addMember(final de.tu_darmstadt.epool.pfoertner.common.synced.Member m) {
-        addMember(m.getMemberData());
+    public void addMember(final Member m) {
+        addMember(m.getMemberData(),m);
     }
 
-    public void addMember(final MemberData m){
+    public void addMember(final MemberData memberData, final @Nullable Member member){
         // set the attributes of the member to add
         String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
-        Member member = new Member();
+        MemberFragment memberUI = new MemberFragment();
 
-        member.setName(m.firstName + " " + m.lastName);
-        member.setStatus(m.status == null ? "" : m.status);
-        member.setOfficeHours(work);
-        //member.setImage(getDrawable(R.drawable.ic_contact_default));
+        memberUI.setName(memberData.firstName + " " + memberData.lastName);
+        memberUI.setStatus(memberData.status == null ? "" : memberData.status);
+        memberUI.setOfficeHours(work);
+
+        if (member != null) {
+            final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+            memberUI.setPicture(
+                    member
+                        .getPicture(app.getFilesDir())
+                        .map(bitmap -> (Drawable) new BitmapDrawable(this.getResources(), bitmap))
+                        .orElse(
+                                getDrawable(R.drawable.ic_contact_default)
+                        )
+            );
+        }
+        //member.setPicture(getDrawable(R.drawable.ic_contact_default));
 
         switch(memberCount){
             case 0:{
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_one, member);
+                transaction.replace(R.id.member_one, memberUI);
                 transaction.addToBackStack(null);
                 transaction.commit();
                 memberCount++;
@@ -274,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case 1:{
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_two, member);
+                transaction.replace(R.id.member_two, memberUI);
                 transaction.addToBackStack(null);
 
                 transaction.commit();
@@ -283,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case 2:{
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_three, member);
+                transaction.replace(R.id.member_three, memberUI);
                 transaction.addToBackStack(null);
                 transaction.commit();
                 memberCount++;
@@ -291,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case 3:{
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_four, member);
+                transaction.replace(R.id.member_four, memberUI);
                 transaction.addToBackStack(null);
                 transaction.commit();
                 memberCount++;

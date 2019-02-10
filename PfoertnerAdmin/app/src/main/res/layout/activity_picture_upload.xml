@@ -32,10 +32,8 @@ tools:context=".PictureUpload"
         android:paddingRight="30dp"
         android:layout_gravity="center_horizontal"
         android:onClick="getPicture"
-        android:src="@drawable/ic_contact_default"
-
-        app:civ_border_color="@color/zxing_status_text"
-        app:civ_border_width="2dp" />
+        android:src="@drawable/ic_account_circle_grey_500dp"
+        />
 
     <Space
         android:layout_width="match_parent"
@@ -60,6 +58,7 @@ tools:context=".PictureUpload"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:onClick="setFirstName"
         android:layout_marginBottom="20dp"
+        android:elevation="1dp"
         android:paddingEnd="?android:attr/scrollbarSize">
 
         <RelativeLayout
@@ -95,7 +94,7 @@ tools:context=".PictureUpload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
+                app:srcCompat="@drawable/ic_edit_black_24dp" />
         </FrameLayout>
 
 
@@ -119,6 +118,7 @@ tools:context=".PictureUpload"
         android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:onClick="setLastName"
+        android:elevation="1dp"
         android:paddingEnd="?android:attr/scrollbarSize">
 
         <RelativeLayout
@@ -154,7 +154,7 @@ tools:context=".PictureUpload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
+                app:srcCompat="@drawable/ic_edit_black_24dp" />
         </FrameLayout>
 
 
