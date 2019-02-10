@@ -17,8 +17,14 @@
     <color name="pfoertner_light_primary_light">#B3E5FC</color>
     <color name="pfoertner_light_accent">#FF9800</color>
     <color name="pfoertner_light_primary_text">#212121</color>
+    <color name="pfoertner_light_primary_dark_text">#FFFFFF</color>
     <color name="pfoertner_light_secondary_text">#757575</color>
     <color name="pfoertner_light_icons">#FFFFFF</color>
     <color name="pfoertner_light_divider">#BDBDBD</color>
+
+    <color name="pfoertner_positive_status_bg">#4caf50</color>
+    <color name="pfoertner_positive_status_taptext">#8bc34a</color>
+    <color name="pfoertner_negative_status_bg">#F44336</color>
+    <color name="pfoertner_negative_status_taptext">#D32F2F</color>
 
 </resources>
