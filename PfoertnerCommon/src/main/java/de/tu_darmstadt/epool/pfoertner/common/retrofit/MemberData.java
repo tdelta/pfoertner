@@ -17,8 +17,8 @@ public class MemberData {
 
     public MemberData (final int id, final String lastName, final String firstName, final String pictureMD5, final String status){
         this.id = id;
-        this.lastName = lastName;
         this.firstName = firstName;
+        this.lastName = lastName;
         this.pictureMD5 = pictureMD5;
         this.status = status;
     }

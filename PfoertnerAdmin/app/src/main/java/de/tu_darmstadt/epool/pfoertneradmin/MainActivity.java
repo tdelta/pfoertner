@@ -1,12 +1,21 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+
+import android.Manifest;
+import android.accounts.AuthenticatorException;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.util.Log;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -15,10 +24,24 @@ import android.widget.TextView;
 
 import java.util.Optional;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.Task;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
+import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
@@ -27,6 +50,7 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 
 public class MainActivity extends AppCompatActivity implements GlobalTextFragment.TextDialogListener, GlobalStatusFragment.StatusDialogListener {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
+    private final static int MY_PERMISSIONS_READ_CALENDAR = 1;
     private GlobalStatusFragment globalStatusMenu;
     private PersonalStatusFragment personalStatusMenu;
 
@@ -57,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
                 }
             }.execute();
         }
+
+        startCalenderService();
     }
 
     private void initNavigation() {
@@ -92,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
 
                                     case R.id.editProfile:
                                         this.gotoPictureUploader(navigationView);
+                                        break;
+
+                                    case R.id.showAppointments:
+                                        this.goToAppointmentActivity(navigationView);
                                         break;
                                 }
 
@@ -224,6 +254,11 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
         startActivity(intent);
     }
 
+    public void goToAppointmentActivity(View view) {
+        Intent intent = new Intent(this,AppointmentActivity.class);
+        startActivity(intent);
+    }
+
     public void gotoPictureUploader(View view){
         Intent intent = new Intent(this, PictureUpload.class);
         startActivity(intent);
@@ -256,5 +291,31 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
     public void startPersonalTextInput(){
         PersonalTextFragment textBox = new PersonalTextFragment();
         textBox.show(getSupportFragmentManager(), "insertTextBox");
+    }
+
+    private void startCalenderService() {
+        try {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_CALENDAR)
+                    == PackageManager.PERMISSION_GRANTED) {//Checking permission
+                //Starting service for registering ContactObserver
+                Intent intent = new Intent(this, CalendarService.class);
+                startService(intent);
+            } else {
+                //Ask for READ_CALENDAR permission
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, MY_PERMISSIONS_READ_CALENDAR);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //If permission granted
+        if (requestCode == MY_PERMISSIONS_READ_CALENDAR && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startCalenderService();
+        }
     }
 }

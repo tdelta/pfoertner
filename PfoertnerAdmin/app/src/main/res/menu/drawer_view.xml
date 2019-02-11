@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/showAppointments"
+            android:icon="@drawable/baseline_calendar_today_24px"
+            android:title="Your appointment requests" />
+        <item
             android:icon="@drawable/ic_plus_one_black_24dp"
             android:id="@+id/addMember"
             android:title="Add new member" />

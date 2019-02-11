@@ -4,21 +4,18 @@
     package="de.tu_darmstadt.epool.pfoertneradmin">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
     <application
-        android:name=".AdminApplication"
+        android:name="de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/PfoertnerLight"
-        android:supportsRtl="true">
-        <activity android:name=".PictureUpload"></activity>
+        android:supportsRtl="true"
+        android:theme="@style/PfoertnerDark">
+        <activity android:name=".pictureUpload"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,36 +34,24 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".showQRCodeActivity" />
-
-        <activity android:name=".AppointmentRequest"
-            android:theme="@style/Theme.AppCompat.Translucent">
+<<<<<<< HEAD
+        <activity android:name=".showQRCodeActivity"></activity>
+        <activity android:name=".AppointmentRequestActivity">
             <intent-filter>
-                <action android:name="AcceptAppointmentRequest" />
+                <action android:name="android.intent.action.AppointmentRequest" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".AppointmentActivity" />
+=======
+        <activity android:name=".showQRCodeActivity" />
 
         <service android:name="de.tu_darmstadt.epool.pfoertner.common.MessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name="de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService"
-            android:enabled="true"
-            android:exported="false" />
-        <receiver
-            android:name=".BootDeviceReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-            </intent-filter>
-        </receiver>
+        <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
+>>>>>>> origin/master
     </application>
 
 </manifest>
