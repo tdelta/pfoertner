@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -22,6 +23,7 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
 public class AppointmentActivity extends AppCompatActivity{
 
@@ -51,6 +53,7 @@ public class AppointmentActivity extends AppCompatActivity{
         member.addObserver(new MemberObserver() {
             @Override
             public void onCalendarCreated() {
+                Helpers.requestCalendarsSync(AppointmentActivity.this,member.getEmail());
                 buildUI(true);
             }
 
@@ -107,13 +110,13 @@ public class AppointmentActivity extends AppCompatActivity{
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
                 final String authCode = account.getServerAuthCode();
                 final String email = account.getEmail();
-                Log.d(TAG,"Got server auth code");
 
                 // Send the auth code to the server
                 PfoertnerService service = app.getService();
                 Authentication auth = app.getAuthentication();
+                SharedPreferences settings = app.getSettings();
                 member.setServerAuthCode(service,auth,authCode);
-                member.setEmail(app.getSettings(),email);
+                member.setEmail(settings,email);
                 buildUI(false);
 
             } catch (final Exception e) {
