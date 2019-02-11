@@ -100,7 +100,7 @@ public class AppointmentActivity extends AppCompatActivity{
             try{
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
                 final String authCode = account.getServerAuthCode();
-                Log.d(TAG,"Got server auth code");
+                Log.d(TAG,"Got server auth code: " + authCode);
 
                 // Send the auth code to the server
                 PfoertnerService service = app.getService();
