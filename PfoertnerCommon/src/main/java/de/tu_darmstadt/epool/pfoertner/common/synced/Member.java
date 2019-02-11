@@ -175,17 +175,20 @@ public class Member extends Observable<MemberObserver> {
     }
 
     public void setCalendarId(final PfoertnerService service, final Authentication auth, final String calendarId){
-        memberData.calendarId = calendarId;
-        upload(service,auth,memberData);
+        final MemberData data = memberData.deepCopy();
+        data.calendarId = calendarId;
+        upload(service,auth,data);
     }
 
     public void setServerAuthCode(final PfoertnerService service, final Authentication auth, final String serverAuthCode){
+        final MemberData data = memberData.deepCopy();
         memberData.serverAuthCode = serverAuthCode;
 
-        upload(service,auth,memberData);
+        upload(service,auth,data);
     }
 
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
+
         final MemberData data = memberData.deepCopy();
         data.lastName = newLastName;
 

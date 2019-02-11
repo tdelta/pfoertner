@@ -106,9 +106,6 @@ public class CalendarApi implements MemberObserver {
     }
 
     private String getCalendarId() throws IOException{
-        if(member.getAccessToken() == null){
-            throw new RuntimeException("Cannot calendar data before authenticating");
-        }
         Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), getCredential())
                 .setApplicationName("Pfoertner")
                 .build();
@@ -130,7 +127,6 @@ public class CalendarApi implements MemberObserver {
                         clientSecret,
                         serverAccessKey,
                         "")
-                        .setScopes(SCOPES)
                         .execute();
 
         return tokenResponse.getAccessToken();
@@ -162,16 +158,19 @@ public class CalendarApi implements MemberObserver {
     }
 
     private Credential getCredential(){
+        if(member.getAccessToken() == null){
+            throw new RuntimeException("Cannot calendar data before authenticating");
+        }
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
                 .setJsonFactory(JacksonFactory.getDefaultInstance())
                 .setClientSecrets(
                         clientId,
                         clientSecret)
-                .setServiceAccountId("110420475534815932936")
-                .setServiceAccountPrivateKeyId("e43d0751b099d3a3186c4477431a1ebf955780f5")
-                .setServiceAccountPrivateKey(key)
-                .setServiceAccountScopes(SCOPES)
+                //.setServiceAccountId("110420475534815932936")
+                //.setServiceAccountPrivateKeyId("e43d0751b099d3a3186c4477431a1ebf955780f5")
+                //.setServiceAccountPrivateKey(key)
+                //.setServiceAccountScopes(SCOPES)
                 .build();
         credential.setAccessToken(member.getAccessToken());
         return credential;
