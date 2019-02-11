@@ -5,6 +5,9 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 public class TimeslotView extends RelativeLayout {
     public TimeslotView(Context context) {
@@ -38,4 +41,16 @@ public class TimeslotView extends RelativeLayout {
         this.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
 
     }
+
+    public void setAppointmentTime(final String newText) {
+        final TextView startTime = (TextView) findViewById(R.id.start);
+        final TextView endTime = (TextView) findViewById(R.id.end);
+
+        String[] times = newText.split(" - ");
+
+        startTime.setText(times[0]);
+        endTime.setText(times[1]);
+    }
+
+
 }
