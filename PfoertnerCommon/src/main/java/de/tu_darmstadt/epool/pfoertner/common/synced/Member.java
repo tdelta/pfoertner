@@ -182,7 +182,7 @@ public class Member extends Observable<MemberObserver> {
 
     public void setServerAuthCode(final PfoertnerService service, final Authentication auth, final String serverAuthCode){
         final MemberData data = memberData.deepCopy();
-        memberData.serverAuthCode = serverAuthCode;
+        data.serverAuthCode = serverAuthCode;
 
         upload(service,auth,data);
     }
