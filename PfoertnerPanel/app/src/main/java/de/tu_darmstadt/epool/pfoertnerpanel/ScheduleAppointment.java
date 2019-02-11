@@ -36,26 +36,30 @@ public class ScheduleAppointment extends AppCompatActivity {
 
 
         LinkedList<String> test = new LinkedList<String>();
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
-        test.add("1");
-        test.add("2");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
 
         calendarSlots[7] = test;
         calendarSlots[9] = test;
@@ -202,12 +206,13 @@ public class ScheduleAppointment extends AppCompatActivity {
     private void createTimeSlot(int day){
         if(calendarSlots[day] != null) {
             officeHours.setText("Available office hours");
-            for (String x : calendarSlots[day]) {
+            for (String appointmentTime : calendarSlots[day]) {
                 TimeslotView timeSlot = new TimeslotView(this);
+                timeSlot.setAppointmentTime(appointmentTime);
                 timeSlot.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        gotoMakeAppointment(v);
+                        gotoMakeAppointment(v, appointmentTime);
                     }
                 });
                 FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams)slots.getLayoutParams();
@@ -219,8 +224,9 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
-    public void gotoMakeAppointment(View view){
+    public void gotoMakeAppointment(View view, String time){
         Intent intent = new Intent(this, MakeAppointment.class);
+        intent.putExtra("appointmentTime", time);
         startActivity(intent);
     }
 }
