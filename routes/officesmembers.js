@@ -137,7 +137,7 @@ router.get('/:id/picture/md5', (req, res) => {
  * Patches general information of an office member
  */
 router.patch('/:id', auth.authFun(), (req, res) => {
-  const officeMemberId = parseInt(req.params.officeMemberId, 10);
+  const officeMemberId = parseInt(req.params.id, 10);
   console.log('Patching officemember');
 
   authenticateOfficeMember(req, res).then(() => {
@@ -184,7 +184,7 @@ function authenticateOfficeMember(req, res) {
     }
     // The request do have an correct authorization header
     else {
-      const officeMemberId = parseInt(req.params.officeMemberId, 10);
+      const officeMemberId = parseInt(req.params.id, 10);
 
       device.getOfficeMember().then(loggedIn => {
         // Check whether a officemember belongs to the authorized device
