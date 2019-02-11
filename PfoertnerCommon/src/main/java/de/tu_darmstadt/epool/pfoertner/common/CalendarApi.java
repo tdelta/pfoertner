@@ -53,13 +53,21 @@ public class CalendarApi implements MemberObserver {
     private final Member member;
 
 
-    public CalendarApi(final Member member,final Context context){
+    public CalendarApi(final Member member, final Context context){
         this.context = context;
         this.member = member;
-        key = loadKey();
+
+        {
+            final PfoertnerApplication app = PfoertnerApplication.get(context);
+
+            key = app.getCalendarApiKey();
+        }
+
         member.addObserver(this);
-        if(member.getAccessToken()!=null)
-        Log.d("Access token",member.getAccessToken());
+
+        if(member.getAccessToken()!=null) {
+            Log.d("Access token", member.getAccessToken());
+        }
     }
 
     private RequestTask<String> getCalendarIdTask = new RequestTask<String>(){
@@ -130,31 +138,6 @@ public class CalendarApi implements MemberObserver {
                         .execute();
 
         return tokenResponse.getAccessToken();
-    }
-
-    private PrivateKey loadKey(){
-        AssetManager assetManager = context.getApplicationContext().getAssets();
-
-        try {
-            // FIXME: There must be a better way to load the private key
-            InputStream stream = assetManager.open(credentialsPath);
-            KeyStore p12 = KeyStore.getInstance("pkcs12");
-            p12.load(stream, "notasecret".toCharArray());
-            Enumeration e = p12.aliases();
-            PrivateKey key;
-            while (e.hasMoreElements()) {
-                String alias = (String) e.nextElement();
-                key = (PrivateKey) p12.getKey(alias, "notasecret".toCharArray());
-                if (key != null) {
-                    return key;
-                }
-            }
-        } catch (Exception e){
-            Log.d(TAG,"Could not load the private key for the Calendar API");
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     private Credential getCredential(){

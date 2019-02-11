@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
         for (final Member m : app.getOffice().getMembers()){
             this.addMember(m);
-            m.setCalendarApi(new CalendarApi(m,this));
         }
     }
 
@@ -127,15 +126,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onMembersChanged() {
-                registerForMemberChanges();
+            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
+                registerForMemberChanges(newMembers);
 
                 updateMembers();
                 // TODO: Members einzaln updaten
             }
         });
 
-        registerForMemberChanges();
+        registerForMemberChanges(app.getOffice().getMembers());
     }
 
     public void test(View view){
@@ -143,9 +142,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void registerForMemberChanges() {
-        final PfoertnerApplication app = PfoertnerApplication.get(this);
-
+    private void registerForMemberChanges(final List<Member> members) {
         final MemberObserver observer = new MemberObserver() {
             @Override
             public void onFirstNameChanged(String newFirstName) {
@@ -168,12 +165,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // TODO: Effizienter, nur für einzelne Members
-        final List<Member> members = app.getOffice().getMembers();
-
         for (final Member member : members) {
-            member.deleteObserver(observer);
             member.addObserver(observer);
+
+            member.setCalendarApi(new CalendarApi(member,this));
         }
     }
 
