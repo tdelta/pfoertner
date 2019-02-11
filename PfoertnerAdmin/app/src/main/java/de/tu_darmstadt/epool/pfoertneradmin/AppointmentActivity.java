@@ -85,7 +85,7 @@ public class AppointmentActivity extends AppCompatActivity{
     public void connectGoogleCalendar(){
         final String serverClientId = getString(R.string.server_client_id);
         final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(new Scope("https://www.googleapis.com/auth/admin.directory.resource.calendar.readonly"))
+                .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
                 .requestServerAuthCode(serverClientId)
                 .build();
         final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
