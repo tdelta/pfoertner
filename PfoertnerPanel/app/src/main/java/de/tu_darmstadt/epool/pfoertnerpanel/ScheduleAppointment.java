@@ -9,9 +9,22 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.EventDateTime;
 
+import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+
+import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
+
+import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class ScheduleAppointment extends AppCompatActivity {
     LocalDateTime now;
@@ -24,46 +37,67 @@ public class ScheduleAppointment extends AppCompatActivity {
     LinearLayout slots;
     LinkedList<String>[] calendarSlots;
     TextView officeHours;
+    CalendarApi calendarApi;
+    DateTime todayTime;
+    DateTime endTime;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_appointment);
+        now = LocalDateTime.now();
         days = new DayView[12];
         slots = (LinearLayout) findViewById(R.id.officehours);
         calendarSlots = new LinkedList[12];
 
+        Member testMember = null;
 
-        LinkedList<String> test = new LinkedList<String>();
-        test.add("11:40 - 12:40");
-        test.add("13:40 - 14:40");
-        test.add("14:40 - 15:40");
-        test.add("15:40 - 16:40");
-        test.add("16:40 - 17:40");
-        test.add("17:40 - 18:40");
-        test.add("11:40 - 12:40");
-        test.add("13:40 - 14:40");
-        test.add("14:40 - 15:40");
-        test.add("15:40 - 16:40");
-        test.add("16:40 - 17:40");
-        test.add("17:40 - 18:40");
-        test.add("11:40 - 12:40");
-        test.add("13:40 - 14:40");
-        test.add("14:40 - 15:40");
-        test.add("15:40 - 16:40");
-        test.add("16:40 - 17:40");
-        test.add("17:40 - 18:40");
-        test.add("11:40 - 12:40");
-        test.add("13:40 - 14:40");
-        test.add("14:40 - 15:40");
-        test.add("15:40 - 16:40");
-        test.add("16:40 - 17:40");
-        test.add("17:40 - 18:40");
+////        calendarApi = testMember.getCalendarApi();
 
-        calendarSlots[7] = test;
-        calendarSlots[9] = test;
-        calendarSlots[11] = test;
+        todayTime = new DateTime(System.currentTimeMillis());
+        // 86400000 = 1Tag, 14 = 2 Wochen
+        endTime = new DateTime(System.currentTimeMillis() + 86400000 *14);
+
+        Log.d(TAG,"Heute ist " + todayTime.toString());
+        Log.d(TAG,"Dann ist " + endTime.toString());
+
+
+
+//        LinkedList<String> test =
+////        test.add("11:40 - 12:40");
+////        test.add("13:40 - 14:40");
+////        test.add("14:40 - 15:40");
+////        test.add("15:40 - 16:40");
+////        test.add("16:40 - 17:40");
+////        test.add("17:40 - 18:40");
+////        test.add("11:40 - 12:40");
+////        test.add("13:40 - 14:40");
+////        test.add("14:40 - 15:40");
+////        test.add("15:40 - 16:40");
+////        test.add("16:40 - 17:40");
+////        test.add("17:40 - 18:40");
+////        test.add("11:40 - 12:40");
+////        test.add("13:40 - 14:40");
+////        test.add("14:40 - 15:40");
+////        test.add("15:40 - 16:40");
+////        test.add("16:40 - 17:40");
+////        test.add("17:40 - 18:40");
+////        test.add("11:40 - 12:40");
+////        test.add("13:40 - 14:40");
+////        test.add("14:40 - 15:40");
+////        test.add("15:40 - 16:40");
+////        test.add("16:40 - 17:40");
+////        test.add("17:40 - 18:40");
+
+        for(LinkedList<String> l: calendarSlots){
+            l = new LinkedList<String>();
+        }
+
+
+//        calendarSlots[7] = test;
+//        calendarSlots[9] = test;
+//        calendarSlots[11] = test;
 
         days[0] = (DayView) findViewById(R.id.day0);
         days[0].setTitle("Mo");
@@ -86,7 +120,7 @@ public class ScheduleAppointment extends AppCompatActivity {
         days[11] = (DayView) findViewById(R.id.day9);
         days[11].setTitle("Fri");
 
-        now = LocalDateTime.now();
+
         switch (now.getDayOfWeek().toString()){
             case "MONDAY":
                 currentDay = 0;
@@ -127,7 +161,7 @@ public class ScheduleAppointment extends AppCompatActivity {
                 }
                 break;
         }
-
+        setEvents(currentDay);
         officeHours = findViewById(R.id.textView4);
     }
 
@@ -224,7 +258,56 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
-    public void gotoMakeAppointment(View view, String time){
+    private static LocalDateTime toLocalDateTime(final EventDateTime edt) {
+        return LocalDateTime.ofEpochSecond(
+                edt.getDateTime().getValue() * 1000,
+                0,
+                ZoneOffset.of(edt.getTimeZone())
+        );
+    }
+
+    private void setEvents(int day){
+        try {
+            List<Event> upcommingEvents = calendarApi.getEvents(null,todayTime,endTime); //TODO: setID
+            for (Event e : upcommingEvents) {
+                LocalDateTime startDay = toLocalDateTime(e.getStart());//Das geht nicht
+                Duration timePassed = Duration.between(now, startDay);
+                LocalDateTime endDay = toLocalDateTime(e.getEnd());//Das geht nicht
+                switch (startDay.getDayOfWeek().toString()){
+                    case "MONDAY":
+                        setSlots(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        break;
+                    case "TUESDAY":
+                        setSlots(timePassed.toDays(), day + 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        break;
+                    case "WEDNESDAY":
+                        setSlots(timePassed.toDays(), day + 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        break;
+                    case "THURSDAY":
+                        setSlots(timePassed.toDays(), day + 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        break;
+                    case "FRIDAY":
+                        setSlots(timePassed.toDays(), day + 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        break;
+                    default:
+
+                        break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setSlots(float passed, int day, int startHours, int startMinutes, int endHours, int endMinutes){
+        if(passed < day){
+            calendarSlots[day].add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
+        }else{
+            calendarSlots[day+7].add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
+        }
+    }
+
+    public void gotoMakeAppointment(View view, String time) {
         Intent intent = new Intent(this, MakeAppointment.class);
         intent.putExtra("appointmentTime", time);
         startActivity(intent);

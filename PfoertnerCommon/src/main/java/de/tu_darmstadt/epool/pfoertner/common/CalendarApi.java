@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.internal.AuthAccountRequest;
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -84,7 +86,8 @@ public class CalendarApi implements MemberObserver {
 
         @Override
         public void onSuccess(String result){
-
+            PfoertnerApplication app = PfoertnerApplication.get(context);
+            member.setCalendarId(app.getService(),app.getAuthentication(),result);
         }
     };
 
@@ -100,6 +103,8 @@ public class CalendarApi implements MemberObserver {
             @Override
             public void onException(Exception e){
                 Log.d(TAG,"Could not get an Oauth token from the server");
+                Log.d(TAG,e.getMessage());
+                Log.d(TAG,e.toString());
                 e.printStackTrace();
             }
 
@@ -111,6 +116,7 @@ public class CalendarApi implements MemberObserver {
                 getCalendarIdTask.execute();
             }
         }.execute();
+        Log.d(TAG,newServerAuthCode);
     }
 
     private String getCalendarId() throws IOException{
@@ -119,13 +125,22 @@ public class CalendarApi implements MemberObserver {
                 .build();
         List<CalendarListEntry> calendarList = service
                 .calendarList().list().execute().getItems();
+        String id = null;
         for(CalendarListEntry entry: calendarList){
-            Log.d(TAG,entry.getSummary());
+            if(entry.getSummary().equals("Office hours"))
+                id = entry.getId();
         }
-        return "lol";
+        if(id == null){
+            com.google.api.services.calendar.model.Calendar newCalendar = new com.google.api.services.calendar.model.Calendar();
+            newCalendar.setSummary("Office hours");
+            newCalendar = service.calendars().insert(newCalendar).execute();
+            Log.d(TAG,newCalendar.getId());
+            id = newCalendar.getId();
+        }
+        return id;
     }
 
-    public String getAccessToken(String serverAccessKey) throws IOException{
+    public String getAccessToken(String serverAccessCode) throws IOException{
         GoogleTokenResponse tokenResponse =
                 new GoogleAuthorizationCodeTokenRequest(
                         HTTP_TRANSPORT,
@@ -133,16 +148,16 @@ public class CalendarApi implements MemberObserver {
                         "https://oauth2.googleapis.com/token",
                         clientId,
                         clientSecret,
-                        serverAccessKey,
+                        serverAccessCode,
                         "")
+                        .setScopes(SCOPES)
                         .execute();
-
         return tokenResponse.getAccessToken();
     }
 
     private Credential getCredential(){
         if(member.getAccessToken() == null){
-            throw new RuntimeException("Cannot calendar data before authenticating");
+            throw new RuntimeException("Cannot access calendar data before authenticating");
         }
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
@@ -150,10 +165,6 @@ public class CalendarApi implements MemberObserver {
                 .setClientSecrets(
                         clientId,
                         clientSecret)
-                //.setServiceAccountId("110420475534815932936")
-                //.setServiceAccountPrivateKeyId("e43d0751b099d3a3186c4477431a1ebf955780f5")
-                //.setServiceAccountPrivateKey(key)
-                //.setServiceAccountScopes(SCOPES)
                 .build();
         credential.setAccessToken(member.getAccessToken());
         return credential;
