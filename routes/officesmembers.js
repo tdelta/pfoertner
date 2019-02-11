@@ -275,17 +275,6 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
   });
 });
 
-router.get(':id/officehours', auth.authFun(), (req,res) => {
-  authenticatePanel(req, res).then(officemember => {
-    officemember.getOfficehours().then(officehours => {
-      res.status('200').send(officehours);
-    }
-  }
-}
-
-router.post(':id/officehours', auth.authFun(), (req,res) => {
-
-
 /**
  * fullfills a promise with the requested officemember, only if the requestor is
  * authenticated as a panel and the requested member belongs to the corresponding office
