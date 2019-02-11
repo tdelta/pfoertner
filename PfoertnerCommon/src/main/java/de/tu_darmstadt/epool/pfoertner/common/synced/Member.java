@@ -186,21 +186,24 @@ public class Member extends Observable<MemberObserver> {
     }
 
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
-        memberData.lastName = newLastName;
+        final MemberData data = memberData.deepCopy();
+        data.lastName = newLastName;
 
-        upload(service, auth, memberData);
+        upload(service, auth, data);
     }
 
     public void setFirstName(final PfoertnerService service, final Authentication auth, final String newFirstName) {
-        memberData.firstName = newFirstName;
+        final MemberData data = memberData.deepCopy();
+        data.firstName = newFirstName;
 
-        upload(service, auth, memberData);
+        upload(service, auth, data);
     }
 
     public void setStatus(final PfoertnerService service, final Authentication auth, final String newStatus) {
-        memberData.status = newStatus;
+        final MemberData data = memberData.deepCopy();
+        data.status = newStatus;
 
-        upload(service, auth, memberData);
+        upload(service, auth, data);
     }
 
     public void setPicture(final PfoertnerService service, final Authentication auth, final String type, final String path) {
@@ -219,46 +222,35 @@ public class Member extends Observable<MemberObserver> {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
 
-        if (
-                oldMember.firstName == null && data.firstName != null
-                || !oldMember.firstName.equals(data.firstName)
-            ) {
+        if (didChange(oldMember.firstName, data.firstName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(data.firstName));
         }
 
-        if (
-                oldMember.lastName == null && data.lastName != null
-                || !oldMember.lastName.equals(data.lastName)) {
+        if (didChange(oldMember.lastName, data.lastName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onLastNameChanged(data.lastName));
         }
 
-        if (
-                oldMember.pictureMD5 == null && data.pictureMD5 != null
-                        || oldMember.pictureMD5 != null && !oldMember.pictureMD5.equals(data.pictureMD5)
-        ) {
+        if (didChange(oldMember.pictureMD5, data.pictureMD5)) {
             Member.this.notifyEachObserver(MemberObserver::onPictureChanged);
         }
 
-        if (
-                data.status == null && oldMember.status != null
-                        || data.status != null && !oldMember.status.equals(data.status)
-                ) {
+        if (didChange(oldMember.status, data.status)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(data.status));
         }
 
-        if (
-                data.calendarId == null && oldMember.calendarId != null
-                || data.calendarId != null && !data.calendarId.equals(oldMember.calendarId)
-            ){
+        if (didChange(oldMember.calendarId, data.calendarId)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onCalendarIdChanged(data.calendarId));
         }
 
-        if (
-                data.serverAuthCode == null && oldMember.serverAuthCode != null
-                ||data.serverAuthCode != null && !data.serverAuthCode.equals(oldMember.serverAuthCode)
-            ){
+        if (didChange(oldMember.serverAuthCode, data.serverAuthCode)){
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
         }
+    }
+
+    private static <T> boolean didChange(final T oldState, final T newState) {
+        return oldState == null && newState != null
+            || oldState != null && newState == null
+            || oldState != null && newState!= null && !oldState.equals(newState);
     }
 
     private static String generatePicturePath(final int memberId) {
