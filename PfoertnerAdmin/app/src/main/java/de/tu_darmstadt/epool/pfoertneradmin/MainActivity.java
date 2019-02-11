@@ -46,6 +46,7 @@ import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
 
 public class MainActivity extends AppCompatActivity implements GlobalTextFragment.TextDialogListener, GlobalStatusFragment.StatusDialogListener {
