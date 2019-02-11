@@ -89,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
                                     case R.id.addMember:
                                         this.gotoQRCodeAcitvity(navigationView);
                                         break;
+
+                                    case R.id.editProfile:
+                                        this.gotoPictureUploader(navigationView);
+                                        break;
                                 }
 
                                 return true;

@@ -97,7 +97,7 @@
                             android:layout_below="@android:id/title"
                             android:layout_alignStart="@android:id/title"
                             android:maxLines="4"
-                            android:text="Current: Do Not Disturb!"
+                            android:text="Come In!"
                             android:textAppearance="?android:attr/textAppearanceSmall"
                             android:textColor="?android:attr/textColorSecondary" />
 
