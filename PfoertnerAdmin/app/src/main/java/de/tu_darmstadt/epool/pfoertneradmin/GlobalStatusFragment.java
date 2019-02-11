@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import android.support.v4.content.ContextCompat;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -24,6 +27,8 @@ public class GlobalStatusFragment extends AbstractStatusFragment {
     private List<String> status;
     private PfoertnerApplication app;
     private TextView textfield;
+    private ImageView iconview;
+    private Activity activity;
 
     public static GlobalStatusFragment newInstance(Activity activity){
         GlobalStatusFragment fragment = new GlobalStatusFragment();
@@ -33,7 +38,9 @@ public class GlobalStatusFragment extends AbstractStatusFragment {
 
 
     public void setArguments(Activity activity){
+        this.activity = activity;
         textfield = activity.findViewById(R.id.summary);
+        iconview = activity.findViewById(R.id.globalStatusIcon);
 
         app = PfoertnerApplication.get(activity);
 
@@ -65,7 +72,8 @@ public class GlobalStatusFragment extends AbstractStatusFragment {
                             e.apply();
                         }
 
-                        textfield.setText("Current: " + newStatus);
+                        textfield.setText(newStatus);
+                        iconview.setImageDrawable(selectIcon(newStatus));
                     }
                 }
         );
@@ -85,7 +93,19 @@ public class GlobalStatusFragment extends AbstractStatusFragment {
                 selected = 0;
             }
 
-            textfield.setText("Current: " + currentStatus);
+            textfield.setText(currentStatus);
+        }
+
+        iconview.setImageDrawable(selectIcon(currentStatus));
+    }
+
+    private Drawable selectIcon(final String status) {
+        if (status == null || status.equals("Come In!")) {
+            return ContextCompat.getDrawable(activity, R.drawable.ic_thumb_up_green_24dp);
+        }
+
+        else {
+            return ContextCompat.getDrawable(activity, R.drawable.ic_warning_red_24dp);
         }
     }
 

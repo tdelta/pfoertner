@@ -22,7 +22,6 @@ public class PersonalStatusFragment extends AbstractStatusFragment {
     private int tempSelected;
     private List<String> status;
     private AdminApplication app;
-    private TextView textfield;
 
     public static PersonalStatusFragment newInstance(Activity activity){
         PersonalStatusFragment fragment = new PersonalStatusFragment();
@@ -33,8 +32,6 @@ public class PersonalStatusFragment extends AbstractStatusFragment {
 
     @Override
     public void setArguments(Activity activity) {
-        textfield = activity.findViewById(R.id.summary2);
-
         app = AdminApplication.get(activity);
 
         final SharedPreferences settings = app.getSettings();
@@ -51,8 +48,6 @@ public class PersonalStatusFragment extends AbstractStatusFragment {
             status.add("In meeting");
             status.add("Available");
         }
-
-        textfield.setText("No special Status set");
     }
 
     @Override
@@ -88,8 +83,6 @@ public class PersonalStatusFragment extends AbstractStatusFragment {
 
     @Override
     protected void sendStatus(String status) {
-        textfield.setText(status);
-
         final Optional<Member> maybeMember = app.getOffice().getMemberById(app.getMemberId());
 
         maybeMember.ifPresent(

@@ -22,4 +22,14 @@ public class MemberData {
         this.pictureMD5 = pictureMD5;
         this.status = status;
     }
+
+    public MemberData deepCopy() {
+        return new MemberData(
+                id,
+                lastName, // deep copying strings is not necessary, since they are immutable
+                firstName,
+                pictureMD5,
+                status
+        );
+    }
 }

@@ -89,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
                                     case R.id.addMember:
                                         this.gotoQRCodeAcitvity(navigationView);
                                         break;
+
+                                    case R.id.editProfile:
+                                        this.gotoPictureUploader(navigationView);
+                                        break;
                                 }
 
                                 return true;
@@ -123,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
             final TextView drawerName = (TextView) header.findViewById(R.id.drawerName);
             final CircleImageView drawerPic = (CircleImageView) header.findViewById(R.id.drawerPic);
 
+            final PersonalStatusView personalStatusView = (PersonalStatusView)  findViewById(R.id.personalStatusView);
+
             drawerName.setText(
                     member.getFirstName() + " " + member.getLastName()
             );
@@ -151,6 +157,11 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
                         public void onPictureChanged() {
                             member.getPicture(app.getFilesDir())
                                     .ifPresent(drawerPic::setImageBitmap);
+                        }
+
+                        @Override
+                        public void onStatusChanged(final String newStatus) {
+                            personalStatusView.setStatus(newStatus);
                         }
                     }
             );
