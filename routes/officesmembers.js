@@ -136,7 +136,7 @@ router.get('/:id/picture/md5', (req, res) => {
  *
  * Patches general information of an office member
  */
-router.patch('/:officeMemberId', auth.authFun(), (req, res) => {
+router.patch('/:id', auth.authFun(), (req, res) => {
   const officeMemberId = parseInt(req.params.officeMemberId, 10);
   console.log('Patching officemember');
 
@@ -171,7 +171,7 @@ function authenticateOfficeMember(req, res) {
   return new Promise(function(response) {
     // Check whether there is a valid officeId in
     // the request
-    if (req.params.officeMemberId == null) {
+    if (req.params.id == null) {
       res.status(400).send({ message: 'The given id is invalid.' });
     }
 
@@ -189,7 +189,7 @@ function authenticateOfficeMember(req, res) {
       device.getOfficeMember().then(loggedIn => {
         // Check whether a officemember belongs to the authorized device
         // and whether that officemember is a part of the office
-        if (loggedIn.id === officeMemberId) {
+        if (loggedIn && loggedIn.id === officeMemberId) {
           console.log('Office member authenticated');
           response();
         }
@@ -274,6 +274,17 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
     });
   });
 });
+
+router.get(':id/officehours', auth.authFun(), (req,res) => {
+  authenticatePanel(req, res).then(officemember => {
+    officemember.getOfficehours().then(officehours => {
+      res.status('200').send(officehours);
+    }
+  }
+}
+
+router.post(':id/officehours', auth.authFun(), (req,res) => {
+
 
 /**
  * fullfills a promise with the requested officemember, only if the requestor is
