@@ -3,10 +3,15 @@ package de.tu_darmstadt.epool.pfoertner.common.synced;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -240,30 +245,45 @@ public class Office extends Observable<OfficeObserver> {
     }
 
     private void setMembers(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir, final MemberData[] members) {
+        final List<MemberData> updatedMembersDataList = new ArrayList<>(Arrays.asList(members));
+
         final List<Member> replacementList = new ArrayList<>(members.length);
+        final List<Member> newMembers = new LinkedList<>();
+        final List<Integer> removedMembers = new LinkedList<>();
 
-        for (final MemberData data : members) {
-            final Optional<Member> maybeMember = this.getMemberById(data.id);
-            final Member member;
+        // collect removed member ids and update the ones still existing
+        for (final Member oldMember : this.members) {
+            final int newDataIdx = Iterables.indexOf(
+                    updatedMembersDataList,
+                    input -> input.id == oldMember.getId()
+                );
 
-            if (maybeMember.isPresent()) {
-                member = maybeMember.get();
-
-                if (!member.downloadPictureIfNecessary(preferences, service, auth, data, filesDir)) {
-                    member.updateByData(data);
-                }
+            if (newDataIdx < 0) {
+                removedMembers.add(oldMember.getId());
             }
 
             else {
-                member = new Member(this, data);
-                member.downloadPictureIfNecessary(preferences, service, auth, data, filesDir);
+                final MemberData updatedData = updatedMembersDataList.remove(newDataIdx);
+
+                if (!oldMember.downloadPictureIfNecessary(preferences, service, auth, updatedData, filesDir)) {
+                    oldMember.updateByData(updatedData);
+                }
+
+                replacementList.add(oldMember);
             }
+        }
+
+        // all remaining elements in updatedMembersDataList are new members
+        for (final MemberData data : updatedMembersDataList) {
+            final Member member = new Member(this, data);
+            member.downloadPictureIfNecessary(preferences, service, auth, data, filesDir);
+            newMembers.add(member);
 
             replacementList.add(member);
         }
 
         this.members = replacementList;
-        this.notifyEachObserver(OfficeObserver::onMembersChanged);
+        this.notifyEachObserver(officeObserver -> officeObserver.onMembersChanged(newMembers, removedMembers));
     }
 
     public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {

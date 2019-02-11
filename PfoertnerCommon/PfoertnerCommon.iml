@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":PfoertnerCommon" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../PfoertnerAdmin" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":PfoertnerCommon" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$/../PfoertnerPanel" external.system.id="GRADLE" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="android-gradle" name="Android-Gradle">
       <configuration>
@@ -146,6 +146,7 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-v4-28.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: log4j:log4j:1.2.17@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.spencerwi:Either.java:2.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.8.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:viewpager-28.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.javassist:javassist:3.20.0-GA@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-annotations:28.0.0@jar" level="project" />
