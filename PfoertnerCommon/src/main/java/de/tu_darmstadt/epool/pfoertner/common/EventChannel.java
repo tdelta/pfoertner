@@ -13,7 +13,8 @@ public class EventChannel {
     public enum EventType {
         AdminJoined,
         OfficeDataUpdated,
-        OfficeMemberUpdated
+        OfficeMemberUpdated,
+        CalendarCreated
     }
 
     private final Context context;

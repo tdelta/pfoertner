@@ -149,10 +149,6 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
-    public String getCalendarId(){
-        return memberData.calendarId;
-    }
-
     public String getServerAuthCode(){
         return memberData.serverAuthCode;
     }
@@ -172,12 +168,6 @@ public class Member extends Observable<MemberObserver> {
     public void setAccessToken(final SharedPreferences settings, final String accessToken){
         memberData.oauthToken = accessToken;
         Office.writeMembersToLocalStorage(settings, office.membersToData());
-    }
-
-    public void setCalendarId(final PfoertnerService service, final Authentication auth, final String calendarId){
-        final MemberData data = memberData.deepCopy();
-        data.calendarId = calendarId;
-        upload(service,auth,data);
     }
 
     public void setServerAuthCode(final PfoertnerService service, final Authentication auth, final String serverAuthCode){
@@ -221,6 +211,10 @@ public class Member extends Observable<MemberObserver> {
         );
     }
 
+    public void calendarUpdated(){
+        notifyEachObserver(memberObserver -> memberObserver.onCalendarCreated());
+    }
+
     void updateByData(final MemberData data) {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
@@ -241,10 +235,6 @@ public class Member extends Observable<MemberObserver> {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(data.status));
         }
 
-        if (didChange(oldMember.calendarId, data.calendarId)) {
-            Member.this.notifyEachObserver(memberObserver -> memberObserver.onCalendarIdChanged(data.calendarId));
-        }
-
         if (didChange(oldMember.serverAuthCode, data.serverAuthCode)){
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
         }
@@ -254,6 +244,15 @@ public class Member extends Observable<MemberObserver> {
         return oldState == null && newState != null
             || oldState != null && newState == null
             || oldState != null && newState!= null && !oldState.equals(newState);
+    }
+
+    public void setEmail(final SharedPreferences settings, final String email){
+        memberData.email = email;
+        Office.writeMembersToLocalStorage(settings,office.membersToData());
+    }
+
+    public String getEmail(){
+        return memberData.email;
     }
 
     private static String generatePicturePath(final int memberId) {

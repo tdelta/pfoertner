@@ -47,16 +47,21 @@ public class AppointmentActivity extends AppCompatActivity{
             throw new RuntimeException(e.getMessage());
         }
 
-        buildUI();
+        buildUI(false);
         member.addObserver(new MemberObserver() {
             @Override
-            public void onCalendarIdChanged(String newCalendarId) {
-                //buildUI();
+            public void onCalendarCreated() {
+                buildUI(true);
+            }
+
+            @Override
+            public void onServerAuthCodeChanged(String newServerAuthCode){
+                buildUI(false);
             }
         });
     }
 
-    private void buildUI(){
+    private void buildUI(boolean calendarCreated){
         View calendarNameCard = root.findViewById(CALENDAR_NAME_ID);
         if(calendarNameCard != null) {
             root.removeView(calendarNameCard);
@@ -70,7 +75,7 @@ public class AppointmentActivity extends AppCompatActivity{
             final View calendarName = getLayoutInflater().inflate(R.layout.text_card,root);
             calendarName.setId(CALENDAR_NAME_ID);
             TextView text = calendarName.findViewById(R.id.text);
-            if(member.getCalendarId() != null) {
+            if(calendarCreated) {
                 text.setText("To display your office hours at the door panel, please enter them into the calendar \"Office hours\"");
             } else {
                 text.setText("Waiting for the door panel to authenticate ...");
@@ -87,6 +92,7 @@ public class AppointmentActivity extends AppCompatActivity{
         final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
                 .requestServerAuthCode(serverClientId)
+                .requestEmail()
                 .build();
         final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
         final Intent signInIntent = googleSignInClient.getSignInIntent();
@@ -100,13 +106,15 @@ public class AppointmentActivity extends AppCompatActivity{
             try{
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
                 final String authCode = account.getServerAuthCode();
+                final String email = account.getEmail();
                 Log.d(TAG,"Got server auth code");
 
                 // Send the auth code to the server
                 PfoertnerService service = app.getService();
                 Authentication auth = app.getAuthentication();
                 member.setServerAuthCode(service,auth,authCode);
-                buildUI();
+                member.setEmail(app.getSettings(),email);
+                buildUI(false);
 
             } catch (final Exception e) {
                 Log.d(TAG,"could not sign in");

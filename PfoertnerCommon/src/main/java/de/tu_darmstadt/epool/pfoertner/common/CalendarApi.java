@@ -54,8 +54,12 @@ public class CalendarApi implements MemberObserver {
 
     private final Member member;
 
+    private static int test_counter = 0;
+
 
     public CalendarApi(final Member member, final Context context){
+        test_counter ++;
+        Log.d(TAG,"Calendar APIs: "+test_counter);
         this.context = context;
         this.member = member;
 
@@ -87,7 +91,7 @@ public class CalendarApi implements MemberObserver {
         @Override
         public void onSuccess(String result){
             PfoertnerApplication app = PfoertnerApplication.get(context);
-            member.setCalendarId(app.getService(),app.getAuthentication(),result);
+            app.getService().createdCalendar(app.getAuthentication().id,member.getId());
         }
     };
 
