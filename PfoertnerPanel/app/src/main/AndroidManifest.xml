@@ -15,6 +15,9 @@
         <activity android:name=".ScheduleAppointment"
             android:hardwareAccelerated="true">
         </activity>
+        <activity android:name=".MakeAppointment"
+            android:hardwareAccelerated="true">
+        </activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape">
