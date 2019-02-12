@@ -68,11 +68,15 @@ public class SyncService extends Service {
             if (payload == null) {
                 Log.e(TAG, "Tried to update member, but there was no payload!");
             } else {
-                final Optional<Member> maybeMember = app.getOffice().getMemberById(
-                        Integer.parseInt(payload)
-                );
+                try {
+                    final Optional<Member> maybeMember = app.getOffice().getMemberById(
+                            Integer.parseInt(payload)
+                    );
 
-                maybeMember.ifPresent(member -> member.calendarUpdated());
+                    maybeMember.ifPresent(member -> member.calendarUpdated());
+                } catch (NumberFormatException e){
+                    Log.e(TAG, "Tried to update member, but the payload was invalid.");
+                }
             }
         }
     }
