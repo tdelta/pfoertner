@@ -99,6 +99,6 @@ public class MakeAppointment extends AppCompatActivity {
             protected void onException(Exception e) {
                 super.onException(e);
             }
-        };
+        }.execute();
     }
 }
