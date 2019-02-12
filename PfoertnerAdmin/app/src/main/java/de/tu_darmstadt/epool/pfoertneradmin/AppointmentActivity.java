@@ -49,7 +49,11 @@ public class AppointmentActivity extends AppCompatActivity{
             throw new RuntimeException(e.getMessage());
         }
 
-        buildUI(false);
+        if(member.getServerAuthCode() == null) {
+            buildUI(false);
+        } else {
+            buildUI(true);
+        }
         member.addObserver(new MemberObserver() {
             @Override
             public void onCalendarCreated() {
@@ -59,6 +63,7 @@ public class AppointmentActivity extends AppCompatActivity{
 
             @Override
             public void onServerAuthCodeChanged(String newServerAuthCode){
+                Log.d(TAG,"onServerAuthCodeChanged");
                 buildUI(false);
             }
         });
@@ -73,6 +78,7 @@ public class AppointmentActivity extends AppCompatActivity{
         if(signInCard != null) {
             root.removeView(signInCard);
         }
+        Log.d(TAG,"Server auth code: "+member.getServerAuthCode());
 
         if(member.getServerAuthCode() != null){
             final View calendarName = getLayoutInflater().inflate(R.layout.text_card,root);
@@ -117,7 +123,7 @@ public class AppointmentActivity extends AppCompatActivity{
                 SharedPreferences settings = app.getSettings();
                 member.setServerAuthCode(service,auth,authCode);
                 member.setEmail(settings,email);
-                buildUI(false);
+
 
             } catch (final Exception e) {
                 Log.d(TAG,"could not sign in");

@@ -50,24 +50,35 @@ public class CalendarApi implements MemberObserver {
 
     private final Context context;
     private final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    private final PrivateKey key;
+    private final NotifyAdminsTask notifyAdminsTask = new NotifyAdminsTask();
 
     private final Member member;
 
     private static int test_counter = 0;
 
 
+    private class NotifyAdminsTask  extends RequestTask<Void>{
+
+        private int memberId;
+
+        public void execute(int memberId){
+            this.memberId = memberId;
+            execute();
+        }
+
+        @Override
+        public Void doRequests() throws IOException{
+            PfoertnerApplication app = PfoertnerApplication.get(CalendarApi.this.context);
+            app.getService().createdCalendar(app.getAuthentication().id,memberId);
+            return null;
+        }
+    }
+
     public CalendarApi(final Member member, final Context context){
         test_counter ++;
         Log.d(TAG,"Calendar APIs: "+test_counter);
         this.context = context;
         this.member = member;
-
-        {
-            final PfoertnerApplication app = PfoertnerApplication.get(context);
-
-            key = app.getCalendarApiKey();
-        }
 
         member.addObserver(this);
 
@@ -91,7 +102,8 @@ public class CalendarApi implements MemberObserver {
         @Override
         public void onSuccess(String result){
             PfoertnerApplication app = PfoertnerApplication.get(context);
-            app.getService().createdCalendar(app.getAuthentication().id,member.getId());
+            member.setCalendarId(app.getSettings(),result);
+            notifyAdminsTask.execute(member.getId());
         }
     };
 

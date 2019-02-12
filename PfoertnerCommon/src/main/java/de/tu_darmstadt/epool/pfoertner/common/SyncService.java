@@ -36,6 +36,7 @@ public class SyncService extends Service {
                         break;
                     case CalendarCreated:
                         SyncService.this.updateMemberCalendar(payload);
+                        break;
                     case OfficeDataUpdated:
                         SyncService.this.updateOfficeData();
                         break;

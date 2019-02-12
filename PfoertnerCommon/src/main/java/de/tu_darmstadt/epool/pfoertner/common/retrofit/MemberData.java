@@ -12,6 +12,7 @@ public class MemberData {
     @Expose public String pictureMD5;
     @Expose public String status;
     @Expose public String serverAuthCode;
+    public String calendarId;
     public String email;
     public String oauthToken;
 

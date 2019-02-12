@@ -211,6 +211,15 @@ public class Member extends Observable<MemberObserver> {
         );
     }
 
+    public void setCalendarId(final SharedPreferences settings, final String newCalendarId){
+        this.memberData.calendarId = newCalendarId;
+        Office.writeMembersToLocalStorage(settings,office.membersToData());
+    }
+
+    public String getCalendarId(){
+        return memberData.calendarId;
+    }
+
     public void calendarUpdated(){
         notifyEachObserver(memberObserver -> memberObserver.onCalendarCreated());
     }
