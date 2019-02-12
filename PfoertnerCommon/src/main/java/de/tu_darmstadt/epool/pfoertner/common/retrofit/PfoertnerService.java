@@ -78,7 +78,11 @@ public interface PfoertnerService {
     final Retrofit retrofit = new Retrofit.Builder()
             .client(client)
             .baseUrl(SERVER_ADDR)
-            .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()))
+            .addConverterFactory(GsonConverterFactory.create(
+                    new GsonBuilder()
+                            .excludeFieldsWithoutExposeAnnotation()
+                            .setDateFormat("yyyy-MM-dd HH:mm")
+                            .create()))
             .build();
 
     final PfoertnerService service = retrofit.create(PfoertnerService.class);
