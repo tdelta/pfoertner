@@ -228,6 +228,9 @@ public class Member extends Observable<MemberObserver> {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
 
+        Log.d(TAG,"Old server auth code: "+oldMember.serverAuthCode);
+        Log.d(TAG,"New server auth code: "+data.serverAuthCode);
+
         if (didChange(oldMember.firstName, data.firstName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(data.firstName));
         }
