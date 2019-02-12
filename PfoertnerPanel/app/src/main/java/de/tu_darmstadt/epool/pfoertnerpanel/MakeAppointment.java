@@ -16,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 
 public class MakeAppointment extends AppCompatActivity {
@@ -77,11 +79,26 @@ public class MakeAppointment extends AppCompatActivity {
         Log.d(TAG, "start for request" + start.toString());
         Log.d(TAG, "end for request" + end.toString());
 
+        //Build request
         TextView email = (TextView) findViewById(R.id.emailInput);
         TextView name = (TextView) findViewById(R.id.nameInput);
         TextView message = (TextView) findViewById(R.id.messageInput);
 
-        new AppointmentRequest(start, end, email.getText().toString(), name.getText().toString(), message.getText().toString());
+        AppointmentRequest request = new AppointmentRequest(start, end, email.getText().toString(), name.getText().toString(), message.getText().toString(), false);
 
+
+        new RequestTask<Void>(){
+            @Override
+            protected Void doRequests() throws Exception {
+                PfoertnerApplication app = PfoertnerApplication.get(MakeAppointment.this);
+                app.getService().createNewAppointment(getIntent().getIntExtra("MemberId", 0), request);
+                return null;
+            }
+
+            @Override
+            protected void onException(Exception e) {
+                super.onException(e);
+            }
+        };
     }
 }
