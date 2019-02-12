@@ -31,7 +31,6 @@ public class PfoertnerApplication extends Application {
     private User device;
     private Authentication authentication;
     private Optional<Office> maybeOffice = Optional.empty();
-    private Optional<PrivateKey> calendarApiKey = Optional.empty();
 
     private boolean hadBeenInitialized = false;
 
@@ -59,54 +58,6 @@ public class PfoertnerApplication extends Application {
         onInit();
 
         this.hadBeenInitialized = true;
-    }
-
-    public PrivateKey getCalendarApiKey() {
-        if (this.calendarApiKey.isPresent()) {
-            return this.calendarApiKey.get();
-        }
-
-        else {
-            final PrivateKey key = loadCalendarApiKey();
-
-            this.calendarApiKey = Optional.ofNullable(key);
-
-            return key;
-        }
-    }
-
-    private PrivateKey loadCalendarApiKey() {
-        final String credentialsPath = "pfoertner-e43d0751b099.p12";
-
-        final AssetManager assetManager = this.getApplicationContext().getAssets();
-
-        try {
-            // FIXME: There must be a better way to load the private key
-            final InputStream stream = assetManager.open(credentialsPath);
-            final KeyStore p12 = KeyStore.getInstance("pkcs12");
-
-            p12.load(stream, "notasecret".toCharArray());
-
-            final Enumeration e = p12.aliases();
-
-            PrivateKey key;
-            while (e.hasMoreElements()) {
-                final String alias = (String) e.nextElement();
-                key = (PrivateKey) p12.getKey(alias, "notasecret".toCharArray());
-
-                if (key != null) {
-                    return key;
-                }
-            }
-        }
-
-        catch (Exception e){
-            Log.d(TAG,"Could not load the private key for the Calendar API");
-
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     protected void onInit() { }

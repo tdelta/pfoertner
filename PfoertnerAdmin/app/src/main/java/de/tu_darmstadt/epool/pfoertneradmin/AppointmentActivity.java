@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -22,6 +23,7 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
 public class AppointmentActivity extends AppCompatActivity{
 
@@ -47,16 +49,27 @@ public class AppointmentActivity extends AppCompatActivity{
             throw new RuntimeException(e.getMessage());
         }
 
-        buildUI();
+        if(member.getServerAuthCode() == null) {
+            buildUI(false);
+        } else {
+            buildUI(true);
+        }
         member.addObserver(new MemberObserver() {
             @Override
-            public void onCalendarIdChanged(String newCalendarId) {
-                //buildUI();
+            public void onCalendarCreated() {
+                Helpers.requestCalendarsSync(AppointmentActivity.this,member.getEmail());
+                buildUI(true);
+            }
+
+            @Override
+            public void onServerAuthCodeChanged(String newServerAuthCode){
+                Log.d(TAG,"onServerAuthCodeChanged");
+                buildUI(false);
             }
         });
     }
 
-    private void buildUI(){
+    private void buildUI(boolean calendarCreated){
         View calendarNameCard = root.findViewById(CALENDAR_NAME_ID);
         if(calendarNameCard != null) {
             root.removeView(calendarNameCard);
@@ -65,12 +78,13 @@ public class AppointmentActivity extends AppCompatActivity{
         if(signInCard != null) {
             root.removeView(signInCard);
         }
+        Log.d(TAG,"Server auth code: "+member.getServerAuthCode());
 
         if(member.getServerAuthCode() != null){
             final View calendarName = getLayoutInflater().inflate(R.layout.text_card,root);
             calendarName.setId(CALENDAR_NAME_ID);
             TextView text = calendarName.findViewById(R.id.text);
-            if(member.getCalendarId() != null) {
+            if(calendarCreated) {
                 text.setText("To display your office hours at the door panel, please enter them into the calendar \"Office hours\"");
             } else {
                 text.setText("Waiting for the door panel to authenticate ...");
@@ -87,6 +101,7 @@ public class AppointmentActivity extends AppCompatActivity{
         final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
                 .requestServerAuthCode(serverClientId)
+                .requestEmail()
                 .build();
         final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
         final Intent signInIntent = googleSignInClient.getSignInIntent();
@@ -100,13 +115,15 @@ public class AppointmentActivity extends AppCompatActivity{
             try{
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
                 final String authCode = account.getServerAuthCode();
-                Log.d(TAG,"Got server auth code: " + authCode);
+                final String email = account.getEmail();
 
                 // Send the auth code to the server
                 PfoertnerService service = app.getService();
                 Authentication auth = app.getAuthentication();
+                SharedPreferences settings = app.getSettings();
                 member.setServerAuthCode(service,auth,authCode);
-                buildUI();
+                member.setEmail(settings,email);
+
 
             } catch (final Exception e) {
                 Log.d(TAG,"could not sign in");

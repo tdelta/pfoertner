@@ -84,6 +84,7 @@ public class MessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(final RemoteMessage remoteMessage) {
         Log.d(TAG, "Received FCM message.");
+        Log.d(TAG,remoteMessage.getData().toString());
 
         if (remoteMessage.getData().containsKey("event")) {
             try {

@@ -5,6 +5,6 @@ public interface MemberObserver {
     default void onLastNameChanged(final String newFirstName) {}
     default void onPictureChanged() {}
     default void onStatusChanged(final String newStatus){}
-    default void onCalendarIdChanged(final String newCalendarId){}
+    default void onCalendarCreated(){}
     default void onServerAuthCodeChanged(final String serverAuthCode){}
 }
