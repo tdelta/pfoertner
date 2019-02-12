@@ -2,7 +2,15 @@
 <resources>
     <color name="colorPrimary">#8BC34A</color>
     <color name="colorPrimaryDark">#689F38</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#ff4081</color>
 
     <color name="black_overlay">#66000000</color>
+
+    <color name="pfoertner_positive_status_bg">#4caf50</color>
+    <color name="pfoertner_positive_status_taptext">#8bc34a</color>
+    <color name="pfoertner_negative_status_bg">#F44336</color>
+    <color name="pfoertner_negative_status_taptext">#D32F2F</color>
+    <color name="pfoertner_light_primary_dark_text">#FFFFFF</color>
+
+
 </resources>

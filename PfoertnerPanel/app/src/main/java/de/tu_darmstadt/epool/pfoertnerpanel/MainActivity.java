@@ -1,14 +1,11 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,23 +17,21 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
-import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberListFragment;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
 
     private LayoutInflater inflater;
     private ViewGroup container;
-
-    private int memberCount = 0;
+    private MemberListFragment memberList;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -63,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
                 ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init());
             }
         }.execute();
+
+        memberList = new MemberListFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.member_list, memberList);
+        transaction.commit();
+
     }
 
     @Override
@@ -85,15 +86,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMembers() {
-        // Clear already added members
-        removeMembers();
-
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
-
-        for (final Member m : app.getOffice().getMembers()){
-            this.addMember(m);
-            m.setCalendarApi(new CalendarApi(m,this));
-        }
+        memberList.setMembers(app.getOffice().getMembers());
     }
 
     private void initOffice() {
@@ -193,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         checkForPlayServices();
 
         inflater =  getLayoutInflater();
-        container = findViewById(R.id.member_insert);
+        container = findViewById(R.id.member_list);
 
         setRoom("S101/A1");
         setGlobalStatus("Extended Access");
@@ -217,109 +211,29 @@ public class MainActivity extends AppCompatActivity {
     public void setGlobalStatus(final String status){
         if (status != null) {
             TextView global = findViewById(R.id.global_status);
+            Toolbar toolbar = findViewById(R.id.toolbar);
             global.setText(status);
             switch (status) {
                 case "Come In!": {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_positive_status_bg));
                     break;
                 }
                 case "Do Not Disturb!": {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
                     break;
                 }
                 case "Extended Access": {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark));
                     break;
                 }
                 default: {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
                 }
             }
         }
 
         else {
             // TODO: Remove status, if none set?
-        }
-    }
-
-    public void addStdMember(View view) {
-        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann", "", "Away"), null);
-    }
-
-    public void removeMembers(){
-        FragmentManager fm = getSupportFragmentManager();
-        for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
-        memberCount=0;
-
-    }
-
-    public void addMember(final Member m) {
-        addMember(m.getMemberData(),m);
-    }
-
-    public void addMember(final MemberData memberData, final @Nullable Member member){
-        // set the attributes of the member to add
-        String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
-        MemberFragment memberUI = new MemberFragment();
-
-        memberUI.setName(memberData.firstName + " " + memberData.lastName);
-        memberUI.setStatus(memberData.status == null ? "" : memberData.status);
-        memberUI.setOfficeHours(work);
-
-        if (member != null) {
-            final PfoertnerApplication app = PfoertnerApplication.get(this);
-
-            memberUI.setPicture(
-                    member
-                        .getPicture(app.getFilesDir())
-                        .map(bitmap -> (Drawable) new BitmapDrawable(this.getResources(), bitmap))
-                        .orElse(
-                                getDrawable(R.drawable.ic_contact_default)
-                        )
-            );
-        }
-        //member.setPicture(getDrawable(R.drawable.ic_contact_default));
-
-        switch(memberCount){
-            case 0:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_one, memberUI);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-            case 1:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_two, memberUI);
-                transaction.addToBackStack(null);
-
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-            case 2:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_three, memberUI);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-            case 3:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_four, memberUI);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                memberCount++;
-                break;
-            }
         }
     }
 }
