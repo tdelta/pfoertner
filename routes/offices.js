@@ -167,10 +167,10 @@ router.get('/:officeId/members', auth.authFun(), (req, res) => {
             let promises = [];
             let officeMemberData = []
             res.send(officeMembers.map(
-              member -> promises.push(member.includeAppointmentRequests()
-                .then(data -> officeMemberData.push(data)))
+              member => promises.push(member.includeAppointmentRequests()
+                .then(data => officeMemberData.push(data)))
             ));
-            Promises.all(promises).then(() => {
+            Promise.all(promises).then(() => {
               res.status(200).send(officeMemberData);
             });
           } else {
