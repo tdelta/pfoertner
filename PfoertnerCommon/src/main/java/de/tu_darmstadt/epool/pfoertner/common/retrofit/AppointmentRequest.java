@@ -4,6 +4,9 @@ import com.google.gson.annotations.Expose;
 
 import java.util.Date;
 
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+
 public class AppointmentRequest {
     @Expose public int id;
     @Expose public Date start;

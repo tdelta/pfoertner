@@ -67,7 +67,6 @@ public class ScheduleAppointment extends AppCompatActivity {
 //
 //
 //        calendarApi = appointmentMember.getCalendarApi();
-
         todayTime = new DateTime(System.currentTimeMillis());
         // 86400000 = 1Tag, 14 = 2 Wochen
         endTime = new DateTime(System.currentTimeMillis() + 86400000 *14);
@@ -316,6 +315,7 @@ public class ScheduleAppointment extends AppCompatActivity {
         intent.putExtra("Day", selectedDay.getDayOfMonth());
         intent.putExtra("Month", selectedDay.getMonthValue());
         intent.putExtra("Year", selectedDay.getYear());
+        intent.putExtra("MemberId", 0);//TODO: 0 hardcoded
 
         // yyyy-MM-dd HH:mm
         startActivity(intent);
