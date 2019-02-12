@@ -53,7 +53,8 @@ public class MemberData {
                 pictureMD5,
                 status,
                 serverAuthCode,
-                appointmentRequests.stream().map(AppointmentRequest::deepCopy).collect(Collectors.toList()),
+                appointmentRequests == null ?
+                null : appointmentRequests.stream().map(AppointmentRequest::deepCopy).collect(Collectors.toList()),
                 calendarId,
                 email,
                 oauthToken
