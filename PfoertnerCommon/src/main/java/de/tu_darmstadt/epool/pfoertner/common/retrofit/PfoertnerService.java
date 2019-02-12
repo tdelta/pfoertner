@@ -65,8 +65,8 @@ public interface PfoertnerService {
   @PATCH("officemembers/{id}/calendar")
   Call<ResponseBody> createdCalendar(@Header("Authorization") String authToken, @Path("id") int id);
 
-  @POST("officemembers/{id}/appointment")//TODO:
-  Call<ResponseBody> createNewAppointment(@Path("id") int id);
+  @POST("officemembers/{id}/appointment")
+  Call<ResponseBody> createNewAppointment(@Path("id") int id, @Body AppointmentRequest request);
 
   //@POST("/api/devices/{id}/person")
   //Call<MemberData> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);

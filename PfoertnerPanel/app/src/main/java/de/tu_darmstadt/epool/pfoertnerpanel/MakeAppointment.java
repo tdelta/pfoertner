@@ -12,8 +12,16 @@ import android.widget.TextView;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
+
 public class MakeAppointment extends AppCompatActivity {
     String TAG = "MakeAppointment";
+    private SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +44,8 @@ public class MakeAppointment extends AppCompatActivity {
     }
 
     public void onConfirmAppointment(View view){
-        // yyyy-MM-dd HH:mm
+        // yyyy-MM-dd HH:mm -> itentstrings -> parse to LocalDateTime -> richtige String darstellung
+        // (musste so weil sonst der monat nicht richtig was 2 statt 02)
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
@@ -52,8 +61,27 @@ public class MakeAppointment extends AppCompatActivity {
                 , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(11,13)));
         String endTime = dateTime.format(formatter);
 
-        Log.d(TAG, startTime);
-        Log.d(TAG, endTime);
+//        Log.d(TAG, startTime);
+//        Log.d(TAG, endTime);
+// Martin wills doch nicht als string also wird aus dem string wieder ein date geparst...w
+
+        Date start = null;
+        Date end = null;
+        try {
+            start = dateParser.parse(startTime);
+            end = dateParser.parse(endTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, "start for request" + start.toString());
+        Log.d(TAG, "end for request" + end.toString());
+
+        TextView email = (TextView) findViewById(R.id.emailInput);
+        TextView name = (TextView) findViewById(R.id.nameInput);
+        TextView message = (TextView) findViewById(R.id.messageInput);
+
+        new AppointmentRequest(start, end, email.getText().toString(), name.getText().toString(), message.getText().toString());
 
     }
 }
