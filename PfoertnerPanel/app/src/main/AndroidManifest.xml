@@ -15,6 +15,9 @@
         <activity android:name=".ScheduleAppointment"
             android:hardwareAccelerated="true">
         </activity>
+        <activity android:name=".MakeAppointment"
+            android:hardwareAccelerated="true">
+        </activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape">
@@ -48,6 +51,11 @@
         <service
             android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"
             android:enabled="true" />
+
+
+        <activity android:name=".Appointment"
+            android:screenOrientation="landscape"></activity>
+        <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
     </application>
 
 </manifest>

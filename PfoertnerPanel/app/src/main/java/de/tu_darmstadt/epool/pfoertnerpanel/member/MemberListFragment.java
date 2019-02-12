@@ -22,6 +22,12 @@ import de.tu_darmstadt.epool.pfoertnerpanel.R;
 
 public class MemberListFragment extends ListFragment {
 
+    private int currentMemberId;
+
+    public int getCurrentMember(){
+        return currentMemberId;
+    }
+
     public void setMembers(List<Member> members) {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getListAdapter();
         adapter.clear();
@@ -30,6 +36,7 @@ public class MemberListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        currentMemberId = ((MemberView)v).getMemberId();
         FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.member_fragment, ((MemberView) v).getFragment());
         transaction.commit();

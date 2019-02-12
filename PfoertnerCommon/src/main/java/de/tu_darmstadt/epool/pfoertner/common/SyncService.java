@@ -34,6 +34,9 @@ public class SyncService extends Service {
                     case OfficeMemberUpdated:
                         SyncService.this.updateMember(payload);
                         break;
+                    case CalendarCreated:
+                        SyncService.this.updateMemberCalendar(payload);
+                        break;
                     case OfficeDataUpdated:
                         SyncService.this.updateOfficeData();
                         break;
@@ -55,6 +58,26 @@ public class SyncService extends Service {
 
         else {
             Log.e(TAG, "Tried to update members, but office is not initialized.");
+        }
+    }
+
+    private void updateMemberCalendar(final @Nullable String payload) {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        if (app.hasOffice()) {
+            if (payload == null) {
+                Log.e(TAG, "Tried to update member, but there was no payload!");
+            } else {
+                try {
+                    final Optional<Member> maybeMember = app.getOffice().getMemberById(
+                            Integer.parseInt(payload)
+                    );
+
+                    maybeMember.ifPresent(member -> member.calendarUpdated());
+                } catch (NumberFormatException e){
+                    Log.e(TAG, "Tried to update member, but the payload was invalid.");
+                }
+            }
         }
     }
 

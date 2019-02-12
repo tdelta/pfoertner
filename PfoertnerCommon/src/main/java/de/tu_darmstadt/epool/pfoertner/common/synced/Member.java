@@ -13,10 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
@@ -149,10 +151,6 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
-    public String getCalendarId(){
-        return memberData.calendarId;
-    }
-
     public String getServerAuthCode(){
         return memberData.serverAuthCode;
     }
@@ -174,18 +172,15 @@ public class Member extends Observable<MemberObserver> {
         Office.writeMembersToLocalStorage(settings, office.membersToData());
     }
 
-    public void setCalendarId(final PfoertnerService service, final Authentication auth, final String calendarId){
-        memberData.calendarId = calendarId;
-        upload(service,auth,memberData);
-    }
-
     public void setServerAuthCode(final PfoertnerService service, final Authentication auth, final String serverAuthCode){
-        memberData.serverAuthCode = serverAuthCode;
+        final MemberData data = memberData.deepCopy();
+        data.serverAuthCode = serverAuthCode;
 
-        upload(service,auth,memberData);
+        upload(service,auth,data);
     }
 
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
+
         final MemberData data = memberData.deepCopy();
         data.lastName = newLastName;
 
@@ -218,9 +213,40 @@ public class Member extends Observable<MemberObserver> {
         );
     }
 
+    public List<AppointmentRequest> getAppointmentRequests(){
+        return memberData.appointmentRequests;
+    }
+
+    public void setAppointmentRequestAccepted(final PfoertnerService service, final Authentication auth, final int appointmentRequestId, final boolean accepted){
+        final MemberData data = memberData.deepCopy();
+        if(accepted) {
+            data.appointmentRequests.get(appointmentRequestId).accepted = true;
+        } else {
+            data.appointmentRequests.remove(appointmentRequestId);
+        }
+
+        upload(service,auth,data);
+    }
+
+    public void setCalendarId(final SharedPreferences settings, final String newCalendarId){
+        this.memberData.calendarId = newCalendarId;
+        Office.writeMembersToLocalStorage(settings,office.membersToData());
+    }
+
+    public String getCalendarId(){
+        return memberData.calendarId;
+    }
+
+    public void calendarUpdated(){
+        notifyEachObserver(memberObserver -> memberObserver.onCalendarCreated());
+    }
+
     void updateByData(final MemberData data) {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
+
+        Log.d(TAG,"Old server auth code: "+oldMember.serverAuthCode);
+        Log.d(TAG,"New server auth code: "+data.serverAuthCode);
 
         if (didChange(oldMember.firstName, data.firstName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(data.firstName));
@@ -238,12 +264,12 @@ public class Member extends Observable<MemberObserver> {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(data.status));
         }
 
-        if (didChange(oldMember.calendarId, data.calendarId)) {
-            Member.this.notifyEachObserver(memberObserver -> memberObserver.onCalendarIdChanged(data.calendarId));
-        }
-
         if (didChange(oldMember.serverAuthCode, data.serverAuthCode)){
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
+        }
+
+        if (didChange(oldMember.appointmentRequests, data.appointmentRequests)){
+            Member.this.notifyEachObserver(memberObserver -> memberObserver.onAppointmentRequestsChanged(data.appointmentRequests));
         }
     }
 
@@ -251,6 +277,15 @@ public class Member extends Observable<MemberObserver> {
         return oldState == null && newState != null
             || oldState != null && newState == null
             || oldState != null && newState!= null && !oldState.equals(newState);
+    }
+
+    public void setEmail(final SharedPreferences settings, final String email){
+        memberData.email = email;
+        Office.writeMembersToLocalStorage(settings,office.membersToData());
+    }
+
+    public String getEmail(){
+        return memberData.email;
     }
 
     private static String generatePicturePath(final int memberId) {
