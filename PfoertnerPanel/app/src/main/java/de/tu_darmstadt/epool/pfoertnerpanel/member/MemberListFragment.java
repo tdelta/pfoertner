@@ -32,7 +32,6 @@ public class MemberListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.member_fragment, ((MemberView) v).getFragment());
-        transaction.addToBackStack(null);
         transaction.commit();
     }
 
