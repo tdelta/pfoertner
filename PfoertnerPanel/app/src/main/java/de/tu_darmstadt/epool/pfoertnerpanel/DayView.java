@@ -7,8 +7,12 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import org.threeten.bp.LocalDateTime;
+
 
 public class DayView extends RelativeLayout {
+    LocalDateTime date;
+
     public DayView(Context context) {
         super(context);
 
@@ -40,16 +44,26 @@ public class DayView extends RelativeLayout {
 
     }
 
-    public void setTitle(final String newText) {
-        final TextView imagetest = (TextView) findViewById(R.id.title);
-
-        imagetest.setText(newText);
+    public void setDate(LocalDateTime date){
+        this.date = date;
+        setTitle();
+        setDay();
     }
 
-    public void setDate(final String newDate){
+    private void setTitle() {
+        final TextView imagetest = (TextView) findViewById(R.id.title);
+
+        imagetest.setText(date.getDayOfWeek().toString());
+    }
+
+    private void setDay(){
         final TextView imagetest = (TextView) findViewById(R.id.summary);
 
-        imagetest.setText(newDate);
+        imagetest.setText(date.getDayOfMonth() + "-" + date.getMonthValue());
+    }
+
+    public LocalDateTime getDate(){
+        return date;
     }
 
 }

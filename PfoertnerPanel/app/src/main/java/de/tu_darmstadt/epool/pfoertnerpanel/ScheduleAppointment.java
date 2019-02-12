@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.client.util.DateTime;
@@ -15,32 +14,33 @@ import com.google.api.services.calendar.model.EventDateTime;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class ScheduleAppointment extends AppCompatActivity {
-    LocalDateTime now;
-    String TAG = "Schedule ";
-    DayView days[];
-    final int selected = 0xFFFF4081;
-    final int nothing = 0xFF808080;
-    final int normal = 0xFF8BC34A;
-    int currentDay;
-    LinearLayout slots;
-    LinkedList<String>[] calendarSlots;
-    TextView officeHours;
-    CalendarApi calendarApi;
-    DateTime todayTime;
-    DateTime endTime;
-
+    private LocalDateTime now;
+    private String TAG = "Schedule ";
+    private DayView days[];
+    private final int selected = 0xFFFF4081;
+    private final int nothing = 0xFF808080;
+    private final int normal = 0xFF8BC34A;
+    private int currentDay;
+    private LinearLayout slots;
+    private LinkedList<String>[] calendarSlots;
+    private TextView officeHours;
+    private CalendarApi calendarApi;
+    private DateTime todayTime;
+    private DateTime endTime;
+    private PfoertnerApplication app;
+    private Member appointmentMember;
+    private LocalDateTime selectedDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +51,18 @@ public class ScheduleAppointment extends AppCompatActivity {
         slots = (LinearLayout) findViewById(R.id.officehours);
         calendarSlots = new LinkedList[12];
 
-        Member testMember = null;
+        app = PfoertnerApplication.get(this);
 
-////        calendarApi = testMember.getCalendarApi();
+        appointmentMember = app.getOffice().getMembers().get(0);
+//        for (Member m : app.getOffice().getMembers()){
+//
+//            if(m.getId() == 0){// TODO: 0 => platzhalter
+//                 appointmentMember = m;
+//            }
+//        }
+
+
+        calendarApi = appointmentMember.getCalendarApi();
 
         todayTime = new DateTime(System.currentTimeMillis());
         // 86400000 = 1Tag, 14 = 2 Wochen
@@ -99,132 +108,128 @@ public class ScheduleAppointment extends AppCompatActivity {
 //        calendarSlots[9] = test;
 //        calendarSlots[11] = test;
 
-        days[0] = (DayView) findViewById(R.id.day0);
-        days[0].setTitle("Mo");
-        days[1] = (DayView) findViewById(R.id.day1);
-        days[1].setTitle("Tue");
-        days[2] = (DayView) findViewById(R.id.day2);
-        days[2].setTitle("Wed");
-        days[3] = (DayView) findViewById(R.id.day3);
-        days[3].setTitle("Thu");
-        days[4] = (DayView) findViewById(R.id.day4);
-        days[4].setTitle("Fri");
-        days[7] = (DayView) findViewById(R.id.day5);
-        days[7].setTitle("Mo");
-        days[8] = (DayView) findViewById(R.id.day6);
-        days[8].setTitle("Tue");
-        days[9] = (DayView) findViewById(R.id.day7);
-        days[9].setTitle("Wed");
-        days[10] = (DayView) findViewById(R.id.day8);
-        days[10].setTitle("Thu");
-        days[11] = (DayView) findViewById(R.id.day9);
-        days[11].setTitle("Fri");
+//        days[0] = (DayView) findViewById(R.id.day0);
+//        days[0].setTitle("Mo");
+//        days[1] = (DayView) findViewById(R.id.day1);
+//        days[1].setTitle("Tue");
+//        days[2] = (DayView) findViewById(R.id.day2);
+//        days[2].setTitle("Wed");
+//        days[3] = (DayView) findViewById(R.id.day3);
+//        days[3].setTitle("Thu");
+//        days[4] = (DayView) findViewById(R.id.day4);
+//        days[4].setTitle("Fri");
+//        days[7] = (DayView) findViewById(R.id.day5);
+//        days[7].setTitle("Mo");
+//        days[8] = (DayView) findViewById(R.id.day6);
+//        days[8].setTitle("Tue");
+//        days[9] = (DayView) findViewById(R.id.day7);
+//        days[9].setTitle("Wed");
+//        days[10] = (DayView) findViewById(R.id.day8);
+//        days[10].setTitle("Thu");
+//        days[11] = (DayView) findViewById(R.id.day9);
+//        days[11].setTitle("Fri");
 
 
         switch (now.getDayOfWeek().toString()){
             case "MONDAY":
                 currentDay = 0;
-                colorDays(currentDay);
-                setDate(currentDay,0);
+                colorDaysForDayViews(currentDay);
+                setDateForDayViews(currentDay,0);
                 break;
             case "TUESDAY":
                 currentDay = 1;
-                colorDays(currentDay);
-                setDate(currentDay,0);
+                colorDaysForDayViews(currentDay);
+                setDateForDayViews(currentDay,0);
                 break;
             case "WEDNESDAY":
                 currentDay = 2;
-                colorDays(currentDay);
-                setDate(currentDay,0);
+                colorDaysForDayViews(currentDay);
+                setDateForDayViews(currentDay,0);
                 break;
             case "THURSDAY":
                 currentDay = 3;
-                setDate(currentDay,0);
-                colorDays(currentDay);
+                setDateForDayViews(currentDay,0);
+                colorDaysForDayViews(currentDay);
                 break;
             case "FRIDAY":
                 currentDay = 4;
-                setDate(currentDay,0);
-                colorDays(currentDay);
+                setDateForDayViews(currentDay,0);
+                colorDaysForDayViews(currentDay);
                 break;
             default:
-                colorDays(currentDay);
+                colorDaysForDayViews(currentDay);
                 switch (now.getDayOfWeek().toString()){
                     case "SATURDAY":
                         currentDay = 0;
-                        setDate(currentDay,2);
+                        setDateForDayViews(currentDay,2);
                         break;
                     case "SUNDAY":
                         currentDay = 0;
-                        setDate(currentDay,1);
+                        setDateForDayViews(currentDay,1);
                         break;
                 }
                 break;
         }
-        setEvents(currentDay);
+        setEventsForTimeslots(currentDay);
         officeHours = findViewById(R.id.textView4);
     }
 
-    public void weekDay(View view){
-        colorDays(normal);
+    public void onDayPressed(View view){
+        colorDaysForDayViews(normal);
         slots.removeAllViews();
 
         switch (view.getId()){
             case R.id.day0:
-                days[0].setBackgroundColor(selected);
-                createTimeSlot(0);
+                updateDayViewButton(0);
                 break;
             case R.id.day1:
-                days[1].setBackgroundColor(selected);
-                createTimeSlot(1);
+                updateDayViewButton(1);
                 break;
             case R.id.day2:
-                days[2].setBackgroundColor(selected);
-                createTimeSlot(2);
+                updateDayViewButton(2);
                 break;
             case R.id.day3:
-                days[3].setBackgroundColor(selected);
-                createTimeSlot(3);
+                updateDayViewButton(3);
                 break;
             case R.id.day4:
-                days[4].setBackgroundColor(selected);
-                createTimeSlot(4);
+                updateDayViewButton(4);
                 break;
             case R.id.day5:
-                days[7].setBackgroundColor(selected);
-                createTimeSlot(7);
+                updateDayViewButton(7);
                 break;
             case R.id.day6:
-                days[8].setBackgroundColor(selected);
-                createTimeSlot(8);
+                updateDayViewButton(8);
                 break;
             case R.id.day7:
-                days[9].setBackgroundColor(selected);
-                createTimeSlot(9);
+                updateDayViewButton(9);
                 break;
             case R.id.day8:
-                days[10].setBackgroundColor(selected);
-                createTimeSlot(10);
+                updateDayViewButton(10);
                 break;
             case R.id.day9:
-                days[11].setBackgroundColor(selected);
-                createTimeSlot(11);
+                updateDayViewButton(11);
                 break;
         }
     }
+    
+    private void updateDayViewButton(int dayOffset){
+        days[dayOffset].setBackgroundColor(selected);
+        createTimeSlot(dayOffset);
+        selectedDay = days[dayOffset].getDate();
+    }
 
-    private void setDate(int start, int weekend){
+    private void setDateForDayViews(int start, int weekend){
         for(int i = start;i<12;i++){
             if (i!= 5 && i != 6){
-                days[i].setDate(now.plusDays(i-start+weekend).getDayOfMonth()+"-"+now.getMonthValue());
+                days[i].setDate(now.plusDays(i-start+weekend));
             }
         }
         for(int i = 0; i<start;i++){
-            days[i].setDate(now.plusDays(i-start).getDayOfMonth()+"-"+now.getMonthValue());
+            days[i].setDate(now.plusDays(i-start));
         }
     }
 
-    private void colorDays(int start){
+    private void colorDaysForDayViews(int start){
         for(int i = 0;i<12;i++){
             if (i!= 5 && i != 6) {
                 if(calendarSlots[i] == null || i < start){
@@ -236,7 +241,6 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
-
     private void createTimeSlot(int day){
         if(calendarSlots[day] != null) {
             officeHours.setText("Available office hours");
@@ -246,7 +250,7 @@ public class ScheduleAppointment extends AppCompatActivity {
                 timeSlot.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        gotoMakeAppointment(v, appointmentTime);
+                        gotoMakeAppointment(v, appointmentTime, day);
                     }
                 });
                 FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams)slots.getLayoutParams();
@@ -266,28 +270,28 @@ public class ScheduleAppointment extends AppCompatActivity {
         );
     }
 
-    private void setEvents(int day){
+    private void setEventsForTimeslots(int day){
         try {
-            List<Event> upcommingEvents = calendarApi.getEvents(null,todayTime,endTime); //TODO: setID
+            List<Event> upcommingEvents = calendarApi.getEvents(appointmentMember.getCalendarId(),todayTime,endTime); //TODO: setID
             for (Event e : upcommingEvents) {
                 LocalDateTime startDay = toLocalDateTime(e.getStart());//Das geht nicht
                 Duration timePassed = Duration.between(now, startDay);
                 LocalDateTime endDay = toLocalDateTime(e.getEnd());//Das geht nicht
                 switch (startDay.getDayOfWeek().toString()){
                     case "MONDAY":
-                        setSlots(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        setTimeSlotCaption(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                         break;
                     case "TUESDAY":
-                        setSlots(timePassed.toDays(), day + 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        setTimeSlotCaption(timePassed.toDays(), day + 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                         break;
                     case "WEDNESDAY":
-                        setSlots(timePassed.toDays(), day + 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        setTimeSlotCaption(timePassed.toDays(), day + 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                         break;
                     case "THURSDAY":
-                        setSlots(timePassed.toDays(), day + 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        setTimeSlotCaption(timePassed.toDays(), day + 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                         break;
                     case "FRIDAY":
-                        setSlots(timePassed.toDays(), day + 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                        setTimeSlotCaption(timePassed.toDays(), day + 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                         break;
                     default:
 
@@ -299,7 +303,7 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
-    private void setSlots(float passed, int day, int startHours, int startMinutes, int endHours, int endMinutes){
+    private void setTimeSlotCaption(float passed, int day, int startHours, int startMinutes, int endHours, int endMinutes){
         if(passed < day){
             calendarSlots[day].add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
         }else{
@@ -307,9 +311,14 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
-    public void gotoMakeAppointment(View view, String time) {
+    public void gotoMakeAppointment(View view, String time, int day) {
         Intent intent = new Intent(this, MakeAppointment.class);
         intent.putExtra("appointmentTime", time);
+        intent.putExtra("Day", selectedDay.getDayOfMonth());
+        intent.putExtra("Month", selectedDay.getMonthValue());
+        intent.putExtra("Year", selectedDay.getYear());
+
+        // yyyy-MM-dd HH:mm
         startActivity(intent);
     }
 }

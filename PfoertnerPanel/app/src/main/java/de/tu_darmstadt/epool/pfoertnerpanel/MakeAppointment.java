@@ -4,6 +4,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -27,5 +28,9 @@ public class MakeAppointment extends AppCompatActivity {
         enterMessage.setHint("Enter a message");
         TextView appointmentTime = findViewById(R.id.textView6);
         appointmentTime.setText(getIntent().getStringExtra("appointmentTime"));
+    }
+
+    public void onConfirmAppointment(View view){
+
     }
 }
