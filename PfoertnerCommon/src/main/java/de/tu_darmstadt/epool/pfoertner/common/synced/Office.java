@@ -245,6 +245,8 @@ public class Office extends Observable<OfficeObserver> {
     }
 
     private void setMembers(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir, final MemberData[] members) {
+        Log.d(TAG, "Office members are being reset. There have been " + this.members.size() + " members before and there will be " + members.length + " members after this.");
+
         final List<MemberData> updatedMembersDataList = new ArrayList<>(Arrays.asList(members));
 
         final List<Member> replacementList = new ArrayList<>(members.length);
@@ -281,6 +283,8 @@ public class Office extends Observable<OfficeObserver> {
 
             replacementList.add(member);
         }
+
+        Log.d(TAG, "There have " + newMembers.size() + " new members been added and " + removedMembers.size() + " members been removed. The new number of members is " + replacementList.size());
 
         this.members = replacementList;
         this.notifyEachObserver(officeObserver -> officeObserver.onMembersChanged(newMembers, removedMembers));
