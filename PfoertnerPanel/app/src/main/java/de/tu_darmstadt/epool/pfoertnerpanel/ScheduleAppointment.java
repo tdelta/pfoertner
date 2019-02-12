@@ -50,19 +50,23 @@ public class ScheduleAppointment extends AppCompatActivity {
         days = new DayView[12];
         slots = (LinearLayout) findViewById(R.id.officehours);
         calendarSlots = new LinkedList[12];
+        // init for calendarSlots
+        for(LinkedList<String> l: calendarSlots){
+            l = new LinkedList<String>();
+        }
 
-        app = PfoertnerApplication.get(this);
-
-        appointmentMember = app.getOffice().getMembers().get(0);
-//        for (Member m : app.getOffice().getMembers()){
+//        app = PfoertnerApplication.get(this);
 //
-//            if(m.getId() == 0){// TODO: 0 => platzhalter
-//                 appointmentMember = m;
-//            }
-//        }
-
-
-        calendarApi = appointmentMember.getCalendarApi();
+//        appointmentMember = app.getOffice().getMembers().get(0);
+////        for (Member m : app.getOffice().getMembers()){
+////
+////            if(m.getId() == 0){// TODO: 0 => platzhalter
+////                 appointmentMember = m;
+////            }
+////        }
+//
+//
+//        calendarApi = appointmentMember.getCalendarApi();
 
         todayTime = new DateTime(System.currentTimeMillis());
         // 86400000 = 1Tag, 14 = 2 Wochen
@@ -73,62 +77,57 @@ public class ScheduleAppointment extends AppCompatActivity {
 
 
 
-//        LinkedList<String> test =
-////        test.add("11:40 - 12:40");
-////        test.add("13:40 - 14:40");
-////        test.add("14:40 - 15:40");
-////        test.add("15:40 - 16:40");
-////        test.add("16:40 - 17:40");
-////        test.add("17:40 - 18:40");
-////        test.add("11:40 - 12:40");
-////        test.add("13:40 - 14:40");
-////        test.add("14:40 - 15:40");
-////        test.add("15:40 - 16:40");
-////        test.add("16:40 - 17:40");
-////        test.add("17:40 - 18:40");
-////        test.add("11:40 - 12:40");
-////        test.add("13:40 - 14:40");
-////        test.add("14:40 - 15:40");
-////        test.add("15:40 - 16:40");
-////        test.add("16:40 - 17:40");
-////        test.add("17:40 - 18:40");
-////        test.add("11:40 - 12:40");
-////        test.add("13:40 - 14:40");
-////        test.add("14:40 - 15:40");
-////        test.add("15:40 - 16:40");
-////        test.add("16:40 - 17:40");
-////        test.add("17:40 - 18:40");
+        LinkedList<String> test = new LinkedList<>();
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
+        test.add("11:40 - 12:40");
+        test.add("13:40 - 14:40");
+        test.add("14:40 - 15:40");
+        test.add("15:40 - 16:40");
+        test.add("16:40 - 17:40");
+        test.add("17:40 - 18:40");
 
-        for(LinkedList<String> l: calendarSlots){
-            l = new LinkedList<String>();
-        }
+        calendarSlots[7] = test;
+        calendarSlots[9] = test;
+        calendarSlots[11] = test;
 
 
-//        calendarSlots[7] = test;
-//        calendarSlots[9] = test;
-//        calendarSlots[11] = test;
 
-//        days[0] = (DayView) findViewById(R.id.day0);
-//        days[0].setTitle("Mo");
-//        days[1] = (DayView) findViewById(R.id.day1);
-//        days[1].setTitle("Tue");
-//        days[2] = (DayView) findViewById(R.id.day2);
-//        days[2].setTitle("Wed");
-//        days[3] = (DayView) findViewById(R.id.day3);
-//        days[3].setTitle("Thu");
-//        days[4] = (DayView) findViewById(R.id.day4);
-//        days[4].setTitle("Fri");
-//        days[7] = (DayView) findViewById(R.id.day5);
-//        days[7].setTitle("Mo");
-//        days[8] = (DayView) findViewById(R.id.day6);
-//        days[8].setTitle("Tue");
-//        days[9] = (DayView) findViewById(R.id.day7);
-//        days[9].setTitle("Wed");
-//        days[10] = (DayView) findViewById(R.id.day8);
-//        days[10].setTitle("Thu");
-//        days[11] = (DayView) findViewById(R.id.day9);
-//        days[11].setTitle("Fri");
+//        for(int i = 0;i<12;i++){
+//            if (i!= 5 && i != 6) {
+//                String abc = "day" + i;
+//                int resID = getResources().getIdentifier(abc, "id", getPackageName());
+//                days[i] = (DayView) findViewById(resID);
+//            }
+//        }
 
+//
+        days[0] = (DayView) findViewById(R.id.day0);
+        days[1] = (DayView) findViewById(R.id.day1);
+        days[2] = (DayView) findViewById(R.id.day2);
+        days[3] = (DayView) findViewById(R.id.day3);
+        days[4] = (DayView) findViewById(R.id.day4);
+        days[7] = (DayView) findViewById(R.id.day5);
+        days[8] = (DayView) findViewById(R.id.day6);
+        days[9] = (DayView) findViewById(R.id.day7);
+        days[10] = (DayView) findViewById(R.id.day8);
+        days[11] = (DayView) findViewById(R.id.day9);
 
         switch (now.getDayOfWeek().toString()){
             case "MONDAY":
@@ -170,7 +169,7 @@ public class ScheduleAppointment extends AppCompatActivity {
                 }
                 break;
         }
-        setEventsForTimeslots(currentDay);
+//        setEventsForTimeslots(currentDay);
         officeHours = findViewById(R.id.textView4);
     }
 
@@ -274,9 +273,9 @@ public class ScheduleAppointment extends AppCompatActivity {
         try {
             List<Event> upcommingEvents = calendarApi.getEvents(appointmentMember.getCalendarId(),todayTime,endTime); //TODO: setID
             for (Event e : upcommingEvents) {
-                LocalDateTime startDay = toLocalDateTime(e.getStart());//Das geht nicht
+                LocalDateTime startDay = toLocalDateTime(e.getStart());
                 Duration timePassed = Duration.between(now, startDay);
-                LocalDateTime endDay = toLocalDateTime(e.getEnd());//Das geht nicht
+                LocalDateTime endDay = toLocalDateTime(e.getEnd());
                 switch (startDay.getDayOfWeek().toString()){
                     case "MONDAY":
                         setTimeSlotCaption(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
