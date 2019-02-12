@@ -4,11 +4,16 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+
 public class MakeAppointment extends AppCompatActivity {
+    String TAG = "MakeAppointment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,24 @@ public class MakeAppointment extends AppCompatActivity {
     }
 
     public void onConfirmAppointment(View view){
+        // yyyy-MM-dd HH:mm
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
+                , getIntent().getIntExtra("Month", 1)
+                , getIntent().getIntExtra("Day", 1)
+                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(0,2))
+                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(3,5)));
+        String startTime = dateTime.format(formatter);
+
+        dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
+                , getIntent().getIntExtra("Month", 1)
+                , getIntent().getIntExtra("Day", 1)
+                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(8,10))
+                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(11,13)));
+        String endTime = dateTime.format(formatter);
+
+        Log.d(TAG, startTime);
+        Log.d(TAG, endTime);
 
     }
 }
