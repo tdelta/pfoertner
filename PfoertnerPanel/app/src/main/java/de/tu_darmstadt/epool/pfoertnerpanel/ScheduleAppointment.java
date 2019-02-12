@@ -17,11 +17,14 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class ScheduleAppointment extends AppCompatActivity {
@@ -33,7 +36,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     private final int normal = 0xFF8BC34A;
     private int currentDay;
     private LinearLayout slots;
-    private LinkedList<String>[] calendarSlots;
+    private List<LinkedList<String>> calendarSlots;
     private TextView officeHours;
     private CalendarApi calendarApi;
     private DateTime todayTime;
@@ -49,14 +52,21 @@ public class ScheduleAppointment extends AppCompatActivity {
         now = LocalDateTime.now();
         days = new DayView[12];
         slots = (LinearLayout) findViewById(R.id.officehours);
-        calendarSlots = new LinkedList[12];
-        // init for calendarSlots
-        for(LinkedList<String> l: calendarSlots){
-            l = new LinkedList<String>();
-        }
+        calendarSlots = new ArrayList<LinkedList<String>>(Collections.nCopies(12, new LinkedList<>()));
 
-//        app = PfoertnerApplication.get(this);
-//
+
+        app = PfoertnerApplication.get(this);
+
+        appointmentMember = app
+                .getOffice()
+                .getMembers()
+                .stream()
+                .filter(member -> member.getCalendarApi() != null && member.getCalendarId() != null)
+                .findAny()
+                .get();
+
+        this.calendarApi = appointmentMember.getCalendarApi();
+
 //        appointmentMember = app.getOffice().getMembers().get(0);
 ////        for (Member m : app.getOffice().getMembers()){
 ////
@@ -102,9 +112,9 @@ public class ScheduleAppointment extends AppCompatActivity {
         test.add("16:40 - 17:40");
         test.add("17:40 - 18:40");
 
-        calendarSlots[7] = test;
-        calendarSlots[9] = test;
-        calendarSlots[11] = test;
+        //calendarSlots.set(7, test);
+        //calendarSlots.set(9, test);
+        //calendarSlots.set(11, test);
 
 
 
@@ -168,7 +178,7 @@ public class ScheduleAppointment extends AppCompatActivity {
                 }
                 break;
         }
-//        setEventsForTimeslots(currentDay);
+        setEventsForTimeslots(currentDay);
         officeHours = findViewById(R.id.textView4);
     }
 
@@ -209,7 +219,7 @@ public class ScheduleAppointment extends AppCompatActivity {
                 break;
         }
     }
-    
+
     private void updateDayViewButton(int dayOffset){
         days[dayOffset].setBackgroundColor(selected);
         createTimeSlot(dayOffset);
@@ -230,7 +240,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     private void colorDaysForDayViews(int start){
         for(int i = 0;i<12;i++){
             if (i!= 5 && i != 6) {
-                if(calendarSlots[i] == null || i < start){
+                if(calendarSlots.get(i) == null || i < start){
                     days[i].setBackgroundColor(nothing);
                 }else{
                     days[i].setBackgroundColor(normal);
@@ -240,9 +250,9 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     private void createTimeSlot(int day){
-        if(calendarSlots[day] != null) {
+        if(calendarSlots.get(day) != null) {
             officeHours.setText("Available office hours");
-            for (String appointmentTime : calendarSlots[day]) {
+            for (String appointmentTime : calendarSlots.get(day)) {
                 TimeslotView timeSlot = new TimeslotView(this);
                 timeSlot.setAppointmentTime(appointmentTime);
                 timeSlot.setOnClickListener(new View.OnClickListener() {
@@ -269,43 +279,53 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     private void setEventsForTimeslots(int day){
-        try {
-            List<Event> upcommingEvents = calendarApi.getEvents(appointmentMember.getCalendarId(),todayTime,endTime); //TODO: setID
-            for (Event e : upcommingEvents) {
-                LocalDateTime startDay = toLocalDateTime(e.getStart());
-                Duration timePassed = Duration.between(now, startDay);
-                LocalDateTime endDay = toLocalDateTime(e.getEnd());
-                switch (startDay.getDayOfWeek().toString()){
-                    case "MONDAY":
-                        setTimeSlotCaption(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                        break;
-                    case "TUESDAY":
-                        setTimeSlotCaption(timePassed.toDays(), day + 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                        break;
-                    case "WEDNESDAY":
-                        setTimeSlotCaption(timePassed.toDays(), day + 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                        break;
-                    case "THURSDAY":
-                        setTimeSlotCaption(timePassed.toDays(), day + 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                        break;
-                    case "FRIDAY":
-                        setTimeSlotCaption(timePassed.toDays(), day + 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                        break;
-                    default:
+        new RequestTask<List<Event>>() {
+            @Override
+            protected List<Event> doRequests() throws Exception {
+                return calendarApi.getEvents(todayTime, endTime);
+            }
 
-                        break;
+            @Override
+            protected void onSuccess(final List<Event> upcommingEvents) {
+                for (final Event e : upcommingEvents) {
+                    final LocalDateTime startDay = toLocalDateTime(e.getStart());
+                    final Duration timePassed = Duration.between(now, startDay);
+                    final LocalDateTime endDay = toLocalDateTime(e.getEnd());
+
+                    switch (startDay.getDayOfWeek().toString()){
+                        case "MONDAY":
+                            setTimeSlotCaption(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            break;
+                        case "TUESDAY":
+                            setTimeSlotCaption(timePassed.toDays(), day + 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            break;
+                        case "WEDNESDAY":
+                            setTimeSlotCaption(timePassed.toDays(), day + 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            break;
+                        case "THURSDAY":
+                            setTimeSlotCaption(timePassed.toDays(), day + 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            break;
+                        case "FRIDAY":
+                            setTimeSlotCaption(timePassed.toDays(), day + 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+            @Override
+            protected void onException(Exception e) {
+                Log.e(TAG, "Failed to retrieve events.", e);
+            }
+        }.execute();
     }
 
     private void setTimeSlotCaption(float passed, int day, int startHours, int startMinutes, int endHours, int endMinutes){
         if(passed < day){
-            calendarSlots[day].add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
+            calendarSlots.get(day).add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
         }else{
-            calendarSlots[day+7].add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
+            calendarSlots.get(day+7).add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
         }
     }
 

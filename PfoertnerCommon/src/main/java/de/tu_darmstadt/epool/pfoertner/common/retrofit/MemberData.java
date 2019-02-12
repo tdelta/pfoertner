@@ -29,10 +29,17 @@ public class MemberData {
         this.status = status;
     }
 
-    public MemberData (final int id, final String lastName, final String firstName,
-                       final String pictureMD5, final String status, final String serverAuthCode,
-                       final List<AppointmentRequest> appointmentRequests, final String calendarId, final String email,
-                       final String oauthToken){
+    public MemberData (final int id,
+                       final String lastName,
+                       final String firstName,
+                       final String pictureMD5,
+                       final String status,
+                       final String serverAuthCode,
+                       final List<AppointmentRequest> appointmentRequests,
+                       final String calendarId,
+                       final String email,
+                       final String oauthToken
+    ){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -53,7 +60,9 @@ public class MemberData {
                 pictureMD5,
                 status,
                 serverAuthCode,
-                appointmentRequests.stream().map(AppointmentRequest::deepCopy).collect(Collectors.toList()),
+                appointmentRequests == null ?
+                          null
+                        : appointmentRequests.stream().map(AppointmentRequest::deepCopy).collect(Collectors.toList()),
                 calendarId,
                 email,
                 oauthToken
