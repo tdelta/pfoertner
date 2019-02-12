@@ -56,6 +56,9 @@
             </intent-filter>
         </service>
         <service
+            android:enabled="true"
+            android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"/>
+        <service
             android:name="de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService"
             android:enabled="true"
             android:exported="false" />
