@@ -13,4 +13,5 @@
     <color name="pfoertner_light_primary_dark_text">#FFFFFF</color>
 
 
+    <color name="selected">#FF4081</color>
 </resources>

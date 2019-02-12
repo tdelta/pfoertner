@@ -17,6 +17,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateMembers() {
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
         memberList.setMembers(app.getOffice().getMembers());
+
     }
 
     private void initOffice() {
@@ -121,25 +123,24 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onMembersChanged() {
-                registerForMemberChanges();
+            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
+                registerForMemberChanges(newMembers);
 
                 updateMembers();
                 // TODO: Members einzaln updaten
             }
         });
 
-        registerForMemberChanges();
+        registerForMemberChanges(app.getOffice().getMembers());
     }
 
     public void test(View view){
         Intent intent = new Intent(this, ScheduleAppointment.class);
+        intent.putExtra("MemberId",memberList.getCurrentMember());
         startActivity(intent);
     }
 
-    private void registerForMemberChanges() {
-        final PfoertnerApplication app = PfoertnerApplication.get(this);
-
+    private void registerForMemberChanges(final List<Member> members) {
         final MemberObserver observer = new MemberObserver() {
             @Override
             public void onFirstNameChanged(String newFirstName) {
@@ -162,12 +163,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // TODO: Effizienter, nur für einzelne Members
-        final List<Member> members = app.getOffice().getMembers();
-
         for (final Member member : members) {
-            member.deleteObserver(observer);
             member.addObserver(observer);
+
+            member.setCalendarApi(new CalendarApi(member,this));
         }
     }
 

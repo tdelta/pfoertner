@@ -3,7 +3,13 @@ package de.tu_darmstadt.epool.pfoertner.common;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.util.Log;
 
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.util.Enumeration;
 import java.util.Optional;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
@@ -17,6 +23,8 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class PfoertnerApplication extends Application {
+    private static final String TAG = "PfoertnerApplication";
+
     private SharedPreferences preferences;
     private Password password;
     private PfoertnerService service;

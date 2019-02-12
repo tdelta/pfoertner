@@ -19,6 +19,8 @@ public class MemberView extends LinearLayout {
 
     private MemberFragment fragment;
 
+    private final int memberId;
+
     public MemberView(Context context, Member member) {
         super(context);
         final LayoutInflater inflater = (LayoutInflater) context
@@ -30,6 +32,11 @@ public class MemberView extends LinearLayout {
         initFragment(member);
         setName(member.getFirstName(), member.getLastName());
         setImage(member.getPicture(app.getFilesDir()));
+        memberId = member.getId();
+    }
+
+    public int getMemberId(){
+        return memberId;
     }
 
     public void initFragment(Member member) {

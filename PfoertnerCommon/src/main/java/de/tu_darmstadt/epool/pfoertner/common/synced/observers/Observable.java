@@ -22,11 +22,11 @@ public class Observable<T> {
 
     public final void deleteObserver(final T observer) {
         if (observerListLock) {
-            this.observers.remove(observer);
+            this.removedObserversBuffer.add(observer);
         }
 
         else {
-            this.removedObserversBuffer.add(observer);
+            this.observers.remove(observer);
         }
     }
 

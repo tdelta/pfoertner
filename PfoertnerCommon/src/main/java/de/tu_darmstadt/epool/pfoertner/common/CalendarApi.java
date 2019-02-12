@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.internal.AuthAccountRequest;
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -48,18 +50,41 @@ public class CalendarApi implements MemberObserver {
 
     private final Context context;
     private final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    private final PrivateKey key;
+    private final NotifyAdminsTask notifyAdminsTask = new NotifyAdminsTask();
 
     private final Member member;
 
+    private static int test_counter = 0;
 
-    public CalendarApi(final Member member,final Context context){
+
+    private class NotifyAdminsTask  extends RequestTask<Void>{
+
+        private int memberId;
+
+        public void execute(int memberId){
+            this.memberId = memberId;
+            execute();
+        }
+
+        @Override
+        public Void doRequests() throws IOException{
+            PfoertnerApplication app = PfoertnerApplication.get(CalendarApi.this.context);
+            app.getService().createdCalendar(app.getAuthentication().id,memberId);
+            return null;
+        }
+    }
+
+    public CalendarApi(final Member member, final Context context){
+        test_counter ++;
+        Log.d(TAG,"Calendar APIs: "+test_counter);
         this.context = context;
         this.member = member;
-        key = loadKey();
+
         member.addObserver(this);
-        if(member.getAccessToken()!=null)
-        Log.d("Access token",member.getAccessToken());
+
+        if(member.getAccessToken()!=null) {
+            Log.d("Access token", member.getAccessToken());
+        }
     }
 
     private RequestTask<String> getCalendarIdTask = new RequestTask<String>(){
@@ -76,7 +101,9 @@ public class CalendarApi implements MemberObserver {
 
         @Override
         public void onSuccess(String result){
-
+            PfoertnerApplication app = PfoertnerApplication.get(context);
+            member.setCalendarId(app.getSettings(),result);
+            notifyAdminsTask.execute(member.getId());
         }
     };
 
@@ -92,6 +119,8 @@ public class CalendarApi implements MemberObserver {
             @Override
             public void onException(Exception e){
                 Log.d(TAG,"Could not get an Oauth token from the server");
+                Log.d(TAG,e.getMessage());
+                Log.d(TAG,e.toString());
                 e.printStackTrace();
             }
 
@@ -103,24 +132,31 @@ public class CalendarApi implements MemberObserver {
                 getCalendarIdTask.execute();
             }
         }.execute();
+        Log.d(TAG,newServerAuthCode);
     }
 
     private String getCalendarId() throws IOException{
-        if(member.getAccessToken() == null){
-            throw new RuntimeException("Cannot calendar data before authenticating");
-        }
         Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), getCredential())
                 .setApplicationName("Pfoertner")
                 .build();
         List<CalendarListEntry> calendarList = service
                 .calendarList().list().execute().getItems();
+        String id = null;
         for(CalendarListEntry entry: calendarList){
-            Log.d(TAG,entry.getSummary());
+            if(entry.getSummary().equals("Office hours"))
+                id = entry.getId();
         }
-        return "lol";
+        if(id == null){
+            com.google.api.services.calendar.model.Calendar newCalendar = new com.google.api.services.calendar.model.Calendar();
+            newCalendar.setSummary("Office hours");
+            newCalendar = service.calendars().insert(newCalendar).execute();
+            Log.d(TAG,newCalendar.getId());
+            id = newCalendar.getId();
+        }
+        return id;
     }
 
-    public String getAccessToken(String serverAccessKey) throws IOException{
+    public String getAccessToken(String serverAccessCode) throws IOException{
         GoogleTokenResponse tokenResponse =
                 new GoogleAuthorizationCodeTokenRequest(
                         HTTP_TRANSPORT,
@@ -128,50 +164,23 @@ public class CalendarApi implements MemberObserver {
                         "https://oauth2.googleapis.com/token",
                         clientId,
                         clientSecret,
-                        serverAccessKey,
+                        serverAccessCode,
                         "")
                         .setScopes(SCOPES)
                         .execute();
-
         return tokenResponse.getAccessToken();
     }
 
-    private PrivateKey loadKey(){
-        AssetManager assetManager = context.getApplicationContext().getAssets();
-
-        try {
-            // FIXME: There must be a better way to load the private key
-            InputStream stream = assetManager.open(credentialsPath);
-            KeyStore p12 = KeyStore.getInstance("pkcs12");
-            p12.load(stream, "notasecret".toCharArray());
-            Enumeration e = p12.aliases();
-            PrivateKey key;
-            while (e.hasMoreElements()) {
-                String alias = (String) e.nextElement();
-                key = (PrivateKey) p12.getKey(alias, "notasecret".toCharArray());
-                if (key != null) {
-                    return key;
-                }
-            }
-        } catch (Exception e){
-            Log.d(TAG,"Could not load the private key for the Calendar API");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     private Credential getCredential(){
+        if(member.getAccessToken() == null){
+            throw new RuntimeException("Cannot access calendar data before authenticating");
+        }
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
                 .setJsonFactory(JacksonFactory.getDefaultInstance())
                 .setClientSecrets(
                         clientId,
                         clientSecret)
-                .setServiceAccountId("110420475534815932936")
-                .setServiceAccountPrivateKeyId("e43d0751b099d3a3186c4477431a1ebf955780f5")
-                .setServiceAccountPrivateKey(key)
-                .setServiceAccountScopes(SCOPES)
                 .build();
         credential.setAccessToken(member.getAccessToken());
         return credential;
