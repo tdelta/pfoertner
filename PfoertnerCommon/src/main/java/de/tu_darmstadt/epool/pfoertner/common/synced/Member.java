@@ -13,10 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.OfficeJoinData;
@@ -211,6 +213,17 @@ public class Member extends Observable<MemberObserver> {
         );
     }
 
+    public List<AppointmentRequest> getAppointmentRequests(){
+        return memberData.appointmentRequests;
+    }
+
+    public void acceptAppointmentRequest(final PfoertnerService service, final Authentication auth, final int appointmentRequestId){
+        final MemberData data = memberData.deepCopy();
+        data.appointmentRequests.get(appointmentRequestId).accepted = true;
+
+        upload(service,auth,data);
+    }
+
     public void setCalendarId(final SharedPreferences settings, final String newCalendarId){
         this.memberData.calendarId = newCalendarId;
         Office.writeMembersToLocalStorage(settings,office.membersToData());
@@ -249,6 +262,10 @@ public class Member extends Observable<MemberObserver> {
 
         if (didChange(oldMember.serverAuthCode, data.serverAuthCode)){
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
+        }
+
+        if (didChange(oldMember.appointmentRequests, data.appointmentRequests)){
+            Member.this.notifyEachObserver(memberObserver -> memberObserver.onAppointmentRequestsChanged(data.appointmentRequests));
         }
     }
 

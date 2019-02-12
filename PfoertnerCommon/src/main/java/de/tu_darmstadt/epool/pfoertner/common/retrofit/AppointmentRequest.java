@@ -38,4 +38,16 @@ public class AppointmentRequest {
                 accepted
         );
     }
+
+    public boolean equals(AppointmentRequest other){
+        return
+                other != null
+                && id == other.id
+                && start.equals(other.start)
+                && end.equals(other.end)
+                && email.equals(other.email)
+                && name.equals(other.name)
+                && message.equals(other.message)
+                && accepted == other.accepted;
+    }
 }
