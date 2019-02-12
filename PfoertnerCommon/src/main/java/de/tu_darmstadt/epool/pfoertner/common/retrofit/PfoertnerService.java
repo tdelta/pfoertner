@@ -62,6 +62,9 @@ public interface PfoertnerService {
   @Streaming
   Call<ResponseBody> downloadPicture(@Path("id") int id);
 
+  @PATCH("officemembers/{id}/calendar")
+  Call<ResponseBody> createdCalendar(@Header("Authorization") String authToken, @Path("id") int id);
+
   //@POST("/api/devices/{id}/person")
   //Call<MemberData> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
