@@ -217,9 +217,13 @@ public class Member extends Observable<MemberObserver> {
         return memberData.appointmentRequests;
     }
 
-    public void acceptAppointmentRequest(final PfoertnerService service, final Authentication auth, final int appointmentRequestId){
+    public void setAppointmentRequestAccepted(final PfoertnerService service, final Authentication auth, final int appointmentRequestId, final boolean accepted){
         final MemberData data = memberData.deepCopy();
-        data.appointmentRequests.get(appointmentRequestId).accepted = true;
+        if(accepted) {
+            data.appointmentRequests.get(appointmentRequestId).accepted = true;
+        } else {
+            data.appointmentRequests.remove(appointmentRequestId);
+        }
 
         upload(service,auth,data);
     }
