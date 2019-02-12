@@ -247,7 +247,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
   }
 
   authenticatePanel(req, res).then(officemember => {
-    models.Appointment.create({ start: start, end: end }).then(appointment => {
+    models.AppointmentRequest.create({ start: start, end: end }).then(appointment => {
       appointment.setOfficeMember(officemember);
       officemember.getDevice().then(device => {
         firebase.sendNotification(
@@ -269,6 +269,13 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
             end: end,
           }
         );
+        officemember.getOffice().then(office => {
+          notifyOfficeSubscribers(
+            office,
+            'OfficeMemberUpdated',
+            officemember.id.toString()
+          );
+        }
         res.status('200').send('Successfully sent appointment request');
       });
     });

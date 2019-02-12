@@ -17,4 +17,11 @@ var OfficeMember = db.sequelize.define('OfficeMember', {
   calendarId: Sequelize.STRING,
 });
 
+OfficeMember.includeAppointmentRequests = function(member){
+  member.getAppointmentRequests().then(appointmentRequests => {
+    member.appointmentRequests = appointmentRequests;
+    return member;
+  });
+};
+
 module.exports = OfficeMember;
