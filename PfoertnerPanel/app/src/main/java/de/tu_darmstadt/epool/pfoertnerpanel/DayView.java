@@ -53,7 +53,7 @@ public class DayView extends RelativeLayout {
     private void setTitle() {
         final TextView imagetest = (TextView) findViewById(R.id.title);
 
-        imagetest.setText(date.getDayOfWeek().toString());
+        imagetest.setText(date.getDayOfWeek().toString().substring(0, 1).toUpperCase() + date.getDayOfWeek().toString().substring(1,3).toLowerCase());
     }
 
     private void setDay(){
