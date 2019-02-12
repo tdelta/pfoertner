@@ -15,4 +15,4 @@ var AppointmentRequest = db.sequelize.define('AppointmentRequest', {
   accepted: Sequelize.BOOLEAN,
 });
 
-module.exports = AppointmentRequesRequest;
+module.exports = AppointmentRequest;
