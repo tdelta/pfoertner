@@ -65,8 +65,6 @@ public class MemberFragment extends Fragment {
         final Drawable statusIcon;
         final int bgColor;
 
-
-        System.out.println("Assert status: " + status);
         // set status
         try {
             switch (status) {

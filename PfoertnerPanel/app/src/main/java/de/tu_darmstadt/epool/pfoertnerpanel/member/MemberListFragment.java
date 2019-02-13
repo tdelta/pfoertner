@@ -32,6 +32,8 @@ public class MemberListFragment extends ListFragment {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getListAdapter();
         adapter.clear();
         adapter.addAll(members);
+
+
     }
 
     @Override
@@ -45,11 +47,19 @@ public class MemberListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            currentMemberId = savedInstanceState.getInt("currentMemberId");
+        }
+
         MemberArrayAdapter adapter = new MemberArrayAdapter(inflater.getContext(), new ArrayList<>());
         setListAdapter(adapter);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    @Override
+    public void onSaveInstanceState (Bundle outState) {
+        outState.putInt("currentMemberId", currentMemberId);
+    }
 
     private class MemberArrayAdapter extends ArrayAdapter<Member> {
         private List<Member> values;
@@ -62,9 +72,15 @@ public class MemberListFragment extends ListFragment {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            Member member = values.get(position);
+            MemberView memberView =  new MemberView(getContext(), values.get(position));
 
-            return new MemberView(getContext(), member);
+            if (memberView.getMemberId() == currentMemberId) {
+                FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.member_fragment, memberView.getFragment());
+                transaction.commit();
+            }
+
+            return memberView;
         }
     }
 }
