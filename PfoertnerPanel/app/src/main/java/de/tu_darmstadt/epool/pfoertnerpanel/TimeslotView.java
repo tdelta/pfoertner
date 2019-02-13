@@ -46,7 +46,7 @@ public class TimeslotView extends RelativeLayout {
         final TextView startTime = (TextView) findViewById(R.id.start);
         final TextView endTime = (TextView) findViewById(R.id.end);
 
-        String[] times = newText.split(" - ");
+        final String[] times = newText.split(" - ");
 
         startTime.setText(times[0]);
         endTime.setText(times[1]);

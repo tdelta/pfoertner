@@ -73,7 +73,7 @@ public class SyncService extends Service {
                             Integer.parseInt(payload)
                     );
 
-                    maybeMember.ifPresent(member -> member.calendarUpdated());
+                    maybeMember.ifPresent(Member::calendarUpdated);
                 } catch (NumberFormatException e){
                     Log.e(TAG, "Tried to update member, but the payload was invalid.");
                 }
