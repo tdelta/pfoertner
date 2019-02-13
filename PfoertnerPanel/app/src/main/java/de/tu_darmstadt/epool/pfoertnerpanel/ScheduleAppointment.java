@@ -45,6 +45,20 @@ public class ScheduleAppointment extends AppCompatActivity {
     private Member appointmentMember;
     private LocalDateTime selectedDay;
 
+    private static class CalendarSlot {
+        public final LocalDateTime startDay;
+        public final LocalDateTime endDay;
+
+        public CalendarSlot(final LocalDateTime startDay, final LocalDateTime endDay) {
+            this.startDay = startDay;
+            this.endDay = endDay;
+        }
+
+        public String makeLabel() {
+            return startDay.getHour() + ":" + startDay.getMinute() + "-" + endDay.getHour() + ":" + endDay.getMinute();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,7 +196,7 @@ public class ScheduleAppointment extends AppCompatActivity {
         officeHours = findViewById(R.id.textView4);
     }
 
-    public void onDayPressed(View view){
+    public void onDayPressed(final View view){
         colorDaysForDayViews(normal);
         slots.removeAllViews();
 
@@ -220,65 +234,75 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
-    private void updateDayViewButton(int dayOffset){
+    private void updateDayViewButton(final int dayOffset){
         days[dayOffset].setBackgroundColor(selected);
+
         createTimeSlot(dayOffset);
+
         selectedDay = days[dayOffset].getDate();
     }
 
-    private void setDateForDayViews(int start, int weekend){
-        for(int i = start;i<12;i++){
-            if (i!= 5 && i != 6){
+    private void setDateForDayViews(final int start, final int weekend){
+        for(int i = start; i < 12; ++i) {
+            if (i != 5 && i != 6){
                 days[i].setDate(now.plusDays(i-start+weekend));
             }
         }
-        for(int i = 0; i<start;i++){
+
+        for(int i = 0; i < start; ++i){
             days[i].setDate(now.plusDays(i-start));
         }
     }
 
-    private void colorDaysForDayViews(int start){
-        for(int i = 0;i<12;i++){
-            if (i!= 5 && i != 6) {
+    private void colorDaysForDayViews(final int start){
+        for(int i = 0; i < 12; ++i){
+            if (i != 5 && i != 6) {
                 if(calendarSlots.get(i) == null || i < start){
                     days[i].setBackgroundColor(nothing);
-                }else{
+                }
+
+                else {
                     days[i].setBackgroundColor(normal);
                 }
             }
         }
     }
 
-    private void createTimeSlot(int day){
+    private void createTimeSlot(final int day){
         if(calendarSlots.get(day) != null) {
             officeHours.setText("Available office hours");
-            for (String appointmentTime : calendarSlots.get(day)) {
-                TimeslotView timeSlot = new TimeslotView(this);
+
+            for (final String appointmentTime : calendarSlots.get(day)) {
+                final TimeslotView timeSlot = new TimeslotView(this);
+
                 timeSlot.setAppointmentTime(appointmentTime);
-                timeSlot.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        gotoMakeAppointment(v, appointmentTime, day);
-                    }
-                });
-                FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams)slots.getLayoutParams();
+                timeSlot.setOnClickListener(v -> gotoMakeAppointment(v, appointmentTime, day));
+
+                final FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams) slots.getLayoutParams();
+
                 timeSlotMarginParams.setMargins(0, 0, 15, 0);
+
                 slots.addView(timeSlot, timeSlotMarginParams);
             }
-        }else{
+        }
+
+        else {
             officeHours.setText("Sorry no office hours on this day");
         }
     }
 
     private static LocalDateTime toLocalDateTime(final EventDateTime edt) {
+        final DateTime calendarDateTime = edt.getDateTime();
+        final int timeShiftInMinutes = calendarDateTime.getTimeZoneShift();
+
         return LocalDateTime.ofEpochSecond(
-                edt.getDateTime().getValue() * 1000,
+                calendarDateTime.getValue() / 1000,
                 0,
-                ZoneOffset.of(edt.getTimeZone())
+                ZoneOffset.ofHoursMinutes(timeShiftInMinutes / 60, timeShiftInMinutes % 60)
         );
     }
 
-    private void setEventsForTimeslots(int day){
+    private void setEventsForTimeslots(final int day){
         new RequestTask<List<Event>>() {
             @Override
             protected List<Event> doRequests() throws Exception {
@@ -330,7 +354,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     public void gotoMakeAppointment(View view, String time, int day) {
-        Intent intent = new Intent(this, MakeAppointment.class);
+        final Intent intent = new Intent(this, MakeAppointment.class);
         intent.putExtra("appointmentTime", time);
         intent.putExtra("Day", selectedDay.getDayOfMonth());
         intent.putExtra("Month", selectedDay.getMonthValue());
