@@ -3,16 +3,34 @@ package de.tu_darmstadt.epool.pfoertnerpanel;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.EventLog;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.api.services.calendar.model.Event;
+
+import org.threeten.bp.LocalDateTime;
 import org.w3c.dom.Text;
 
+import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
+
+
 public class TimeslotView extends RelativeLayout {
+    private Event event;
+    private Timehelpers timehelper;
+
     public TimeslotView(Context context) {
         super(context);
 
+        init(context);
+    }
+
+    public TimeslotView(Context context, Event event) {
+        super(context);
+        timehelper = new Timehelpers();
+        this.event = event;
+        setAppointmentTime();
         init(context);
     }
 
@@ -42,14 +60,20 @@ public class TimeslotView extends RelativeLayout {
 
     }
 
-    public void setAppointmentTime(final String newText) {
-        final TextView startTime = (TextView) findViewById(R.id.start);
-        final TextView endTime = (TextView) findViewById(R.id.end);
+    public void setAppointmentTime() {
+        TextView startTime = findViewById(R.id.start);
+        TextView endTime = findViewById(R.id.end);
 
-        final String[] times = newText.split(" - ");
+        startTime.setText(getStartTime().getHour() + ":" + getStartTime().getMinute());
+        endTime.setText(getEndTime().getHour() + ":" + getEndTime().getMinute());
+    }
 
-        startTime.setText(times[0]);
-        endTime.setText(times[1]);
+    private LocalDateTime getStartTime(){
+        return timehelper.toLocalDateTime(event.getStart());
+    }
+
+    private LocalDateTime getEndTime(){
+        return timehelper.toLocalDateTime(event.getEnd());
     }
 
 

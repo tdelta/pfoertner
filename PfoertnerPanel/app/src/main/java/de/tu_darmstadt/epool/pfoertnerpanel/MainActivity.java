@@ -141,6 +141,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void newtest(View view){
+        Intent intent = new Intent(this, NewScheduleAppointment.class);
+        startActivity(intent);
+    }
+
     public void test(View view){
         Intent intent = new Intent(this, ScheduleAppointment.class);
         startActivity(intent);
