@@ -51,7 +51,9 @@
             android:id="@+id/nameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="hint" />
+            android:hint="hint"
+            android:inputType="text|textNoSuggestions|textPersonName"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -69,7 +71,9 @@
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="hint" />
+            android:hint="hint"
+            android:inputType="textNoSuggestions|textEmailAddress"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
     <Button
@@ -102,7 +106,9 @@
             android:id="@+id/messageInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="hint" />
+            android:hint="hint"
+            android:inputType="text"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
     <TextView

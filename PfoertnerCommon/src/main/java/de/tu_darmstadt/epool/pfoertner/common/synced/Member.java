@@ -168,6 +168,8 @@ public class Member extends Observable<MemberObserver> {
     }
 
     public void setAccessToken(final SharedPreferences settings, final String accessToken){
+        Log.d(TAG,"The access token of the member with id " + this.getId() + " is being set to " + accessToken +  ". Meanwhile, the server auth code is " + this.getServerAuthCode());
+
         memberData.oauthToken = accessToken;
         Office.writeMembersToLocalStorage(settings, office.membersToData());
     }
@@ -242,6 +244,7 @@ public class Member extends Observable<MemberObserver> {
     }
 
     void updateByData(final MemberData data) {
+        Log.d(TAG, "The member with id " + this.getId() + " is being updated. We will now check, which attributes changed.");
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
 
@@ -265,6 +268,8 @@ public class Member extends Observable<MemberObserver> {
         }
 
         if (didChange(oldMember.serverAuthCode, data.serverAuthCode)){
+            Log.d(TAG, "The server auth code of member " + this.getId() + " changed from " + oldMember.serverAuthCode + " to " + data.serverAuthCode);
+
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
         }
 

@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,10 +112,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onOfficeInitialized() {
+        Log.d(TAG, "Office has been initialized.");
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         setGlobalStatus(app.getOffice().getStatus());
         updateMembers();
+
+        registerForMemberChanges(app.getOffice().getMembers());
 
         app.getOffice().addObserver(new OfficeObserver() {
             @Override
@@ -124,14 +128,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
+                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
+
                 registerForMemberChanges(newMembers);
 
                 updateMembers();
                 // TODO: Members einzaln updaten
             }
         });
-
-        registerForMemberChanges(app.getOffice().getMembers());
     }
 
     public void test(View view){
@@ -164,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
         };
 
         for (final Member member : members) {
+            Log.d(TAG, "Registering MainActivity observer and CalenderApi on member with id " + member.getId());
+
             member.addObserver(observer);
 
             member.setCalendarApi(new CalendarApi(member,this));
@@ -180,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -191,7 +198,9 @@ public class MainActivity extends AppCompatActivity {
         setRoom("S101/A1");
         setGlobalStatus("Extended Access");
 
-        init();
+        if (savedInstanceState == null) {
+            init();
+        }
     }
 
 
