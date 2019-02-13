@@ -70,6 +70,7 @@ public class MemberView extends LinearLayout {
         TextView textView = findViewById(R.id.status);
         textView.setText(status);
         final int bgColor;
+        status = status == null ? "" : status;
 
         switch (status) {
             case "Available":

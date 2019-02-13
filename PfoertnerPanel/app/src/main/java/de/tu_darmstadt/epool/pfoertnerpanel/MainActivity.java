@@ -61,11 +61,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }.execute();
 
-        memberList = new MemberListFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.member_list, memberList);
-        transaction.commit();
-
     }
 
     @Override
@@ -189,6 +184,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        memberList = new MemberListFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.member_list, memberList);
+        transaction.commit();
 
         checkForPlayServices();
 
