@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,6 +33,7 @@ public class MemberView extends LinearLayout {
         initFragment(member);
         setName(member.getFirstName(), member.getLastName());
         setImage(member.getPicture(app.getFilesDir()));
+        setStatus(member.getMemberData().status);
         memberId = member.getId();
     }
 
@@ -62,6 +64,27 @@ public class MemberView extends LinearLayout {
                                 getContext().getDrawable(R.drawable.ic_contact_default)
                         ));
 
+    }
+
+    public void setStatus(String status) {
+        TextView textView = findViewById(R.id.status);
+        textView.setText(status);
+        final int bgColor;
+
+        switch (status) {
+            case "Available":
+                bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_positive_status_taptext);
+                break;
+
+            case "Out of office":
+            case "In meeting":
+                bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_negative_status_taptext);
+                break;
+
+            default:
+                bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_info_status_taptext);
+        }
+        textView.setTextColor(bgColor);
     }
 
     public MemberFragment getFragment() {
