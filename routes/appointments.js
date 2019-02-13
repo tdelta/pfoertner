@@ -1,0 +1,55 @@
+// Get the express module and use Router
+var express = require('express');
+var router = express.Router();
+
+// Get the required models
+var models = require('../models/models.js');
+
+var auth = require('../authInit.js');
+
+var firebase = require('../firebase/firebase.js');
+
+var authenticateOfficemember = require('./officesmembers.js').authenticateOwner;
+var notifyOfficeSubscribers = require('../notify.js').notifyOfficeSubscribers;
+
+router.patch('/:id',auth.authFun(),(req,res) => {
+  let appointmentId = parseInt(req.params.id,10);
+  models.AppointmentRequest.findByPk(appointmentId).then(appointment => {
+    authenticateOfficemember(req,res,appointment.OfficeMemberId).then(officemember => {
+      appointment.update(req.body).then(newAppointment => {
+        res.status(200).send('Updated appointment request successfully');
+        officemember.getOffice().then(office => {
+          notifyOfficeSubscribers(
+            office,
+            'OfficeMemberUpdated',
+            officemember.id
+          );
+        });
+      });
+    });
+  });
+});
+
+router.delete('/:id',auth.authFun(),(req,res) => {
+  let appointmentId = parseInt(req.params.id,10);
+  models.AppointmentRequest.findByPk(appointmentId).then(appointment => {
+    authenticateOfficeMember(req,res,appointment.OfficeMemberId).then(officemember => {
+      appointment.destroy().then(u => {
+        if(u && u.deletedAt){
+          res.status(200).send('Successfully deleted appointment request');
+        } else {
+          res.status(500).send('Could not delete appointment request');
+        }
+        officemember.getOffice().then(office => {
+          notifyOfficeSubscribers(
+            office,
+            'OfficeMemberUpdated',
+            officemember.id
+          );
+        });
+      });
+    });
+  });
+});
+
+module.exports = router;

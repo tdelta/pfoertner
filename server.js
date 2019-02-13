@@ -36,7 +36,9 @@ firebase.initialize();
 const officesroutes = require('./routes/offices.js');
 const devicesroutes = require('./routes/devices.js');
 const officemembersroutes = require('./routes/officesmembers.js');
+const appointmentroutes = require('./routes/appointments.js');
 
 server.use('/offices', officesroutes);
 server.use('/devices', devicesroutes);
 server.use('/officemembers', officemembersroutes);
+server.use('/appointments', appointmentroutes);
