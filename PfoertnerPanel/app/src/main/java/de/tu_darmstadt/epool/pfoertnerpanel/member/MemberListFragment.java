@@ -32,8 +32,6 @@ public class MemberListFragment extends ListFragment {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getListAdapter();
         adapter.clear();
         adapter.addAll(members);
-
-
     }
 
     @Override
