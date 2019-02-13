@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
 
 // ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // Return a specific user (which matches a id)
-router.get('/:id', (req, res) =>
+router.get('/:id/debug', (req, res) =>
   models.OfficeMember.findById(req.params.id).then(officemember =>
     res.status(200).send(officemember)
   )
@@ -33,6 +33,22 @@ router.get('/:id/office', (req, res) =>
     officemember.getOffice().then(office => res.send(office))
   )
 );
+
+/**
+ * ENDPOINT: GET /officemembers/id
+ *
+ * Returns the officemember with the given id, if the panel
+ * or the admin is authenticated.
+ */
+router.get('/:id', auth.authFun(), (req,res) => {
+  authenticatePanelOrOwner(req,res).then(officemember => {
+    models.OfficeMember.includeAppointmentRequests(officemember).then(officemember => {
+      
+      res.status(200).send(officemember);
+    });
+  });
+});
+
 
 /**
  * ENDPOINT: PATCH /officemembers/:id/picture
@@ -140,7 +156,7 @@ router.patch('/:id', auth.authFun(), (req, res) => {
   const officeMemberId = parseInt(req.params.id, 10);
   console.log('Patching officemember');
 
-  authenticateOfficeMember(req, res).then(() => {
+  authenticateOwner(req, res).then(() => {
     models.OfficeMember.findById(officeMemberId).then(officemember => {
       // Only server should set the id
       delete req.body.id;
@@ -167,7 +183,7 @@ router.patch('/:id', auth.authFun(), (req, res) => {
   });
 });
 
-function authenticateOfficeMember(req, res) {
+function authenticateOwner(req, res) {
   return new Promise(function(response) {
     // Check whether there is a valid officeId in
     // the request
@@ -246,7 +262,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
     return;
   }
 
-  authenticatePanel(req, res).then(officemember => {
+  authenticatePanelOrOwner(req, res).then(officemember => {
     models.AppointmentRequest.create({ start: start, end: end }).then(appointment => {
       appointment.setOfficeMember(officemember);
       officemember.getDevice().then(device => {
@@ -287,7 +303,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
  * authenticated as a panel and the requested member belongs to the corresponding office
  * @result a promise with an officemember
  */
-authenticatePanel = function(req, res) {
+authenticatePanelOrOwner = function(req, res) {
   return new Promise(response => {
     const officememberid = parseInt(req.params.id, 10);
 
@@ -309,7 +325,9 @@ authenticatePanel = function(req, res) {
           } else if (office.id === req.user.OfficeId) {
             // The office of the requested office member matches the office id
             // of the requesting device (the panel)
-            console.log('Calling response');
+            response(member);
+          } else if (member.DeviceId == req.user.id){
+            // The office member belongs to the calling device (the admin app)
             response(member);
           } else {
             res
