@@ -12,12 +12,13 @@
         android:roundIcon="@mipmap/ic_launcher_pfoertnerpanel"
         android:supportsRtl="true"
         android:theme="@style/PfoertnerStyle">
-        <activity android:name=".ScheduleAppointment"
-            android:hardwareAccelerated="true">
-        </activity>
-        <activity android:name=".MakeAppointment"
-            android:hardwareAccelerated="true">
-        </activity>
+        <activity android:name=".NewScheduleAppointment"></activity>
+        <activity
+            android:name=".ScheduleAppointment"
+            android:hardwareAccelerated="true"></activity>
+        <activity
+            android:name=".MakeAppointment"
+            android:hardwareAccelerated="true"></activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape">
@@ -48,9 +49,13 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
-        <activity android:name=".Appointment"
-            android:screenOrientation="landscape"></activity>
+        <service
+            android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"
+            android:enabled="true" />
+
+        <activity
+            android:name=".Appointment"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>
