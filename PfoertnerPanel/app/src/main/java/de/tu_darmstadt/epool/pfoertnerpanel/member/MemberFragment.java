@@ -73,9 +73,15 @@ public class MemberFragment extends Fragment {
                     bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_positive_status_bg);
                     break;
 
-                default:
+                case "Out of office":
+                case "In meeting":
                     statusIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_warning_red_24dp);
                     bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_negative_status_bg);
+                    break;
+
+                default:
+                    statusIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_info_yellow_24dp);
+                    bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_info_status_bg);
             }
 
             final TextView personalStatusTextView = getActivity().findViewById(R.id.personalStatusText);

@@ -10,6 +10,8 @@
     <color name="pfoertner_positive_status_taptext">#8bc34a</color>
     <color name="pfoertner_negative_status_bg">#F44336</color>
     <color name="pfoertner_negative_status_taptext">#D32F2F</color>
+    <color name="pfoertner_info_status_bg">#FDD835</color>
+    <color name="pfoertner_info_status_taptext">#FBC02D</color>
     <color name="pfoertner_light_primary_dark_text">#FFFFFF</color>
 
 
