@@ -15,10 +15,11 @@ var OfficeMember = db.sequelize.define('OfficeMember', {
   pictureMD5: Sequelize.STRING,
   serverAuthCode: Sequelize.STRING,
   calendarId: Sequelize.STRING,
+  appointmentRequests: Sequelize.VIRTUAL,
 });
 
 OfficeMember.includeAppointmentRequests = function(member){
-  member.getAppointmentRequests().then(appointmentRequests => {
+  return member.getAppointmentRequests().then(appointmentRequests => {
     member.appointmentRequests = appointmentRequests;
     return member;
   });
