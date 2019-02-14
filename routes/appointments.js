@@ -9,12 +9,16 @@ var auth = require('../authInit.js');
 
 var firebase = require('../firebase/firebase.js');
 
-var authenticateOfficemember = require('./officesmembers.js').authenticateOwner;
+var authenticateOfficemember = require('../deviceAuth.js').authenticateOwner;
 var notifyOfficeSubscribers = require('../notify.js').notifyOfficeSubscribers;
 
 router.patch('/:id',auth.authFun(),(req,res) => {
   let appointmentId = parseInt(req.params.id,10);
   models.AppointmentRequest.findByPk(appointmentId).then(appointment => {
+    if(appointment == null){
+      res.status(404).send('The appointment does not exist');
+      return;
+    }
     authenticateOfficemember(req,res,appointment.OfficeMemberId).then(officemember => {
       appointment.update(req.body).then(newAppointment => {
         res.status(200).send('Updated appointment request successfully');
@@ -33,6 +37,10 @@ router.patch('/:id',auth.authFun(),(req,res) => {
 router.delete('/:id',auth.authFun(),(req,res) => {
   let appointmentId = parseInt(req.params.id,10);
   models.AppointmentRequest.findByPk(appointmentId).then(appointment => {
+    if(appointment == null){
+      res.status(404).send('The appointment does not exist');
+      return;
+    }
     authenticateOfficeMember(req,res,appointment.OfficeMemberId).then(officemember => {
       appointment.destroy().then(u => {
         if(u && u.deletedAt){

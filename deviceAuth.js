@@ -67,7 +67,7 @@ exports.authenticateOwner = function authenticateOwner(req, res, officememberIdP
         // and whether that officemember is a part of the office
         if (loggedIn && loggedIn.id === officeMemberId) {
           console.log('Office member authenticated');
-          response();
+          response(loggedIn);
         }
         // No user belongs to the device or the user belonging to the device
         // is not the authenticated office member
