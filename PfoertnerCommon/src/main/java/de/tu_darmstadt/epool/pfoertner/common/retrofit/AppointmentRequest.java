@@ -46,11 +46,11 @@ public class AppointmentRequest {
         return
                 other != null
                 && id == other.id
-                && start.equals(other.start)
-                && end.equals(other.end)
-                && email.equals(other.email)
-                && name.equals(other.name)
-                && message.equals(other.message)
+                && start == null ? other.start == null : start.equals(other.start)
+                && start == null ? other.start == null : end.equals(other.end)
+                && email == null ? other.email == null : email.equals(other.email)
+                && name == null ? other.name == null : name.equals(other.name)
+                && message == null ? other.message == null : message.equals(other.message)
                 && accepted == other.accepted;
     }
 }

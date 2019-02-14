@@ -51,6 +51,9 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'com.spencerwi:Either.java:2.1.0'
 
+    // time libs
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
+
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
 
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
