@@ -42,11 +42,13 @@ public class MemberView extends LinearLayout {
     }
 
     public void initFragment(Member member) {
+        final PfoertnerApplication app = PfoertnerApplication.get(getContext());
         fragment = new MemberFragment();
         String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
 
         fragment.setStatus(member.getMemberData().status);
         fragment.setOfficeHours(work);
+        fragment.setImage(member.getPicture(app.getFilesDir()));
     }
 
     public void setName(String firstName, String lastName) {

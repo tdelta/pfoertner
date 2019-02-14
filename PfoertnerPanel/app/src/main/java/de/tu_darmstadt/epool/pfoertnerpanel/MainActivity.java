@@ -185,10 +185,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        memberList = new MemberListFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.member_list, memberList);
-        transaction.commit();
+        if (savedInstanceState == null) {
+            memberList = new MemberListFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.member_list, memberList);
+            transaction.commit();
+        } else {
+            memberList = (MemberListFragment) getSupportFragmentManager().findFragmentById(R.id.member_list);
+        }
 
         checkForPlayServices();
 
