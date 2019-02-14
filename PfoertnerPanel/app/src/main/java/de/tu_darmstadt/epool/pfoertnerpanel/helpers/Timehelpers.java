@@ -3,6 +3,7 @@ package de.tu_darmstadt.epool.pfoertnerpanel.helpers;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.EventDateTime;
 
+import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 
@@ -17,5 +18,15 @@ public class Timehelpers {
                 0,
                 ZoneOffset.ofHoursMinutes(timeShiftInMinutes / 60, timeShiftInMinutes % 60)
         );
+    }
+
+    public static boolean isItToday(final LocalDateTime today, final LocalDateTime timeOfEvent){
+        final Duration timeToEvent = Duration.between(today, timeOfEvent);
+        final Duration timeToNextDay = Duration.between(today, today.plusDays(1));
+        if(timeToEvent.getSeconds() < timeToNextDay.getSeconds()){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
