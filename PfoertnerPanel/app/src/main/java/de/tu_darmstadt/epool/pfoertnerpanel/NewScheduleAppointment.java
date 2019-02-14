@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,7 +59,6 @@ public class NewScheduleAppointment extends AppCompatActivity {
             //TODO: go back to main activity
             Log.d(TAG, "no member present");
         }
-
     }
 
     private void recolorDayViews(DayView selectedDayView){
@@ -72,6 +72,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
         timeslots.removeAllViews();
         for (Event e : dayview.getEvents()){
             TimeslotView timeslot = new TimeslotView(this, e);
+            timeslot.setOnClickListener((View v) -> gotoMakeAppointment(v, timeslot));
             timeslots.addView(timeslot);
         }
         recolorDayViews(dayview);
@@ -123,5 +124,25 @@ public class NewScheduleAppointment extends AppCompatActivity {
                 Log.e(TAG, "Failed to retrieve events.", e);
             }
         }.execute();
+    }
+
+    public void gotoMakeAppointment(View view, TimeslotView timeslot) {
+        final Intent intent = new Intent(this, MakeAppointment.class);
+
+        Event e = timeslot.getEvent();
+
+
+
+        intent.putExtra("appointmentStartTimeHour", timehelper.toLocalDateTime(e.getStart()).getHour());
+        intent.putExtra("appointmentStartTimeMinutes", timehelper.toLocalDateTime(e.getStart()).getMinute());
+        intent.putExtra("appointmentEndTimeHour", timehelper.toLocalDateTime(e.getEnd()).getHour());
+        intent.putExtra("appointmentEndTimeMinutes", timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        intent.putExtra("Day", timehelper.toLocalDateTime(e.getStart()).getDayOfMonth());
+        intent.putExtra("Month", timehelper.toLocalDateTime(e.getStart()).getMonthValue());
+        intent.putExtra("Year", timehelper.toLocalDateTime(e.getStart()).getYear());
+        intent.putExtra("MemberId", 0);//TODO: 0 hardcoded
+
+        // yyyy-MM-dd HH:mm
+        startActivity(intent);
     }
 }

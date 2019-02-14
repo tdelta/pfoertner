@@ -28,10 +28,10 @@ public class TimeslotView extends RelativeLayout {
 
     public TimeslotView(Context context, Event event) {
         super(context);
+        init(context);
         timehelper = new Timehelpers();
         this.event = event;
         setAppointmentTime();
-        init(context);
     }
 
     public TimeslotView(Context context, AttributeSet attrs) {
@@ -61,8 +61,8 @@ public class TimeslotView extends RelativeLayout {
     }
 
     public void setAppointmentTime() {
-        TextView startTime = (TextView) findViewById(R.id.start);
-        TextView endTime = (TextView) findViewById(R.id.end);
+        final TextView startTime = (TextView) findViewById(R.id.start);
+        final TextView endTime = (TextView) findViewById(R.id.end);
 
         startTime.setText(getStartTime().getHour() + ":" + getStartTime().getMinute());
         endTime.setText(getEndTime().getHour() + ":" + getEndTime().getMinute());
@@ -76,5 +76,8 @@ public class TimeslotView extends RelativeLayout {
         return timehelper.toLocalDateTime(event.getEnd());
     }
 
+    public Event getEvent(){
+        return event;
+    }
 
 }
