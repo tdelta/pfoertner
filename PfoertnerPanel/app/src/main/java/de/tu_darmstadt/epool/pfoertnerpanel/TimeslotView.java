@@ -61,8 +61,8 @@ public class TimeslotView extends RelativeLayout {
     }
 
     public void setAppointmentTime() {
-        TextView startTime = findViewById(R.id.start);
-        TextView endTime = findViewById(R.id.end);
+        TextView startTime = (TextView) findViewById(R.id.start);
+        TextView endTime = (TextView) findViewById(R.id.end);
 
         startTime.setText(getStartTime().getHour() + ":" + getStartTime().getMinute());
         endTime.setText(getEndTime().getHour() + ":" + getEndTime().getMinute());
