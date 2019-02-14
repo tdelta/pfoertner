@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void newtest(View view){
         Intent intent = new Intent(this, NewScheduleAppointment.class);
+        intent.putExtra("MemberId",memberList.getCurrentMember());
         startActivity(intent);
     }
 

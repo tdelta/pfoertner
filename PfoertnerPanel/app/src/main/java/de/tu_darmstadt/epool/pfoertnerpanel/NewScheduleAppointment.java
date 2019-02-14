@@ -17,6 +17,7 @@ import org.threeten.bp.ZoneOffset;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
@@ -45,15 +46,19 @@ public class NewScheduleAppointment extends AppCompatActivity {
         timeslots = (LinearLayout) findViewById(R.id.timeslots);
         now = LocalDateTime.now();
         app = PfoertnerApplication.get(this);
-        appointmentMember = app
+
+        Optional<Member> tempMember = app
                 .getOffice()
-                .getMembers()
-                .stream()
-                .filter(member -> member.getCalendarApi() != null && member.getCalendarId() != null)
-                .findAny()
-                .get();
-        this.calendarApi = appointmentMember.getCalendarApi();
-        getEventsForTimeslots();
+                .getMemberById(getIntent().getIntExtra("MemberId",-1));
+        if(tempMember.isPresent()){
+            appointmentMember = tempMember.get();
+            calendarApi = appointmentMember.getCalendarApi();
+            getEventsForTimeslots();
+        }else{
+            //TODO: go back to main activity
+            Log.d(TAG, "no member present");
+        }
+
     }
 
     private void recolorDayViews(DayView selectedDayView){
@@ -91,7 +96,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
         for (Event e : upcommingEvents){
             if(timehelper.isItToday(dayview.getDate(),timehelper.toLocalDateTime(e.getStart()))){
                 dayview.addEvents(e);
-                upcommingEvents.remove(e);
+//                upcommingEvents.remove(e);
             }
         }
     }
@@ -100,11 +105,13 @@ public class NewScheduleAppointment extends AppCompatActivity {
         new RequestTask<List<Event>>() {
             @Override
             protected List<Event> doRequests() throws Exception {
+                DateTime start = new DateTime(System.currentTimeMillis());
+                DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
                 return calendarApi.getEvents(
-                        new DateTime(System.currentTimeMillis()),
-                        new DateTime(System.currentTimeMillis() + 86400000 *28) //zeitraum 4 wochen
+                        start,end //zeitraum 4 wochen
                 );
             }
+
             @Override
             protected void onSuccess(final List<Event> upcommingEvents) {
                 NewScheduleAppointment.this.upcommingEvents = upcommingEvents;
