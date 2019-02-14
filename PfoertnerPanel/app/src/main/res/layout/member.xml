@@ -1,69 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/memberInfo"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:id="@+id/info"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
 
-    <ImageView
-        android:id="@+id/profile_picture"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_contact_default"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/info"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
 
-    <android.widget.LinearLayout
-        android:id="@+id/info"
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/profile_picture"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_picture"
-        app:layout_constraintTop_toTopOf="@+id/profile_picture"
-        tools:context=".MainActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="210dp">
 
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.CardView
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxEms="10"
-            android:maxLines="1"
-            android:text=""
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/status"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxEms="10"
-            android:maxLines="1"
-            android:text=""
-            android:textStyle="bold" />
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp">
+        <ImageView
+            android:id="@+id/personalProfilePicture"
+            android:layout_width="210dp"
+            android:layout_height="210dp"
+            android:src="@drawable/ic_contact_default" />
+        </android.support.v7.widget.CardView>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/office_time"
-            android:textStyle="bold" />
+        <android.support.v7.widget.CardView
+            android:id="@+id/personalStatusCard"
+            android:layout_width="match_parent"
+            android:layout_height="210dp"
+            android:layout_margin="8dp"
+            app:cardBackgroundColor="@color/pfoertner_positive_status_bg">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="15dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/personalStatusIcon"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:src="@drawable/ic_home_green_24dp" />
+
+                <TextView
+                    android:id="@+id/personalStatusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="You're available"
+                    android:textColor="@color/pfoertner_light_primary_dark_text"
+                    android:textSize="24sp" />
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/personalOfficeHoursCard"
+        android:layout_width="match_parent"
+        android:layout_height="210dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp">
 
         <LinearLayout
-            android:id="@+id/office_time_board"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="15dp"
             android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/office_time"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/personalOfficeTimeBoard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:orientation="vertical"
+                android:textSize="24sp"></LinearLayout>
+
         </LinearLayout>
+    </android.support.v7.widget.CardView>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
 
-    </android.widget.LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton2"
+        android:layout_gravity="bottom|right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:onClick="test"
+        android:src="@drawable/ic_calendar_plus" />
+</android.widget.LinearLayout>
+</ScrollView>
 
-</android.support.constraint.ConstraintLayout>
