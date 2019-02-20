@@ -1,10 +1,8 @@
-package de.tu_darmstadt.epool.pfoertneradmin.webapi;
+package de.tu_darmstadt.epool.pfoertner.common.architecture.webapi;
 
 import com.google.gson.GsonBuilder;
 
-import dagger.Module;
-import dagger.Provides;
-import de.tu_darmstadt.epool.pfoertneradmin.db.entity.MemberEntity;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;

@@ -1,19 +1,18 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
 import android.app.Application;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
-import android.util.Log;
 
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.util.Enumeration;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
@@ -32,6 +31,10 @@ public class PfoertnerApplication extends Application {
     private Authentication authentication;
     private Optional<Office> maybeOffice = Optional.empty();
 
+    private PfoertnerApi api = PfoertnerApi.makeApi();
+    private AppDatabase db;
+    private PfoertnerRepository repo;
+
     private boolean hadBeenInitialized = false;
 
     // Needs to be called in a RequestTask
@@ -45,6 +48,9 @@ public class PfoertnerApplication extends Application {
         this.device = User.loadDevice(this.preferences, this.service, this.password);
         this.authentication = Authentication.authenticate(this.preferences, this.service, this.device, this.password, this);
 
+        db = Room.databaseBuilder(this, AppDatabase.class, "AppDatabase").build();
+        repo = new PfoertnerRepository(getApplicationContext(), api, this.authentication, db, Executors.newCachedThreadPool());
+
         if (Office.hadBeenRegistered(this.preferences)) {
             this.maybeOffice = Optional.of(
                     Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
@@ -55,14 +61,12 @@ public class PfoertnerApplication extends Application {
             this.maybeOffice = Optional.empty();
         }
 
-        onInit(
-                this.authentication
-        );
+        onInit();
 
         this.hadBeenInitialized = true;
     }
 
-    protected void onInit(final Authentication auth) { }
+    protected void onInit() { }
 
     @Override
     public void onCreate() {
@@ -132,5 +136,13 @@ public class PfoertnerApplication extends Application {
         checkInitStatus();
 
         this.maybeOffice = Optional.of(office);
+    }
+
+    public AppDatabase getDb() {
+        return db;
+    }
+
+    public PfoertnerRepository getRepo() {
+        return repo;
     }
 }

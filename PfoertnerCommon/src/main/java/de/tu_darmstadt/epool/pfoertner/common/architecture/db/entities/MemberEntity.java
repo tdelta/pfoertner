@@ -1,10 +1,10 @@
-package de.tu_darmstadt.epool.pfoertneradmin.db.entity;
+package de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
 
-import de.tu_darmstadt.epool.pfoertneradmin.model.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 
 @Entity(foreignKeys = @ForeignKey(entity = OfficeEntity.class,
         parentColumns = "id",

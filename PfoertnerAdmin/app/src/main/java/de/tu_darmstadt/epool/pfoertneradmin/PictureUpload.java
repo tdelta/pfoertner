@@ -1,7 +1,6 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.Manifest;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,20 +18,13 @@ import android.widget.Toast;
 
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
-
-import dagger.android.AndroidInjection;
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
-import de.tu_darmstadt.epool.pfoertneradmin.viewmodel.MemberProfileViewModel;
-import de.tu_darmstadt.epool.pfoertneradmin.viewmodel.ViewModelFactory;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
 
 public class PictureUpload extends AppCompatActivity {
     private static final String TAG = "PictureUpload";
     private MemberProfileViewModel viewModel;
-
-    @Inject
-    ViewModelFactory viewModelFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
