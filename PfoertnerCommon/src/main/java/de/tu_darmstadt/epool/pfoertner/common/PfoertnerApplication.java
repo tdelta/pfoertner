@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -49,7 +50,7 @@ public class PfoertnerApplication extends Application {
         this.authentication = Authentication.authenticate(this.preferences, this.service, this.device, this.password, this);
 
         db = Room.databaseBuilder(this, AppDatabase.class, "AppDatabase").build();
-        repo = new PfoertnerRepository(getApplicationContext(), api, this.authentication, db, Executors.newCachedThreadPool());
+        repo = new PfoertnerRepository(api, this.authentication, db);
 
         if (Office.hadBeenRegistered(this.preferences)) {
             this.maybeOffice = Optional.of(
@@ -135,14 +136,24 @@ public class PfoertnerApplication extends Application {
     public void setOffice(final Office office) {
         checkInitStatus();
 
+        getRepo()
+                .getOfficeRepo()
+                .patchOffice(
+                        new OfficeEntity(office.getId(), office.getJoinCode(), office.getStatus())
+                );
+
         this.maybeOffice = Optional.of(office);
     }
 
     public AppDatabase getDb() {
+        checkInitStatus();
+
         return db;
     }
 
     public PfoertnerRepository getRepo() {
+        checkInitStatus();
+
         return repo;
     }
 }

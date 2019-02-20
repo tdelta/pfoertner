@@ -20,12 +20,12 @@ public class MemberProfileViewModel extends AndroidViewModel {
 
     public void init(final int memberId) {
         if (this.member != null) {
-            // ViewModel is created on a per-Fragment basis, so the userId
+            // ViewModel is created on a per-Fragment basis, so the memberId
             // doesn't change.
             return;
         }
 
-        this.member = repo.getMember(memberId);
+        this.member = repo.getMemberRepo().getMember(memberId);
     }
 
     public LiveData<? extends Member> getMember() {
