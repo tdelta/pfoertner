@@ -1,6 +1,8 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -17,11 +19,20 @@ import android.widget.Toast;
 
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodel.MemberProfileViewModel;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodel.ViewModelFactory;
 
 public class PictureUpload extends AppCompatActivity {
     private static final String TAG = "PictureUpload";
+    private MemberProfileViewModel viewModel;
+
+    @Inject
+    ViewModelFactory viewModelFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +40,14 @@ public class PictureUpload extends AppCompatActivity {
         setContentView(R.layout.activity_picture_upload);
 
         final AdminApplication app = AdminApplication.get(this);
+
+        viewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
+        viewModel.init(app.getMemberId()); // TODO
+
+        viewModel.getMember().observe(this, member -> {
+            // TODO
+            Log.d(TAG, "Observed change!");
+        });
 
         app.getOffice().getMemberById(
                 app.getMemberId()

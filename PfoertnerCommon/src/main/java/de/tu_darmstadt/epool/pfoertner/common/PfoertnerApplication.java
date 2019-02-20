@@ -55,12 +55,14 @@ public class PfoertnerApplication extends Application {
             this.maybeOffice = Optional.empty();
         }
 
-        onInit();
+        onInit(
+                this.authentication
+        );
 
         this.hadBeenInitialized = true;
     }
 
-    protected void onInit() { }
+    protected void onInit(final Authentication auth) { }
 
     @Override
     public void onCreate() {
