@@ -156,7 +156,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
         intent.putExtra("Day", timehelper.toLocalDateTime(e.getStart()).getDayOfMonth());
         intent.putExtra("Month", timehelper.toLocalDateTime(e.getStart()).getMonthValue());
         intent.putExtra("Year", timehelper.toLocalDateTime(e.getStart()).getYear());
-        intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));//TODO: 0 hardcoded
+        intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));
 
         // yyyy-MM-dd HH:mm
         startActivity(intent);
