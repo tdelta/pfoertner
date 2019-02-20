@@ -1,9 +1,9 @@
-package de.tu_darmstadt.epool.pfoertneradmin.db.entity;
+package de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-import de.tu_darmstadt.epool.pfoertneradmin.model.Office;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 
 @Entity
 public class OfficeEntity implements Office {

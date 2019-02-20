@@ -1,12 +1,12 @@
-package de.tu_darmstadt.epool.pfoertneradmin.viewmodel;
+package de.tu_darmstadt.epool.pfoertneradmin.viewmodels;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 
 import de.tu_darmstadt.epool.pfoertneradmin.AdminApplication;
-import de.tu_darmstadt.epool.pfoertneradmin.model.Member;
-import de.tu_darmstadt.epool.pfoertneradmin.repositories.PfoertnerRepository;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 
 public class MemberProfileViewModel extends AndroidViewModel {
     private LiveData<? extends Member> member;

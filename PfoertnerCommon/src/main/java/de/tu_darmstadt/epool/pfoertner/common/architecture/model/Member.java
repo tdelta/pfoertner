@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertneradmin.model;
+package de.tu_darmstadt.epool.pfoertner.common.architecture.model;
 
 public interface Member {
     int getId();
