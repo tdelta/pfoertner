@@ -39,18 +39,25 @@ public class PictureUpload extends AppCompatActivity {
         viewModel.getMember().observe(this, member -> {
             // TODO
             Log.d(TAG, "Observed change!");
+
+            if (member != null) {
+                final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
+                final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
+
+                firstNameTextView.setText(member.getFirstName());
+                lastNameTextView.setText(member.getLastName());
+            }
+
+            else {
+                Log.d(TAG, "There is no member set, or it was destroyed on an update.");
+            }
         });
 
         app.getOffice().getMemberById(
                 app.getMemberId()
         ).ifPresent(
                 member -> {
-                    final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
-                    final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
                     final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
-
-                    firstNameTextView.setText(member.getFirstName());
-                    lastNameTextView.setText(member.getLastName());
 
                     member
                             .getPicture(app.getFilesDir())
@@ -58,16 +65,6 @@ public class PictureUpload extends AppCompatActivity {
 
                     member.addObserver(
                             new MemberObserver() {
-                                @Override
-                                public void onFirstNameChanged(String newFirstName) {
-                                    firstNameTextView.setText(newFirstName);
-                                }
-
-                                @Override
-                                public void onLastNameChanged(String newLastName) {
-                                    lastNameTextView.setText(newLastName);
-                                }
-
                                 @Override
                                 public void onPictureChanged() {
                                     member.getPicture(app.getFilesDir())

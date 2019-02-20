@@ -7,6 +7,14 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 
 @Entity
 public class OfficeEntity implements Office {
+    public OfficeEntity() {}
+
+    public OfficeEntity(int id, String joinCode, String status) {
+        this.id = id;
+        this.joinCode = joinCode;
+        this.status = status;
+    }
+
     @PrimaryKey
     private int id;
 

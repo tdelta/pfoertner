@@ -1,8 +1,10 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.repositories;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -14,83 +16,26 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEnt
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
 public class PfoertnerRepository {
-    private PfoertnerApi api;
-    private Authentication auth;
+    private static final String TAG = "PfoertnerRepository";
 
-    private AppDatabase db;
-    private Executor executor;
+    private final OfficeRepository officeRepo;
+    private final MemberRepository memberRepo;
 
-    private EventChannel eventChannel;
-
-    public PfoertnerRepository(final Context context, final PfoertnerApi api, final Authentication auth, final AppDatabase db, final Executor executor) {
-        this.api = api;
-        this.auth = auth;
-        this.db = db;
-        this.executor = executor;
-
-        this.eventChannel = new EventChannel(context) {
-            @Override
-            protected void onEvent(EventType e, @Nullable String payload) {
-                if (e.equals(EventType.OfficeMemberUpdated)) {
-                    final int id = Integer.valueOf(payload);
-
-                    refreshMember(id);
-                }
-            }
-        };
-        this.eventChannel.listen();
+    public PfoertnerRepository(final PfoertnerApi api, final Authentication auth, final AppDatabase db) {
+        this.officeRepo = new OfficeRepository(api, auth, db);
+        this.memberRepo = new MemberRepository(api, auth, db);
     }
 
-    public LiveData<? extends Member> getMember(final int memberId) {
-        refreshMember(memberId);
-        // Returns a LiveData object directly from the database.
-        return db.memberDao().load(memberId);
+    public OfficeRepository getOfficeRepo() {
+        return officeRepo;
     }
 
-    public LiveData<? extends Office> getOffice(final int officeId) {
-        refreshOffice(officeId);
-        // Returns a LiveData object directly from the database.
-        return db.officeDao().load(officeId);
-    }
-
-    private void refreshMember(final int memberId) {
-        // Runs in a background thread.
-        executor.execute(() -> {
-            // Refreshes the data.
-            try {
-                final Response<MemberEntity> response = api.getMember(auth.id, memberId).execute();
-
-                // Updates the database. The LiveData object automatically
-                // refreshes, so we don't need to do anything else here.
-                db.memberDao().save(response.body());
-            }
-
-            catch (final Exception e) {
-                // TODO
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private void refreshOffice(final int officeId) {
-        // Runs in a background thread.
-        executor.execute(() -> {
-            // Refreshes the data.
-            try {
-                final Response<MemberEntity> response = api.getMember(auth.id, officeId).execute();
-
-                // Updates the database. The LiveData object automatically
-                // refreshes, so we don't need to do anything else here.
-                db.memberDao().save(response.body());
-            }
-
-            catch (final IOException e) {
-                // TODO
-                e.printStackTrace();
-            }
-        });
+    public MemberRepository getMemberRepo() {
+        return memberRepo;
     }
 }
