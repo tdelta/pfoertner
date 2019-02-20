@@ -51,6 +51,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
         Optional<Member> tempMember = app
                 .getOffice()
                 .getMemberById(getIntent().getIntExtra("MemberId",-1));
+        Log.d(TAG, getIntent().getIntExtra("MemberId",-1) + "");
         if(tempMember.isPresent()){
             appointmentMember = tempMember.get();
             calendarApi = appointmentMember.getCalendarApi();
@@ -136,13 +137,21 @@ public class NewScheduleAppointment extends AppCompatActivity {
 
 
         intent.putExtra("appointmentStartTimeHour", timehelper.toLocalDateTime(e.getStart()).getHour());
-        intent.putExtra("appointmentStartTimeMinutes", timehelper.toLocalDateTime(e.getStart()).getMinute());
+        if(timehelper.toLocalDateTime(e.getStart()).getMinute() > 9){
+            intent.putExtra("appointmentStartTimeMinutes", "" + timehelper.toLocalDateTime(e.getStart()).getMinute());
+        }else{
+            intent.putExtra("appointmentStartTimeMinutes", "0" + timehelper.toLocalDateTime(e.getStart()).getMinute());
+        }
         intent.putExtra("appointmentEndTimeHour", timehelper.toLocalDateTime(e.getEnd()).getHour());
-        intent.putExtra("appointmentEndTimeMinutes", timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        if(timehelper.toLocalDateTime(e.getEnd()).getMinute() > 9){
+            intent.putExtra("appointmentEndTimeMinutes", "" + timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        }else{
+            intent.putExtra("appointmentEndTimeMinutes", "0" + timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        }
         intent.putExtra("Day", timehelper.toLocalDateTime(e.getStart()).getDayOfMonth());
         intent.putExtra("Month", timehelper.toLocalDateTime(e.getStart()).getMonthValue());
         intent.putExtra("Year", timehelper.toLocalDateTime(e.getStart()).getYear());
-        intent.putExtra("MemberId", 0);//TODO: 0 hardcoded
+        intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));//TODO: 0 hardcoded
 
         // yyyy-MM-dd HH:mm
         startActivity(intent);
