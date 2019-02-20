@@ -64,8 +64,18 @@ public class TimeslotView extends RelativeLayout {
         final TextView startTime = (TextView) findViewById(R.id.start);
         final TextView endTime = (TextView) findViewById(R.id.end);
 
-        startTime.setText(getStartTime().getHour() + ":" + getStartTime().getMinute());
-        endTime.setText(getEndTime().getHour() + ":" + getEndTime().getMinute());
+        if(getStartTime().getMinute() > 9){
+            startTime.setText(getStartTime().getHour() + ":" + getStartTime().getMinute());
+        }else{
+            startTime.setText(getStartTime().getHour() + ":0" + getStartTime().getMinute());
+        }
+
+        if(getEndTime().getMinute() > 9){
+            endTime.setText(getEndTime().getHour() + ":" + getEndTime().getMinute());
+        }else{
+            endTime.setText(getEndTime().getHour() + ":0" + getEndTime().getMinute());
+        }
+
     }
 
     private LocalDateTime getStartTime(){
