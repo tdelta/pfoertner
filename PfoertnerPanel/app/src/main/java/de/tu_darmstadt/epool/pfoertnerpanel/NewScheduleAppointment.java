@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
@@ -15,6 +16,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
+import org.w3c.dom.Text;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -55,6 +57,10 @@ public class NewScheduleAppointment extends AppCompatActivity {
         if(tempMember.isPresent()){
             appointmentMember = tempMember.get();
             calendarApi = appointmentMember.getCalendarApi();
+            TextView room = (TextView) findViewById(R.id.schedule_room);
+            room.setText("A101"); //TODO: app.getoffice hat leider keinen raum wert...
+            TextView appointmentMemberName = (TextView) findViewById(R.id.appointment_member);
+            appointmentMemberName.setText("Appointment times for: "+ appointmentMember.getFirstName()+" "+appointmentMember.getLastName());
             getEventsForTimeslots();
         }else{
             //TODO: go back to main activity
@@ -100,7 +106,6 @@ public class NewScheduleAppointment extends AppCompatActivity {
         for (Event e : upcommingEvents){
             if(timehelper.isItToday(dayview.getDate(),timehelper.toLocalDateTime(e.getStart()))){
                 dayview.addEvents(e);
-//                upcommingEvents.remove(e);
             }
         }
     }
