@@ -160,5 +160,8 @@ public class NewScheduleAppointment extends AppCompatActivity {
 
         // yyyy-MM-dd HH:mm
         startActivity(intent);
+
+
+        finish();
     }
 }

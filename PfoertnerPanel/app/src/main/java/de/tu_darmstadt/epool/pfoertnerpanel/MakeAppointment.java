@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.app.Activity;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -41,7 +43,7 @@ public class MakeAppointment extends AppCompatActivity {
         TextView underTitle = findViewById(R.id.textView5);
         underTitle.setText("Please enter your name, mail and a message.");
         Button confirm = findViewById(R.id.confirmbutton);
-        confirm.setText("CONFIRM APPOINTMENT");
+        confirm.setText("REQUEST APPOINTMENT");
         TextInputLayout enterName = findViewById(R.id.textInputLayout);
         enterName.setHint("Enter your full name here");
         TextInputLayout enterEmail = findViewById(R.id.textInputLayout6);
@@ -113,5 +115,9 @@ public class MakeAppointment extends AppCompatActivity {
                 super.onException(e);
             }
         }.execute();
+
+        Toast.makeText(this, "Request has been sent!", Toast.LENGTH_LONG).show();
+
+        finish();
     }
 }
