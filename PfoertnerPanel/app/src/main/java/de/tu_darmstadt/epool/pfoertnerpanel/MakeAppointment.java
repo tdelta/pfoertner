@@ -49,8 +49,13 @@ public class MakeAppointment extends AppCompatActivity {
         TextInputLayout enterMessage = findViewById(R.id.textInputLayout7);
         enterMessage.setHint("Enter a message");
         TextView appointmentTime = findViewById(R.id.textView6);
-//        appointmentTime.setText(getIntent().getStringExtra("appointmentTime"));
-        appointmentTime.setText("hier koennte ihre uhrzeit stehen");
+        appointmentTime.setText(getIntent().getIntExtra("appointmentStartTimeHour", -1)
+                +":"
+                +getIntent().getStringExtra("appointmentStartTimeMinutes")
+                +" - "
+                +getIntent().getIntExtra("appointmentEndTimeHour", -1)
+                +":"
+                +getIntent().getStringExtra("appointmentEndTimeMinutes"));
     }
 
     public void onConfirmAppointment(View view){
@@ -60,14 +65,14 @@ public class MakeAppointment extends AppCompatActivity {
         LocalDateTime dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
                 , getIntent().getIntExtra("Day", 1)
-                , Integer.valueOf(getIntent().getStringExtra("appointmentStartTimeHour"))
+                , getIntent().getIntExtra("appointmentStartTimeHour", -1)
                 , Integer.valueOf(getIntent().getStringExtra("appointmentStartTimeMinutes")));
         String startTime = dateTime.format(formatter);
 
         dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
                 , getIntent().getIntExtra("Day", 1)
-                , Integer.valueOf(getIntent().getStringExtra("appointmentEndTimeHour"))
+                , getIntent().getIntExtra("appointmentEndTimeHour", -1)
                 , Integer.valueOf(getIntent().getStringExtra("appointmentEndTimeMinutes")));
         String endTime = dateTime.format(formatter);
 
