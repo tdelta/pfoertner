@@ -3,6 +3,7 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.Manifest;
 import android.accounts.AuthenticatorException;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -47,6 +48,7 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
 
 
 public class MainActivity extends AppCompatActivity implements GlobalTextFragment.TextDialogListener, GlobalStatusFragment.StatusDialogListener {
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
     private PersonalStatusFragment personalStatusMenu;
 
     private DrawerLayout mDrawerLayout;
+    private MemberProfileViewModel viewModel;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -145,6 +148,31 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
 
         Log.d(TAG, "App has been initialized. We are member #" + String.valueOf(app.getMemberId()));
 
+        viewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
+        viewModel.init(app.getMemberId());
+
+        viewModel.getMember().observe(this, member -> {
+            if (member != null) {
+                final NavigationView navigationView = findViewById(R.id.nav_view);
+                final View header = navigationView.getHeaderView(0);
+
+                final TextView drawerName = (TextView) header.findViewById(R.id.drawerName);
+
+                final PersonalStatusView personalStatusView = (PersonalStatusView) findViewById(R.id.personalStatusView);
+
+                drawerName.setText(
+                        member.getFirstName() + " " + member.getLastName()
+                );
+
+                personalStatusView.setStatus(member.getStatus());
+            }
+
+            else {
+                Log.e(TAG, "Konnte MemberUI noch nicht aktualisieren, da Member (noch) nicht gesetzt ist, oder entfernt wurde!");
+            }
+        });
+
+        // Altes Sync-System für das Bild
         final Optional<Member> maybeMember = app.getOffice().getMemberById(
                 app.getMemberId()
         );
@@ -158,12 +186,6 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
             final TextView drawerName = (TextView) header.findViewById(R.id.drawerName);
             final CircleImageView drawerPic = (CircleImageView) header.findViewById(R.id.drawerPic);
 
-            final PersonalStatusView personalStatusView = (PersonalStatusView)  findViewById(R.id.personalStatusView);
-
-            drawerName.setText(
-                    member.getFirstName() + " " + member.getLastName()
-            );
-
             member
                     .getPicture(app.getFilesDir())
                     .ifPresent(drawerPic::setImageBitmap);
@@ -171,28 +193,9 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
             member.addObserver(
                     new MemberObserver() {
                         @Override
-                        public void onFirstNameChanged(final String newFirstName) {
-                            drawerName.setText(
-                                    member.getFirstName() + " " + member.getLastName()
-                            );
-                        }
-
-                        @Override
-                        public void onLastNameChanged(final String newFirstName) {
-                            drawerName.setText(
-                                    member.getFirstName() + " " + member.getLastName()
-                            );
-                        }
-
-                        @Override
                         public void onPictureChanged() {
                             member.getPicture(app.getFilesDir())
                                     .ifPresent(drawerPic::setImageBitmap);
-                        }
-
-                        @Override
-                        public void onStatusChanged(final String newStatus) {
-                            personalStatusView.setStatus(newStatus);
                         }
                     }
             );

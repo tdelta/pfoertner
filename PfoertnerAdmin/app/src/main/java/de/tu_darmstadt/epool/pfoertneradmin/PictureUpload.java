@@ -53,6 +53,7 @@ public class PictureUpload extends AppCompatActivity {
             }
         });
 
+        // Noch das alte Sync-System für das Bild
         app.getOffice().getMemberById(
                 app.getMemberId()
         ).ifPresent(
