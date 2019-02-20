@@ -75,8 +75,8 @@ public class NewScheduleAppointment extends AppCompatActivity {
             TimeslotView timeslot = new TimeslotView(this, e);
             timeslot.setOnClickListener((View v) -> gotoMakeAppointment(v, timeslot));
             final FrameLayout.LayoutParams timeslotMarginParams = (FrameLayout.LayoutParams) timeslots.getLayoutParams();
-            timeslotMarginParams.setMargins(1, 10, 1, 10);
-            timeslots.addView(timeslot);
+            timeslotMarginParams.setMargins(1, 1, 1, 1);
+            timeslots.addView(timeslot, timeslotMarginParams);
         }
         recolorDayViews(dayview);
     }
