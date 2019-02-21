@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
@@ -38,7 +39,11 @@ public class MemberRepository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSuccess(
-                        memberEntity -> db.memberDao().save(memberEntity)
+                        memberEntity -> {
+                            final OfficeEntity oe = db.officeDao().load(1).getValue();
+                            final int x = db.officeDao().countEntities(0);
+                            db.memberDao().save(memberEntity);
+                        }
                 )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

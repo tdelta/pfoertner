@@ -138,9 +138,7 @@ public class PfoertnerApplication extends Application {
 
         getRepo()
                 .getOfficeRepo()
-                .patchOffice(
-                        new OfficeEntity(office.getId(), office.getJoinCode(), office.getStatus())
-                );
+                .refreshOffice(office.getId());
 
         this.maybeOffice = Optional.of(office);
     }
