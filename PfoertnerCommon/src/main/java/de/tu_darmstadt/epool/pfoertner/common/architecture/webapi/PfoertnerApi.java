@@ -46,6 +46,9 @@ public interface PfoertnerApi {
     @GET("/officemembers/{id}")
     Single<MemberEntity> getMember(@Header("Authorization") String authToken, @Path("id") int memberId);
 
+    @PATCH("/officemembers/{id}")
+    Single<MemberEntity> patchMember(@Header("Authorization") String authToken, @Path("id") int id, @Body MemberEntity member);
+
     @GET("/offices/{id}")
     Single<OfficeEntity> getOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 

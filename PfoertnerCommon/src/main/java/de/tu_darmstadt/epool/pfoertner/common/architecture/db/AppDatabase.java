@@ -8,7 +8,7 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.dao.OfficeDao;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 
-@Database(entities = {OfficeEntity.class, MemberEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {OfficeEntity.class, MemberEntity.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract MemberDao memberDao();
 

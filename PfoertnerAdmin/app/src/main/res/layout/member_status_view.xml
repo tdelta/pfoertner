@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/member_status_view_clickable"
+        android:orientation="vertical"
+        android:background="@color/pfoertner_positive_status_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="15dp">
+
+        <ImageView
+            android:id="@+id/member_status_icon"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_home_green_60dp" />
+
+        <TextView
+            android:id="@+id/member_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You're available"
+            android:textColor="@color/pfoertner_light_primary_dark_text"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/member_status_tap_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap to change"
+            android:textAllCaps="true"
+            android:textColor="@color/pfoertner_positive_status_taptext"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

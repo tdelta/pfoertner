@@ -56,6 +56,16 @@ public class PfoertnerApplication extends Application {
             this.maybeOffice = Optional.of(
                     Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
             );
+
+            repo
+                    .getOfficeRepo()
+                    .refreshOffice(
+                            this.maybeOffice.get().getId()
+                    );
+
+            repo
+                    .getMemberRepo()
+                    .refreshAllMembers();
         }
 
         else {

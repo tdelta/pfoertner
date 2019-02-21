@@ -29,6 +29,11 @@ public class AdminApplication extends PfoertnerApplication {
     public void setMemberId(final int id) {
         checkInitStatus();
 
+        this
+                .getRepo()
+                .getMemberRepo()
+                .refreshMember(id);
+
         this.maybeMemberId = Optional.of(id);
     }
 

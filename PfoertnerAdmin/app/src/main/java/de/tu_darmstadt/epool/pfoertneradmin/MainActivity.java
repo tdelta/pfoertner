@@ -2,14 +2,13 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 
 
 import android.Manifest;
-import android.accounts.AuthenticatorException;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -18,47 +17,31 @@ import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.Optional;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
-import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.GlobalStatusFragment;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.MemberStatusFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
 
-
-public class MainActivity extends AppCompatActivity implements GlobalTextFragment.TextDialogListener, GlobalStatusFragment.StatusDialogListener {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
     private final static int MY_PERMISSIONS_READ_CALENDAR = 1;
-    private GlobalStatusFragment globalStatusMenu;
-    private PersonalStatusFragment personalStatusMenu;
 
     private DrawerLayout mDrawerLayout;
-    private MemberProfileViewModel viewModel;
+    private MemberProfileViewModel memberViewModel;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -142,29 +125,36 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
                 new Intent(MainActivity.this, SyncService.class)
         );
 
-        globalStatusMenu = GlobalStatusFragment.newInstance(this);
-        personalStatusMenu = PersonalStatusFragment.newInstance(this);
+        {
+            final FragmentManager fragmentManager = getSupportFragmentManager();
+            final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            final GlobalStatusFragment globalStatusFragment = new GlobalStatusFragment();
+            fragmentTransaction.add(R.id.global_status_view, globalStatusFragment);
+
+            final MemberStatusFragment memberStatusFragment = new MemberStatusFragment();
+            fragmentTransaction.add(R.id.member_status_view, memberStatusFragment);
+
+            fragmentTransaction.commit();
+        }
+
         final AdminApplication app = AdminApplication.get(this);
 
         Log.d(TAG, "App has been initialized. We are member #" + String.valueOf(app.getMemberId()));
 
-        viewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
-        viewModel.init(app.getMemberId());
+        memberViewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
+        memberViewModel.init(app.getMemberId());
 
-        viewModel.getMember().observe(this, member -> {
+        memberViewModel.getMember().observe(this, member -> {
             if (member != null) {
                 final NavigationView navigationView = findViewById(R.id.nav_view);
                 final View header = navigationView.getHeaderView(0);
 
                 final TextView drawerName = (TextView) header.findViewById(R.id.drawerName);
 
-                final PersonalStatusView personalStatusView = (PersonalStatusView) findViewById(R.id.personalStatusView);
-
                 drawerName.setText(
                         member.getFirstName() + " " + member.getLastName()
                 );
-
-                personalStatusView.setStatus(member.getStatus());
             }
 
             else {
@@ -240,19 +230,6 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
         }
     }
 
-    public void editGlobalInfo(View view){
-        if (globalStatusMenu != null) {
-            globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
-        }
-    }
-
-
-    public void editPersonalStatus(View view){
-        if (personalStatusMenu != null) {
-            personalStatusMenu.show(getSupportFragmentManager(), "personalStatusMenu");
-        }
-    }
-
     public void gotoQRCodeAcitvity(View view) {
         Intent intent = new Intent(this, showQRCodeActivity.class);
         startActivity(intent);
@@ -266,35 +243,6 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
     public void gotoPictureUploader(View view){
         Intent intent = new Intent(this, PictureUpload.class);
         startActivity(intent);
-    }
-
-    @Override
-    public void updateGlobalStatus(String text) {
-        if (globalStatusMenu != null) {
-            globalStatusMenu.updateStatus(text);
-            globalStatusMenu.show(getSupportFragmentManager(), "globalStatusMenu");
-        }
-    }
-
-    @Override
-    public void updatePersonalStatus(String text){
-        if (personalStatusMenu != null){
-            personalStatusMenu.updateStatus(text);
-            personalStatusMenu.show(getSupportFragmentManager(), "personalStatusMenu");
-        }
-    }
-
-
-    @Override
-    public void startGlobalTextInput() {
-        GlobalTextFragment textBox = new GlobalTextFragment();
-        textBox.show(getSupportFragmentManager(), "insertTextBox");
-    }
-
-    @Override
-    public void startPersonalTextInput(){
-        PersonalTextFragment textBox = new PersonalTextFragment();
-        textBox.show(getSupportFragmentManager(), "insertTextBox");
     }
 
     private void startCalenderService() {
