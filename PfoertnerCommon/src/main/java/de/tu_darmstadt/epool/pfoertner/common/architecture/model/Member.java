@@ -6,4 +6,6 @@ public interface Member {
     String getFirstName();
     String getLastName();
     String getStatus();
+    String getPicture();
+    String getPictureMD5();
 }
