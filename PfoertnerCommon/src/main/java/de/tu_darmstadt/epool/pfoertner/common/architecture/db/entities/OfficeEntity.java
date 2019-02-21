@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
@@ -9,6 +10,7 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 public class OfficeEntity implements Office {
     public OfficeEntity() {}
 
+    @Ignore
     public OfficeEntity(int id, String joinCode, String status) {
         this.id = id;
         this.joinCode = joinCode;

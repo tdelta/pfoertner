@@ -2,6 +2,7 @@ package de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
@@ -12,6 +13,17 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
         onDelete = ForeignKey.CASCADE)
 )
 public class MemberEntity implements Member {
+    public MemberEntity() {}
+
+    @Ignore
+    public MemberEntity(int id, int officeId, String firstName, String lastName, String status) {
+        this.id = id;
+        this.OfficeId = officeId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.status = status;
+    }
+
     @PrimaryKey
     private int id;
 
