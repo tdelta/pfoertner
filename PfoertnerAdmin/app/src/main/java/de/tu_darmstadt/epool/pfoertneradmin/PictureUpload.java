@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.MediaStoreSignature;
+import com.bumptech.glide.signature.ObjectKey;
 
 import java.util.function.Consumer;
 
@@ -44,6 +49,13 @@ public class PictureUpload extends AppCompatActivity {
                 final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
                 final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
 
+                Glide
+                        .with(PictureUpload.this)
+                        .load(member.getPicture())
+                        .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
+                        .signature(new ObjectKey(member.getPictureMD5() == null ? "null" : member.getPictureMD5()))
+                        .into((CircleImageView) findViewById(R.id.profile_image));
+
                 firstNameTextView.setText(member.getFirstName());
                 lastNameTextView.setText(member.getLastName());
             }
@@ -52,29 +64,6 @@ public class PictureUpload extends AppCompatActivity {
                 Log.d(TAG, "There is no member set, or it was destroyed on an update.");
             }
         });
-
-        // Noch das alte Sync-System für das Bild
-        app.getOffice().getMemberById(
-                app.getMemberId()
-        ).ifPresent(
-                member -> {
-                    final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
-
-                    member
-                            .getPicture(app.getFilesDir())
-                            .ifPresent(imagetest::setImageBitmap);
-
-                    member.addObserver(
-                            new MemberObserver() {
-                                @Override
-                                public void onPictureChanged() {
-                                    member.getPicture(app.getFilesDir())
-                                            .ifPresent(imagetest::setImageBitmap);
-                                }
-                            }
-                    );
-                }
-        );
     }
 
     public void setFirstName(final View btn) {
