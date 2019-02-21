@@ -41,7 +41,7 @@ router.delete('/:id',auth.authFun(),(req,res) => {
       res.status(404).send('The appointment does not exist');
       return;
     }
-    authenticateOfficeMember(req,res,appointment.OfficeMemberId).then(officemember => {
+    authenticateOfficemember(req,res,appointment.OfficeMemberId).then(officemember => {
       appointment.destroy().then(u => {
         if(u && u.deletedAt){
           res.status(200).send('Successfully deleted appointment request');
