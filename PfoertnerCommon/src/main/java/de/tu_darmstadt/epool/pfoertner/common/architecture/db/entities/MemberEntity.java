@@ -20,6 +20,8 @@ public class MemberEntity implements Member {
     private String firstName;
     private String lastName;
     private String status;
+    private String picture;
+    private String pictureMD5;
 
     public void setId(int id) {
         this.id = id;
@@ -40,6 +42,10 @@ public class MemberEntity implements Member {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public void setPicture(String path) { this.picture = path; }
+
+    public void setPictureMD5(String hash) { this.pictureMD5 = hash; }
 
     @Override
     public int getId() {
@@ -65,4 +71,11 @@ public class MemberEntity implements Member {
     public String getStatus() {
         return status;
     }
+
+    @Override
+    public String getPicture() { return picture; }
+
+    @Override
+    public String getPictureMD5() { return pictureMD5; }
+
 }
