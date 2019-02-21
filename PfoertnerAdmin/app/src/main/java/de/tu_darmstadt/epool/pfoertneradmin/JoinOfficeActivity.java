@@ -55,7 +55,16 @@ public class JoinOfficeActivity extends AppCompatActivity {
                 app.setOffice(result.first);
                 app.setMemberId(result.second.id);
 
-                JoinOfficeActivity.this.finish();
+                // Leave activity, as soon as member data is available
+                app
+                        .getRepo()
+                        .getMemberRepo()
+                        .getMember(app.getMemberId())
+                        .observe(JoinOfficeActivity.this, member -> {
+                            if (member != null) {
+                                JoinOfficeActivity.this.finish();
+                            }
+                        });
             }
 
             @Override
