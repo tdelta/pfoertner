@@ -53,7 +53,7 @@ public class MessagingService extends FirebaseMessagingService {
                     }
 
                     catch (final IOException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Could not upload the FCM token", e);
 
                         throw new RuntimeException("Could not upload the FCM token");
                     }
