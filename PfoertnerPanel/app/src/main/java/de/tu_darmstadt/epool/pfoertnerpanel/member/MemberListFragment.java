@@ -17,12 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertnerpanel.MainActivity;
 import de.tu_darmstadt.epool.pfoertnerpanel.R;
 
 public class MemberListFragment extends ListFragment {
 
     private int currentMemberId;
+    private int position;
+    private static List<Member> members;
 
     public int getCurrentMember(){
         return currentMemberId;
@@ -32,6 +36,7 @@ public class MemberListFragment extends ListFragment {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getListAdapter();
         adapter.clear();
         adapter.addAll(members);
+        this.members = members;
     }
 
     @Override
@@ -40,16 +45,44 @@ public class MemberListFragment extends ListFragment {
         FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.member_fragment, ((MemberView) v).getFragment());
         transaction.commit();
+        this.position = position;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            currentMemberId = savedInstanceState.getInt("currentMemberId");
+            position = savedInstanceState.getInt("position");
+
+        }
+        System.out.println("Pimmel: " + currentMemberId + " | " + position);
+
         MemberArrayAdapter adapter = new MemberArrayAdapter(inflater.getContext(), new ArrayList<>());
+        if (members != null) {
+            adapter.addAll(members);
+        }
+
         setListAdapter(adapter);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    @Override
+    public void onSaveInstanceState (Bundle outState) {
+        outState.putInt("currentMemberId", currentMemberId);
+        outState.putInt("position", position);
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle bundle) {
+        super.onActivityCreated(bundle);
+        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        if (position != 0) {
+            getListView().setItemChecked(position, true);
+        }
+    }
 
     private class MemberArrayAdapter extends ArrayAdapter<Member> {
         private List<Member> values;
@@ -62,9 +95,15 @@ public class MemberListFragment extends ListFragment {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            Member member = values.get(position);
+            MemberView memberView =  new MemberView(getContext(), values.get(position));
 
-            return new MemberView(getContext(), member);
+            if (memberView.getMemberId() == currentMemberId) {
+                FragmentTransaction transaction = Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.member_fragment, memberView.getFragment());
+                transaction.commit();
+            }
+
+            return memberView;
         }
     }
 }
