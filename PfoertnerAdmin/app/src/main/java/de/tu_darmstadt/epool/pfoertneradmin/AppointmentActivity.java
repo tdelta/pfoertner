@@ -74,7 +74,7 @@ public class AppointmentActivity extends AppCompatActivity{
 
             @Override
             public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
-                final AppointmentRequestList appointments = findViewById(R.id.appointments);
+                final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
                 appointments.showAppointmentRequests(appointmentRequests);
             }
         });
@@ -99,7 +99,7 @@ public class AppointmentActivity extends AppCompatActivity{
             final View signInView = getLayoutInflater().inflate(R.layout.sign_in_card,topCard);
             signInView.findViewById(R.id.google_signin_button).setOnClickListener((view) -> connectGoogleCalendar());
         }
-        final AppointmentRequestList appointments = findViewById(R.id.appointments);
+        final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
         appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
 

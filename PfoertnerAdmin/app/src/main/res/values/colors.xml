@@ -27,4 +27,9 @@
     <color name="pfoertner_negative_status_bg">#F44336</color>
     <color name="pfoertner_negative_status_taptext">#D32F2F</color>
 
+    <color name="blue_button">#536dfe</color>
+    <color name="blue_button_pressed">#304ffe</color>
+    <color name="red_button">#e53935</color>
+    <color name="red_button_pressed">#d50000</color>
+
 </resources>

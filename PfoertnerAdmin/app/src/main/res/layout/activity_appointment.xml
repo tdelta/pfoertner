@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"/>
 
-    <de.tu_darmstadt.epool.pfoertneradmin.AppointmentRequestList
+    <fragment
+        class="de.tu_darmstadt.epool.pfoertneradmin.AppointmentRequestList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"
