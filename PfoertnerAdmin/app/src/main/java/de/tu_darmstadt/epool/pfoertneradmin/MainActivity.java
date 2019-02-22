@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -20,6 +21,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 
 import java.util.Optional;
 
@@ -152,6 +156,13 @@ public class MainActivity extends AppCompatActivity {
 
                 final TextView drawerName = (TextView) header.findViewById(R.id.drawerName);
 
+                Glide
+                        .with(MainActivity.this)
+                        .load(member.getPicture())
+                        .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_white_120dp))
+                        .signature(new ObjectKey(member.getPictureMD5() == null ? "null" : member.getPictureMD5()))
+                        .into((CircleImageView) header.findViewById(R.id.drawerPic));
+
                 drawerName.setText(
                         member.getFirstName() + " " + member.getLastName()
                 );
@@ -161,40 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Konnte MemberUI noch nicht aktualisieren, da Member (noch) nicht gesetzt ist, oder entfernt wurde!");
             }
         });
-
-        // Altes Sync-System für das Bild
-        final Optional<Member> maybeMember = app.getOffice().getMemberById(
-                app.getMemberId()
-        );
-
-        if (maybeMember.isPresent()) {
-            final Member member = maybeMember.get();
-
-            final NavigationView navigationView = findViewById(R.id.nav_view);
-            final View header = navigationView.getHeaderView(0);
-
-            final TextView drawerName = (TextView) header.findViewById(R.id.drawerName);
-            final CircleImageView drawerPic = (CircleImageView) header.findViewById(R.id.drawerPic);
-
-            member
-                    .getPicture(app.getFilesDir())
-                    .ifPresent(drawerPic::setImageBitmap);
-
-            member.addObserver(
-                    new MemberObserver() {
-                        @Override
-                        public void onPictureChanged() {
-                            member.getPicture(app.getFilesDir())
-                                    .ifPresent(drawerPic::setImageBitmap);
-                        }
-                    }
-            );
-        }
-
-        else {
-            Log.e(TAG, "No member registered, although app is fully initialized.");
-        }
-    }
+   }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
