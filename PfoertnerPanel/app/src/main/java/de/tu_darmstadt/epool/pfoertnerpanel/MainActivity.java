@@ -56,22 +56,22 @@ public class MainActivity extends AppCompatActivity {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         disposables.add(
-            app
-                    .init()
-                    .subscribe(
-                            () -> {
-                                MainActivity.this.startService(
-                                        new Intent(MainActivity.this, SyncService.class)
-                                );
+                app
+                        .init()
+                        .subscribe(
+                                () -> {
+                                    MainActivity.this.startService(
+                                            new Intent(MainActivity.this, SyncService.class)
+                                    );
 
-                                initOffice();
-                            },
-                            throwable -> {
-                                Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
+                                    initOffice();
+                                },
+                                throwable -> {
+                                    Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
 
-                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
-                            }
-                    )
+                                    ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
+                                }
+                        )
         );
     }
 
@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        memberList = findViewById(R.id.member_list);
 
         checkForPlayServices();
 
@@ -235,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             init();
-            memberList = findViewById(R.id.member_list);
         }
     }
 
