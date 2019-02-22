@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.arch.lifecycle.ViewModelProvider;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
@@ -14,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.arch.lifecycle.ViewModelProviders;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -26,10 +29,12 @@ import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewGroup container;
 
     private int memberCount = 0;
+
+    private OfficeViewModel viewModel;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -120,26 +127,51 @@ public class MainActivity extends AppCompatActivity {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         setGlobalStatus(app.getOffice().getStatus());
-        updateMembers();
+        //updateMembers();
 
-        registerForMemberChanges(app.getOffice().getMembers());
+        //registerForMemberChanges(app.getOffice().getMembers());
 
-        app.getOffice().addObserver(new OfficeObserver() {
-            @Override
-            public void onStatusChanged(final String newStatus) {
-                setGlobalStatus(newStatus);
-            }
+        // Neues system
+        viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
+        viewModel.init(app.getOffice().getId()); // The correct way to do this Anton?
 
-            @Override
-            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
-                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
-
-                registerForMemberChanges(newMembers);
-
-                updateMembers();
-                // TODO: Members einzaln updaten
+        viewModel.getOffice().observe(this, office -> {
+            if(office != null) {
+                //registerForMemberChanges(app.getOffice().getMembers());
+                setGlobalStatus(office.getStatus());
+                //updateMembers();
             }
         });
+
+        viewModel.getOfficeMembers(app.getOffice().getId()).observe(this, members -> {
+           if(members != null) {
+               removeMembers();
+
+               for (final MemberEntity m : members){
+
+                   this.addMember(m);
+               }
+           }
+        });
+
+
+        // Altes system
+//        app.getOffice().addObserver(new OfficeObserver() {
+//            @Override
+//            public void onStatusChanged(final String newStatus) {
+//                setGlobalStatus(newStatus);
+//            }
+//
+//            @Override
+//            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
+//                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
+//
+//                registerForMemberChanges(newMembers);
+//
+//                updateMembers();
+//                // TODO: Members einzaln updaten
+//            }
+//        });
     }
 
     public void test(View view){
@@ -294,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                                 getDrawable(R.drawable.ic_contact_default)
                         )
             );
-        }
+        }<
         //member.setPicture(getDrawable(R.drawable.ic_contact_default));
 
         switch(memberCount){
