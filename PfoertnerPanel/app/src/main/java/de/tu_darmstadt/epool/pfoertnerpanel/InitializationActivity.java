@@ -21,6 +21,7 @@ import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class InitializationActivity extends AppCompatActivity {
     private static final String TAG = "InitializationActivity";
@@ -58,20 +59,32 @@ public class InitializationActivity extends AppCompatActivity {
             }
 
             @Override
+            @SuppressWarnings("CheckResult")
             protected void onSuccess(final Office office) {
-                app.setOffice(office);
-                showQRCode(app.getOffice());
+                // TODO: Proper disposing of subscription according to lifecycle
+                app
+                    .setOffice(office)
+                    .subscribe(
+                            () -> {
+                                showQRCode(app.getOffice());
 
-                office.addObserver(
-                        new OfficeObserver() {
-                            @Override
-                            public void onJoinCodeChanged(String newJoinCode) {
-                                InitializationActivity.this.showQRCode(office);
+                                office.addObserver(
+                                        new OfficeObserver() {
+                                            @Override
+                                            public void onJoinCodeChanged(String newJoinCode) {
+                                                InitializationActivity.this.showQRCode(office);
+                                            }
+                                        }
+                                );
+
+                                closeSplashScreen.accept(null);
+                            },
+                            throwable -> {
+                                Log.e(TAG, "Failed to create an office. Asking the user to retry...", throwable);
+
+                                ErrorInfoDialog.show(context, throwable.getMessage(), aVoid -> initPanel(context, closeSplashScreen));
                             }
-                        }
-                );
-
-                closeSplashScreen.accept(null);
+                    );
             }
 
             @Override
