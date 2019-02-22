@@ -14,6 +14,8 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import java.util.List;
+
 public class MemberRepository {
     private static final String TAG = "MemberRepository";
 
@@ -32,6 +34,12 @@ public class MemberRepository {
         refreshMember(memberId);
 
         return db.memberDao().load(memberId);
+    }
+
+    public LiveData<List<MemberEntity>> getMembersFromOffice(final int officeId){
+        refreshAllMembersFromOffice(officeId);
+
+        return db.memberDao().getAllMembersFromOffice(officeId);
     }
 
     @SuppressLint("CheckResult")
@@ -92,6 +100,23 @@ public class MemberRepository {
                                 memberEntity -> refreshMember(memberEntity.getId())
                         ),
                         throwable -> Log.e(TAG, "Could not refresh all members.", throwable)
+                );
+    }
+
+    @SuppressLint("CheckResult")
+    public void refreshAllMembersFromOffice(final int officeId) {
+        api
+                .getMembersFromOffice(auth.id,officeId)
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(
+                        memberEntities -> db.memberDao().insertMembers(memberEntities.toArray(new MemberEntity[0]))
+                )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        members -> members.forEach(
+                                memberEntity -> refreshMember(memberEntity.getId())
+                        ),
+                        throwable -> Log.e(TAG, "Could not refresh all members of office with id " + officeId, throwable)
                 );
     }
 }

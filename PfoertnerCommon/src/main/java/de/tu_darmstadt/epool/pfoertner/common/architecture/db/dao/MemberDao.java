@@ -32,6 +32,9 @@ public abstract class MemberDao {
         }
     }
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract void insertMembers(MemberEntity... members);
+
     @Query("SELECT * FROM MemberEntity WHERE id = :memberId")
     public abstract LiveData<MemberEntity> load(int memberId);
 
@@ -43,4 +46,10 @@ public abstract class MemberDao {
 
     @Query("SELECT * FROM MemberEntity")
     public abstract List<MemberEntity> getAllMembers();
+
+    @Query("SELECT * FROM MemberEntity WHERE OfficeId = :officeId")
+    public abstract LiveData<List<MemberEntity>> getAllMembersFromOffice(int officeId);
+
+    @Query("SELECT * FROM MemberEntity WHERE OfficeId = :officeId")
+    public abstract List<MemberEntity> getAllMembersFromOfficeOnce(int officeId);
 }

@@ -2,6 +2,8 @@ package de.tu_darmstadt.epool.pfoertner.common.architecture.webapi;
 
 import com.google.gson.GsonBuilder;
 
+import java.util.List;
+
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import io.reactivex.Single;
@@ -42,6 +44,9 @@ public interface PfoertnerApi {
 
         return api;
     }
+
+    @GET("/offices/{id}/members")
+    Single<List<MemberEntity>> getMembersFromOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
     @GET("/officemembers/{id}")
     Single<MemberEntity> getMember(@Header("Authorization") String authToken, @Path("id") int memberId);
