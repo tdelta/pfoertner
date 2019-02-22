@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,6 +33,7 @@ public class MemberView extends LinearLayout {
         initFragment(member);
         setName(member.getFirstName(), member.getLastName());
         setImage(member.getPicture(app.getFilesDir()));
+        setStatus(member.getMemberData().status);
         memberId = member.getId();
     }
 
@@ -40,11 +42,13 @@ public class MemberView extends LinearLayout {
     }
 
     public void initFragment(Member member) {
+        final PfoertnerApplication app = PfoertnerApplication.get(getContext());
         fragment = new MemberFragment();
         String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
 
         fragment.setStatus(member.getMemberData().status);
         fragment.setOfficeHours(work);
+        fragment.setImage(member.getPicture(app.getFilesDir()));
     }
 
     public void setName(String firstName, String lastName) {
@@ -62,6 +66,28 @@ public class MemberView extends LinearLayout {
                                 getContext().getDrawable(R.drawable.ic_contact_default)
                         ));
 
+    }
+
+    public void setStatus(String status) {
+        TextView textView = findViewById(R.id.status);
+        textView.setText(status);
+        final int bgColor;
+        status = status == null ? "" : status;
+
+        switch (status) {
+            case "Available":
+                bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_positive_status_taptext);
+                break;
+
+            case "Out of office":
+            case "In meeting":
+                bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_negative_status_taptext);
+                break;
+
+            default:
+                bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_info_status_taptext);
+        }
+        textView.setTextColor(bgColor);
     }
 
     public MemberFragment getFragment() {

@@ -1,7 +1,9 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.member;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertnerpanel.R;
 
@@ -27,6 +30,7 @@ public class MemberFragment extends Fragment {
 
     private String status;
     private String[] officeHours;
+    Bitmap image;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +47,11 @@ public class MemberFragment extends Fragment {
         this.officeHours = officeHours;
     }
 
+    public void setImage(Optional<Bitmap> image) {
+        this.image = image.isPresent() ? Bitmap.createScaledBitmap(image.get(), 210, 210, false) : null;
+
+
+    }
 
     @Override
     public void onCreate (Bundle outState) {
@@ -50,6 +59,7 @@ public class MemberFragment extends Fragment {
         if (outState != null){
             status = outState.getString("status");
             officeHours = outState.getStringArray("officeHours");
+            image = outState.getParcelable("image");
         }
     }
 
@@ -57,6 +67,7 @@ public class MemberFragment extends Fragment {
     public void onSaveInstanceState (Bundle outState) {
         outState.putString("status", status);
         outState.putStringArray("officeHours", officeHours);
+        outState.putParcelable("image", image);
     }
 
     @Override
@@ -65,8 +76,15 @@ public class MemberFragment extends Fragment {
         final Drawable statusIcon;
         final int bgColor;
 
+        // set image
+        ImageView imageView = getActivity().findViewById(R.id.personalProfilePicture);
 
-        System.out.println("Assert status: " + status);
+        if (image != null) {
+            imageView.setImageDrawable(new BitmapDrawable(getResources(), image));
+        } else {
+            imageView.setImageDrawable(getContext().getDrawable(R.drawable.ic_contact_default));
+        }
+
         // set status
         try {
             switch (status) {
@@ -75,9 +93,15 @@ public class MemberFragment extends Fragment {
                     bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_positive_status_bg);
                     break;
 
-                default:
+                case "Out of office":
+                case "In meeting":
                     statusIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_warning_red_24dp);
                     bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_negative_status_bg);
+                    break;
+
+                default:
+                    statusIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_info_yellow_24dp);
+                    bgColor = ContextCompat.getColor(getContext(), R.color.pfoertner_info_status_bg);
             }
 
             final TextView personalStatusTextView = getActivity().findViewById(R.id.personalStatusText);

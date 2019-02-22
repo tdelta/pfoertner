@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -100,7 +101,10 @@ public class MessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(final RemoteMessage remoteMessage) {
-        Log.d(TAG, "Received FCM message.");
+        {
+            final Gson gson = new Gson();
+            Log.d(TAG, "Received FCM message. It contains: " + gson.toJson(remoteMessage.getData()));
+        }
 
         if(remoteMessage.getData().containsKey("notification")){
             Log.d(TAG,"Building a notification");

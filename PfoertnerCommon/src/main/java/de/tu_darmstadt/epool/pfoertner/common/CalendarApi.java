@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -36,7 +37,7 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class CalendarApi implements MemberObserver {
 
-    private static final String TAG = "Calendar";
+    private static final String TAG = "CalendarApi";
     private static final List<String> SCOPES = Arrays.asList(new String[]{
             CalendarScopes.CALENDAR_READONLY,
             "https://www.googleapis.com/auth/plus.me",
@@ -51,6 +52,7 @@ public class CalendarApi implements MemberObserver {
     private final Context context;
     private final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private final NotifyAdminsTask notifyAdminsTask = new NotifyAdminsTask();
+    private final GetAccessTokenTask getAccessTokenTask = new GetAccessTokenTask();
 
     private final Member member;
 
@@ -80,6 +82,7 @@ public class CalendarApi implements MemberObserver {
         this.context = context;
         this.member = member;
 
+        Log.d(TAG, "Adding a calender api object to the member with id " + member.getId());
         member.addObserver(this);
 
         if(member.getAccessToken()!=null) {
@@ -103,35 +106,70 @@ public class CalendarApi implements MemberObserver {
         public void onSuccess(String result){
             PfoertnerApplication app = PfoertnerApplication.get(context);
             member.setCalendarId(app.getSettings(),result);
-            notifyAdminsTask.execute(member.getId());
+            notifyAdminsTask.whenDone(
+                    aVoid -> notifyAdminsTask.execute(member.getId())
+            );
+        }
+    };
+
+    private static boolean dirtyHack = false;
+
+    private class GetAccessTokenTask extends RequestTask<String> {
+        private String newServerAuthCode;
+
+        void execute(final String newServerAuthCode) {
+            this.newServerAuthCode = newServerAuthCode;
+
+            super.execute();
+        }
+
+        @Override
+        public String doRequests() throws IOException{
+            Log.d(TAG,"Requesting an auth token from Google");
+
+            // only get new token, if server auth code truly changed
+            // TODO: Das hier mehrfach auszulösen bei gleichem Code sollte eig. nicht gehen?
+            //if (newServerAuthCode != null && !newServerAuthCode.equals(CalendarApi.this.member.getServerAuthCode()) || CalendarApi.this.member.getAccessToken() == null) {
+            if (!dirtyHack) {
+                dirtyHack = true;
+
+                return getAccessToken(newServerAuthCode);
+            }
+
+            else {
+                return CalendarApi.this.member.getAccessToken();
+            }
+        }
+
+        @Override
+        public void onException(Exception e){
+            Log.d(TAG,"Could not get an Oauth token from the server");
+            Log.d(TAG,e.getMessage());
+            Log.d(TAG,e.toString());
+            e.printStackTrace();
+        }
+
+        @Override
+        public void onSuccess(String result){
+            Log.d(TAG, "Successfully retrieved new access token. Setting access token of member with id " + CalendarApi.this.member.getId() + " to " + result);
+
+            final PfoertnerApplication app = PfoertnerApplication.get(CalendarApi.this.context);
+            CalendarApi.this.member.setAccessToken(app.getSettings(),result);
+
+            getCalendarIdTask.whenDone(
+                    aVoid -> getCalendarIdTask.execute()
+            );
         }
     };
 
     @Override
-    public void onServerAuthCodeChanged(String newServerAuthCode) {
-        new RequestTask<String>(){
-            @Override
-            public String doRequests() throws IOException{
-                Log.d(TAG,"Requesting an auth token from Google");
-                return getAccessToken(newServerAuthCode);
-            }
+    public void onServerAuthCodeChanged(final String newServerAuthCode) {
+        Log.d(TAG, "The server calendar api auth code changed, so we need to get a new access token from the client.");
 
-            @Override
-            public void onException(Exception e){
-                Log.d(TAG,"Could not get an Oauth token from the server");
-                Log.d(TAG,e.getMessage());
-                Log.d(TAG,e.toString());
-                e.printStackTrace();
-            }
+        getAccessTokenTask.whenDone(
+                aVoid -> getAccessTokenTask.execute(newServerAuthCode)
+        );
 
-            @Override
-            public void onSuccess(String result){
-                Log.d(TAG,result);
-                PfoertnerApplication app = PfoertnerApplication.get(CalendarApi.this.context);
-                CalendarApi.this.member.setAccessToken(app.getSettings(),result);
-                getCalendarIdTask.execute();
-            }
-        }.execute();
         Log.d(TAG,newServerAuthCode);
     }
 
@@ -175,6 +213,7 @@ public class CalendarApi implements MemberObserver {
         if(member.getAccessToken() == null){
             throw new RuntimeException("Cannot access calendar data before authenticating");
         }
+
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
                 .setJsonFactory(JacksonFactory.getDefaultInstance())
@@ -186,21 +225,30 @@ public class CalendarApi implements MemberObserver {
         return credential;
     }
 
-    public List<Event> getEvents(String calendarId, DateTime start, DateTime end) throws IOException{
+    public List<Event> getEvents(DateTime start, DateTime end) throws IOException {
+        if (this.member.getCalendarId() != null) {
+            final String calendarId = this.member.getCalendarId();
 
-        Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), getCredential())
-                .setApplicationName("Pfoertner")
-                .build();
+            Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), getCredential())
+                    .setApplicationName("Pfoertner")
+                    .build();
 
-        Events events = service.events().list(calendarId)
-                .setMaxResults(10)
-                .setTimeMin(start)
-                .setTimeMax(end)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute();
-        Log.d(TAG,"Executed API access");
-        Log.d(TAG,events.getItems().toString());
-        return events.getItems();
+            Events events = service.events().list(calendarId)
+                    .setMaxResults(10)
+                    .setTimeMin(start)
+                    .setTimeMax(end)
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+
+            Log.d(TAG, "Executed API access");
+            Log.d(TAG, events.getItems().toString());
+
+            return events.getItems();
+        }
+
+        else {
+            throw new RuntimeException("There is no calendar id set, so we cant retrieve any events.");
+        }
     }
 }
