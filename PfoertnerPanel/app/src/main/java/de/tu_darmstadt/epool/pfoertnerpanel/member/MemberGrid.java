@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.member;
 
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.content.Context;
 
@@ -20,30 +21,26 @@ import de.tu_darmstadt.epool.pfoertnerpanel.R;
 
 public class MemberGrid extends GridView{
 
+    // Plz dun h8
     private static List<Member> members;
-    private static int height;
+    private int height;
 
     public MemberGrid(Context context) {
         super(context);
-        setup(context);
     }
 
     public MemberGrid(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context);
     }
 
     public MemberGrid(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setup(context);
     }
 
     public void setMembers(List<Member> members) {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getAdapter();
         adapter.clear();
         adapter.addAll(members);
-        adapter.add(members.get(0));
-        adapter.add(members.get(0));
 
         this.members = members;
     }
@@ -52,19 +49,24 @@ public class MemberGrid extends GridView{
         this.height = height;
     }
 
-    private void setup(Context context) {
-        final LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        MemberArrayAdapter adapter = new MemberArrayAdapter(inflater.getContext(), new ArrayList<>());
-        setAdapter(adapter);
-    }
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         height = getDefaultSize(getHeight(), heightMeasureSpec) - getVerticalSpacing() - getPaddingTop() - getPaddingBottom();
+
+
+        // method is called when view is created so we can conveniently set the adapter here
+        final LayoutInflater inflater = (LayoutInflater) getContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        MemberArrayAdapter adapter = new MemberArrayAdapter(inflater.getContext(), new ArrayList<>());
+        setAdapter(adapter);
+        if (members != null) {
+            adapter.addAll(members);
+        }
+
     }
+
 
     private class MemberArrayAdapter extends ArrayAdapter<Member> {
         private List<Member> values;

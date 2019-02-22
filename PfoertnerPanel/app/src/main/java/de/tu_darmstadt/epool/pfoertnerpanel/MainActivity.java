@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        memberList = findViewById(R.id.member_list);
 
         checkForPlayServices();
 
@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             init();
-            memberList = findViewById(R.id.member_list);
         }
     }
 
