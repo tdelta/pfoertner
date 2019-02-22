@@ -16,6 +16,8 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 
 public class JoinOfficeActivity extends AppCompatActivity {
+    private static final String TAG = "JoinOfficeActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,20 +53,27 @@ public class JoinOfficeActivity extends AppCompatActivity {
             }
 
             @Override
+            @SuppressWarnings("CheckResult")
             protected void onSuccess(final Pair<Office, MemberData> result) {
-                app.setOffice(result.first);
-                app.setMemberId(result.second.id);
-
-                // Leave activity, as soon as member data is available
                 app
-                        .getRepo()
-                        .getMemberRepo()
-                        .getMember(app.getMemberId())
-                        .observe(JoinOfficeActivity.this, member -> {
-                            if (member != null) {
-                                JoinOfficeActivity.this.finish();
-                            }
-                        });
+                        .setOffice(result.first)
+                        .subscribe(
+                                () -> {
+                                    app.setMemberId(result.second.id);
+
+                                    // Leave activity, as soon as member data is available
+                                    app
+                                            .getRepo()
+                                            .getMemberRepo()
+                                            .getMember(app.getMemberId())
+                                            .observe(JoinOfficeActivity.this, member -> {
+                                                if (member != null) {
+                                                    JoinOfficeActivity.this.finish();
+                                                }
+                                            });
+                                },
+                                throwable -> Log.e(TAG, "Failed to join office.", throwable)
+                        );
             }
 
             @Override

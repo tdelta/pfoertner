@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -19,6 +20,11 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.CompletableSubject;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
@@ -39,42 +45,68 @@ public class PfoertnerApplication extends Application {
     private boolean hadBeenInitialized = false;
 
     // Needs to be called in a RequestTask
-    public void init() {
+    public Completable init() {
         if (hadBeenInitialized) {
-            return;
+            return Completable.complete();
         }
 
-        this.password = Password.loadPassword(this.preferences);
-        this.service = PfoertnerService.makeService();
-        this.device = User.loadDevice(this.preferences, this.service, this.password);
-        this.authentication = Authentication.authenticate(this.preferences, this.service, this.device, this.password, this);
+        return Single.fromCallable(
+                () -> {
+                    this.password = Password.loadPassword(this.preferences);
+                    this.service = PfoertnerService.makeService();
+                    this.device = User.loadDevice(this.preferences, this.service, this.password);
+                    this.authentication = Authentication.authenticate(this.preferences, this.service, this.device, this.password, this);
 
-        db = Room.databaseBuilder(this, AppDatabase.class, "AppDatabase").build();
-        repo = new PfoertnerRepository(api, this.authentication, db);
+                    db = Room.databaseBuilder(this, AppDatabase.class, "AppDatabase").build();
+                    repo = new PfoertnerRepository(api, this.authentication, db);
 
-        if (Office.hadBeenRegistered(this.preferences)) {
-            this.maybeOffice = Optional.of(
-                    Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
-            );
+                    return repo;
+                }
+        )
+        .flatMap(
+                repo ->
+                    repo
+                            .getInitStatusRepo()
+                            .getInitStatus()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io())
+                            .doOnError(
+                                    throwable -> Log.e(TAG, "Could not retrive init status, app cant be initialized.", throwable)
+                            )
+                            .doOnSuccess(
+                                    initStatus -> {
+                                        if (initStatus.hasJoinedOffice()) {
+                                            this.maybeOffice = Optional.of(
+                                                    Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
+                                            );
 
-            repo
-                    .getOfficeRepo()
-                    .refreshOffice(
-                            this.maybeOffice.get().getId()
-                    );
+                                            repo
+                                                    .getOfficeRepo()
+                                                    .refreshOffice(
+                                                            initStatus.joinedOfficeId()
+                                                    );
 
-            repo
-                    .getMemberRepo()
-                    .refreshAllMembers();
-        }
+                                            repo
+                                                    .getMemberRepo()
+                                                    .refreshAllMembers();
+                                        }
 
-        else {
-            this.maybeOffice = Optional.empty();
-        }
+                                        else {
+                                            this.maybeOffice = Optional.empty();
+                                        }
 
-        onInit();
+                                        onInit();
 
-        this.hadBeenInitialized = true;
+                                        this.hadBeenInitialized = true;
+                                    }
+                            )
+                            .doOnError(
+                                    throwable -> Log.e(TAG, "Failed either while initializing the office, or while initializing subclasses.", throwable)
+                            )
+        )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .ignoreElement();
     }
 
     protected void onInit() { }
@@ -143,14 +175,21 @@ public class PfoertnerApplication extends Application {
         return this.maybeOffice.isPresent();
     }
 
-    public void setOffice(final Office office) {
+    public Completable setOffice(final Office office) {
         checkInitStatus();
+
+        this.maybeOffice = Optional.of(office);
+
 
         getRepo()
                 .getOfficeRepo()
                 .refreshOffice(office.getId());
 
-        this.maybeOffice = Optional.of(office);
+        return getRepo()
+                .getInitStatusRepo()
+                .setJoinedOfficeId(office.getId())
+                .subscribeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread());
     }
 
     public AppDatabase getDb() {

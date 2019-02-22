@@ -50,23 +50,17 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, InitActivity.class);
             this.startActivityForResult(intent, 0);
         } else {
-            new RequestTask<Void>(){
-                @Override
-                protected Void doRequests(){
-                    app.init();
-                    return null;
-                }
+            // TODO: Handle disposable
+            app
+                    .init()
+                    .subscribe(
+                            () -> this.onInitialized(),
+                            throwable -> {
+                                Log.e(TAG, "Could not initialize app. Will offer user to retry.", throwable);
 
-                @Override
-                protected void onSuccess(Void result) {
-                    MainActivity.this.onInitialized();
-                }
-
-                @Override
-                protected void onException(Exception e){
-                    ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init());
-                }
-            }.execute();
+                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
+                            }
+                    );
         }
 
         startCalenderService();

@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,36 +15,45 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class InitActivity extends AppCompatActivity {
+    private static final String TAG = "InitActivity";
+    private CompositeDisposable disposables;
+
     private void initApp(){
-        new RequestTask<Void>() {
-            @Override
-            protected Void doRequests(){
-                final PfoertnerApplication app = PfoertnerApplication.get(InitActivity.this);
+        final PfoertnerApplication app = PfoertnerApplication.get(InitActivity.this);
 
-                app.init();
+        disposables.add(
+                app
+                    .init()
+                    .subscribe(
+                            () -> InitActivity.this.setContentView(R.layout.activity_init),
+                            throwable -> {
+                                Log.e(TAG, "Could not initialize app.", throwable);
 
-                return null;
-            }
-
-            @Override
-            protected void onSuccess(Void result) {
-                InitActivity.this.setContentView(R.layout.activity_init);
-            }
-
-            @Override
-            protected void onException(Exception e){
-                ErrorInfoDialog.show(InitActivity.this, e.getMessage(), aVoid -> initApp());
-            }
-        }.execute();
+                                ErrorInfoDialog.show(InitActivity.this, throwable.getMessage(), aVoid -> initApp());
+                            }
+                    )
+        );
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (disposables != null) {
+            disposables.dispose();
+        }
+        disposables = new CompositeDisposable();
 
         initApp();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        disposables.dispose();
     }
 
     public void scanQR(View view){
