@@ -15,19 +15,26 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
+import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class MakeAppointment extends AppCompatActivity {
     String TAG = "MakeAppointment";
     private SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
+    private Member member;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_make_appointment);
         TextView title = findViewById(R.id.textView3);
         title.setText("One last step required");
@@ -91,7 +98,7 @@ public class MakeAppointment extends AppCompatActivity {
             @Override
             protected Void doRequests() throws Exception {
                 PfoertnerApplication app = PfoertnerApplication.get(MakeAppointment.this);
-                app.getService().createNewAppointment(getIntent().getIntExtra("MemberId", 0), request);
+                app.getService().createNewAppointment(app.getAuthentication().id,getIntent().getIntExtra("MemberId", 0), request).execute();
                 return null;
             }
 
