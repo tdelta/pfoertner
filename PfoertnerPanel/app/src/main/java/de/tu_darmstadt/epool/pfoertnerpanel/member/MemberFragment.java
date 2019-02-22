@@ -106,7 +106,7 @@ public class MemberFragment extends Fragment {
 
             final TextView personalStatusTextView = getActivity().findViewById(R.id.personalStatusText);
             final ImageView personalStatusImageView = getActivity().findViewById(R.id.personalStatusIcon);
-            final CardView personalStatusCardView = getActivity().findViewById(R.id.personalStatusCard);
+            final CardView personalStatusCardView = getActivity().findViewById(R.id.personalStatus);
 
             personalStatusTextView.setText(status);
             personalStatusImageView.setImageDrawable(statusIcon);

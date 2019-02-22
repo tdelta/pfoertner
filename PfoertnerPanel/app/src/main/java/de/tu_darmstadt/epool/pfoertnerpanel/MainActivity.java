@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +27,15 @@ import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
-import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberListFragment;
+import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
+import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberGrid;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
 
     private LayoutInflater inflater;
     private ViewGroup container;
-    private MemberListFragment memberList;
+    private MemberGrid memberList;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void test(View view){
         Intent intent = new Intent(this, ScheduleAppointment.class);
-        intent.putExtra("MemberId",memberList.getCurrentMember());
+        intent.putExtra("MemberId",((MemberButton) view).getMemberId());
         startActivity(intent);
     }
 
@@ -185,25 +187,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            memberList = new MemberListFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.member_list, memberList);
-            transaction.commit();
-        } else {
-            memberList = (MemberListFragment) getSupportFragmentManager().findFragmentById(R.id.member_list);
-        }
 
         checkForPlayServices();
-
-        inflater =  getLayoutInflater();
-        container = findViewById(R.id.member_list);
 
         setRoom("S101/A1");
         setGlobalStatus("Extended Access");
 
         if (savedInstanceState == null) {
             init();
+            memberList = findViewById(R.id.member_list);
         }
     }
 
