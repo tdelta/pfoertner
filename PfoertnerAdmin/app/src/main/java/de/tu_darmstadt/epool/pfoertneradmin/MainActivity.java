@@ -41,7 +41,6 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Password;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.User;
-import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
@@ -82,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
                 }
             }.execute();
         }
-
-        startCalenderService();
     }
 
     private void initNavigation() {
@@ -292,31 +289,5 @@ public class MainActivity extends AppCompatActivity implements GlobalTextFragmen
     public void startPersonalTextInput(){
         PersonalTextFragment textBox = new PersonalTextFragment();
         textBox.show(getSupportFragmentManager(), "insertTextBox");
-    }
-
-    private void startCalenderService() {
-        try {
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_CALENDAR)
-                    == PackageManager.PERMISSION_GRANTED) {//Checking permission
-                //Starting service for registering ContactObserver
-                Intent intent = new Intent(this, CalendarService.class);
-                startService(intent);
-            } else {
-                //Ask for READ_CALENDAR permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, MY_PERMISSIONS_READ_CALENDAR);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //If permission granted
-        if (requestCode == MY_PERMISSIONS_READ_CALENDAR && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startCalenderService();
-        }
     }
 }

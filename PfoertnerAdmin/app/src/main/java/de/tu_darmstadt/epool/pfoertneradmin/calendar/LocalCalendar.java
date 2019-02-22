@@ -26,14 +26,14 @@ public class LocalCalendar {
     private String id;
     private ContentResolver cr;
 
-    public static LocalCalendar getInstance(Context context,String email){
+    public static LocalCalendar getInstance(Context context){
         if(instance == null){
-            instance = new LocalCalendar(context,email);
+            instance = new LocalCalendar(context);
         }
         return instance;
     }
 
-    public LocalCalendar(Context context,String email){
+    public LocalCalendar(Context context){
         PfoertnerApplication app = PfoertnerApplication.get(context);
         if(!app.getSettings().contains(CALENDAR_ID)) {
             try {
@@ -65,8 +65,7 @@ public class LocalCalendar {
         this.cr = context.getContentResolver();
     }
 
-    public void writeEvent(Date start, Date end) throws SecurityException{
-        Log.d(TAG,"Writing to calendar");
+    public void writeEvent(Date start, Date end, String attendee, String email, String message) throws SecurityException{
         Calendar beginTime = Calendar.getInstance();
         beginTime.setTime(start);
         Calendar endTime = Calendar.getInstance();
@@ -76,8 +75,15 @@ public class LocalCalendar {
         values.put(CalendarContract.Events.DTSTART, beginTime.getTimeInMillis());
         values.put(CalendarContract.Events.DTEND, endTime.getTimeInMillis());
         values.put(CalendarContract.Events.TITLE, "Office Appointment");
+        values.put(CalendarContract.Events.DESCRIPTION,message);
         values.put(CalendarContract.Events.EVENT_TIMEZONE,"Europe/Berlin");
         values.put(CalendarContract.Events.CALENDAR_ID, id);
-        cr.insert(CalendarContract.Events.CONTENT_URI, values);
+        String eventId = cr.insert(CalendarContract.Events.CONTENT_URI, values).getPathSegments().get(1);
+
+        values = new ContentValues();
+        values.put(CalendarContract.Attendees.ATTENDEE_NAME,attendee);
+        values.put(CalendarContract.Attendees.EVENT_ID,eventId);
+        values.put(CalendarContract.Attendees.ATTENDEE_EMAIL,email);
+        cr.insert(CalendarContract.Attendees.CONTENT_URI,values);
     }
 }

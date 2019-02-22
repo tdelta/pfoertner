@@ -54,7 +54,7 @@ public class AppointmentRequest extends AppCompatActivity{
 
     private void writeCalendarWithPermission(Date start, Date end){
         try{
-            LocalCalendar.getInstance(this,"lol").writeEvent(start,end);
+            LocalCalendar.getInstance(this).writeEvent(start,end,"","","");
             finish();
         } catch (SecurityException e){
             // This point in the code should never be reached

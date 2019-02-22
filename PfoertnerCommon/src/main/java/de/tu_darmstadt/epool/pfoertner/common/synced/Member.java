@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
+import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -218,14 +219,26 @@ public class Member extends Observable<MemberObserver> {
     }
 
     public void setAppointmentRequestAccepted(final PfoertnerService service, final Authentication auth, final int appointmentRequestId, final boolean accepted){
-        final MemberData data = memberData.deepCopy();
-        if(accepted) {
-            data.appointmentRequests.get(appointmentRequestId).accepted = true;
+        AppointmentRequest newAppointmentRequest = memberData.appointmentRequests.stream().
+                filter(appointmentRequest -> appointmentRequest.id == appointmentRequestId).findAny().get();
+        if(accepted){
+            newAppointmentRequest.accepted = true;
+            new RequestTask<Void>() {
+                @Override
+                protected Void doRequests() throws IOException{
+                    service.patchAppointment(auth.id,appointmentRequestId,newAppointmentRequest).execute();
+                    return null;
+                }
+            }.execute();
         } else {
-            data.appointmentRequests.remove(appointmentRequestId);
+            new RequestTask<Void>() {
+                @Override
+                protected Void doRequests() throws IOException{
+                    service.removeAppointment(auth.id, newAppointmentRequest.id).execute();
+                    return null;
+                }
+            }.execute();
         }
-
-        upload(service,auth,data);
     }
 
     public void setCalendarId(final SharedPreferences settings, final String newCalendarId){
