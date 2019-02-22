@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
@@ -62,6 +63,14 @@ public class ScheduleAppointment extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        int memberId = getIntent().getIntExtra("MemberId",-1);
+
+        PfoertnerApplication app = PfoertnerApplication.get(this);
+        Optional<Member> memberOptional = app.getOffice().getMemberById(memberId);
+        if(!memberOptional.isPresent()) throw new RuntimeException("An office member has to be selected when opening the appointment activity");
+        appointmentMember = memberOptional.get();
+
         setContentView(R.layout.activity_schedule_appointment);
         now = LocalDateTime.now();
         days = new DayView[12];
@@ -69,17 +78,17 @@ public class ScheduleAppointment extends AppCompatActivity {
         calendarSlots = new ArrayList<LinkedList<String>>(Collections.nCopies(12, new LinkedList<>()));
 
 
-        app = PfoertnerApplication.get(this);
-
-        appointmentMember = app
-                .getOffice()
-                .getMembers()
-                .stream()
-                .filter(member -> member.getCalendarApi() != null && member.getCalendarId() != null)
-                .findAny()
-                .get();
-
-        this.calendarApi = appointmentMember.getCalendarApi();
+//        app = PfoertnerApplication.get(this);
+//
+//        appointmentMember = app
+//                .getOffice()
+//                .getMembers()
+//                .stream()
+//                .filter(member -> member.getCalendarApi() != null && member.getCalendarId() != null)
+//                .findAny()
+//                .get();
+//
+//        this.calendarApi = appointmentMember.getCalendarApi();
 
 //        appointmentMember = app.getOffice().getMembers().get(0);
 ////        for (Member m : app.getOffice().getMembers()){
@@ -90,7 +99,7 @@ public class ScheduleAppointment extends AppCompatActivity {
 ////        }
 //
 //
-//        calendarApi = appointmentMember.getCalendarApi();
+          calendarApi = appointmentMember.getCalendarApi();
         todayTime = new DateTime(System.currentTimeMillis());
         // 86400000 = 1Tag, 14 = 2 Wochen
         endTime = new DateTime(System.currentTimeMillis() + 86400000 *14);
@@ -126,9 +135,9 @@ public class ScheduleAppointment extends AppCompatActivity {
         test.add("16:40 - 17:40");
         test.add("17:40 - 18:40");
 
-        //calendarSlots.set(7, test);
-        //calendarSlots.set(9, test);
-        //calendarSlots.set(11, test);
+        calendarSlots.set(7, test);
+        calendarSlots.set(9, test);
+        calendarSlots.set(11, test);
 
 
 
@@ -152,47 +161,11 @@ public class ScheduleAppointment extends AppCompatActivity {
         days[10] = (DayView) findViewById(R.id.day8);
         days[11] = (DayView) findViewById(R.id.day9);
 
-        switch (now.getDayOfWeek().toString()){
-            case "MONDAY":
-                currentDay = 0;
-                colorDaysForDayViews(currentDay);
-                setDateForDayViews(currentDay,0);
-                break;
-            case "TUESDAY":
-                currentDay = 1;
-                colorDaysForDayViews(currentDay);
-                setDateForDayViews(currentDay,0);
-                break;
-            case "WEDNESDAY":
-                currentDay = 2;
-                colorDaysForDayViews(currentDay);
-                setDateForDayViews(currentDay,0);
-                break;
-            case "THURSDAY":
-                currentDay = 3;
-                setDateForDayViews(currentDay,0);
-                colorDaysForDayViews(currentDay);
-                break;
-            case "FRIDAY":
-                currentDay = 4;
-                setDateForDayViews(currentDay,0);
-                colorDaysForDayViews(currentDay);
-                break;
-            default:
-                colorDaysForDayViews(currentDay);
-                switch (now.getDayOfWeek().toString()){
-                    case "SATURDAY":
-                        currentDay = 0;
-                        setDateForDayViews(currentDay,2);
-                        break;
-                    case "SUNDAY":
-                        currentDay = 0;
-                        setDateForDayViews(currentDay,1);
-                        break;
-                }
-                break;
-        }
-        setEventsForTimeslots(currentDay);
+
+
+        renderDayViews();
+//        setEventsForTimeslots(currentDay);
+
         officeHours = findViewById(R.id.textView4);
     }
 
@@ -257,7 +230,8 @@ public class ScheduleAppointment extends AppCompatActivity {
     private void colorDaysForDayViews(final int start){
         for(int i = 0; i < 12; ++i){
             if (i != 5 && i != 6) {
-                if(calendarSlots.get(i) == null || i < start){
+                Log.d(TAG, "events wurden eingetragen in tabelle " + i + " size : " + calendarSlots.get(i).size());
+                if(calendarSlots.get(i).size() == 0 || i < start){
                     days[i].setBackgroundColor(nothing);
                 }
 
@@ -269,7 +243,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     private void createTimeSlot(final int day){
-        if(calendarSlots.get(day) != null) {
+        if(calendarSlots.get(day).size() != 0) {
             officeHours.setText("Available office hours");
 
             for (final String appointmentTime : calendarSlots.get(day)) {
@@ -318,23 +292,30 @@ public class ScheduleAppointment extends AppCompatActivity {
 
                     switch (startDay.getDayOfWeek().toString()){
                         case "MONDAY":
-                            setTimeSlotCaption(timePassed.toDays(), day, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            Log.d(TAG, "Montag");
+                            setTimeSlotCaption(timePassed.toDays(), 0, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                             break;
                         case "TUESDAY":
-                            setTimeSlotCaption(timePassed.toDays(), day + 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            Log.d(TAG, "dienstag");
+                            setTimeSlotCaption(timePassed.toDays(), 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                             break;
                         case "WEDNESDAY":
-                            setTimeSlotCaption(timePassed.toDays(), day + 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            Log.d(TAG, "mittwoch");
+                            setTimeSlotCaption(timePassed.toDays(), 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                             break;
                         case "THURSDAY":
-                            setTimeSlotCaption(timePassed.toDays(), day + 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            Log.d(TAG, "donnerstag");
+                            setTimeSlotCaption(timePassed.toDays(), 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                             break;
                         case "FRIDAY":
-                            setTimeSlotCaption(timePassed.toDays(), day + 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
+                            Log.d(TAG, "freitag");
+                            setTimeSlotCaption(timePassed.toDays(), 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
                             break;
                         default:
                             break;
                     }
+
+                    renderDayViews();
                 }
             }
 
@@ -346,11 +327,57 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     private void setTimeSlotCaption(float passed, int day, int startHours, int startMinutes, int endHours, int endMinutes){
+        Log.d(TAG, "eingetragen");
         if(passed < day){
             calendarSlots.get(day).add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
         }else{
             calendarSlots.get(day+7).add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
         }
+    }
+
+    private void renderDayViews(){
+        switch (now.getDayOfWeek().toString()){
+            case "MONDAY":
+                currentDay = 0;
+                colorDaysForDayViews(currentDay);
+                setDateForDayViews(currentDay,0);
+                break;
+            case "TUESDAY":
+                currentDay = 1;
+                colorDaysForDayViews(currentDay);
+                setDateForDayViews(currentDay,0);
+                break;
+            case "WEDNESDAY":
+                currentDay = 2;
+                colorDaysForDayViews(currentDay);
+                setDateForDayViews(currentDay,0);
+                break;
+            case "THURSDAY":
+                currentDay = 3;
+                setDateForDayViews(currentDay,0);
+                colorDaysForDayViews(currentDay);
+                break;
+            case "FRIDAY":
+                currentDay = 4;
+                setDateForDayViews(currentDay,0);
+                colorDaysForDayViews(currentDay);
+                break;
+            default:
+                colorDaysForDayViews(currentDay);
+                switch (now.getDayOfWeek().toString()){
+                    case "SATURDAY":
+                        currentDay = 0;
+                        setDateForDayViews(currentDay,2);
+                        break;
+                    case "SUNDAY":
+                        currentDay = 0;
+                        setDateForDayViews(currentDay,1);
+                        break;
+                }
+                break;
+        }
+
+
     }
 
     public void gotoMakeAppointment(View view, String time, int day) {
@@ -359,7 +386,7 @@ public class ScheduleAppointment extends AppCompatActivity {
         intent.putExtra("Day", selectedDay.getDayOfMonth());
         intent.putExtra("Month", selectedDay.getMonthValue());
         intent.putExtra("Year", selectedDay.getYear());
-        intent.putExtra("MemberId", 0);//TODO: 0 hardcoded
+        intent.putExtra("MemberId", appointmentMember.getId());
 
         // yyyy-MM-dd HH:mm
         startActivity(intent);
