@@ -24,12 +24,16 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.AsyncSubject;
 import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class PfoertnerApplication extends Application {
     private static final String TAG = "PfoertnerApplication";
+
+    private CompletableSubject isInitializedSubject = CompletableSubject.create();
 
     private SharedPreferences preferences;
     private Password password;
@@ -98,6 +102,7 @@ public class PfoertnerApplication extends Application {
                                         onInit();
 
                                         this.hadBeenInitialized = true;
+                                        this.isInitializedSubject.onComplete();
                                     }
                             )
                             .doOnError(
@@ -202,5 +207,9 @@ public class PfoertnerApplication extends Application {
         checkInitStatus();
 
         return repo;
+    }
+
+    public CompletableSubject watchInitialization() {
+        return this.isInitializedSubject;
     }
 }

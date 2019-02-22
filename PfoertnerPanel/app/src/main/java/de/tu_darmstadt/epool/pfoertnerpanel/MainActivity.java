@@ -30,9 +30,12 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = "MainActivity";
+    private final String TAG = "PfoertnerPanelMainActivity";
+
+    private CompositeDisposable disposables;
 
     private LayoutInflater inflater;
     private ViewGroup container;
@@ -42,28 +45,24 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
-        new RequestTask<Void>() {
-            @Override
-            protected Void doRequests() {
-                app.init();
+        disposables.add(
+            app
+                    .init()
+                    .subscribe(
+                            () -> {
+                                MainActivity.this.startService(
+                                        new Intent(MainActivity.this, SyncService.class)
+                                );
 
-                return null;
-            }
+                                initOffice();
+                            },
+                            throwable -> {
+                                Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
 
-            @Override
-            protected void onSuccess(Void result) {
-                MainActivity.this.startService(
-                        new Intent(MainActivity.this, SyncService.class)
-                );
-
-                initOffice();
-            }
-
-            @Override
-            protected void onException(Exception e) {
-                ErrorInfoDialog.show(MainActivity.this, e.getMessage(), aVoid -> init());
-            }
-        }.execute();
+                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
+                            }
+                    )
+        );
     }
 
     @Override
@@ -74,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+
+        disposables.dispose();
     }
 
     @Override
@@ -193,6 +194,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         checkForPlayServices();
+
+        if (disposables != null) {
+            disposables.dispose();
+        }
+
+        disposables = new CompositeDisposable();
 
         inflater = getLayoutInflater();
         container = findViewById(R.id.member_insert);

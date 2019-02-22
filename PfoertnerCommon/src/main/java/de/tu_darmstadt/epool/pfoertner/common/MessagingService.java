@@ -9,68 +9,74 @@ import com.google.gson.Gson;
 import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";
     private EventChannel eventChannel;
 
-    private RequestTask<Void> initTask =
-            new RequestTask<Void>() {
-                @Override
-                protected Void doRequests() {
-                    // TODO: Race conditions mit Main?
-                    final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
-
-                    app.init();
-
-                    return null;
-                }
-
-                @Override
-                protected void onException(Exception e) {
-                    Log.d(TAG, "Failed to initialize app. Server might be unreachable. Will retry.");
-                    e.printStackTrace();
-
-                    // Maybe slow down retries..?
-                    init();
-                }
-            };
+    private CompositeDisposable disposables;
 
     private void registerToken(final String token) {
         Log.d(TAG,"About to upload new token.");
 
-        initTask.whenDone(aVoid -> {
-            new RequestTask<Void>() {
-                @Override
-                protected Void doRequests() {
-                    // TODO: Race conditions mit Main?
-                    final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
+        final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
 
-                    try {
-                        app.getService()
-                                .setFcmToken(app.getAuthentication().id, app.getDevice().id, new FcmTokenCreationData(token))
-                                .execute();
-                    }
+        disposables.add(
+                app
+                        .watchInitialization()
+                        .retry()
+                        .subscribe(
+                                () -> {
+                                    // TODO Redo with rxjava and enable retry
+                                    new RequestTask<Void>() {
+                                        @Override
+                                        protected Void doRequests() {
+                                            // TODO: Race conditions mit Main?
+                                            final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
 
-                    catch (final IOException e) {
-                        Log.e(TAG, "Could not upload the FCM token", e);
+                                            try {
+                                                app.getService()
+                                                        .setFcmToken(app.getAuthentication().id, app.getDevice().id, new FcmTokenCreationData(token))
+                                                        .execute();
+                                            }
 
-                        throw new RuntimeException("Could not upload the FCM token");
-                    }
+                                            catch (final IOException e) {
+                                                Log.e(TAG, "Could not upload the FCM token", e);
 
-                    return null;
-                }
+                                                throw new RuntimeException("Could not upload the FCM token");
+                                            }
 
-                //TODO, was tun bei onException?
-            }.execute();
+                                            return null;
+                                        }
 
-            Log.d(TAG,"Uploaded new token.");
-        });
+                                        //TODO, was tun bei onException?
+                                    }.execute();
+
+                                    Log.d(TAG,"Uploaded new token.");
+                                },
+                                throwable -> {
+                                    Log.e(TAG, "Could not register token, since app initialization failed. Will retry.", throwable);
+                                }
+                        )
+        );
     }
 
     private void init() {
-        this.initTask.whenDone(
-                aVoid -> this.initTask.execute()
+        final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
+
+        disposables.add(
+                app
+                        .init()
+                        .subscribe(
+                                () -> {},
+                                throwable -> {
+                                    Log.e(TAG, "Failed to initialize app. Server might be unreachable. Will retry.", throwable);
+
+                                    // Maybe slow down retries..?
+                                    init();
+                                }
+                        )
         );
     }
 
@@ -79,7 +85,20 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Messaging service startet.");
         eventChannel = new EventChannel(this);
 
+        if (disposables != null) {
+            disposables.dispose();
+        }
+
+        disposables = new CompositeDisposable();
+
         init();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        disposables.dispose();
     }
 
     @Override
