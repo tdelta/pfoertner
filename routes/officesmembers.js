@@ -233,7 +233,8 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
         firebase.sendNotification(
           device.fcmToken,
           'New Appointment request',
-          'From ' + start + ' to ' + end,
+          start.split(' ')[0]', from ' + start.split(' ')[1] + ' to ' + end.split(' ')[1],
+          'AppointmentRequests',
           [
             {
               title: 'Accept',
