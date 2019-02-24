@@ -244,7 +244,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
               intent: 'DeclineAppointmentRequest',
             },
           ],
-          req.body
+          appointment
         );
         officemember.getOffice().then(office => {
           notifyOfficeSubscribers(
