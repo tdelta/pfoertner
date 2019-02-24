@@ -74,7 +74,7 @@ router.patch('/:id/picture', (req, res) => {
           console.log('Das Officemember' + officemember);
           officemember
             .update({
-              picture: '/uploads/' + req.params.id + '.jpg',
+              picture: 'http://deh.duckdns.org:3000/officemembers/' + req.params.id + '/picture',
               pictureMD5: hash,
             })
             .then(() => {
