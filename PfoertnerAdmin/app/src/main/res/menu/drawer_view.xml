@@ -13,5 +13,9 @@
             android:icon="@drawable/ic_person_black_24dp"
             android:id="@+id/editProfile"
             android:title="Edit profile" />
+        <item
+            android:icon="@drawable/ic_person_black_24dp"
+            android:id="@+id/spion"
+            android:title="Spion" />
     </group>
 </menu>
