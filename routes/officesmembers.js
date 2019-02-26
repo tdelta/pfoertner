@@ -9,7 +9,6 @@ var firebase = require('../firebase/firebase.js');
 var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 
-var authenticateOwner = require('../deviceAuth.js').authenticateOwner;
 var authenticatePanelOrOwner = require('../deviceAuth.js')
   .authenticatePanelOrOwner;
 
@@ -163,7 +162,7 @@ router.patch('/:id', auth.authFun(), (req, res) => {
   const officeMemberId = parseInt(req.params.id, 10);
   console.log('Patching officemember');
 
-  authenticateOwner(req, res, req.params.id).then(() => {
+  authenticatePanelOrOwner(req, res, req.params.id).then(() => {
     models.OfficeMember.findById(officeMemberId).then(officemember => {
       // Only server should set the id
       delete req.body.id;
