@@ -11,6 +11,7 @@ import android.arch.persistence.room.Update;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
@@ -34,6 +35,9 @@ public abstract class MemberDao {
 
     @Query("SELECT * FROM MemberEntity WHERE id = :memberId")
     public abstract LiveData<MemberEntity> load(int memberId);
+
+    @Query("SELECT * FROM MemberEntity WHERE id = :memberId")
+    public abstract Flowable<MemberEntity> loadFlowable(int memberId);
 
     @Query("SELECT * FROM MemberEntity WHERE id = :memberId")
     public abstract Single<MemberEntity> loadOnce(int memberId);

@@ -84,7 +84,7 @@ public class ScheduleAppointment extends AppCompatActivity {
 //        appointmentMember = app.getOffice().getMembers().get(0);
 ////        for (Member m : app.getOffice().getMembers()){
 ////
-////            if(m.getId() == 0){// TODO: 0 => platzhalter
+////            if(m.getMemberId() == 0){// TODO: 0 => platzhalter
 ////                 appointmentMember = m;
 ////            }
 ////        }

@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication"
+        android:name=".PanelApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_pfoertnerpanel"
         android:label="@string/app_name"
@@ -49,6 +49,7 @@
             </intent-filter>
         </service>
         <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
+        <service android:enabled="true" android:name=".services.MemberCalendarInfoService" />
         <activity android:name=".Appointment"
             android:screenOrientation="landscape"></activity>
     </application>
