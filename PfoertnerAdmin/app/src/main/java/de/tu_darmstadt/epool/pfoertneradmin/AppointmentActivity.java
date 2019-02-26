@@ -2,7 +2,6 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,13 +18,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
-import java.util.List;
-
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
 public class AppointmentActivity extends AppCompatActivity{
@@ -36,13 +29,6 @@ public class AppointmentActivity extends AppCompatActivity{
 
     private AdminApplication app;
     private ViewGroup root;
-    private Member member;
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        member.deleteObserver(memberObserver);
-    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState){
@@ -51,20 +37,13 @@ public class AppointmentActivity extends AppCompatActivity{
         setContentView(R.layout.activity_appointment);
 
         app = AdminApplication.get(this);
-        root = findViewById(R.id.layout);
+        root = findViewById(R.id.appointment_layout);
 
-        try {
-            member = app.getOffice().getMemberById(app.getMemberId()).orElseThrow(() -> new RuntimeException("The app needs to be initialized first"));
-        } catch (Throwable e){
-            throw new RuntimeException(e.getMessage());
-        }
-
-        if(member.getServerAuthCode() == null) {
-            buildUI(false);
-        } else {
-            buildUI(true);
-        }
-        member.addObserver(memberObserver);
+        app
+                .getRepo()
+                .getMemberRepo()
+                .getMember(app.getMemberId())
+                .observe(this, this::reactToMemberChange);
     }
 
     private void cancelNotifications(){
@@ -74,48 +53,69 @@ public class AppointmentActivity extends AppCompatActivity{
         }
     }
 
-    private void buildUI(boolean calendarCreated){
-        LinearLayout topCard = root.findViewById(R.id.top_card);
-        topCard.removeAllViews();
-        Log.d(TAG,"Server auth code: "+member.getServerAuthCode());
+    private void buildUI(final Member member, boolean calendarCreated){
+        final LinearLayout topCard = root.findViewById(R.id.top_card);
+        // TODO: topCard seems sometimes not to exist
 
+        topCard.removeAllViews();
+        Log.d(TAG,"Server auth code: " + member.getServerAuthCode());
+
+        final View newContent;
         if(member.getServerAuthCode() != null){
-            final View calendarName = getLayoutInflater().inflate(R.layout.text_card,topCard);
+            final View calendarName = getLayoutInflater().inflate(R.layout.text_card, topCard, false);
             calendarName.setId(CALENDAR_NAME_ID);
-            TextView text = calendarName.findViewById(R.id.text);
+
+            final TextView text = calendarName.findViewById(R.id.text);
+
             if(calendarCreated) {
                 text.setText("To display your office hours at the door panel, please enter them into the calendar \"Office hours\"");
             } else {
                 text.setText("Waiting for the door panel to authenticate ...");
             }
 
-        } else {
-            final View signInView = getLayoutInflater().inflate(R.layout.sign_in_card,topCard);
-            signInView.findViewById(R.id.google_signin_button).setOnClickListener((view) -> connectGoogleCalendar());
+            newContent = calendarName;
         }
-        final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-        appointments.showAppointmentRequests(member.getAppointmentRequests());
+
+        else {
+            final View signInView = getLayoutInflater().inflate(R.layout.sign_in_card, topCard, false);
+            signInView.findViewById(R.id.google_signin_button).setOnClickListener((view) -> connectGoogleCalendar());
+
+            newContent = signInView;
+        }
+
+        topCard.addView(newContent);
+
+        // TODO appointments
+        // final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
+        // appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
 
-    MemberObserver memberObserver = new MemberObserver() {
-        @Override
-        public void onCalendarCreated() {
-            Helpers.requestCalendarsSync(AppointmentActivity.this,member.getEmail());
-            buildUI(true);
+    private void reactToMemberChange(final Member member) {
+        if (member != null) {
+            if (member.getCalendarId() != null) {
+                Helpers.requestCalendarsSync(this, "TODO: EMail");
+
+                buildUI(member, true);
+            }
+
+            else {
+                Log.d(TAG,"Though a member is present, there is no calendar id set yet, so we cant show any appointments.");
+
+                buildUI(member, false);
+            }
+
+            // TODO: Handle appointment requests
+            //@Override
+            //public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
+            //    final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
+            //    appointments.showAppointmentRequests(appointmentRequests);
+            //}
         }
 
-        @Override
-        public void onServerAuthCodeChanged(String newServerAuthCode){
-            Log.d(TAG,"onServerAuthCodeChanged");
-            buildUI(false);
+        else {
+            Log.d(TAG, "Member is not (yet) set, so we can not access calendar information or appointments.");
         }
-
-        @Override
-        public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
-            final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-            appointments.showAppointmentRequests(appointmentRequests);
-        }
-    };
+    }
 
     public void connectGoogleCalendar(){
         Log.d(TAG, "Trying to connect google calendar...");
@@ -132,22 +132,27 @@ public class AppointmentActivity extends AppCompatActivity{
     }
 
     @Override
+    @SuppressWarnings("CheckResult")
     protected void onActivityResult(final int requestCode,final int resultCode,final Intent data){
         if(requestCode==CONNECT_GOOGLE_CALENDAR){
             Log.d(TAG, "Google calendar oauth connection task finished.");
 
             final Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+
             try{
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
                 final String authCode = account.getServerAuthCode();
                 final String email = account.getEmail();
 
                 // Send the auth code to the server
-                PfoertnerService service = app.getService();
-                Authentication auth = app.getAuthentication();
-                SharedPreferences settings = app.getSettings();
-                member.setServerAuthCode(service,auth,authCode);
-                member.setEmail(settings,email);
+                app
+                        .getRepo()
+                        .getMemberRepo()
+                        .setServerAuthCode(app.getMemberId(), authCode, email)
+                        .subscribe(
+                                () -> Log.d(TAG, "Successfully set new server auth code."),
+                                throwable -> Log.e(TAG, "Failed to set new server auth code", throwable)
+                        );
             }
 
             catch (final Exception e) {

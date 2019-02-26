@@ -82,14 +82,14 @@ public class InitializationActivity extends AppCompatActivity {
                             throwable -> {
                                 Log.e(TAG, "Failed to create an office. Asking the user to retry...", throwable);
 
-                                ErrorInfoDialog.show(context, throwable.getMessage(), aVoid -> initPanel(context, closeSplashScreen));
+                                ErrorInfoDialog.show(context, throwable.getMessage(), aVoid -> initPanel(context, closeSplashScreen), false);
                             }
                     );
             }
 
             @Override
             protected void onException(final Exception e) {
-                ErrorInfoDialog.show(context, e.getMessage(), aVoid -> initPanel(context, closeSplashScreen));
+                ErrorInfoDialog.show(context, e.getMessage(), aVoid -> initPanel(context, closeSplashScreen), false);
             }
         };
 

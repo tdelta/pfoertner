@@ -60,7 +60,4 @@ public interface PfoertnerApi {
 
     @PATCH("/offices/{id}")
     Single<OfficeEntity> patchOffice(@Header("Authorization") String authToken,@Path("id") int id, @Body OfficeEntity office);
-
-    @PATCH("officemembers/{id}/calendar")
-    Completable createdCalendar(@Header("Authorization") String authToken, @Path("id") int id);
 }

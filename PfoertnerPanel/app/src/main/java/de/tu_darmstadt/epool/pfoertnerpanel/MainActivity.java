@@ -31,14 +31,13 @@ import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = "PfoertnerPanelMainActivity";
-
-    private CompositeDisposable disposables;
+    private final String TAG = "PfoertnerPanelMain";
 
     private LayoutInflater inflater;
     private ViewGroup container;
-    private MemberGrid memberList;
+    private CompositeDisposable disposables;
 
+    private MemberGrid memberList;
     private OfficeViewModel viewModel;
 
     private void init() {
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                             throwable -> {
                                 Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
 
-                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
+                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init(), false);
                             }
                     )
         );
@@ -136,29 +135,9 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel.getOfficeMembers(app.getOffice().getId()).observe(this, members -> {
            if(members != null) {
-
                memberList.setMembers(members);
            }
         });
-
-
-        // Altes system
-//        app.getOffice().addObserver(new OfficeObserver() {
-//            @Override
-//            public void onStatusChanged(final String newStatus) {
-//                setGlobalStatus(newStatus);
-//            }
-//
-//            @Override
-//            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
-//                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
-//
-//                registerForMemberChanges(newMembers);
-//
-//                updateMembers();
-//                // TODO: Members einzaln updaten
-//            }
-//        });
     }
 
     public void test(View view){

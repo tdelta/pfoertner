@@ -16,12 +16,16 @@ public class MemberEntity implements Member {
     public MemberEntity() {}
 
     @Ignore
-    public MemberEntity(int id, int officeId, String firstName, String lastName, String status) {
+    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String serverAuthCode, String calendarId) {
         this.id = id;
         this.OfficeId = officeId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.status = status;
+        this.picture = picture;
+        this.pictureMD5 = pictureMD5;
+        this.serverAuthCode = serverAuthCode;
+        this.calendarId = calendarId;
     }
 
     @PrimaryKey
@@ -29,12 +33,14 @@ public class MemberEntity implements Member {
 
     private int OfficeId;
 
+    // IMPORTANT: When updating these, dont forget to update the constructor!
     private String firstName;
     private String lastName;
     private String status;
     private String picture;
     private String pictureMD5;
     private String serverAuthCode;
+    private String calendarId;
 
     public void setId(int id) {
         this.id = id;
@@ -61,6 +67,8 @@ public class MemberEntity implements Member {
     public void setPictureMD5(String hash) { this.pictureMD5 = hash; }
 
     public void setServerAuthCode(String authCode) { this.serverAuthCode = authCode; }
+
+    public void setCalendarId(String calendarId) { this.calendarId = calendarId; }
 
     @Override
     public int getId() {
@@ -95,4 +103,7 @@ public class MemberEntity implements Member {
 
     @Override
     public String getServerAuthCode() { return serverAuthCode; }
+
+    @Override
+    public String getCalendarId() { return calendarId; }
 }

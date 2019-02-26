@@ -16,7 +16,6 @@ public class OfficeViewModel extends AndroidViewModel {
 
     private LiveData<? extends Office> office;
     private PfoertnerRepository repo;
-    //private LiveData<List<MemberEntity>> officemembers;
 
     public OfficeViewModel(final Application app){
 
@@ -40,7 +39,9 @@ public class OfficeViewModel extends AndroidViewModel {
     }
 
 
-    public LiveData<List<MemberEntity>> getOfficeMembers(final int officeId){
-        return repo.getMemberRepo().getMembersFromOffice(officeId);
+    public LiveData<List<Member>> getOfficeMembers(final int officeId){
+        return repo
+                .getMemberRepo()
+                .getMembersFromOffice(officeId);
     }
 }
