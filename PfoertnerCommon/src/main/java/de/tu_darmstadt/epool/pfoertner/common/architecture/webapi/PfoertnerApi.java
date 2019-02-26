@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import okhttp3.OkHttpClient;
@@ -54,4 +55,7 @@ public interface PfoertnerApi {
 
     @PATCH("/offices/{id}")
     Single<OfficeEntity> patchOffice(@Header("Authorization") String authToken,@Path("id") int id, @Body OfficeEntity office);
+
+    @PATCH("officemembers/{id}/calendar")
+    Completable createdCalendar(@Header("Authorization") String authToken, @Path("id") int id);
 }

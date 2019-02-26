@@ -34,6 +34,7 @@ public class MemberEntity implements Member {
     private String status;
     private String picture;
     private String pictureMD5;
+    private String serverAuthCode;
 
     public void setId(int id) {
         this.id = id;
@@ -58,6 +59,8 @@ public class MemberEntity implements Member {
     public void setPicture(String path) { this.picture = path; }
 
     public void setPictureMD5(String hash) { this.pictureMD5 = hash; }
+
+    public void setServerAuthCode(String authCode) { this.serverAuthCode = authCode; }
 
     @Override
     public int getId() {
@@ -90,4 +93,6 @@ public class MemberEntity implements Member {
     @Override
     public String getPictureMD5() { return pictureMD5; }
 
+    @Override
+    public String getServerAuthCode() { return serverAuthCode; }
 }

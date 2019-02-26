@@ -24,7 +24,7 @@ public class MessagingService extends FirebaseMessagingService {
 
         disposables.add(
                 app
-                        .watchInitialization()
+                        .observeInitialization()
                         .retry()
                         .subscribe(
                                 () -> {

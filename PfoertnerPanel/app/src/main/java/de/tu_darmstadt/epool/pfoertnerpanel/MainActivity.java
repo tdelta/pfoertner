@@ -30,6 +30,7 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
@@ -52,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
                             () -> {
                                 MainActivity.this.startService(
                                         new Intent(MainActivity.this, SyncService.class)
+                                );
+
+                                MainActivity.this.startService(
+                                        new Intent(MainActivity.this, MemberCalendarInfoService.class)
                                 );
 
                                 initOffice();
@@ -175,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
             member.addObserver(observer);
 
-            member.setCalendarApi(new CalendarApi(member,this));
+            //member.setCalendarApi(new CalendarApi(member,this));
         }
     }
 

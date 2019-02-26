@@ -4,12 +4,16 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -32,6 +36,18 @@ public class MemberRepository {
         refreshMember(memberId);
 
         return db.memberDao().load(memberId);
+    }
+
+    public Flowable<? extends Member> getMemberFlowable(final int memberId) {
+        refreshMember(memberId);
+
+        return db.memberDao().loadFlowable(memberId);
+    }
+
+    public LiveData<? extends List<? extends Member>> getMembersByOffice(final int officeId) {
+        // TODO
+
+        return null;
     }
 
     @SuppressLint("CheckResult")
