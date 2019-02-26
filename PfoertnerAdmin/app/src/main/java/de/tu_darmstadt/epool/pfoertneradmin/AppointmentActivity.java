@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -41,8 +42,15 @@ public class AppointmentActivity extends AppCompatActivity{
     private Member member;
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        member.deleteObserver(memberObserver);
+    }
+
+    @Override
     public void onCreate(final Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        cancelNotifications();
         setContentView(R.layout.activity_appointment);
 
         app = AdminApplication.get(this);
@@ -59,25 +67,14 @@ public class AppointmentActivity extends AppCompatActivity{
         } else {
             buildUI(true);
         }
-        member.addObserver(new MemberObserver() {
-            @Override
-            public void onCalendarCreated() {
-                Helpers.requestCalendarsSync(AppointmentActivity.this,member.getEmail());
-                buildUI(true);
-            }
+        member.addObserver(memberObserver);
+    }
 
-            @Override
-            public void onServerAuthCodeChanged(String newServerAuthCode){
-                Log.d(TAG,"onServerAuthCodeChanged");
-                buildUI(false);
-            }
-
-            @Override
-            public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
-                final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-                appointments.showAppointmentRequests(appointmentRequests);
-            }
-        });
+    private void cancelNotifications(){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if(notificationManager!=null) {
+            notificationManager.cancelAll();
+        }
     }
 
     private void buildUI(boolean calendarCreated){
@@ -102,6 +99,26 @@ public class AppointmentActivity extends AppCompatActivity{
         final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
         appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
+
+    MemberObserver memberObserver = new MemberObserver() {
+        @Override
+        public void onCalendarCreated() {
+            Helpers.requestCalendarsSync(AppointmentActivity.this,member.getEmail());
+            buildUI(true);
+        }
+
+        @Override
+        public void onServerAuthCodeChanged(String newServerAuthCode){
+            Log.d(TAG,"onServerAuthCodeChanged");
+            buildUI(false);
+        }
+
+        @Override
+        public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
+            final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
+            appointments.showAppointmentRequests(appointmentRequests);
+        }
+    };
 
     public void connectGoogleCalendar(){
         final String serverClientId = getString(R.string.server_client_id);
@@ -130,7 +147,6 @@ public class AppointmentActivity extends AppCompatActivity{
                 SharedPreferences settings = app.getSettings();
                 member.setServerAuthCode(service,auth,authCode);
                 member.setEmail(settings,email);
-
 
             } catch (final Exception e) {
                 Log.d(TAG,"could not sign in");

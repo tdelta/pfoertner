@@ -3,8 +3,11 @@ package de.tu_darmstadt.epool.pfoertner.common;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -20,6 +23,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import PfoertnerCommon.R;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
 
 public class MessagingService extends FirebaseMessagingService {
@@ -108,7 +112,7 @@ public class MessagingService extends FirebaseMessagingService {
 
         if(remoteMessage.getData().containsKey("notification")){
             Log.d(TAG,"Building a notification");
-            displayNotification(remoteMessage.getData().get("notification"));
+            NotificationHelper.displayNotification(remoteMessage.getData().get("notification"),this);
         }
 
         else if (remoteMessage.getData().containsKey("event")) {
@@ -138,44 +142,5 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Refreshed token: " + token);
 
         registerToken(token);
-    }
-
-    public void displayNotification(String notificationContent){
-        try {
-            JSONObject notificationJson = new JSONObject(notificationContent);
-            String title = notificationJson.getString("title");
-            String body  = notificationJson.getString("body");
-
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(),"appointments")
-                    .setSmallIcon(R.drawable.common_full_open_on_phone)
-                    .setContentTitle(title)
-                    .setContentText(body);
-
-            JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
-            if(buttonsJson != null){
-                for(int i = 0;i < buttonsJson.length();i++){
-                    String buttonText = buttonsJson.getJSONObject(i).getString("title");
-                    String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
-
-                    Intent buttonIntent = new Intent(intentUrl);
-                    buttonIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    buttonIntent.putExtra("data",notificationJson.optString("data"));
-                    PendingIntent pendingIntent = PendingIntent.getActivity(
-                        getApplicationContext(),
-                        i,
-                        buttonIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
-                    NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
-                    notificationBuilder.addAction(action);
-                }
-            }
-
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(0, notificationBuilder.build());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.d(TAG,"Could not parse JSON payload of notification");
-        }
     }
 }

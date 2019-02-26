@@ -31,6 +31,7 @@ public class AppointmentRequestList extends Fragment{
     private static int WRITE_CALENDAR_PERMISSION_REQUEST = 0;
 
     private AppointmentRequest appointmentRequestToWrite;
+    private String emailToWrite;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState){
@@ -92,9 +93,11 @@ public class AppointmentRequestList extends Fragment{
                 Member member = app.getOffice().getMemberById(app.getMemberId())
                         .orElseThrow(() -> new RuntimeException("Cant accept an appointment when no Office Member is registered"));
                 member.setAppointmentRequestAccepted(app.getService(),app.getAuthentication(),appointmentRequest.id,accept);
+                String email = member.getEmail();
                 if(accept){
                     writeCalendarEvent(
-                            appointmentRequest
+                            appointmentRequest,
+                            email
                     );
                 }
             } catch (Throwable e){
@@ -102,9 +105,9 @@ public class AppointmentRequestList extends Fragment{
             }
         }
     }
-    private void writeCalendarWithPermission(AppointmentRequest appointmentRequest){
+    private void writeCalendarWithPermission(AppointmentRequest appointmentRequest,String email){
         try{
-            LocalCalendar.getInstance(getContext()).writeEvent(
+            LocalCalendar.getInstance(getContext(),email).writeEvent(
                     appointmentRequest.start,
                     appointmentRequest.end,
                     appointmentRequest.name,
@@ -113,19 +116,21 @@ public class AppointmentRequestList extends Fragment{
             );
         } catch (SecurityException e){
             // This point in the code should never be reached
-            ErrorInfoDialog.show(getContext(), "You have to grant the permission to write into the calendar", aVoid ->writeCalendarEvent(appointmentRequest));
+            ErrorInfoDialog.show(getContext(), "You have to grant the permission to write into the calendar", aVoid ->writeCalendarEvent(appointmentRequest,email),true);
         }
     }
 
-    private void writeCalendarEvent(AppointmentRequest appointmentRequest){
+    private void writeCalendarEvent(AppointmentRequest appointmentRequest,String email){
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED){
             requestPermissions(
-                    new String[]{Manifest.permission.WRITE_CALENDAR},
+                    new String[]{Manifest.permission.WRITE_CALENDAR,
+                            Manifest.permission.READ_CALENDAR},
                     WRITE_CALENDAR_PERMISSION_REQUEST);
             this.appointmentRequestToWrite = appointmentRequest;
+            this.emailToWrite = email;
         } else {
-            writeCalendarWithPermission(appointmentRequest);
+            writeCalendarWithPermission(appointmentRequest,email);
         }
     }
 
@@ -135,12 +140,12 @@ public class AppointmentRequestList extends Fragment{
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (appointmentRequestToWrite != null) {
-                    writeCalendarWithPermission(appointmentRequestToWrite);
+                    writeCalendarWithPermission(appointmentRequestToWrite,emailToWrite);
                     appointmentRequestToWrite = null;
                 }
             } else if (appointmentRequestToWrite != null) {
                 // The permission was not granted, but the user requested writing into the calendar
-                ErrorInfoDialog.show(getContext(), "You have to grant the permission to write into the calendar", aVoid -> writeCalendarEvent(appointmentRequestToWrite));
+                ErrorInfoDialog.show(getContext(), "You have to grant the permission to write into the calendar", aVoid -> writeCalendarEvent(appointmentRequestToWrite,emailToWrite),true);
             }
         }
     }

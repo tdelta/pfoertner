@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.content.Context;
+import android.content.Intent;
 
 import java.util.Optional;
 
@@ -17,6 +18,8 @@ public class AdminApplication extends PfoertnerApplication {
                     getSettings()
             ));
         }
+
+        startService(new Intent(this,ProcessAppointmentRequest.class));
     }
 
     public void setMemberId(final int id) {
