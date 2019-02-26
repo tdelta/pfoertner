@@ -165,10 +165,13 @@ router.get('/:officeId/members', auth.authFun(), (req, res) => {
           ) {
             // Add appointment requests to officemember data, send the result, when all promises are fulfilled
             let promises = [];
-            let officeMemberData = []
-            officeMembers.map(
-              member => promises.push(models.OfficeMember.includeAppointmentRequests(member)
-                .then(data => officeMemberData.push(data)))
+            let officeMemberData = [];
+            officeMembers.map(member =>
+              promises.push(
+                models.OfficeMember.includeAppointmentRequests(member).then(
+                  data => officeMemberData.push(data)
+                )
+              )
             );
             Promise.all(promises).then(() => {
               res.status(200).send(officeMemberData);

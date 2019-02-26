@@ -18,7 +18,7 @@ var OfficeMember = db.sequelize.define('OfficeMember', {
   appointmentRequests: Sequelize.VIRTUAL,
 });
 
-OfficeMember.includeAppointmentRequests = function(member){
+OfficeMember.includeAppointmentRequests = function(member) {
   return member.getAppointmentRequests().then(appointmentRequests => {
     member.appointmentRequests = appointmentRequests;
     return member;

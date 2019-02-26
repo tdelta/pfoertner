@@ -10,7 +10,8 @@ var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 
 var authenticateOwner = require('../deviceAuth.js').authenticateOwner;
-var authenticatePanelOrOwner = require('../deviceAuth.js').authenticatePanelOrOwner;
+var authenticatePanelOrOwner = require('../deviceAuth.js')
+  .authenticatePanelOrOwner;
 
 var auth = require('../authInit.js');
 
@@ -43,15 +44,15 @@ router.get('/:id/office', (req, res) =>
  * Returns the officemember with the given id, if the panel
  * or the admin is authenticated.
  */
-router.get('/:id', auth.authFun(), (req,res) => {
-  authenticatePanelOrOwner(req,res).then(officemember => {
-    models.OfficeMember.includeAppointmentRequests(officemember).then(officemember => {
-      
-      res.status(200).send(officemember);
-    });
+router.get('/:id', auth.authFun(), (req, res) => {
+  authenticatePanelOrOwner(req, res).then(officemember => {
+    models.OfficeMember.includeAppointmentRequests(officemember).then(
+      officemember => {
+        res.status(200).send(officemember);
+      }
+    );
   });
 });
-
 
 /**
  * ENDPOINT: PATCH /officemembers/:id/picture
@@ -74,7 +75,10 @@ router.patch('/:id/picture', (req, res) => {
           console.log('Das Officemember' + officemember);
           officemember
             .update({
-              picture: 'http://deh.duckdns.org:3000/officemembers/' + req.params.id + '/picture',
+              picture:
+                'http://deh.duckdns.org:3000/officemembers/' +
+                req.params.id +
+                '/picture',
               pictureMD5: hash,
             })
             .then(() => {
@@ -233,7 +237,11 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
         firebase.sendNotification(
           device.fcmToken,
           'New Appointment request',
-          start.split(' ')[0] + ', from ' + start.split(' ')[1] + ' to ' + end.split(' ')[1],
+          start.split(' ')[0] +
+            ', from ' +
+            start.split(' ')[1] +
+            ' to ' +
+            end.split(' ')[1],
           'AppointmentActivity',
           [
             {

@@ -28,13 +28,17 @@ exports.authenticatePanelOrOwner = function(req, res) {
             // The office of the requested office member matches the office id
             // of the requesting device (the panel)
             response(member);
-          } else if (member.DeviceId == req.user.id){
-            // The office member belongs to the calling device (the admin app)
-            response(member);
           } else {
-            res
-              .status('401')
-              .send('You are not allowed to access this office member');
+            req.user.getOfficeMember().then(officeMember => {
+              if (officeMember.OfficeId === office.id) {
+                // The requesting device is also member in the office the requested office member belongs to
+                response(member);
+              } else {
+                res
+                  .status('401')
+                  .send('You are not allowed to access this office member');
+              }
+            });
           }
         });
       }
@@ -42,8 +46,11 @@ exports.authenticatePanelOrOwner = function(req, res) {
   });
 };
 
-
-exports.authenticateOwner = function authenticateOwner(req, res, officememberIdParam) {
+exports.authenticateOwner = function authenticateOwner(
+  req,
+  res,
+  officememberIdParam
+) {
   return new Promise(function(response) {
     // Check whether there is a valid officeId in
     // the request
@@ -80,4 +87,4 @@ exports.authenticateOwner = function authenticateOwner(req, res, officememberIdP
       });
     }
   });
-}
+};
