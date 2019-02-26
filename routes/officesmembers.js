@@ -234,7 +234,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
           device.fcmToken,
           'New Appointment request',
           start.split(' ')[0] + ', from ' + start.split(' ')[1] + ' to ' + end.split(' ')[1],
-          'AppointmentRequests',
+          'AppointmentActivity',
           [
             {
               title: 'Accept',

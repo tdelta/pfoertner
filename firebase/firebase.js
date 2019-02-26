@@ -26,7 +26,7 @@ module.exports.sendNotification = function(
   deviceToken,
   title,
   body,
-  intent,
+  activity,
   buttons,
   data
 ) {
@@ -34,7 +34,7 @@ module.exports.sendNotification = function(
     title: title,
     body: body,
     buttons: buttons,
-    intent: intent,
+    intent: activity,
     data: data,
   };
   notification = JSON.stringify(notification);

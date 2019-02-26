@@ -26,7 +26,7 @@ router.patch('/:id',auth.authFun(),(req,res) => {
           notifyOfficeSubscribers(
             office,
             'OfficeMemberUpdated',
-            officemember.id
+            officemember.id.toString()
           );
         });
       });
@@ -52,7 +52,7 @@ router.delete('/:id',auth.authFun(),(req,res) => {
           notifyOfficeSubscribers(
             office,
             'OfficeMemberUpdated',
-            officemember.id
+            officemember.id.toString()
           );
         });
       });
