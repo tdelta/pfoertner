@@ -7,15 +7,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -24,8 +19,7 @@ import com.bumptech.glide.signature.ObjectKey;
 import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertnerpanel.R;
 
 import static android.support.constraint.Constraints.TAG;
@@ -34,7 +28,7 @@ public class MemberView extends CardView {
 
     private int memberId;
 
-    public MemberView(Context context, MemberEntity member) {
+    public MemberView(Context context, Member member) {
         super(context);
         final LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

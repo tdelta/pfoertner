@@ -70,6 +70,9 @@ public class PfoertnerApplication extends Application {
                     return repo;
                 }
         )
+        .doOnError(
+                throwable -> Log.e(TAG, "Something failed during base app initialization.", throwable)
+        )
         .flatMap(
                 repo ->
                     repo

@@ -22,7 +22,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import PfoertnerCommon.R;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
 import io.reactivex.disposables.CompositeDisposable;

@@ -12,8 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import PfoertnerCommon.R;
-
 public class NotificationHelper {
 
     private static final String ADMIN_PACKAGE = "de.tu_darmstadt.epool.pfoertneradmin";
