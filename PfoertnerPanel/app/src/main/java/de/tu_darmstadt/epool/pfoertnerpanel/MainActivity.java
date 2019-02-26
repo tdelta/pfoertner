@@ -1,19 +1,17 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.arch.lifecycle.ViewModelProviders;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -21,16 +19,15 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
-import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
+import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
+import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberGrid;
+import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,20 +37,21 @@ public class MainActivity extends AppCompatActivity {
 
     private LayoutInflater inflater;
     private ViewGroup container;
+    private MemberGrid memberList;
 
-    private int memberCount = 0;
+    private OfficeViewModel viewModel;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         disposables.add(
-            app
-                    .init()
-                    .subscribe(
-                            () -> {
-                                MainActivity.this.startService(
-                                        new Intent(MainActivity.this, SyncService.class)
-                                );
+                app
+                        .init()
+                        .subscribe(
+                                () -> {
+                                    MainActivity.this.startService(
+                                            new Intent(MainActivity.this, SyncService.class)
+                                    );
 
                                 MainActivity.this.startService(
                                         new Intent(MainActivity.this, MemberCalendarInfoService.class)
@@ -92,14 +90,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMembers() {
-        // Clear already added members
-        removeMembers();
+//        final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
+//        memberList.setMembers(app.getOffice().getMembers());
 
-        final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
-
-        for (final Member m : app.getOffice().getMembers()){
-            this.addMember(m);
-        }
     }
 
     private void initOffice() {
@@ -125,30 +118,52 @@ public class MainActivity extends AppCompatActivity {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         setGlobalStatus(app.getOffice().getStatus());
-        updateMembers();
+        //updateMembers();
 
-        registerForMemberChanges(app.getOffice().getMembers());
+        //registerForMemberChanges(app.getOffice().getMembers());
 
-        app.getOffice().addObserver(new OfficeObserver() {
-            @Override
-            public void onStatusChanged(final String newStatus) {
-                setGlobalStatus(newStatus);
-            }
+        // Neues system
+        viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
+        viewModel.init(app.getOffice().getId()); // The correct way to do this Anton?
 
-            @Override
-            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
-                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
-
-                registerForMemberChanges(newMembers);
-
-                updateMembers();
-                // TODO: Members einzaln updaten
+        viewModel.getOffice().observe(this, office -> {
+            if(office != null) {
+                //registerForMemberChanges(app.getOffice().getMembers());
+                setGlobalStatus(office.getStatus());
+                //updateMembers();
             }
         });
+
+        viewModel.getOfficeMembers(app.getOffice().getId()).observe(this, members -> {
+           if(members != null) {
+
+               memberList.setMembers(members);
+           }
+        });
+
+
+        // Altes system
+//        app.getOffice().addObserver(new OfficeObserver() {
+//            @Override
+//            public void onStatusChanged(final String newStatus) {
+//                setGlobalStatus(newStatus);
+//            }
+//
+//            @Override
+//            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
+//                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
+//
+//                registerForMemberChanges(newMembers);
+//
+//                updateMembers();
+//                // TODO: Members einzaln updaten
+//            }
+//        });
     }
 
     public void test(View view){
         Intent intent = new Intent(this, ScheduleAppointment.class);
+        intent.putExtra("MemberId",((MemberButton) view).getMemberId());
         startActivity(intent);
     }
 
@@ -197,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        memberList = findViewById(R.id.member_list);
 
         checkForPlayServices();
 
@@ -207,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
         disposables = new CompositeDisposable();
 
         inflater = getLayoutInflater();
-        container = findViewById(R.id.member_insert);
 
         setRoom("S101/A1");
         setGlobalStatus("Extended Access");
@@ -233,26 +248,23 @@ public class MainActivity extends AppCompatActivity {
     public void setGlobalStatus(final String status){
         if (status != null) {
             TextView global = findViewById(R.id.global_status);
+            Toolbar toolbar = findViewById(R.id.toolbar);
             global.setText(status);
             switch (status) {
                 case "Come In!": {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_positive_status_bg));
                     break;
                 }
                 case "Do Not Disturb!": {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
                     break;
                 }
                 case "Extended Access": {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_blue_dark));
                     break;
                 }
                 default: {
-                    global.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-                    global.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
                 }
             }
         }
@@ -262,80 +274,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void addStdMember(View view) {
-        addMember(new MemberData(-1, "Prof. Dr. Ing. Max", "Mustermann", "", "Away"), null);
-    }
-
-    public void removeMembers(){
-        FragmentManager fm = getSupportFragmentManager();
-        for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-            fm.popBackStack();
-        }
-        memberCount=0;
-
-    }
-
-    public void addMember(final Member m) {
-        addMember(m.getMemberData(),m);
-    }
-
-    public void addMember(final MemberData memberData, final @Nullable Member member){
-        // set the attributes of the member to add
-        String[] work = {"Mo-Fr 8:00 - 23:00", "Sa-So 8:00 - 23:00"};
-        MemberFragment memberUI = new MemberFragment();
-
-        memberUI.setName(memberData.firstName + " " + memberData.lastName);
-        memberUI.setStatus(memberData.status == null ? "" : memberData.status);
-        memberUI.setOfficeHours(work);
-
-        if (member != null) {
-            final PfoertnerApplication app = PfoertnerApplication.get(this);
-
-            memberUI.setPicture(
-                    member
-                        .getPicture(app.getFilesDir())
-                        .map(bitmap -> (Drawable) new BitmapDrawable(this.getResources(), bitmap))
-                        .orElse(
-                                getDrawable(R.drawable.ic_contact_default)
-                        )
-            );
-        }
-        //member.setPicture(getDrawable(R.drawable.ic_contact_default));
-
-        switch(memberCount){
-            case 0:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_one, memberUI);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-            case 1:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_two, memberUI);
-                transaction.addToBackStack(null);
-
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-            case 2:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_three, memberUI);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-            case 3:{
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.member_four, memberUI);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                memberCount++;
-                break;
-            }
-        }
-    }
 }

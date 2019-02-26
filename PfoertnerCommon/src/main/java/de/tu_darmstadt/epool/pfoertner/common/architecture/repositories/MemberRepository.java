@@ -4,11 +4,9 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
@@ -17,6 +15,8 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+
+import java.util.List;
 
 public class MemberRepository {
     private static final String TAG = "MemberRepository";
@@ -38,16 +38,16 @@ public class MemberRepository {
         return db.memberDao().load(memberId);
     }
 
+    public LiveData<List<MemberEntity>> getMembersFromOffice(final int officeId){
+        refreshAllMembersFromOffice(officeId);
+
+        return db.memberDao().getAllMembersFromOffice(officeId);
+    }
+
     public Flowable<? extends Member> getMemberFlowable(final int memberId) {
         refreshMember(memberId);
 
         return db.memberDao().loadFlowable(memberId);
-    }
-
-    public LiveData<? extends List<? extends Member>> getMembersByOffice(final int officeId) {
-        // TODO
-
-        return null;
     }
 
     @SuppressLint("CheckResult")
@@ -108,6 +108,23 @@ public class MemberRepository {
                                 memberEntity -> refreshMember(memberEntity.getId())
                         ),
                         throwable -> Log.e(TAG, "Could not refresh all members.", throwable)
+                );
+    }
+
+    @SuppressLint("CheckResult")
+    public void refreshAllMembersFromOffice(final int officeId) {
+        api
+                .getMembersFromOffice(auth.id,officeId)
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(
+                        memberEntities -> db.memberDao().insertMembers(memberEntities.toArray(new MemberEntity[0]))
+                )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        members -> members.forEach(
+                                memberEntity -> refreshMember(memberEntity.getId())
+                        ),
+                        throwable -> Log.e(TAG, "Could not refresh all members of office with id " + officeId, throwable)
                 );
     }
 }
