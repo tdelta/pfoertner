@@ -1,11 +1,13 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,13 +17,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.MediaStoreSignature;
+import com.bumptech.glide.signature.ObjectKey;
+
 import java.util.function.Consumer;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
 
 public class PictureUpload extends AppCompatActivity {
     private static final String TAG = "PictureUpload";
+    private MemberProfileViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,42 +38,32 @@ public class PictureUpload extends AppCompatActivity {
 
         final AdminApplication app = AdminApplication.get(this);
 
-        app.getOffice().getMemberById(
-                app.getMemberId()
-        ).ifPresent(
-                member -> {
-                    final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
-                    final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
-                    final CircleImageView imagetest = (CircleImageView) findViewById(R.id.profile_image);
+        viewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
+        viewModel.init(app.getMemberId()); // TODO
 
-                    firstNameTextView.setText(member.getFirstName());
-                    lastNameTextView.setText(member.getLastName());
+        viewModel.getMember().observe(this, member -> {
+            // TODO
+            Log.d(TAG, "Observed change!");
 
-                    member
-                            .getPicture(app.getFilesDir())
-                            .ifPresent(imagetest::setImageBitmap);
+            if (member != null) {
+                final TextView firstNameTextView = this.findViewById(R.id.firstNameView);
+                final TextView lastNameTextView = this.findViewById(R.id.lastNameView);
 
-                    member.addObserver(
-                            new MemberObserver() {
-                                @Override
-                                public void onFirstNameChanged(String newFirstName) {
-                                    firstNameTextView.setText(newFirstName);
-                                }
+                Glide
+                        .with(PictureUpload.this)
+                        .load(member.getPicture())
+                        .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
+                        .signature(new ObjectKey(member.getPictureMD5() == null ? "null" : member.getPictureMD5()))
+                        .into((CircleImageView) findViewById(R.id.profile_image));
 
-                                @Override
-                                public void onLastNameChanged(String newLastName) {
-                                    lastNameTextView.setText(newLastName);
-                                }
+                firstNameTextView.setText(member.getFirstName());
+                lastNameTextView.setText(member.getLastName());
+            }
 
-                                @Override
-                                public void onPictureChanged() {
-                                    member.getPicture(app.getFilesDir())
-                                            .ifPresent(imagetest::setImageBitmap);
-                                }
-                            }
-                    );
-                }
-        );
+            else {
+                Log.d(TAG, "There is no member set, or it was destroyed on an update.");
+            }
+        });
     }
 
     public void setFirstName(final View btn) {

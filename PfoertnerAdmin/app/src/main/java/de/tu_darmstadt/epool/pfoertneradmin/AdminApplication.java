@@ -1,15 +1,22 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 
 import java.util.Optional;
+import java.util.concurrent.Executors;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 
 public class AdminApplication extends PfoertnerApplication {
     private Optional<Integer> maybeMemberId = Optional.empty();
+
 
     @Override
     public void onInit() {
@@ -24,6 +31,11 @@ public class AdminApplication extends PfoertnerApplication {
 
     public void setMemberId(final int id) {
         checkInitStatus();
+
+        this
+                .getRepo()
+                .getMemberRepo()
+                .refreshMember(id);
 
         this.maybeMemberId = Optional.of(id);
     }

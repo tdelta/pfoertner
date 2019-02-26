@@ -91,8 +91,14 @@ public class SyncService extends Service {
             
             else {
                 try {
+                    final int memberId = Integer.parseInt(payload);
+
+                    app.getRepo().getMemberRepo().refreshMember(
+                            memberId
+                    );
+
                     final Optional<Member> maybeMember = app.getOffice().getMemberById(
-                            Integer.parseInt(payload)
+                            memberId
                     );
 
                     maybeMember.ifPresent(
@@ -119,6 +125,11 @@ public class SyncService extends Service {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
         if (app.hasOffice()) {
+            app
+                    .getRepo()
+                    .getOfficeRepo()
+                    .refreshOffice(app.getOffice().getId()); // TODO Server sollte ID schicken
+
             app.getOffice().updateAsync(
                     app.getSettings(),
                     app.getService(),

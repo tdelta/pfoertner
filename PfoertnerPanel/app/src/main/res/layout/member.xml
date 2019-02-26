@@ -1,84 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/info"
-    android:fillViewport="true"
+    android:layout_weight="1"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal">
 
-
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="210dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <android.support.v7.widget.CardView
-            android:layout_height="wrap_content"
+
+        <TextView
+            android:id="@+id/name"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp">
-        <ImageView
+            android:layout_marginTop="8dp"
+            android:text="Pimmelberger"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <de.tu_darmstadt.epool.pfoertnerpanel.member.MemberIcon
             android:id="@+id/personalProfilePicture"
-            android:layout_width="210dp"
-            android:layout_height="210dp"
-            android:src="@drawable/ic_contact_default" />
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/personalStatusCard"
-            android:layout_width="match_parent"
-            android:layout_height="210dp"
-            android:layout_margin="8dp"
-            app:cardBackgroundColor="@color/pfoertner_positive_status_bg">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginBottom="15dp"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/personalStatusIcon"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:src="@drawable/ic_home_green_24dp" />
-
-                <TextView
-                    android:id="@+id/personalStatusText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="You're available"
-                    android:textColor="@color/pfoertner_light_primary_dark_text"
-                    android:textSize="24sp" />
-            </LinearLayout>
-        </android.support.v7.widget.CardView>
-    </LinearLayout>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/personalOfficeHoursCard"
-        android:layout_width="match_parent"
-        android:layout_height="210dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp">
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_contact_default"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/personalStatus"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/name" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginBottom="15dp"
-            android:orientation="vertical">
+            android:id="@+id/personalStatus"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/pfoertner_positive_status_bg"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/personalOfficeHours"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/personalProfilePicture"
+            app:layout_constraintTop_toBottomOf="@+id/name">
+
+            <ImageView
+                android:id="@+id/personalStatusIcon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_home_green_24dp" />
+
+            <TextView
+                android:id="@+id/personalStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:text="Available"
+                android:textColor="@color/pfoertner_light_primary_dark_text"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/personalOfficeHours"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/personalStatus"
+            app:layout_constraintTop_toBottomOf="@+id/personalStatus">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -96,21 +104,19 @@
                 android:textSize="24sp"></LinearLayout>
 
         </LinearLayout>
-    </android.support.v7.widget.CardView>
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton2"
-        android:layout_gravity="bottom|right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:onClick="test"
-        android:src="@drawable/ic_calendar_plus" />
-</android.widget.LinearLayout>
-</ScrollView>
+
+        <de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton
+            android:id="@+id/member_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:padding="1dp"
+            android:onClick="test"
+            android:src="@drawable/ic_calendar_plus"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>
 

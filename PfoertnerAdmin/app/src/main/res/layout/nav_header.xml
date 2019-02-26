@@ -19,18 +19,19 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/drawerPic"
 
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:layout_height="120dp"
+            android:layout_height="115dp"
             android:layout_width="wrap_content"
             android:src="@drawable/ic_account_circle_white_120dp" />
 
         <TextView
             android:id="@+id/drawerName"
-            android:textColor="@android:color/primary_text_dark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="loading..."
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@android:color/primary_text_dark"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
