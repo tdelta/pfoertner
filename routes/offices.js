@@ -297,4 +297,59 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
   );
 });
 
+// ENDPOINT: GET /offices/:id/spion
+router.get('/:officeId/spion', auth.authFun(), (req, res) => {
+  const officeId = parseInt(req.params.officeId, 10);
+
+  
+  models.Office.findById(officeId).then(office => {
+      if(office == null){
+        res.status('404').send('There is no office to your id');
+      }else{
+        if(reg.device.id === office.DeviceId){
+          if(office.picture == null){
+            res.status('404').send('There is no spion picture in this office');
+          }else{
+            res.sendFile('/' + req.params.id + '.jpg', { root: 'spionuploads' }); 
+          }
+        }else{
+          res.status(401).send({message: 'You do not have the permission to access this office',});
+        }
+      }
+    }
+  );
+});
+
+// ENDPOINT: PATCH /offices/:id/spion
+router.patch(), (req, res) => {
+  const picture = req.files.picture;
+  const hash = req.files.picture.md5();
+
+  const officid = parseInt(req.params.id, 10);
+
+  picture.mv('spionuploads/' + req.params.id + '.jpg', function(err) {
+    if (err) {
+      return res.status(500).send(err);
+    } else {
+      models.Office.findById(officeid).then(office => {
+          console.log('Das Office' + office);
+          office
+            .update({
+              picture: 'http://deh.duckdns.org:3000/office/' + req.params.id + '/picture',
+              pictureMD5: hash,
+            })
+            .then(() => {
+              notifyOfficeSubscribers(
+                office,
+                'OfficeUpdated',
+                officeid.toString()
+              );
+
+              res.status(200).send('File uploaded!');
+            });
+      });
+    }
+  });
+});
+
 module.exports = router;
