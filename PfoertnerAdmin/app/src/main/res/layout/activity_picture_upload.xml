@@ -77,7 +77,7 @@ tools:context=".PictureUpload"
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:singleLine="true"
-                android:text="first name"
+                android:text="loading..."
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/primary_text_light" />
         </RelativeLayout>
@@ -137,7 +137,7 @@ tools:context=".PictureUpload"
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:singleLine="true"
-                android:text="last name"
+                android:text="loading..."
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/primary_text_light" />
         </RelativeLayout>
