@@ -24,28 +24,20 @@ exports.authenticatePanelOrOwner = function(req, res) {
               .send(
                 'The requested office member does not belong to any office'
               );
-          }
-          
-          else if (office.id === req.user.OfficeId) {
+          } else if (office.id === req.user.OfficeId) {
             // The office of the requested office member matches the office id
             // of the requesting device (the panel)
             response(member);
-          }
-
-          else {
-            req.user.getOfficeMembers().then(officemembers => {
-              for (let officeMember of officemembers) {
-                if (officeMember.OfficeId === office.id) {
-                  // The requesting device is also member in the office the requested office member belongs to
-                  response(member);
-
-                  return;
-                }
+          } else {
+            req.user.getOfficeMember().then(officeMember => {
+              if (officeMember.OfficeId === office.id) {
+                // The requesting device is also member in the office the requested office member belongs to
+                response(member);
+              } else {
+                res
+                  .status('401')
+                  .send('You are not allowed to access this office member');
               }
-
-              res
-              .status('401')
-              .send('You are not allowed to access this office member');
             });
           }
         });
@@ -54,8 +46,11 @@ exports.authenticatePanelOrOwner = function(req, res) {
   });
 };
 
-
-exports.authenticateOwner = function authenticateOwner(req, res, officememberIdParam) {
+exports.authenticateOwner = function authenticateOwner(
+  req,
+  res,
+  officememberIdParam
+) {
   return new Promise(function(response) {
     // Check whether there is a valid officeId in
     // the request
@@ -92,4 +87,4 @@ exports.authenticateOwner = function authenticateOwner(req, res, officememberIdP
       });
     }
   });
-}
+};
