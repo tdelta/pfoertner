@@ -39,8 +39,11 @@ public class MemberGrid extends GridView{
 
     public void setMembers(List<Member> members) {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getAdapter();
-        adapter.clear();
-        adapter.addAll(members);
+
+        if (adapter != null) {
+            adapter.clear();
+            adapter.addAll(members);
+        }
 
         this.members = members;
     }
