@@ -34,7 +34,7 @@ public class InitActivity extends AppCompatActivity {
 
             @Override
             protected void onException(Exception e){
-                ErrorInfoDialog.show(InitActivity.this, e.getMessage(), aVoid -> initApp());
+                ErrorInfoDialog.show(InitActivity.this, e.getMessage(), aVoid -> initApp(),false);
             }
         }.execute();
     }
