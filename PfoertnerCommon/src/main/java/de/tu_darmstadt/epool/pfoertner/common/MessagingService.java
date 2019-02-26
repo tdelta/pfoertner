@@ -1,13 +1,29 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
+import PfoertnerCommon.R;
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -85,6 +101,11 @@ public class MessagingService extends FirebaseMessagingService {
         Log.d(TAG, "Messaging service startet.");
         eventChannel = new EventChannel(this);
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("appointments", "Appointment Requests", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("Notifications for new appointments requested at the door panel");
+            getSystemService(NotificationManager.class).createNotificationChannel(channel);
+        }
         if (disposables != null) {
             disposables.dispose();
         }
@@ -108,7 +129,12 @@ public class MessagingService extends FirebaseMessagingService {
             Log.d(TAG, "Received FCM message. It contains: " + gson.toJson(remoteMessage.getData()));
         }
 
-        if (remoteMessage.getData().containsKey("event")) {
+        if(remoteMessage.getData().containsKey("notification")){
+            Log.d(TAG,"Building a notification");
+            NotificationHelper.displayNotification(remoteMessage.getData().get("notification"),this);
+        }
+
+        else if (remoteMessage.getData().containsKey("event")) {
             try {
                 eventChannel.send(
                         EventChannel.EventType.valueOf(
@@ -126,7 +152,7 @@ public class MessagingService extends FirebaseMessagingService {
         }
 
         else if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Received data notification without event key.");
+            Log.d(TAG, "Received data notification without event or notification key.");
         }
     }
 
