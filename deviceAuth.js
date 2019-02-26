@@ -24,17 +24,29 @@ exports.authenticatePanelOrOwner = function(req, res) {
               .send(
                 'The requested office member does not belong to any office'
               );
-          } else if (office.id === req.user.OfficeId) {
+          }
+          
+          else if (office.id === req.user.OfficeId) {
             // The office of the requested office member matches the office id
             // of the requesting device (the panel)
             response(member);
-          } else if (member.DeviceId == req.user.id){
-            // The office member belongs to the calling device (the admin app)
-            response(member);
-          } else {
-            res
+          }
+
+          else {
+            req.user.getOfficeMembers().then(officemembers => {
+              for (let officeMember of officemembers) {
+                if (officeMember.OfficeId === office.id) {
+                  // The requesting device is also member in the office the requested office member belongs to
+                  response(member);
+
+                  return;
+                }
+              }
+
+              res
               .status('401')
               .send('You are not allowed to access this office member');
+            });
           }
         });
       }
