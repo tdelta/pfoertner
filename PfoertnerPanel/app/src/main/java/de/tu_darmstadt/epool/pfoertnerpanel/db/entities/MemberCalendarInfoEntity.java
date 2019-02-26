@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.db.entities;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
@@ -15,6 +16,11 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     private String oAuthToken;
     private String eMail;
 
+    public MemberCalendarInfoEntity(final int memberId) {
+        this.memberId = memberId;
+    }
+
+    @Ignore
     public MemberCalendarInfoEntity(int memberId, String calendarId, String serverAuthCode, String oAuthToken, String eMail) {
         this.calendarId = calendarId;
         this.memberId = memberId;

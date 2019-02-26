@@ -96,6 +96,9 @@ public class PfoertnerApplication extends Application {
                                             repo
                                                     .getMemberRepo()
                                                     .refreshAllMembers();
+
+                                            officeIdSubject
+                                                    .onNext(initStatus.joinedOfficeId());
                                         }
 
                                         else {

@@ -58,7 +58,7 @@ public class CalendarApi {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Single<Credential> getCredential(final String accessToken) {
+    public Single<Credential> getCredential(final String oauthToken) {
         return Single.fromCallable(
                 () -> {
                     final Credential credential = new GoogleCredential.Builder()
@@ -69,7 +69,7 @@ public class CalendarApi {
                                     clientSecret)
                             .build();
 
-                    credential.setAccessToken(accessToken);
+                    credential.setAccessToken(oauthToken);
 
                     return credential;
                 }

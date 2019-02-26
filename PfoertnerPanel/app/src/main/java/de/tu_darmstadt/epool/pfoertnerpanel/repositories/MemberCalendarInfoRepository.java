@@ -5,11 +5,14 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.PanelDatabase;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -22,10 +25,46 @@ public class MemberCalendarInfoRepository {
         this.db = db;
     }
 
+    @SuppressWarnings("CheckResult")
     public LiveData<? extends MemberCalendarInfo> getCalendarInfoByMemberId(final int memberId) {
+        createIfNotPresent(memberId)
+                .subscribe(
+                        () -> {},
+                        throwable -> Log.e(TAG, "Could not retrieve calendar info for member " +  memberId + ", since creating it failed.", throwable)
+                );
+
         return db
                 .memberCalendarInfoDao()
                 .load(memberId);
+    }
+
+    public Single<MemberCalendarInfo> getCalendarInfoByMemberIdOnce(final int memberId) {
+        return createIfNotPresent(memberId)
+                .andThen(
+                 db
+                    .memberCalendarInfoDao()
+                    .loadOnce(memberId)
+                    .subscribeOn(Schedulers.io())
+                    .map(
+                            entity -> entity // convert to interface
+                    )
+                );
+    }
+
+    private Completable createIfNotPresent(final int memberId) {
+        return Completable.fromRunnable(
+                () -> db.memberCalendarInfoDao().insert(
+                        new MemberCalendarInfoEntity(memberId)
+                ) // insert ignores errors and does nothing
+        )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(
+                    () -> Log.d(TAG, "Successfully retrieved calendar info for member " + memberId)
+                )
+                .doOnError(
+                    throwable -> Log.e(TAG, "Failed to create new calendar info for member " + memberId, throwable)
+                );
     }
 
     public Completable setOAuthToken(final int memberId, final String serverAuthCode, final String oAuthToken) {

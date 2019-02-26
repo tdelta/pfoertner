@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -17,8 +18,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
+import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
@@ -54,6 +59,7 @@ public class AppointmentActivity extends AppCompatActivity{
         } else {
             buildUI(true);
         }
+
         member.addObserver(new MemberObserver() {
             @Override
             public void onCalendarCreated() {
@@ -66,22 +72,22 @@ public class AppointmentActivity extends AppCompatActivity{
                 Log.d(TAG,"onServerAuthCodeChanged");
                 buildUI(false);
             }
+
+            @Override
+            public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
+                final AppointmentRequestList appointments = findViewById(R.id.appointments);
+                appointments.showAppointmentRequests(appointmentRequests);
+            }
         });
     }
 
     private void buildUI(boolean calendarCreated){
-        View calendarNameCard = root.findViewById(CALENDAR_NAME_ID);
-        if(calendarNameCard != null) {
-            root.removeView(calendarNameCard);
-        }
-        View signInCard = root.findViewById(R.id.sign_in_card);
-        if(signInCard != null) {
-            root.removeView(signInCard);
-        }
+        LinearLayout topCard = root.findViewById(R.id.top_card);
+        topCard.removeAllViews();
         Log.d(TAG,"Server auth code: "+member.getServerAuthCode());
 
         if(member.getServerAuthCode() != null){
-            final View calendarName = getLayoutInflater().inflate(R.layout.text_card,root);
+            final View calendarName = getLayoutInflater().inflate(R.layout.text_card,topCard);
             calendarName.setId(CALENDAR_NAME_ID);
             TextView text = calendarName.findViewById(R.id.text);
             if(calendarCreated) {
@@ -91,12 +97,16 @@ public class AppointmentActivity extends AppCompatActivity{
             }
 
         } else {
-            final View signInView = getLayoutInflater().inflate(R.layout.sign_in_card,root);
-            signInView.findViewById(R.id.google_signin_button).setOnClickListener(signInListener);
+            final View signInView = getLayoutInflater().inflate(R.layout.sign_in_card,topCard);
+            signInView.findViewById(R.id.google_signin_button).setOnClickListener((view) -> connectGoogleCalendar());
         }
+        final AppointmentRequestList appointments = findViewById(R.id.appointments);
+        appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
 
     public void connectGoogleCalendar(){
+        Log.d(TAG, "Trying to connect google calendar...");
+
         final String serverClientId = getString(R.string.server_client_id);
         final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
@@ -111,6 +121,8 @@ public class AppointmentActivity extends AppCompatActivity{
     @Override
     protected void onActivityResult(final int requestCode,final int resultCode,final Intent data){
         if(requestCode==CONNECT_GOOGLE_CALENDAR){
+            Log.d(TAG, "Google calendar oauth connection task finished.");
+
             final Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try{
                 final GoogleSignInAccount account = task.getResult(ApiException.class);
@@ -123,19 +135,11 @@ public class AppointmentActivity extends AppCompatActivity{
                 SharedPreferences settings = app.getSettings();
                 member.setServerAuthCode(service,auth,authCode);
                 member.setEmail(settings,email);
+            }
 
-
-            } catch (final Exception e) {
-                Log.d(TAG,"could not sign in");
-                e.printStackTrace();
+            catch (final Exception e) {
+                Log.e(TAG,"Could not sign in.", e);
             }
         }
     }
-
-    private View.OnClickListener signInListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            connectGoogleCalendar();
-        }
-    };
 }
