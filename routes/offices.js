@@ -361,7 +361,7 @@ router.patch(':officeId/spion', (req, res) => {
 
 // ENDPOINT: GET /offices/:id/takephoto
 // TODO: think of a proper name for this endpoint
-router.get('/:id/takephoto', (req, res) => {
+router.get('/:officeId/takephoto', (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
   models.Office.findById(officeId).then(office =>
