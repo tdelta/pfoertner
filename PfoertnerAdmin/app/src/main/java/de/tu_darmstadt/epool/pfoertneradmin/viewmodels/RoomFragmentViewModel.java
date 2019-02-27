@@ -69,9 +69,11 @@ public class RoomFragmentViewModel extends AndroidViewModel {
     }
 
     public void setRoom(String room) {
-        repo
-                .getOfficeRepo()
-                .setRoom(officeId, room);
+        if (!room.trim().equals("")) {
+            repo
+                    .getOfficeRepo()
+                    .setRoom(officeId, room);
+        }
     }
 
 }

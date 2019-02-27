@@ -115,8 +115,6 @@ public class MainActivity extends AppCompatActivity {
     private void onOfficeInitialized() {
         Log.d(TAG, "Office has been initialized.");
         final PfoertnerApplication app = PfoertnerApplication.get(this);
-
-        setGlobalStatus(app.getOffice().getStatus());
         //updateMembers();
 
         //registerForMemberChanges(app.getOffice().getMembers());
@@ -129,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             if(office != null) {
                 //registerForMemberChanges(app.getOffice().getMembers());
                 setGlobalStatus(office.getStatus());
+                setRoom(office.getRoom());
                 //updateMembers();
             }
         });
@@ -203,8 +202,8 @@ public class MainActivity extends AppCompatActivity {
 
         inflater = getLayoutInflater();
 
-        setRoom("S101/A1");
-        setGlobalStatus("Extended Access");
+        setRoom("Room name not set");
+        setGlobalStatus("Come In!");
 
         if (savedInstanceState == null) {
             init();
