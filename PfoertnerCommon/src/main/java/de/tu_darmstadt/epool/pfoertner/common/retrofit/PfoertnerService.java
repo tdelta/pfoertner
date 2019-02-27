@@ -68,6 +68,14 @@ public interface PfoertnerService {
   @POST("officemembers/{id}/appointment")
   Call<ResponseBody> createNewAppointment(@Header("Authorization") String authToken,@Path("id") int id, @Body AppointmentRequest request);
 
+  @Multipart
+  @PATCH("offices/{id}/spion")
+  Call<ResponseBody> uploadSpion(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Path("id") int id);
+
+  @GET("offices/{id}/takephoto")
+  Call<ResponseBody> initSpionPhoto(@Path("id") int id);
+
+
   //@POST("/api/devices/{id}/person")
   //Call<MemberData> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);
 
