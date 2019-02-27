@@ -11,10 +11,11 @@ public class OfficeEntity implements Office {
     public OfficeEntity() {}
 
     @Ignore
-    public OfficeEntity(int id, String joinCode, String status) {
+    public OfficeEntity(int id, String joinCode, String status, String room) {
         this.id = id;
         this.joinCode = joinCode;
         this.status = status;
+        this.room = room;
     }
 
     @PrimaryKey
@@ -22,6 +23,7 @@ public class OfficeEntity implements Office {
 
     private String joinCode;
     private String status;
+    private String room;
 
     public void setId(int id) {
         this.id = id;
@@ -35,6 +37,8 @@ public class OfficeEntity implements Office {
         this.status = status;
     }
 
+    public void setRoom(String room) { this.room = room; }
+
     @Override
     public int getId() {
         return id;
@@ -44,6 +48,9 @@ public class OfficeEntity implements Office {
     public String getStatus() {
         return status;
     }
+
+    @Override
+    public String getRoom() { return room; }
 
     @Override
     public String getJoinCode() {
