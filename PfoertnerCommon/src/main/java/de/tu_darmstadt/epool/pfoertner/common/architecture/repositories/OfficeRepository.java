@@ -47,7 +47,8 @@ public class OfficeRepository {
                             .patchOffice(auth.id, office.getId(), new OfficeEntity(
                                     office.getId(),
                                     office.getJoinCode(),
-                                    newStatus
+                                    newStatus,
+                                    office.getRoom()
                             ))
                 )
                 .doOnError(
@@ -56,6 +57,34 @@ public class OfficeRepository {
                 .subscribe(
                         o -> {},
                         throwable -> Log.e(TAG, "Setting a new status failed.", throwable)
+                );
+    }
+
+    @SuppressLint("CheckResult")
+    public void setRoom(final int officeId, final String newRoom) {
+        db
+                .officeDao()
+                .loadOnce(officeId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnError(
+                        throwable -> Log.e(TAG, "Could not set room, since the office could not be found in the database.", throwable)
+                )
+                .flatMap(
+                        office -> api
+                                .patchOffice(auth.id, office.getId(), new OfficeEntity(
+                                        office.getId(),
+                                        office.getJoinCode(),
+                                        office.getStatus(),
+                                        newRoom
+                                ))
+                )
+                .doOnError(
+                        throwable -> Log.e(TAG, "Could not set room, since the new data could not be uploaded.", throwable)
+                )
+                .subscribe(
+                        o -> {},
+                        throwable -> Log.e(TAG, "Setting a new room failed.", throwable)
                 );
     }
 

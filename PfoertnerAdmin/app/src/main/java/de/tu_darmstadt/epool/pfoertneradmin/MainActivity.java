@@ -39,6 +39,7 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.GlobalStatusFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.MemberStatusFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.RoomFragment;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
@@ -129,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
 
             final GlobalStatusFragment globalStatusFragment = new GlobalStatusFragment();
             fragmentTransaction.add(R.id.global_status_view, globalStatusFragment);
+
+            final RoomFragment roomFragment = new RoomFragment();
+            fragmentTransaction.add(R.id.room_card, roomFragment);
 
             final MemberStatusFragment memberStatusFragment = new MemberStatusFragment();
             fragmentTransaction.add(R.id.member_status_view, memberStatusFragment);
