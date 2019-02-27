@@ -368,7 +368,7 @@ router.get('/:officeId/takephoto', (req, res) => {
     notifyPanel(office, 'takephoto')
   );
 
-  return res.status(200);
+  return res.status(200).send('takephoto fcm event successfully sent.');
 });
 
 module.exports = router;
