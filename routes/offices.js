@@ -11,6 +11,7 @@ var auth = require('../authInit.js');
 
 var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
+var notifyPanel = notify.notifyPanel;
 
 /**
  * ENDPOINT: POST /offices/
@@ -165,10 +166,13 @@ router.get('/:officeId/members', auth.authFun(), (req, res) => {
           ) {
             // Add appointment requests to officemember data, send the result, when all promises are fulfilled
             let promises = [];
-            let officeMemberData = []
-            officeMembers.map(
-              member => promises.push(models.OfficeMember.includeAppointmentRequests(member)
-                .then(data => officeMemberData.push(data)))
+            let officeMemberData = [];
+            officeMembers.map(member =>
+              promises.push(
+                models.OfficeMember.includeAppointmentRequests(member).then(
+                  data => officeMemberData.push(data)
+                )
+              )
             );
             Promise.all(promises).then(() => {
               res.status(200).send(officeMemberData);
@@ -295,6 +299,78 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
       res.send(office);
     })
   );
+});
+
+// ENDPOINT: GET /offices/:id/spion
+router.get('/:officeId/spion', auth.authFun(), (req, res) => {
+  const officeId = parseInt(req.params.officeId, 10);
+
+  models.Office.findById(officeId).then(office => {
+    if (office == null) {
+      res.status('404').send('There is no office to your id');
+    } else {
+      if (reg.device.id === office.DeviceId) {
+        if (office.picture == null) {
+          res.status('404').send('There is no spion picture in this office');
+        } else {
+          res.sendFile('/' + req.params.id + '.jpg', { root: 'spionuploads' });
+        }
+      } else {
+        res.status(401).send({
+          message: 'You do not have the permission to access this office',
+        });
+      }
+    }
+  });
+});
+
+// ENDPOINT: PATCH /offices/:id/spion
+router.patch('/:officeId/spion', (req, res) => {
+  console.log('function patch spion called');
+
+  const picture = req.files.spion;
+  const hash = req.files.spion.md5();
+
+  const officeId = parseInt(req.params.officeId, 10);
+
+  picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
+    if (err) {
+      return res.status(500).send(err);
+    } else {
+      models.Office.findById(officeId).then(office => {
+        console.log('Das Office' + office);
+        office
+          .update({
+            spionPicture:
+              'http://deh.duckdns.org:3000/office/' +
+              req.params.officeId +
+              '/spion',
+            spionPictureMD5: hash,
+          })
+          .then(() => {
+            notifyOfficeSubscribers(
+              office,
+              'OfficeUpdated',
+              officeId.toString()
+            );
+
+            res.status(200).send('File uploaded!');
+          });
+      });
+    }
+  });
+});
+
+// ENDPOINT: GET /offices/:id/takephoto
+// TODO: think of a proper name for this endpoint
+router.get('/:officeId/takephoto', (req, res) => {
+  const officeId = parseInt(req.params.officeId, 10);
+
+  models.Office.findById(officeId).then(office =>
+    notifyPanel(office, 'takephoto')
+  );
+
+  return res.status(200).send('takephoto fcm event successfully sent.');
 });
 
 module.exports = router;

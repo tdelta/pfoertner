@@ -55,6 +55,24 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
   });
 }
 
+function notifyPanel(office, eventName, payload) {
+  let message;
+
+  message = {
+    event: eventName,
+  };
+
+  office.getDevice().then(paneldevice => {
+    if (paneldevice.fcmToken != null) {
+      console.log(
+        'Notifying panel device with this following message:' + message
+      );
+    }
+    firebase.sendData(paneldevice.fcmToken, message);
+  });
+}
+
 module.exports = {
   notifyOfficeSubscribers: notifyOfficeSubscribers,
+  notifyPanel: notifyPanel,
 };
