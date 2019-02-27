@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
                 default: {
-                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_info_status_bg));
                 }
             }
         }
