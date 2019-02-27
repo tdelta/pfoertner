@@ -45,11 +45,7 @@ router.get('/:id/office', (req, res) =>
  */
 router.get('/:id', auth.authFun(), (req, res) => {
   authenticatePanelOrOwner(req, res).then(officemember => {
-    models.OfficeMember.includeAppointmentRequests(officemember).then(
-      officemember => {
-        res.status(200).send(officemember);
-      }
-    );
+    res.status(200).send(officemember);
   });
 });
 
@@ -215,6 +211,14 @@ router.get('/:id/picture', (req, res) => {
         res.sendFile('/' + req.params.id + '.jpg', { root: 'uploads' });
       }
     }
+  });
+});
+
+router.get('/:id/appointments', auth.authFun(), (req, res) => {
+  authenticatePanelOrOwner(req, res).then(officemember => {
+    officemember.getAppointmentRequests().then(appointments => {
+      res.status(200).send(appointments);
+    });
   });
 });
 
