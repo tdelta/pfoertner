@@ -351,7 +351,7 @@ router.patch('/:officeId/spion', (req, res) => {
             notifyOfficeSubscribers(
               office,
               'OfficeUpdated',
-              officeid.toString()
+              officeId.toString()
             );
 
             res.status(200).send('File uploaded!');
