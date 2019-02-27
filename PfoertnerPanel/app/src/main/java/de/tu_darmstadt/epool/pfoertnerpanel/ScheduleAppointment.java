@@ -266,26 +266,26 @@ public class ScheduleAppointment extends AppCompatActivity {
     }
 
     private void createTimeSlot(final int day){
-        if(calendarSlots.get(day).size() != 0) {
-            officeHours.setText("Available office hours");
+        //if(calendarSlots.get(day).size() != 0) {
+        //    officeHours.setText("Available office hours");
 
-            for (final String appointmentTime : calendarSlots.get(day)) {
-                final TimeslotView timeSlot = new TimeslotView(this);
+        //    for (final String appointmentTime : calendarSlots.get(day)) {
+        //        final TimeslotView timeSlot = new TimeslotView(this);
 
-                timeSlot.setAppointmentTime(appointmentTime);
-                timeSlot.setOnClickListener(v -> gotoMakeAppointment(v, appointmentTime, day));
+        //        timeSlot.setAppointmentTime(appointmentTime);
+        //        timeSlot.setOnClickListener(v -> gotoMakeAppointment(v, appointmentTime, day));
 
-                final FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams) slots.getLayoutParams();
+        //        final FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams) slots.getLayoutParams();
 
-                timeSlotMarginParams.setMargins(0, 0, 15, 0);
+        //        timeSlotMarginParams.setMargins(0, 0, 15, 0);
 
-                slots.addView(timeSlot, timeSlotMarginParams);
-            }
-        }
+        //        slots.addView(timeSlot, timeSlotMarginParams);
+        //    }
+        //}
 
-        else {
-            officeHours.setText("Sorry no office hours on this day");
-        }
+        //else {
+        //    officeHours.setText("Sorry no office hours on this day");
+        //}
     }
 
     private static LocalDateTime toLocalDateTime(final EventDateTime edt) {
