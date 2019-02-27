@@ -326,9 +326,8 @@ router.get('/:officeId/spion', auth.authFun(), (req, res) => {
 
 // ENDPOINT: PATCH /offices/:id/spion
 router.patch('/:officeId/spion', (req, res) => {
-
   console.log('function patch spion called');
-  
+
   const picture = req.files.spion;
   const hash = req.files.spion.md5();
 
@@ -342,11 +341,11 @@ router.patch('/:officeId/spion', (req, res) => {
         console.log('Das Office' + office);
         office
           .update({
-            picture:
+            spionPicture:
               'http://deh.duckdns.org:3000/office/' +
               req.params.id +
               '/picture',
-            pictureMD5: hash,
+            spionPictureMD5: hash,
           })
           .then(() => {
             notifyOfficeSubscribers(

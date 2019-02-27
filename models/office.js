@@ -10,6 +10,8 @@ var Office = db.sequelize.define('Office', {
   joinCode: Sequelize.STRING,
   room: Sequelize.STRING,
   status: Sequelize.STRING,
+  spionPicture: Sequelize.STRING,
+  spionPictureMD5: Sequelize.STRING,
 });
 
 module.exports = Office;
