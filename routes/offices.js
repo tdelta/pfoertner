@@ -8,10 +8,13 @@ const firebase = require('../firebase/firebase.js');
 var util = require('util');
 
 var auth = require('../authInit.js');
+var authenticateAnyOfficeDevice = require('../deviceAuth.js')
+  .authenticateAnyOfficeDevice;
 
 var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 var notifyPanel = notify.notifyPanel;
+
 
 /**
  * ENDPOINT: POST /offices/
@@ -302,30 +305,22 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
 });
 
 // ENDPOINT: GET /offices/:id/spion
-router.get('/:officeId/spion', (req, res) => {
+router.get('/:officeId/spion', auth.authFun(), (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
-  models.Office.findById(officeId).then(office => {
-    if (office == null) {
-      res.status('404').send('There is no office to your id');
-    } else {
-      if (req.device.id === office.DeviceId) {
-        if (office.picture == null) {
-          res.status('404').send('There is no spion picture in this office');
-        } else {
-          res.sendFile('/' + req.params.id + '.jpg', { root: 'spionuploads' });
-        }
+  authenticateAnyOfficeDevice(officeId, req, res).then(
+    office => {
+      if (office.picture == null) {
+        res.status('404').send('There is no spion picture in this office');
       } else {
-        res.status(401).send({
-          message: 'You do not have the permission to access this office',
-        });
+        res.sendFile('/' + req.params.id + '.jpg', { root: 'spionuploads' });
       }
     }
-  });
+  );
 });
 
 // ENDPOINT: PATCH /offices/:id/spion
-router.patch('/:officeId/spion', (req, res) => {
+router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
   console.log('function patch spion called');
 
   const picture = req.files.spion;
@@ -333,41 +328,47 @@ router.patch('/:officeId/spion', (req, res) => {
 
   const officeId = parseInt(req.params.officeId, 10);
 
-  picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
-    if (err) {
-      return res.status(500).send(err);
-    } else {
-      models.Office.findById(officeId).then(office => {
-        console.log('Das Office' + office);
-        office
-          .update({
-            spionPicture:
-              'http://deh.duckdns.org:3000/offices/' +
-              req.params.officeId +
-              '/spion',
-            spionPictureMD5: hash,
-          })
-          .then(() => {
-            notifyOfficeSubscribers(
-              office,
-              'OfficeUpdated',
-              officeId.toString()
-            );
+  authenticateAnyOfficeDevice(officeId, req, res).then(
+    office => {
+      picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
+        if (err) {
+          return res.status(500).send(err);
+        }
+        
+        else {
+          console.log('Das Office' + office);
+          office
+            .update({
+              spionPicture:
+                'http://deh.duckdns.org:3000/offices/' +
+                req.params.officeId +
+                '/spion',
+              spionPictureMD5: hash,
+            })
+            .then(() => {
+              notifyOfficeSubscribers(
+                office,
+                'OfficeUpdated',
+                officeId.toString()
+              );
 
-            res.status(200).send('File uploaded!');
-          });
+              res.status(200).send('File uploaded!');
+            });
+        }
       });
     }
-  });
+  );
 });
 
 // ENDPOINT: GET /offices/:id/takephoto
 // TODO: think of a proper name for this endpoint
-router.get('/:officeId/takephoto', (req, res) => {
+router.get('/:officeId/takephoto', auth.authFun(), (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
-  models.Office.findById(officeId).then(office =>
-    notifyPanel(office, 'takephoto')
+  authenticateAnyOfficeDevice(officeId, req, res).then(
+    office => {
+      notifyPanel(office, 'takephoto')
+    }
   );
 
   return res.status(200).send('takephoto fcm event successfully sent.');
