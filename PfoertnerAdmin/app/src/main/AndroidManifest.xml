@@ -40,13 +40,14 @@
 
         <activity android:name=".showQRCodeActivity" />
 
-        <activity android:name=".AppointmentRequest"
-            android:theme="@style/Theme.AppCompat.Translucent">
+        <service
+            android:enabled="true"
+            android:name="ProcessAppointmentRequest">
             <intent-filter>
                 <action android:name="AcceptAppointmentRequest" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="DeclineAppointmentRequest" />
             </intent-filter>
-        </activity>
+        </service>
 
         <activity android:name=".AppointmentActivity" />
 
@@ -58,19 +59,12 @@
         <service
             android:enabled="true"
             android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"/>
-        <service
-            android:name="de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService"
-            android:enabled="true"
-            android:exported="false" />
-        <receiver
-            android:name=".BootDeviceReceiver"
-            android:enabled="true"
-            android:exported="true">
+        <receiver android:name=".BootDeviceReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>

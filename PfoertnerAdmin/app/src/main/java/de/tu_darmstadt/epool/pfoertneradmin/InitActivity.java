@@ -32,7 +32,7 @@ public class InitActivity extends AppCompatActivity {
                             throwable -> {
                                 Log.e(TAG, "Could not initialize app.", throwable);
 
-                                ErrorInfoDialog.show(InitActivity.this, throwable.getMessage(), aVoid -> initApp());
+                                ErrorInfoDialog.show(InitActivity.this, throwable.getMessage(), aVoid -> initApp(),false);
                             }
                     )
         );
