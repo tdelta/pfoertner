@@ -106,6 +106,8 @@ public class MemberCalendarInfoService extends LifecycleService {
     private Completable processWork(final UpdatedMemberWork work) {
         final PanelApplication app = PanelApplication.get(this);
 
+        Log.d(TAG, "Starting to process new member update for member " + work.memberId + " and server auth code " + work.serverAuthCode);
+
         return
                 app
                         .getPanelRepo()
@@ -146,9 +148,6 @@ public class MemberCalendarInfoService extends LifecycleService {
                                                                                                 .flatMapCompletable(
                                                                                                         calendarId -> this.saveCalendarInfo(work.memberId, work.serverAuthCode, newOAuthToken, calendarId)
                                                                                                 )
-                                                                                                .doOnComplete(
-                                                                                                        () -> Log.d(TAG, "Successfully saved new calendar id, server auth code and oauth token for member " + work.memberId)
-                                                                                                )
                                                                         )
                                                 )
                                                 .doOnComplete(
@@ -165,7 +164,8 @@ public class MemberCalendarInfoService extends LifecycleService {
                                         return Completable.complete();
                                     }
                                 }
-                        );
+                        )
+                        .subscribeOn(Schedulers.single());
     }
 
     private void observeMembersChange(final int officeId) {
@@ -190,7 +190,7 @@ public class MemberCalendarInfoService extends LifecycleService {
         disposables.add(
                 workQueue
                     .subscribeOn(AndroidSchedulers.mainThread())
-                    .flatMapCompletable(this::processWork)
+                    .concatMapCompletable(this::processWork)
                     .subscribe(
                             () -> Log.d(TAG, "Successfully finished work item."),
                             throwable -> Log.e(TAG, "Failed to process work queue.", throwable)
@@ -248,6 +248,12 @@ public class MemberCalendarInfoService extends LifecycleService {
                 .getRepo()
                 .getMemberRepo()
                 .setCalendarId(memberId, calendarId)
-        );
+        )
+                .doOnError(
+                        throwable -> Log.e(TAG, "Failed to save new calendar informatin.", throwable)
+                )
+                .doOnComplete(
+                        () -> Log.d(TAG, "Successfully saved new calendar id, server auth code and oauth token for member " + memberId)
+                );
     }
 }
