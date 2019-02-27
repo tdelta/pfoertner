@@ -368,7 +368,7 @@ router.get('/:officeId/takephoto', (req, res) => {
     notifyPanel(office, 'takephoto')
   );
 
-  res.status(200);
+  return res.status(200);
 });
 
 module.exports = router;
