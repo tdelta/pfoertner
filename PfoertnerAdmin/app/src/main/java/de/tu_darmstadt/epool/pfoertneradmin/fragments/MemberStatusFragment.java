@@ -118,11 +118,19 @@ public class MemberStatusFragment extends Fragment {
                     tapTextColor = ContextCompat.getColor(activity, R.color.pfoertner_positive_status_taptext);
                     break;
 
-                default:
+                case "In meeting":
+                case "Out of office":
                     statusText = status;
                     statusIcon = ContextCompat.getDrawable(activity, R.drawable.ic_warning_red_60dp);
                     bgColor = ContextCompat.getColor(activity, R.color.pfoertner_negative_status_bg);
                     tapTextColor = ContextCompat.getColor(activity, R.color.pfoertner_negative_status_taptext);
+                    break;
+
+                default:
+                    statusText = status;
+                    statusIcon = ContextCompat.getDrawable(activity, R.drawable.ic_info_yellow_24dp);
+                    bgColor = ContextCompat.getColor(activity, R.color.pfoertner_info_status_bg);
+                    tapTextColor = ContextCompat.getColor(activity, R.color.pfoertner_info_status_taptext);
             }
 
             final TextView memberStatusText = (TextView) activity.findViewById(R.id.member_status_text);
