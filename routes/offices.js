@@ -342,7 +342,7 @@ router.patch('/:officeId/spion', (req, res) => {
         office
           .update({
             spionPicture:
-              'http://deh.duckdns.org:3000/office/' +
+              'http://deh.duckdns.org:3000/offices/' +
               req.params.officeId +
               '/spion',
             spionPictureMD5: hash,
