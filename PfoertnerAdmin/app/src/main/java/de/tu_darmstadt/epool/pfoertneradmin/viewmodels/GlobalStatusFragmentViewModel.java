@@ -95,9 +95,10 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
 
         else {
             statusList = new ArrayList<>();
-            statusList.add("Do Not Disturb!");
             statusList.add("Come In!");
             statusList.add("Only Urgent Matters!");
+            statusList.add("Do Not Disturb!");
+
         }
     }
 
