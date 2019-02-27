@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.signature.ObjectKey;
 
 import java.io.IOException;
@@ -44,10 +46,18 @@ public class SpionActivity extends AppCompatActivity {
                 .getOfficeRepo()
                 .getOffice(app.getOffice().getId())
                 .observe(this, office -> {
+
+                    GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
+                            new LazyHeaders.Builder()
+                            .addHeader("Authorization", app.getAuthentication().id)
+                            .build()
+                            );
+
+
                     if (office != null) {
                         Glide
                                 .with(SpionActivity.this)
-                                .load(office.getSpionPicture())
+                                .load(glideUrl)
                                 .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
                                 .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
                                 .into(spion);
