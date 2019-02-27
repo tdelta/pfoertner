@@ -367,6 +367,8 @@ router.get('/:officeId/takephoto', (req, res) => {
   models.Office.findById(officeId).then(office =>
     notifyPanel(office, 'takephoto')
   );
+
+  res.status(200);
 });
 
 module.exports = router;
