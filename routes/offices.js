@@ -331,13 +331,13 @@ router.patch('/:officeId/spion', (req, res) => {
   const picture = req.files.spion;
   const hash = req.files.spion.md5();
 
-  const officeid = parseInt(req.params.id, 10);
+  const officeId = parseInt(req.params.officeId, 10);
 
-  picture.mv('spionuploads/' + req.params.id + '.jpg', function(err) {
+  picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
     if (err) {
       return res.status(500).send(err);
     } else {
-      models.Office.findById(officeid).then(office => {
+      models.Office.findById(officeId).then(office => {
         console.log('Das Office' + office);
         office
           .update({
