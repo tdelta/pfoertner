@@ -332,7 +332,7 @@ router.patch('/:officeId/spion', (req, res) => {
   const picture = req.files.spion;
   const hash = req.files.spion.md5();
 
-  const officid = parseInt(req.params.id, 10);
+  const officeid = parseInt(req.params.id, 10);
 
   picture.mv('spionuploads/' + req.params.id + '.jpg', function(err) {
     if (err) {
