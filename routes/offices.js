@@ -302,7 +302,7 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
 });
 
 // ENDPOINT: GET /offices/:id/spion
-router.get('/:officeId/spion', auth.authFun(), (req, res) => {
+router.get('/:officeId/spion', (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
   models.Office.findById(officeId).then(office => {
@@ -342,7 +342,7 @@ router.patch('/:officeId/spion', (req, res) => {
         office
           .update({
             spionPicture:
-              'http://deh.duckdns.org:3000/office/' +
+              'http://deh.duckdns.org:3000/offices/' +
               req.params.officeId +
               '/spion',
             spionPictureMD5: hash,
