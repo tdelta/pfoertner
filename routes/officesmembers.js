@@ -257,7 +257,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
         officemember.getOffice().then(office => {
           notifyOfficeSubscribers(
             office,
-            'OfficeMemberUpdated',
+            'AppointmentsUpdated',
             officemember.id.toString()
           );
         });
