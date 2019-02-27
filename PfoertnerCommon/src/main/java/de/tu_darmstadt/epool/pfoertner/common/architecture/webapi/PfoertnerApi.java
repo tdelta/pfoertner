@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import okhttp3.OkHttpClient;

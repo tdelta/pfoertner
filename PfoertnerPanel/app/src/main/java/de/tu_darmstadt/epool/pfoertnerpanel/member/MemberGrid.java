@@ -1,11 +1,9 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.member;
 
-import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.content.Context;
 
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +14,13 @@ import android.widget.GridView;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
-import de.tu_darmstadt.epool.pfoertnerpanel.R;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+
 
 public class MemberGrid extends GridView{
 
     // Plz dun h8
-    private static List<MemberEntity> members;
+    private static List<Member> members;
     private int height;
 
     public MemberGrid(Context context) {
@@ -38,11 +35,13 @@ public class MemberGrid extends GridView{
         super(context, attrs, defStyleAttr);
     }
 
-    public void setMembers(List<MemberEntity> members) {
-        MemberArrayAdapter adapter = (MemberArrayAdapter) getAdapter();
-        adapter.clear();
-        adapter.addAll(members);
+    public void setMembers(List<Member> members) {
+        final MemberArrayAdapter adapter = (MemberArrayAdapter) getAdapter();
 
+        if (adapter != null) {
+            adapter.clear();
+            adapter.addAll(members);
+        }
 
         this.members = members;
     }
@@ -69,10 +68,10 @@ public class MemberGrid extends GridView{
 
     }
 
-    private class MemberArrayAdapter extends ArrayAdapter<MemberEntity> {
-        private List<MemberEntity> values;
+    private class MemberArrayAdapter extends ArrayAdapter<Member> {
+        private List<Member> values;
 
-        private MemberArrayAdapter(Context context, List<MemberEntity> values) {
+        private MemberArrayAdapter(Context context, List<Member> values) {
             super(context, -1, values);
             this.values = values;
         }
@@ -80,7 +79,7 @@ public class MemberGrid extends GridView{
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            MemberView memberView =  new MemberView(getContext(), values.get(position));
+            final MemberView memberView =  new MemberView(getContext(), values.get(position));
 
             memberView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, MemberGrid.this.height / 2));
 

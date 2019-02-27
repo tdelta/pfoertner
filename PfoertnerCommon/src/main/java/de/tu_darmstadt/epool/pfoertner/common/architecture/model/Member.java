@@ -8,4 +8,6 @@ public interface Member {
     String getStatus();
     String getPicture();
     String getPictureMD5();
+    String getServerAuthCode();
+    String getCalendarId();
 }
