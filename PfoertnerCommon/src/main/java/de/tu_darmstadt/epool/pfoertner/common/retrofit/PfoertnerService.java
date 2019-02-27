@@ -10,6 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -75,6 +76,12 @@ public interface PfoertnerService {
   @GET("offices/{id}/takephoto")
   Call<ResponseBody> initSpionPhoto(@Path("id") int id);
 
+
+  @PATCH("appointments/{id}")
+  Call<ResponseBody> patchAppointment(@Header("Authorization") String authToken,@Path("id") int id,@Body AppointmentRequest appointmentRequest);
+
+  @DELETE("appointments/{id}")
+  Call<ResponseBody> removeAppointment(@Header("Authorization") String authToken,@Path("id") int appointmentId);
 
   //@POST("/api/devices/{id}/person")
   //Call<MemberData> createPerson(@Header("Authorization") String authToken, @Path("id") int deviceInt,@Body PersonCreationData personData);

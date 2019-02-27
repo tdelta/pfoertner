@@ -4,7 +4,7 @@
     package="de.tu_darmstadt.epool.pfoertneradmin">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
@@ -40,15 +40,16 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".showQRCodeActivity" />
-        <activity
-            android:name=".AppointmentRequest"
-            android:theme="@style/Theme.AppCompat.Translucent">
+
+        <service
+            android:enabled="true"
+            android:name="ProcessAppointmentRequest">
             <intent-filter>
                 <action android:name="AcceptAppointmentRequest" />
-
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="DeclineAppointmentRequest" />
             </intent-filter>
-        </activity>
+        </service>
+
         <activity android:name=".AppointmentActivity" />
 
         <service android:name="de.tu_darmstadt.epool.pfoertner.common.MessagingService">
@@ -57,22 +58,14 @@
             </intent-filter>
         </service>
         <service
-            android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"
-            android:enabled="true" />
-        <service
-            android:name=".calendar.CalendarService"
             android:enabled="true"
-            android:exported="false" />
-
-        <receiver
-            android:name=".BootDeviceReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"/>
+        <receiver android:name=".BootDeviceReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>

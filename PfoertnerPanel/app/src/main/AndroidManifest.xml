@@ -11,19 +11,25 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name="de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication"
+        android:name=".PanelApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_pfoertnerpanel"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_pfoertnerpanel"
         android:supportsRtl="true"
-        android:theme="@style/PfoertnerStyle">
-        <activity android:name=".ScheduleAppointment"
-            android:hardwareAccelerated="true">
-        </activity>
-        <activity android:name=".MakeAppointment"
-            android:hardwareAccelerated="true">
-        </activity>
+        android:theme="@style/PfoertnerStyle"
+        >
+        <activity android:name=".NewScheduleAppointment"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".ScheduleAppointment"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".MakeAppointment"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="landscape"></activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape">
@@ -55,6 +61,7 @@
             </intent-filter>
         </service>
         <service android:enabled="true" android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService" />
+        <service android:enabled="true" android:name=".services.MemberCalendarInfoService" />
         <activity android:name=".Appointment"
             android:screenOrientation="landscape"></activity>
     </application>

@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 public class EventChannel {
+    private static final String TAG = "EventChannel";
+
     private static String EVENT_TYPE_KEY = "event";
     private static String EVENT_PAYLOAD_KEY = "payload";
     public enum EventType {
@@ -69,9 +72,7 @@ public class EventChannel {
             }
 
             catch (final IllegalArgumentException e) {
-                e.printStackTrace();
-
-                //TODO better log
+                Log.e(TAG, "Could not translate message into event.", e);
             }
         }
     };

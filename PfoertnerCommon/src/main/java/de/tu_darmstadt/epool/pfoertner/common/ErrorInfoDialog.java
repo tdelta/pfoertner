@@ -9,7 +9,8 @@ public class ErrorInfoDialog {
     public static void show(
             final Context context,
             final String message,
-            final Consumer<Void> retryFunction
+            final Consumer<Void> retryFunction,
+            final boolean cancelable
     ) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
@@ -23,7 +24,7 @@ public class ErrorInfoDialog {
                 (dialog, which) -> retryFunction.accept(null)
         );
 
-        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setCancelable(cancelable);
 
         alertDialogBuilder.show();
     }

@@ -1,17 +1,10 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,30 +19,25 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
-import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
-import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
+import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberGrid;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = "PfoertnerPanelMainActivity";
-
-    private CompositeDisposable disposables;
+    private final String TAG = "PfoertnerPanelMain";
 
     private LayoutInflater inflater;
     private ViewGroup container;
-    private MemberGrid memberList;
+    private CompositeDisposable disposables;
 
+    private MemberGrid memberList;
     private OfficeViewModel viewModel;
 
     private void init() {
@@ -64,14 +52,18 @@ public class MainActivity extends AppCompatActivity {
                                             new Intent(MainActivity.this, SyncService.class)
                                     );
 
-                                    initOffice();
-                                },
-                                throwable -> {
-                                    Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
+                                MainActivity.this.startService(
+                                        new Intent(MainActivity.this, MemberCalendarInfoService.class)
+                                );
 
-                                    ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
-                                }
-                        )
+                                initOffice();
+                            },
+                            throwable -> {
+                                Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
+
+                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init(), false);
+                            }
+                    )
         );
     }
 
@@ -123,8 +115,6 @@ public class MainActivity extends AppCompatActivity {
     private void onOfficeInitialized() {
         Log.d(TAG, "Office has been initialized.");
         final PfoertnerApplication app = PfoertnerApplication.get(this);
-
-        setGlobalStatus(app.getOffice().getStatus());
         //updateMembers();
 
         //registerForMemberChanges(app.getOffice().getMembers());
@@ -137,35 +127,22 @@ public class MainActivity extends AppCompatActivity {
             if(office != null) {
                 //registerForMemberChanges(app.getOffice().getMembers());
                 setGlobalStatus(office.getStatus());
+                setRoom(office.getRoom());
                 //updateMembers();
             }
         });
 
         viewModel.getOfficeMembers(app.getOffice().getId()).observe(this, members -> {
            if(members != null) {
-
                memberList.setMembers(members);
            }
         });
+    }
 
-
-        // Altes system
-//        app.getOffice().addObserver(new OfficeObserver() {
-//            @Override
-//            public void onStatusChanged(final String newStatus) {
-//                setGlobalStatus(newStatus);
-//            }
-//
-//            @Override
-//            public void onMembersChanged(final List<Member> newMembers, final List<Integer> removedMemberIds) {
-//                Log.d(TAG, "Members changed, we got " + newMembers.size() + " new member(s) and " + removedMemberIds.size() + " removed member(s).");
-//
-//                registerForMemberChanges(newMembers);
-//
-//                updateMembers();
-//                // TODO: Members einzaln updaten
-//            }
-//        });
+    public void newtest(View view){
+        Intent intent = new Intent(this, NewScheduleAppointment.class);
+        intent.putExtra("MemberId", ((MemberButton) view).getMemberId());
+        startActivity(intent);
     }
 
     public void test(View view){
@@ -202,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
             member.addObserver(observer);
 
-            member.setCalendarApi(new CalendarApi(member,this));
+            //member.setCalendarApi(new CalendarApi(member,this));
         }
     }
 
@@ -231,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
 
         inflater = getLayoutInflater();
 
-        setRoom("S101/A1");
-        setGlobalStatus("Extended Access");
+        setRoom("Room name not set");
+        setGlobalStatus("Come In!");
 
         if (savedInstanceState == null) {
             init();
@@ -271,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
                 default: {
-                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_info_status_bg));
                 }
             }
         }

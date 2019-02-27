@@ -15,6 +15,12 @@ android {
         versionName androidGitVersion.name()
         versionCode androidGitVersion.code()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -72,6 +78,12 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
 
     implementation 'android.arch.lifecycle:extensions:1.1.1'
+
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    androidTestImplementation "android.arch.persistence.room:testing:1.1.1"
+    implementation "android.arch.persistence.room:rxjava2:1.1.1"
+    implementation 'nl.littlerobots.rxlint:rxlint:1.7.3'
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'

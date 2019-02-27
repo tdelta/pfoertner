@@ -2,19 +2,26 @@ package de.tu_darmstadt.epool.pfoertner.common.architecture.repositories;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Transformations;
 import android.util.Log;
 
+import org.reactivestreams.Publisher;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-
-import java.util.List;
 
 public class MemberRepository {
     private static final String TAG = "MemberRepository";
@@ -24,51 +31,123 @@ public class MemberRepository {
 
     private AppDatabase db;
 
+    private static Member toInterface(final MemberEntity entity) {
+        return entity; //  implicit cast to interface
+    }
+
     public MemberRepository(final PfoertnerApi api, final Authentication auth, final AppDatabase db) {
         this.api = api;
         this.auth = auth;
         this.db = db;
     }
 
-    public LiveData<? extends Member> getMember(final int memberId) {
+    public LiveData<Member> getMember(final int memberId) {
         refreshMember(memberId);
 
-        return db.memberDao().load(memberId);
+        return Transformations.map(
+                db.memberDao().load(memberId),
+                MemberRepository::toInterface
+        );
     }
 
-    public LiveData<List<MemberEntity>> getMembersFromOffice(final int officeId){
+    public LiveData<List<Member>> getMembersFromOffice(final int officeId){
         refreshAllMembersFromOffice(officeId);
 
-        return db.memberDao().getAllMembersFromOffice(officeId);
+        return
+                Transformations.map(
+                        db.memberDao().getAllMembersFromOffice(officeId),
+                        ArrayList<Member>::new // implicit conversion to pure interface type
+                );
+    }
+
+    public Flowable<Member> getMemberFlowable(final int memberId) {
+        refreshMember(memberId);
+
+        return db
+                .memberDao()
+                .loadFlowable(memberId)
+                .map(MemberRepository::toInterface);
     }
 
     @SuppressLint("CheckResult")
     public void setStatus(final int memberId, final String newStatus) {
-        db
+        modify(
+                memberId,
+                prevMember -> new MemberEntity(
+                    prevMember.getId(),
+                    prevMember.getOfficeId(),
+                    prevMember.getFirstName(),
+                    prevMember.getLastName(),
+                    newStatus,
+                    prevMember.getPicture(),
+                    prevMember.getPictureMD5(),
+                    prevMember.getServerAuthCode(),
+                    prevMember.getCalendarId()
+                )
+        )
+                .subscribe(
+                        () -> Log.d(TAG, "Successfully set status of member " + memberId + " to " + newStatus),
+                        throwable -> Log.e(TAG, "Setting a new status failed.", throwable)
+                );
+    }
+
+    public Completable setServerAuthCode(final int memberId, final String serverAuthCode, final String eMail) {
+        // TODO: Honor EMail
+        return modify(
+                memberId,
+                prevMember -> new MemberEntity(
+                        prevMember.getId(),
+                        prevMember.getOfficeId(),
+                        prevMember.getFirstName(),
+                        prevMember.getLastName(),
+                        prevMember.getStatus(),
+                        prevMember.getPicture(),
+                        prevMember.getPictureMD5(),
+                        serverAuthCode,
+                        prevMember.getCalendarId()
+                )
+        );
+    }
+
+    public Completable setCalendarId(int memberId, String calendarId) {
+        return modify(
+                memberId,
+                prevMember -> new MemberEntity(
+                        prevMember.getId(),
+                        prevMember.getOfficeId(),
+                        prevMember.getFirstName(),
+                        prevMember.getLastName(),
+                        prevMember.getStatus(),
+                        prevMember.getPicture(),
+                        prevMember.getPictureMD5(),
+                        prevMember.getServerAuthCode(),
+                        calendarId
+                )
+        );
+    }
+
+    private Completable modify(final int memberId, final Function<MemberEntity, MemberEntity> modifier) {
+        return db
                 .memberDao()
                 .loadOnce(memberId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnError(
-                        throwable -> Log.e(TAG, "Could not set status of member " + memberId + ", since the member could not be found in the database.", throwable)
+                        throwable -> Log.e(TAG, "Could not modify member " + memberId + ", since the member could not be found in the database.", throwable)
                 )
                 .flatMap(
                         member -> api
-                                .patchMember(auth.id, member.getId(), new MemberEntity(
+                                .patchMember(
+                                        auth.id,
                                         member.getId(),
-                                        member.getOfficeId(),
-                                        member.getFirstName(),
-                                        member.getLastName(),
-                                        newStatus
-                                ))
+                                        modifier.apply(member)
+                                )
                 )
                 .doOnError(
-                        throwable -> Log.e(TAG, "Could not set status of member " + memberId + ", since the new data could not be uploaded.", throwable)
+                        throwable -> Log.e(TAG, "Could not modify member " + memberId + ", since the new data could not be uploaded.", throwable)
                 )
-                .subscribe(
-                        o -> {},
-                        throwable -> Log.e(TAG, "Setting a new status failed.", throwable)
-                );
+                .observeOn(AndroidSchedulers.mainThread())
+                .ignoreElement();
     }
 
     @SuppressLint("CheckResult")

@@ -1,11 +1,8 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 
-import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,7 +11,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
 import android.support.v7.widget.Toolbar;
@@ -30,15 +26,12 @@ import java.util.Optional;
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.GlobalStatusFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.MemberStatusFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.RoomFragment;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
@@ -62,12 +55,10 @@ public class MainActivity extends AppCompatActivity {
                             throwable -> {
                                 Log.e(TAG, "Could not initialize app. Will offer user to retry.", throwable);
 
-                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
+                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init(), false);
                             }
                     );
         }
-
-        startCalenderService();
     }
 
     private void initNavigation() {
@@ -132,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
 
             final GlobalStatusFragment globalStatusFragment = new GlobalStatusFragment();
             fragmentTransaction.add(R.id.global_status_view, globalStatusFragment);
+
+            final RoomFragment roomFragment = new RoomFragment();
+            fragmentTransaction.add(R.id.room_card, roomFragment);
 
             final MemberStatusFragment memberStatusFragment = new MemberStatusFragment();
             fragmentTransaction.add(R.id.member_status_view, memberStatusFragment);
@@ -223,31 +217,5 @@ public class MainActivity extends AppCompatActivity {
     public void gotoPictureUploader(View view){
         Intent intent = new Intent(this, PictureUpload.class);
         startActivity(intent);
-    }
-
-    private void startCalenderService() {
-        try {
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_CALENDAR)
-                    == PackageManager.PERMISSION_GRANTED) {//Checking permission
-                //Starting service for registering ContactObserver
-                Intent intent = new Intent(this, CalendarService.class);
-                startService(intent);
-            } else {
-                //Ask for READ_CALENDAR permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, MY_PERMISSIONS_READ_CALENDAR);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //If permission granted
-        if (requestCode == MY_PERMISSIONS_READ_CALENDAR && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startCalenderService();
-        }
     }
 }
