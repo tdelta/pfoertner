@@ -309,7 +309,7 @@ router.get('/:officeId/spion', (req, res) => {
     if (office == null) {
       res.status('404').send('There is no office to your id');
     } else {
-      if (reg.device.id === office.DeviceId) {
+      if (req.device.id === office.DeviceId) {
         if (office.picture == null) {
           res.status('404').send('There is no spion picture in this office');
         } else {
