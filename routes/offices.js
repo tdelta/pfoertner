@@ -322,12 +322,13 @@ router.get('/:officeId/spion', auth.authFun(), (req, res) => {
       }
     }
   });
+});
 
 // ENDPOINT: PATCH /offices/:id/spion
 router.patch('/:officeId/spion', (req, res) => {
-  
-  console.log('endpoint spion patch called');
 
+  console.log('function patch spion called');
+  
   const picture = req.files.spion;
   const hash = req.files.spion.md5();
 
