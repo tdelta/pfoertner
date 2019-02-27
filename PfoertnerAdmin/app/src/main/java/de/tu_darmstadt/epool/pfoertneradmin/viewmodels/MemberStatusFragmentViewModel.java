@@ -86,9 +86,10 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
 
         else {
             statusList = new ArrayList<>();
-            statusList.add("Out of office");
-            statusList.add("In meeting");
             statusList.add("Available");
+            statusList.add("In meeting");
+            statusList.add("Out of office");
+
         }
     }
 
