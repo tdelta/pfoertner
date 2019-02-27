@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.Optional;
 
+import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class SyncService extends Service {
@@ -39,6 +40,10 @@ public class SyncService extends Service {
                         break;
                     case OfficeDataUpdated:
                         SyncService.this.updateOfficeData();
+                        break;
+                    case takephoto:
+                        Spion spion = new Spion(getApplicationContext());
+                        spion.takePhoto();
                         break;
                 }
             }
