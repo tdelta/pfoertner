@@ -1,4 +1,4 @@
-package de.tu_darmstadt.epool.pfoertneradmin.viewmodels;
+package de.tu_darmstadt.epool.pfoertneradmin.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
+import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.RoomFragmentViewModel;
 
 public class RoomFragment extends Fragment {
     private static final String TAG = "GlobalStatusFragment";
@@ -46,7 +47,7 @@ public class RoomFragment extends Fragment {
 
             AlertDialog.Builder enterNewStatusBuilder = new AlertDialog.Builder(getActivity());
             enterNewStatusBuilder.setView(input)
-                    .setTitle("Enter a new Room Number")
+                    .setTitle("Enter a new Room Name")
                     .setPositiveButton("OK", (dialog, which) -> {
                         viewModel.setRoom(input.getText().toString());
                     });
