@@ -219,8 +219,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setRoom(final String str){
-        TextView room = findViewById(R.id.room);
-        room.setText(str);
+        if (str != null) {
+            TextView room = findViewById(R.id.room);
+            room.setText(str);
+        }
     }
 
     public void setGlobalStatus(final String status){
