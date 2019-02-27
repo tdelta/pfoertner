@@ -1,6 +1,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/layout"
+    android:id="@+id/appointment_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"/>
 
-    <de.tu_darmstadt.epool.pfoertneradmin.AppointmentRequestList
+    <fragment
+        class="de.tu_darmstadt.epool.pfoertneradmin.AppointmentRequestList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"

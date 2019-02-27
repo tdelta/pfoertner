@@ -25,8 +25,10 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.AsyncSubject;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.ReplaySubject;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
@@ -34,6 +36,7 @@ public class PfoertnerApplication extends Application {
     private static final String TAG = "PfoertnerApplication";
 
     private CompletableSubject isInitializedSubject = CompletableSubject.create();
+    private ReplaySubject<Integer> officeIdSubject = ReplaySubject.createWithSize(1);
 
     private SharedPreferences preferences;
     private Password password;
@@ -67,6 +70,9 @@ public class PfoertnerApplication extends Application {
                     return repo;
                 }
         )
+        .doOnError(
+                throwable -> Log.e(TAG, "Something failed during base app initialization.", throwable)
+        )
         .flatMap(
                 repo ->
                     repo
@@ -93,6 +99,9 @@ public class PfoertnerApplication extends Application {
                                             repo
                                                     .getMemberRepo()
                                                     .refreshAllMembers();
+
+                                            officeIdSubject
+                                                    .onNext(initStatus.joinedOfficeId());
                                         }
 
                                         else {
@@ -190,11 +199,18 @@ public class PfoertnerApplication extends Application {
                 .getOfficeRepo()
                 .refreshOffice(office.getId());
 
+        officeIdSubject
+                .onNext(office.getId());
+
         return getRepo()
                 .getInitStatusRepo()
                 .setJoinedOfficeId(office.getId())
                 .subscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread());
+    }
+
+    public ReplaySubject<Integer> observeOfficeId() {
+        return officeIdSubject;
     }
 
     public AppDatabase getDb() {
@@ -209,7 +225,13 @@ public class PfoertnerApplication extends Application {
         return repo;
     }
 
-    public CompletableSubject watchInitialization() {
+    public PfoertnerApi getApi() {
+        checkInitStatus();
+
+        return this.api;
+    }
+
+    public CompletableSubject observeInitialization() {
         return this.isInitializedSubject;
     }
 }

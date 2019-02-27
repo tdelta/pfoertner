@@ -31,7 +31,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertneradmin.calendar.CalendarService;
 import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
@@ -63,12 +62,10 @@ public class MainActivity extends AppCompatActivity {
                             throwable -> {
                                 Log.e(TAG, "Could not initialize app. Will offer user to retry.", throwable);
 
-                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init());
+                                ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init(), false);
                             }
                     );
         }
-
-        startCalenderService();
     }
 
     private void initNavigation() {
@@ -219,31 +216,5 @@ public class MainActivity extends AppCompatActivity {
     public void gotoPictureUploader(View view){
         Intent intent = new Intent(this, PictureUpload.class);
         startActivity(intent);
-    }
-
-    private void startCalenderService() {
-        try {
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_CALENDAR)
-                    == PackageManager.PERMISSION_GRANTED) {//Checking permission
-                //Starting service for registering ContactObserver
-                Intent intent = new Intent(this, CalendarService.class);
-                startService(intent);
-            } else {
-                //Ask for READ_CALENDAR permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, MY_PERMISSIONS_READ_CALENDAR);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //If permission granted
-        if (requestCode == MY_PERMISSIONS_READ_CALENDAR && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startCalenderService();
-        }
     }
 }
