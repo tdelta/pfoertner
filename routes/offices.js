@@ -326,8 +326,8 @@ router.get('/:officeId/spion', auth.authFun(), (req, res) => {
 
 // ENDPOINT: PATCH /offices/:id/spion
 router.patch(':officeId/spion', (req, res) => {
-  const picture = req.files.picture;
-  const hash = req.files.picture.md5();
+  const picture = req.files.spion;
+  const hash = req.files.spion.md5();
 
   const officid = parseInt(req.params.id, 10);
 
