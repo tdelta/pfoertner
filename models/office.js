@@ -8,7 +8,7 @@ var Office = db.sequelize.define('Office', {
     autoIncrement: true,
   },
   joinCode: Sequelize.STRING,
-  roomNumber: Sequelize.STRING,
+  room: Sequelize.STRING,
   status: Sequelize.STRING,
 });
 
