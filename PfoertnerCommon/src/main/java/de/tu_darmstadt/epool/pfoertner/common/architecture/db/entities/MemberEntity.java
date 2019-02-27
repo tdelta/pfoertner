@@ -106,4 +106,18 @@ public class MemberEntity implements Member {
 
     @Override
     public String getCalendarId() { return calendarId; }
+
+    public MemberEntity deepCopy() {
+        return new MemberEntity(
+                this.getId(),
+                this.getOfficeId(),
+                this.getFirstName(),
+                this.getLastName(),
+                this.getStatus(),
+                this.getPicture(),
+                this.getPictureMD5(),
+                this.getServerAuthCode(),
+                this.getCalendarId()
+        );
+    }
 }

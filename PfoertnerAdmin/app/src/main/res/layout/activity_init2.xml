@@ -82,7 +82,7 @@
         android:background="?android:attr/colorPrimaryDark"
         android:onClick="createAccount"
         android:text="@string/create_account"
-        android:textColor="@android:color/primary_text_dark"
+        android:textColor="@color/pfoertner_light_primary_dark_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

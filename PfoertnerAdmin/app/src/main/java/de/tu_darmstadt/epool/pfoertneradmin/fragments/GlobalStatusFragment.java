@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,6 +93,7 @@ public class GlobalStatusFragment extends Fragment {
             }
 
             else {
+                Log.d(TAG, "There is no status selected. Falling back to default text.");
                 viewModel.setNewIdx(0);
                 currentStatus = "None selected currently.";
             }
