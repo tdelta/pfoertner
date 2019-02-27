@@ -5,4 +5,6 @@ public interface Office {
     String getStatus();
     String getRoom();
     String getJoinCode();
+    String getSpionPicture();
+    String getSpionPictureMD5();
 }

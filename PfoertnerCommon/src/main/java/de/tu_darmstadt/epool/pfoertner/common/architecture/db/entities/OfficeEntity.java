@@ -11,19 +11,24 @@ public class OfficeEntity implements Office {
     public OfficeEntity() {}
 
     @Ignore
-    public OfficeEntity(int id, String joinCode, String status, String room) {
+    public OfficeEntity(int id, String joinCode, String status, String room, String spionPicture, String spionPictureMD5) {
         this.id = id;
         this.joinCode = joinCode;
         this.status = status;
         this.room = room;
+        this.spionPicture = spionPicture;
+        this.spionPictureMD5 = spionPictureMD5;
     }
 
     @PrimaryKey
     private int id;
 
+    // IMPORTANT: When updating these, dont forget to update the constructor!
     private String joinCode;
     private String status;
     private String room;
+    private String spionPicture;
+    private String spionPictureMD5;
 
     public void setId(int id) {
         this.id = id;
@@ -38,6 +43,10 @@ public class OfficeEntity implements Office {
     }
 
     public void setRoom(String room) { this.room = room; }
+
+    public void setSpionPicture(String spionPicture){ this.spionPicture = spionPicture; }
+
+    public void setSpionPictureMD5(String spionPictureMD5){ this.spionPictureMD5 = spionPictureMD5; }
 
     @Override
     public int getId() {
@@ -56,4 +65,10 @@ public class OfficeEntity implements Office {
     public String getJoinCode() {
         return joinCode;
     }
+
+    @Override
+    public String getSpionPicture(){ return spionPicture; }
+
+    @Override
+    public String getSpionPictureMD5() { return spionPictureMD5; }
 }

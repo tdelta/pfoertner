@@ -48,7 +48,9 @@ public class OfficeRepository {
                                     office.getId(),
                                     office.getJoinCode(),
                                     newStatus,
-                                    office.getRoom()
+                                    office.getRoom(),
+                                    office.getSpionPicture(),
+                                    office.getSpionPictureMD5()
                             ))
                 )
                 .doOnError(
@@ -76,7 +78,9 @@ public class OfficeRepository {
                                         office.getId(),
                                         office.getJoinCode(),
                                         office.getStatus(),
-                                        newRoom
+                                        newRoom,
+                                        office.getSpionPicture(),
+                                        office.getSpionPictureMD5()
                                 ))
                 )
                 .doOnError(

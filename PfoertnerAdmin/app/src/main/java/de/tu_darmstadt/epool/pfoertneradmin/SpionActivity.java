@@ -18,6 +18,7 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -27,6 +28,8 @@ public class SpionActivity extends AppCompatActivity {
     PfoertnerApplication app;
     PfoertnerService service;
 
+    private Disposable spionDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,17 +38,26 @@ public class SpionActivity extends AppCompatActivity {
         service = app.getService();
         spion = (ImageView) findViewById(R.id.imageViewSpion);
 
-        Glide
-                .with(SpionActivity.this)
-                .load(office.getPicture())
-                .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
-                .signature(new ObjectKey(office.getPictureMD5() == null ? "null" : office.getPictureMD5()))
-                .into(spion);
+
+        app
+                .getRepo()
+                .getOfficeRepo()
+                .getOffice(app.getOffice().getId())
+                .observe(this, office -> {
+                    if (office != null) {
+                        Glide
+                                .with(SpionActivity.this)
+                                .load(office.getSpionPicture())
+                                .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
+                                .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
+                                .into(spion);
+                    }
+                });
     }
 
     public void getNewSpionPicture(View view)  {
-        Completable.fromAction(
-                () -> initSpion()
+        spionDisposable = Completable.fromAction(
+                this::initSpion
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -62,5 +74,14 @@ public class SpionActivity extends AppCompatActivity {
                 .initSpionPhoto(app.getOffice().getId())
                 .execute()
                 .body();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (spionDisposable != null) {
+            spionDisposable.dispose();
+        }
     }
 }
