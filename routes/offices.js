@@ -164,19 +164,7 @@ router.get('/:officeId/members', auth.authFun(), (req, res) => {
             (loggedIn != null && loggedIn.OfficeId === selectedOfficeId) ||
             device.OfficeId === selectedOfficeId
           ) {
-            // Add appointment requests to officemember data, send the result, when all promises are fulfilled
-            let promises = [];
-            let officeMemberData = [];
-            officeMembers.map(member =>
-              promises.push(
-                models.OfficeMember.includeAppointmentRequests(member).then(
-                  data => officeMemberData.push(data)
-                )
-              )
-            );
-            Promise.all(promises).then(() => {
-              res.status(200).send(officeMemberData);
-            });
+            res.status(200).send(officeMembers);
           } else {
             res.status(401);
             res.send('Authorized user is not in requested office');
