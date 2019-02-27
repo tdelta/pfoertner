@@ -56,4 +56,13 @@ public class OfficeEntity implements Office {
     public String getJoinCode() {
         return joinCode;
     }
+
+    public OfficeEntity deepCopy() {
+        return new OfficeEntity(
+                this.id,
+                this.joinCode,
+                this.status,
+                this.room
+        );
+    }
 }
