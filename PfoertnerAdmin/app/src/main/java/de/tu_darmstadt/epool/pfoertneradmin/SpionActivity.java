@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.media.Image;
+import android.nfc.Tag;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -47,17 +48,23 @@ public class SpionActivity extends AppCompatActivity {
                 .getOffice(app.getOffice().getId())
                 .observe(this, office -> {
 
-                    GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
-                            new LazyHeaders.Builder()
-                            .addHeader("Authorization", app.getAuthentication().id)
-                            .build()
-                            );
+                    Log.d(TAG, "Vor dem Erstellen der URL");
+
+                    Log.d(TAG, "Der Wert von office.getSpionPicture: " + office.getSpionPicture());
+
+//                    GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
+//                            new LazyHeaders.Builder()
+//                            .addHeader("Authorization", app.getAuthentication().id)
+//                            .build()
+//                            );
+
+                    Log.d(TAG, "Nach dem Erstellen der URL");
 
 
                     if (office != null) {
                         Glide
                                 .with(SpionActivity.this)
-                                .load(glideUrl)
+                                .load(office.getSpionPicture())
                                 .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
                                 .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
                                 .into(spion);
@@ -66,6 +73,7 @@ public class SpionActivity extends AppCompatActivity {
     }
 
     public void getNewSpionPicture(View view)  {
+        Log.d(TAG, "ICHWERDEAUSGEFÜHRT");
         spionDisposable = Completable.fromAction(
                 this::initSpion
         )
@@ -84,6 +92,7 @@ public class SpionActivity extends AppCompatActivity {
                 .initSpionPhoto(app.getOffice().getId())
                 .execute()
                 .body();
+        Log.d(TAG, "DIE RESPONSE VOM SERVER: " + response.toString());
     }
 
     @Override
