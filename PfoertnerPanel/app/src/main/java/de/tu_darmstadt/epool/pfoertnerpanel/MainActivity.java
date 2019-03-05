@@ -208,12 +208,21 @@ public class MainActivity extends AppCompatActivity {
 
         inflater = getLayoutInflater();
 
-        setRoom("Room name not set");
-        setGlobalStatus("Come In!");
-
         if (savedInstanceState == null) {
             init();
+        } else {
+            setRoom(savedInstanceState.getString("room", null));
+            setGlobalStatus(savedInstanceState.getString("globalStatus", null));
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("room", getRoom());
+        outState.putString("globalStatus", getGlobalStatus());
+
+        // call superclass to save any view hierarchy
+        super.onSaveInstanceState(outState);
     }
 
 
@@ -226,7 +235,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void setRoom(final String str){
         TextView room = findViewById(R.id.room);
-        room.setText(str);
+        if (str != null) {
+            room.setText(str);
+        } else {room.setText("Room Name Not Set");
+
+        }
+    }
+
+    public String getRoom(){
+        TextView room = findViewById(R.id.room);
+        return room.getText().toString();
     }
 
     public void setGlobalStatus(final String status){
@@ -252,10 +270,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
         else {
-            // TODO: Remove status, if none set?
+            // TODO: maybe do better handling when status not set
+            setGlobalStatus("Come In!");
         }
+    }
+
+    public String getGlobalStatus() {
+        TextView global = findViewById(R.id.global_status);
+        return global.getText().toString();
     }
 
 }

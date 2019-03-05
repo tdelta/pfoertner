@@ -62,12 +62,24 @@ public class SpionActivity extends AppCompatActivity {
 
 
                     if (office != null) {
-                        Glide
-                                .with(SpionActivity.this)
-                                .load(office.getSpionPicture())
-                                .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
-                                .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
-                                .into(spion);
+                        if (office.getSpionPicture() != null) {
+                            GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
+                                    new LazyHeaders.Builder()
+                                            .addHeader("Authorization", app.getAuthentication().id)
+                                            .build()
+                            );
+
+                            Glide
+                                    .with(SpionActivity.this)
+                                    .load(glideUrl)
+                                    .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
+                                    .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
+                                    .into(spion);
+                        }
+
+                        else {
+                            Log.d(TAG, "There is no spion picture to upload.");
+                        }
                     }
                 });
     }

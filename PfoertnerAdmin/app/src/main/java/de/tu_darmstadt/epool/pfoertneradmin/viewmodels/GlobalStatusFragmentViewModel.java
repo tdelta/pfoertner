@@ -7,6 +7,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class GlobalStatusFragmentViewModel extends AndroidViewModel {
     private static final String TAG = "GlobalStatusFragmentViewModel";
@@ -27,6 +29,8 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
     private PfoertnerRepository repo;
 
     private List<String> statusList;
+
+    private CompositeDisposable disposables;
 
     public GlobalStatusFragmentViewModel(final Application rawApp) {
         super(rawApp);
@@ -43,6 +47,11 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
             // doesn't change.
             return;
         }
+
+        if (disposables != null) {
+            disposables.dispose();
+        }
+        disposables = new CompositeDisposable();
 
         // Initialize live data
         this.officeId = officeId;
@@ -86,9 +95,10 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
 
         else {
             statusList = new ArrayList<>();
-            statusList.add("Do Not Disturb!");
             statusList.add("Come In!");
             statusList.add("Only Urgent Matters!");
+            statusList.add("Do Not Disturb!");
+
         }
     }
 
@@ -139,8 +149,23 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
     }
 
     public void setStatus() {
-        repo
-                .getOfficeRepo()
-                .setStatus(officeId, statusList.get(getNewIdx()));
+        final String newStatus = statusList.get(getNewIdx());
+
+        disposables.add(
+            repo
+                    .getOfficeRepo()
+                    .setStatus(officeId, newStatus)
+                    .subscribe(
+                            () -> Log.d(TAG, "Successfully set status to " + newStatus),
+                            throwable -> Log.e(TAG, "Setting a new status failed.", throwable)
+                    )
+        );
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+
+        disposables.dispose();
     }
 }

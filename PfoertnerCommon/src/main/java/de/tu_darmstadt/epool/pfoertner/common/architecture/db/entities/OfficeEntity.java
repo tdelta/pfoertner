@@ -71,4 +71,15 @@ public class OfficeEntity implements Office {
 
     @Override
     public String getSpionPictureMD5() { return spionPictureMD5; }
+
+    public OfficeEntity deepCopy() {
+        return new OfficeEntity(
+                this.id,
+                this.joinCode,
+                this.status,
+                this.room,
+                this.getSpionPicture(),
+                this.getSpionPictureMD5()
+        );
+    }
 }

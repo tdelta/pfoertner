@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,6 +93,7 @@ public class GlobalStatusFragment extends Fragment {
             }
 
             else {
+                Log.d(TAG, "There is no status selected. Falling back to default text.");
                 viewModel.setNewIdx(0);
                 currentStatus = "None selected currently.";
             }
@@ -107,10 +109,14 @@ public class GlobalStatusFragment extends Fragment {
     private Drawable selectIcon(final String status) {
         final Activity activity = getActivity();
 
-        if (status == null || status.equals("Come In!")) {
-            return ContextCompat.getDrawable(activity, R.drawable.ic_thumb_up_green_24dp);
-        } else {
-            return ContextCompat.getDrawable(activity, R.drawable.ic_warning_red_24dp);
+        switch(status) {
+            case "Come In!":
+                return ContextCompat.getDrawable(activity, R.drawable.ic_thumb_up_green_24dp);
+            case "Only Urgent Matters!":
+            case "Do Not Disturb!":
+                return ContextCompat.getDrawable(activity, R.drawable.ic_warning_red_24dp);
+            default:
+                return ContextCompat.getDrawable(activity, R.drawable.ic_info_yellow_24dp);
         }
     }
 }
