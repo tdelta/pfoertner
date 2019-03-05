@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.LocalCalendar;
@@ -30,7 +31,7 @@ public class AppointmentRequestList extends Fragment{
     private LayoutInflater inflater;
     private static int WRITE_CALENDAR_PERMISSION_REQUEST = 0;
 
-    private AppointmentRequest appointmentRequestToWrite;
+    private Appointment appointmentRequestToWrite;
     private String emailToWrite;
 
     @Override
@@ -39,31 +40,31 @@ public class AppointmentRequestList extends Fragment{
         return inflater.inflate(R.layout.appointment_request_list,container,true);
     }
 
-    public void showAppointmentRequests(List<AppointmentRequest> appointmentRequestList){
+    public void showAppointmentRequests(List<Appointment> appointmentRequestList){
         LinearLayout scrollRequests = getView().findViewById(R.id.scroll_requests);
 
         scrollRequests.removeAllViews();
 
         if(appointmentRequestList == null) return;
 
-        for(AppointmentRequest appointmentRequest: appointmentRequestList){
-            if(!appointmentRequest.accepted) {
+        for(Appointment appointmentRequest: appointmentRequestList){
+            if(!appointmentRequest.getAccepted()) {
                 View appointmentRequestView = inflater.inflate(R.layout.appointment_request, scrollRequests, false);
 
                 StringBuilder text = new StringBuilder();
                 DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd, ", Locale.GERMANY);
                 DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.GERMANY);
 
-                OffsetDateTime startDateTime = DateTimeUtils.toInstant(appointmentRequest.start).atOffset(ZoneOffset.of("+01:00"));
-                OffsetDateTime endDateTime = DateTimeUtils.toInstant(appointmentRequest.end).atOffset(ZoneOffset.of("+01:00"));
+                OffsetDateTime startDateTime = DateTimeUtils.toInstant(appointmentRequest.getStart()).atOffset(ZoneOffset.of("+01:00"));
+                OffsetDateTime endDateTime = DateTimeUtils.toInstant(appointmentRequest.getEnd()).atOffset(ZoneOffset.of("+01:00"));
                 text.append(dateFormatter.format(startDateTime));
                 text.append(timeFormatter.format(startDateTime));
                 text.append(" - ");
                 text.append(timeFormatter.format(endDateTime));
                 text.append("\n");
-                text.append(appointmentRequest.name);
+                text.append(appointmentRequest.getName());
                 text.append(": ");
-                text.append(appointmentRequest.message);
+                text.append(appointmentRequest.getMessage());
 
                 TextView textView = appointmentRequestView.findViewById(R.id.text);
                 textView.setText(text.toString());
@@ -77,11 +78,11 @@ public class AppointmentRequestList extends Fragment{
 
     private class ButtonListener implements View.OnClickListener {
 
-        private AppointmentRequest appointmentRequest;
+        private Appointment appointmentRequest;
         private boolean accept;
         private AdminApplication app;
 
-        public ButtonListener(AppointmentRequest appointmentRequest, boolean accept){
+        public ButtonListener(Appointment appointmentRequest, boolean accept){
             this.appointmentRequest = appointmentRequest;
             this.accept = accept;
             app = AdminApplication.get(getContext());
@@ -92,7 +93,7 @@ public class AppointmentRequestList extends Fragment{
             try {
                 Member member = app.getOffice().getMemberById(app.getMemberId())
                         .orElseThrow(() -> new RuntimeException("Cant accept an appointment when no Office Member is registered"));
-                member.setAppointmentRequestAccepted(app.getService(),app.getAuthentication(),appointmentRequest.id,accept);
+                member.setAppointmentRequestAccepted(app.getService(),app.getAuthentication(),appointmentRequest.getId(),accept);
                 String email = member.getEmail();
                 if(accept){
                     writeCalendarEvent(
@@ -105,14 +106,14 @@ public class AppointmentRequestList extends Fragment{
             }
         }
     }
-    private void writeCalendarWithPermission(AppointmentRequest appointmentRequest,String email){
+    private void writeCalendarWithPermission(Appointment appointmentRequest,String email){
         try{
             LocalCalendar.getInstance(getContext(),email).writeEvent(
-                    appointmentRequest.start,
-                    appointmentRequest.end,
-                    appointmentRequest.name,
-                    appointmentRequest.email,
-                    appointmentRequest.message
+                    appointmentRequest.getStart(),
+                    appointmentRequest.getEnd(),
+                    appointmentRequest.getName(),
+                    appointmentRequest.getEmail(),
+                    appointmentRequest.getMessage()
             );
         } catch (SecurityException e){
             // This point in the code should never be reached
@@ -120,7 +121,7 @@ public class AppointmentRequestList extends Fragment{
         }
     }
 
-    private void writeCalendarEvent(AppointmentRequest appointmentRequest,String email){
+    private void writeCalendarEvent(Appointment appointmentRequest,String email){
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED){
             requestPermissions(
