@@ -4,18 +4,22 @@ import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.AppointmentEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
@@ -60,4 +64,13 @@ public interface PfoertnerApi {
 
     @PATCH("/offices/{id}")
     Single<OfficeEntity> patchOffice(@Header("Authorization") String authToken,@Path("id") int id, @Body OfficeEntity office);
+
+    @PATCH("/appointments/{id}")
+    Single<AppointmentEntity> patchAppointment(@Header("Authorization") String authToken, @Path("id") int id, @Body AppointmentEntity appointment);
+
+    @DELETE("appointments/{id}")
+    Completable removeAppointment(@Header("Authorization") String authToken, @Path("id") int appointmentId);
+
+    @GET("/officemembers/{id}/appointments")
+    Single<List<AppointmentEntity>> getAppointmentsOfMember(@Header("Authorization") String authToken, @Path("id") int memberId);
 }

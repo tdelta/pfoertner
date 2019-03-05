@@ -34,11 +34,11 @@ public class SyncService extends Service {
                     case OfficeMemberUpdated:
                         SyncService.this.updateMember(payload);
                         break;
-                    case CalendarCreated:
-                        SyncService.this.updateMemberCalendar(payload);
-                        break;
                     case OfficeDataUpdated:
                         SyncService.this.updateOfficeData();
+                        break;
+                    case AppointmentsUpdated:
+                        SyncService.this.updateAppointmentsOfMember(payload);
                         break;
                 }
             }
@@ -61,23 +61,23 @@ public class SyncService extends Service {
         }
     }
 
-    private void updateMemberCalendar(final @Nullable String payload) {
-        final PfoertnerApplication app = PfoertnerApplication.get(this);
+    private void updateAppointmentsOfMember(final String payload){
+        Log.d(TAG,"Update Appointments");
+        if(payload == null){
+            Log.e(TAG,"Tried to update appointments of an office member but there was no payload!");
 
-        if (app.hasOffice()) {
-            if (payload == null) {
-                Log.e(TAG, "Tried to update member, but there was no payload!");
-            } else {
-                try {
-                    final Optional<Member> maybeMember = app.getOffice().getMemberById(
-                            Integer.parseInt(payload)
-                    );
-
-                    maybeMember.ifPresent(Member::calendarUpdated);
-                } catch (NumberFormatException e){
-                    Log.e(TAG, "Tried to update member, but the payload was invalid.");
-                }
+        } else {
+            final PfoertnerApplication app = PfoertnerApplication.get(this);
+            try {
+                int memberId = Integer.parseInt(payload);
+                app.getRepo()
+                        .getAppointmentRepository()
+                        .refreshAllAppointmentsFromMember(memberId)
+                        .subscribe();
+            } catch (NumberFormatException e){
+                Log.e(TAG,"Tried to update appointments of an officemember but the payload was invalid",e);
             }
+
         }
     }
 

@@ -25,12 +25,14 @@ public class PfoertnerRepository {
 
     private final OfficeRepository officeRepo;
     private final MemberRepository memberRepo;
+    private final AppointmentRepository appointmentRepository;
     private final InitStatusRepository initStatusRepo;
 
     public PfoertnerRepository(final PfoertnerApi api, final Authentication auth, final AppDatabase db) {
         this.officeRepo = new OfficeRepository(api, auth, db);
         this.memberRepo = new MemberRepository(api, auth, db);
         this.initStatusRepo = new InitStatusRepository(db);
+        this.appointmentRepository = new AppointmentRepository(api, auth, db);
     }
 
     public OfficeRepository getOfficeRepo() {
@@ -43,5 +45,9 @@ public class PfoertnerRepository {
 
     public InitStatusRepository getInitStatusRepo() {
         return initStatusRepo;
+    }
+
+    public AppointmentRepository getAppointmentRepository() {
+        return appointmentRepository;
     }
 }

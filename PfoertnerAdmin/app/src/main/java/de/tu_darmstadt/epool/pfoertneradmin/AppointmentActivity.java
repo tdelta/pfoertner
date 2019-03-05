@@ -18,6 +18,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
+import java.util.List;
+
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
@@ -44,6 +47,13 @@ public class AppointmentActivity extends AppCompatActivity{
                 .getMemberRepo()
                 .getMember(app.getMemberId())
                 .observe(this, this::reactToMemberChange);
+
+        final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
+        app
+                .getRepo()
+                .getAppointmentRepository()
+                .getAppointmentsOfMember(app.getMemberId())
+                .observe(this,appointmentData -> appointments.showAppointmentRequests(appointmentData));
     }
 
     private void cancelNotifications(){
@@ -84,10 +94,6 @@ public class AppointmentActivity extends AppCompatActivity{
         }
 
         topCard.addView(newContent);
-
-        // TODO appointments
-        // final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-        // appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
 
     private void reactToMemberChange(final Member member) {
@@ -103,13 +109,6 @@ public class AppointmentActivity extends AppCompatActivity{
 
                 buildUI(member, false);
             }
-
-            // TODO: Handle appointment requests
-            //@Override
-            //public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
-            //    final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-            //    appointments.showAppointmentRequests(appointmentRequests);
-            //}
         }
 
         else {
