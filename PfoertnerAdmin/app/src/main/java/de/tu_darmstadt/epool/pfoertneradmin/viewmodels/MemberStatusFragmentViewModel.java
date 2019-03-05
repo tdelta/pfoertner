@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -17,6 +18,7 @@ import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class MemberStatusFragmentViewModel extends AndroidViewModel {
     private static final String TAG = "MemberStatusFragmentViewModel";
@@ -27,6 +29,8 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
     private PfoertnerRepository repo;
 
     private List<String> statusList;
+
+    private CompositeDisposable disposables;
 
     public MemberStatusFragmentViewModel(final Application rawApp) {
         super(rawApp);
@@ -43,6 +47,11 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
             // doesn't change.
             return;
         }
+
+        if (this.disposables != null) {
+            this.disposables.dispose();
+        }
+        this.disposables = new CompositeDisposable();
 
         // Initialize live data
         this.memberId = memberId;
@@ -86,9 +95,10 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
 
         else {
             statusList = new ArrayList<>();
-            statusList.add("Out of office");
-            statusList.add("In meeting");
             statusList.add("Available");
+            statusList.add("In meeting");
+            statusList.add("Out of office");
+
         }
     }
 
@@ -139,8 +149,23 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
     }
 
     public void setStatus() {
-        repo
+        final String newStatus = statusList.get(getNewIdx());
+
+        disposables.add(
+            repo
                 .getMemberRepo()
-                .setStatus(memberId, statusList.get(getNewIdx()));
+                .setStatus(memberId, newStatus)
+                .subscribe(
+                        () -> Log.d(TAG, "Successfully set status of member " + memberId + " to " + newStatus),
+                        throwable -> Log.e(TAG, "Setting a new status failed.", throwable)
+                )
+        );
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+
+        disposables.dispose();
     }
 }

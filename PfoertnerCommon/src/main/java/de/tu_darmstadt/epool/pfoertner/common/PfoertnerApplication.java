@@ -51,13 +51,8 @@ public class PfoertnerApplication extends Application {
 
     private boolean hadBeenInitialized = false;
 
-    // Needs to be called in a RequestTask
-    public Completable init() {
-        if (hadBeenInitialized) {
-            return Completable.complete();
-        }
-
-        return Single.fromCallable(
+    private Completable initProcess =
+        Single.fromCallable(
                 () -> {
                     this.password = Password.loadPassword(this.preferences);
                     this.service = PfoertnerService.makeService();
@@ -81,7 +76,7 @@ public class PfoertnerApplication extends Application {
                             .subscribeOn(Schedulers.io())
                             .observeOn(Schedulers.io())
                             .doOnError(
-                                    throwable -> Log.e(TAG, "Could not retrive init status, app cant be initialized.", throwable)
+                                   throwable -> Log.e(TAG, "Could not retrive init status, app cant be initialized.", throwable)
                             )
                             .doOnSuccess(
                                     initStatus -> {
@@ -120,7 +115,12 @@ public class PfoertnerApplication extends Application {
         )
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .ignoreElement();
+        .ignoreElement()
+        .cache();
+
+    // Needs to be called in a RequestTask
+    public Completable init() {
+        return initProcess;
     }
 
     protected void onInit() { }

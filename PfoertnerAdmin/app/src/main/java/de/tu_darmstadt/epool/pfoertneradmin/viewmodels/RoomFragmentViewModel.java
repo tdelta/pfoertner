@@ -5,23 +5,21 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
-import android.content.SharedPreferences;
-
-import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import android.util.Log;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class RoomFragmentViewModel extends AndroidViewModel {
+    private static final String TAG = "RoomFragmentViewModel";
+
     private int officeId;
     private LiveData<String> currentRoomListener;
     private PfoertnerRepository repo;
 
+    private CompositeDisposable disposables;
 
     public RoomFragmentViewModel(final Application rawApp) {
         super(rawApp);
@@ -38,6 +36,11 @@ public class RoomFragmentViewModel extends AndroidViewModel {
             // doesn't change.
             return;
         }
+
+        if (disposables != null) {
+            disposables.dispose();
+        }
+        disposables = new CompositeDisposable();
 
         // Initialize live data
         this.officeId = officeId;
@@ -70,10 +73,22 @@ public class RoomFragmentViewModel extends AndroidViewModel {
 
     public void setRoom(String room) {
         if (!room.trim().equals("")) {
-            repo
+            disposables.add(
+                repo
                     .getOfficeRepo()
-                    .setRoom(officeId, room);
+                    .setRoom(officeId, room)
+                    .subscribe(
+                            () -> Log.d(TAG, "Successfully set room to " + room),
+                            throwable -> Log.e(TAG, "Setting a new room failed.", throwable)
+                    )
+            );
         }
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+
+        disposables.dispose();
+    }
 }

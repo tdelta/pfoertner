@@ -26,15 +26,23 @@ import java.util.function.Consumer;
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class PictureUpload extends AppCompatActivity {
     private static final String TAG = "PictureUpload";
     private MemberProfileViewModel viewModel;
 
+    private CompositeDisposable disposables;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture_upload);
+
+        if (disposables != null) {
+            disposables.dispose();
+        }
+        disposables = new CompositeDisposable();
 
         final AdminApplication app = AdminApplication.get(this);
 
@@ -75,14 +83,15 @@ public class PictureUpload extends AppCompatActivity {
                 newFirstName -> {
                     final AdminApplication app = AdminApplication.get(this);
 
-                    app.getOffice().getMemberById(
-                            app.getMemberId()
-                    ).ifPresent(
-                            member -> member.setFirstName(
-                                    app.getService(),
-                                    app.getAuthentication(),
-                                    newFirstName
-                            )
+                    disposables.add(
+                            app
+                                .getRepo()
+                                .getMemberRepo()
+                                .setFirstName(app.getMemberId(), newFirstName)
+                                .subscribe(
+                                        () -> Log.d(TAG, "Successfully set new first name to " + newFirstName),
+                                        throwable -> Log.e(TAG, "Failed to set new first name.", throwable)
+                                )
                     );
                 }
         );
@@ -97,14 +106,15 @@ public class PictureUpload extends AppCompatActivity {
                newLastName -> {
                    final AdminApplication app = AdminApplication.get(this);
 
-                   app.getOffice().getMemberById(
-                           app.getMemberId()
-                   ).ifPresent(
-                           member -> member.setLastName(
-                                   app.getService(),
-                                   app.getAuthentication(),
-                                   newLastName
-                           )
+                   disposables.add(
+                           app
+                                   .getRepo()
+                                   .getMemberRepo()
+                                   .setLastName(app.getMemberId(), newLastName)
+                                   .subscribe(
+                                           () -> Log.d(TAG, "Successfully set new last name to " + newLastName),
+                                           throwable -> Log.e(TAG, "Failed to set new first name.", throwable)
+                                   )
                    );
                }
         );
@@ -198,4 +208,10 @@ public class PictureUpload extends AppCompatActivity {
         return s;
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        disposables.dispose();
+    }
 }
