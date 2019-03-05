@@ -290,18 +290,21 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
 });
 
 // ENDPOINT: GET /offices/:id/spion
-router.get('/:officeId/spion', (req, res) => {
+router.get('/:officeId/spion', auth.authFun(), (req, res) => {
+  console.log("/offices/id/spion");
+  console.log(req.headers);
+  console.log(req.user);
   const officeId = parseInt(req.params.officeId, 10);
 
   models.Office.findById(officeId).then(office => {
     if (office == null) {
       res.status('404').send('There is no office to your id');
     } else {
-      if (req.device.id === office.DeviceId) {
+      if (req.user.id === office.DeviceId) {
         if (office.picture == null) {
           res.status('404').send('There is no spion picture in this office');
         } else {
-          res.sendFile('/' + req.params.id + '.jpg', { root: 'spionuploads' });
+          res.sendFile('/' + req.params.officeId + '.jpg', { root: 'spionuploads' });
         }
       } else {
         res.status(401).send({
