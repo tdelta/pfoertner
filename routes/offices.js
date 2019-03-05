@@ -294,15 +294,13 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
 
 // ENDPOINT: GET /offices/:id/spion
 router.get('/:officeId/spion', auth.authFun(), (req, res) => {
-  console.log("/offices/id/spion");
-  console.log(req.headers);
-  console.log(req.user);
+  console.log('GET /offices/' + req.officeId + '/spion has been called.');
   
   const officeId = parseInt(req.params.officeId, 10);
 
   authenticateAnyOfficeDevice(officeId, req, res).then(
     office => {
-      if (office.picture == null) {
+      if (office.spionPicture == null) {
         res.status('404').send('There is no spion picture in this office');
       } else {
         res.sendFile('/' + req.params.officeId + '.jpg', { root: 'spionuploads' });
@@ -328,19 +326,22 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
         }
         
         else {
-          console.log('Das Office' + office);
-          office
-            .update({
-              spionPicture:
+          const downloadPath =
                 'http://deh.duckdns.org:3000/offices/' +
                 req.params.officeId +
-                '/spion',
+                '/spion';
+
+          console.log('\nUploaded new spion picture for office ' + office.id + ' with hash ' + hash + '. It will be available on ' + downloadPath + '.\n');
+
+          office
+            .update({
+              spionPicture: downloadPath,
               spionPictureMD5: hash,
             })
             .then(() => {
               notifyOfficeSubscribers(
                 office,
-                'OfficeUpdated',
+                'OfficeDataUpdated',
                 officeId.toString()
               );
 
