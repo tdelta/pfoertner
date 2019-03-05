@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.PanelDatabase;
@@ -98,25 +99,27 @@ public class MemberCalendarInfoRepository {
     }
 
     private Completable modifyCalendarInfo(final int memberId, final Function<MemberCalendarInfoEntity, MemberCalendarInfoEntity> modifier) {
-        return Completable.fromSingle(
+        return
                 db
                         .memberCalendarInfoDao()
                         .loadOnce(memberId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
-                        .doOnSuccess(
-                                calendarInfo -> {
-                                    db
-                                            .memberCalendarInfoDao()
-                                            .upsert(
-                                                    modifier.apply(calendarInfo)
-                                            );
-                                }
+                        .flatMapCompletable(
+                                calendarInfo -> Completable.fromAction(
+                                        () -> db
+                                                .memberCalendarInfoDao()
+                                                .upsert(
+                                                        modifier.apply(calendarInfo)
+                                                )
+                                )
+                        )
+                        .doOnComplete(
+                                () -> Log.d(TAG, "Successfully modified calendar info of member " + memberId)
                         )
                         .doOnError(
                                 throwable -> Log.e(TAG, "Failed to retrieve calendar info of member " + memberId + " to modify it.", throwable)
                         )
-                        .observeOn(AndroidSchedulers.mainThread())
-        );
+                        .observeOn(AndroidSchedulers.mainThread());
     }
 }

@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.app.Activity;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -41,7 +43,7 @@ public class MakeAppointment extends AppCompatActivity {
         TextView underTitle = findViewById(R.id.textView5);
         underTitle.setText("Please enter your name, mail and a message.");
         Button confirm = findViewById(R.id.confirmbutton);
-        confirm.setText("CONFIRM APPOINTMENT");
+        confirm.setText("REQUEST APPOINTMENT");
         TextInputLayout enterName = findViewById(R.id.textInputLayout);
         enterName.setHint("Enter your full name here");
         TextInputLayout enterEmail = findViewById(R.id.textInputLayout6);
@@ -49,7 +51,13 @@ public class MakeAppointment extends AppCompatActivity {
         TextInputLayout enterMessage = findViewById(R.id.textInputLayout7);
         enterMessage.setHint("Enter a message");
         TextView appointmentTime = findViewById(R.id.textView6);
-        appointmentTime.setText(getIntent().getStringExtra("appointmentTime"));
+        appointmentTime.setText(getIntent().getIntExtra("appointmentStartTimeHour", -1)
+                +":"
+                +getIntent().getStringExtra("appointmentStartTimeMinutes")
+                +" - "
+                +getIntent().getIntExtra("appointmentEndTimeHour", -1)
+                +":"
+                +getIntent().getStringExtra("appointmentEndTimeMinutes"));
     }
 
     public void onConfirmAppointment(View view){
@@ -59,15 +67,15 @@ public class MakeAppointment extends AppCompatActivity {
         LocalDateTime dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
                 , getIntent().getIntExtra("Day", 1)
-                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(0,2))
-                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(3,5)));
+                , getIntent().getIntExtra("appointmentStartTimeHour", -1)
+                , Integer.valueOf(getIntent().getStringExtra("appointmentStartTimeMinutes")));
         String startTime = dateTime.format(formatter);
 
         dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
                 , getIntent().getIntExtra("Day", 1)
-                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(8,10))
-                , Integer.valueOf(getIntent().getStringExtra("appointmentTime").substring(11,13)));
+                , getIntent().getIntExtra("appointmentEndTimeHour", -1)
+                , Integer.valueOf(getIntent().getStringExtra("appointmentEndTimeMinutes")));
         String endTime = dateTime.format(formatter);
 
 //        Log.d(TAG, startTime);
@@ -107,5 +115,9 @@ public class MakeAppointment extends AppCompatActivity {
                 super.onException(e);
             }
         }.execute();
+
+        Toast.makeText(this, "Request has been sent!", Toast.LENGTH_LONG).show();
+
+        finish();
     }
 }

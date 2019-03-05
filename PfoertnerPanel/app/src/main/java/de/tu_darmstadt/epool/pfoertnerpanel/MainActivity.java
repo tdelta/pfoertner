@@ -115,8 +115,6 @@ public class MainActivity extends AppCompatActivity {
     private void onOfficeInitialized() {
         Log.d(TAG, "Office has been initialized.");
         final PfoertnerApplication app = PfoertnerApplication.get(this);
-
-        setGlobalStatus(app.getOffice().getStatus());
         //updateMembers();
 
         //registerForMemberChanges(app.getOffice().getMembers());
@@ -129,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             if(office != null) {
                 //registerForMemberChanges(app.getOffice().getMembers());
                 setGlobalStatus(office.getStatus());
+                setRoom(office.getRoom());
                 //updateMembers();
             }
         });
@@ -138,6 +137,12 @@ public class MainActivity extends AppCompatActivity {
                memberList.setMembers(members);
            }
         });
+    }
+
+    public void newtest(View view){
+        Intent intent = new Intent(this, NewScheduleAppointment.class);
+        intent.putExtra("MemberId", ((MemberButton) view).getMemberId());
+        startActivity(intent);
     }
 
     public void test(View view){
@@ -203,12 +208,21 @@ public class MainActivity extends AppCompatActivity {
 
         inflater = getLayoutInflater();
 
-        setRoom("S101/A1");
-        setGlobalStatus("Extended Access");
-
         if (savedInstanceState == null) {
             init();
+        } else {
+            setRoom(savedInstanceState.getString("room", null));
+            setGlobalStatus(savedInstanceState.getString("globalStatus", null));
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("room", getRoom());
+        outState.putString("globalStatus", getGlobalStatus());
+
+        // call superclass to save any view hierarchy
+        super.onSaveInstanceState(outState);
     }
 
 
@@ -221,7 +235,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void setRoom(final String str){
         TextView room = findViewById(R.id.room);
-        room.setText(str);
+        if (str != null) {
+            room.setText(str);
+        } else {room.setText("Room Name Not Set");
+
+        }
+    }
+
+    public String getRoom(){
+        TextView room = findViewById(R.id.room);
+        return room.getText().toString();
     }
 
     public void setGlobalStatus(final String status){
@@ -243,14 +266,19 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
                 default: {
-                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_negative_status_bg));
+                    toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.pfoertner_info_status_bg));
                 }
             }
         }
-
         else {
-            // TODO: Remove status, if none set?
+            // TODO: maybe do better handling when status not set
+            setGlobalStatus("Come In!");
         }
+    }
+
+    public String getGlobalStatus() {
+        TextView global = findViewById(R.id.global_status);
+        return global.getText().toString();
     }
 
 }

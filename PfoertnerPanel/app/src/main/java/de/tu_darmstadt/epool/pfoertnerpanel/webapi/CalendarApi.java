@@ -8,9 +8,12 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 
 import java.util.Arrays;
 import java.util.List;
@@ -112,5 +115,32 @@ public class CalendarApi {
                 }
         )
                 .subscribeOn(Schedulers.io());
+    }
+
+    public Single<List<Event>> getEvents(final String calendarId, final Credential credentials, final DateTime start, final DateTime end) {
+        return Single.fromCallable(
+                () -> {
+                    final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credentials)
+                            .setApplicationName("Pfoertner")
+                            .build();
+
+                    Log.d(TAG, "About to download events for calendar " + calendarId);
+
+                    final Events events = service.events().list(calendarId)
+                            .setMaxResults(10)
+                            .setTimeMin(start)
+                            .setTimeMax(end)
+                            .setOrderBy("startTime")
+                            .setSingleEvents(true)
+                            .execute();
+
+                    Log.d(TAG, "Downloaded the following events: " + events.getItems().toString());
+
+
+                    return events.getItems();
+                }
+        )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }
