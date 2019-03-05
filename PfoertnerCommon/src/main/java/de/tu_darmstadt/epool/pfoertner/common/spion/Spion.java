@@ -130,7 +130,7 @@ public class Spion {
         final ResponseBody response;
 
         response = service
-                .uploadSpion(description, body, app.getOffice().getId())
+                .uploadSpion(app.getAuthentication().id,description, body, app.getOffice().getId())
                 .execute()
                 .body();
 

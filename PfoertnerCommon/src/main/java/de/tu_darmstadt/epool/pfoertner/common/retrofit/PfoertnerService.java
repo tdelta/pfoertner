@@ -71,10 +71,10 @@ public interface PfoertnerService {
 
   @Multipart
   @PATCH("offices/{id}/spion")
-  Call<ResponseBody> uploadSpion(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Path("id") int id);
+  Call<ResponseBody> uploadSpion(@Header("Authorization") String authToken,@Part("description") RequestBody description, @Part MultipartBody.Part file, @Path("id") int id);
 
   @GET("offices/{id}/takephoto")
-  Call<ResponseBody> initSpionPhoto(@Path("id") int id);
+  Call<ResponseBody> initSpionPhoto(@Header("Authorization") String authToken,@Path("id") int id);
 
 
   @PATCH("appointments/{id}")
