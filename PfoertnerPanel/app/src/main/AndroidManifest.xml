@@ -11,13 +11,19 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_pfoertnerpanel"
         android:supportsRtl="true"
-        android:theme="@style/PfoertnerStyle">
-        <activity android:name=".ScheduleAppointment"
-            android:hardwareAccelerated="true">
-        </activity>
-        <activity android:name=".MakeAppointment"
-            android:hardwareAccelerated="true">
-        </activity>
+        android:theme="@style/PfoertnerStyle"
+        >
+        <activity android:name=".NewScheduleAppointment"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".ScheduleAppointment"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".MakeAppointment"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="landscape"></activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape">

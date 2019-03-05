@@ -5,8 +5,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Transformations;
 import android.util.Log;
 
-import org.reactivestreams.Publisher;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,11 +14,12 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MemberRepository {
@@ -69,64 +68,47 @@ public class MemberRepository {
                 .map(MemberRepository::toInterface);
     }
 
-    @SuppressLint("CheckResult")
-    public void setStatus(final int memberId, final String newStatus) {
-        modify(
+    public Completable setStatus(final int memberId, final String newStatus) {
+        return modify(
                 memberId,
-                prevMember -> new MemberEntity(
-                    prevMember.getId(),
-                    prevMember.getOfficeId(),
-                    prevMember.getFirstName(),
-                    prevMember.getLastName(),
-                    newStatus,
-                    prevMember.getPicture(),
-                    prevMember.getPictureMD5(),
-                    prevMember.getServerAuthCode(),
-                    prevMember.getCalendarId()
-                )
-        )
-                .subscribe(
-                        () -> Log.d(TAG, "Successfully set status of member " + memberId + " to " + newStatus),
-                        throwable -> Log.e(TAG, "Setting a new status failed.", throwable)
-                );
+                prevMemberClone -> prevMemberClone.setStatus(newStatus)
+        );
+    }
+
+    public Completable setFirstName(final int memberId, final String firstName) {
+        return modify(
+                memberId,
+                prevMemberClone -> prevMemberClone.setFirstName(firstName)
+        );
+    }
+
+    public Completable setLastName(final int memberId, final String lastName) {
+        return modify(
+                memberId,
+                prevMemberClone -> prevMemberClone.setLastName(lastName)
+        );
     }
 
     public Completable setServerAuthCode(final int memberId, final String serverAuthCode, final String eMail) {
-        // TODO: Honor EMail
         return modify(
                 memberId,
-                prevMember -> new MemberEntity(
-                        prevMember.getId(),
-                        prevMember.getOfficeId(),
-                        prevMember.getFirstName(),
-                        prevMember.getLastName(),
-                        prevMember.getStatus(),
-                        prevMember.getPicture(),
-                        prevMember.getPictureMD5(),
-                        serverAuthCode,
-                        prevMember.getCalendarId()
-                )
+                prevMemberClone ->
+                {
+                    prevMemberClone.setServerAuthCode(serverAuthCode);
+                    prevMemberClone.setEmail(eMail);
+                }
         );
+        // TODO: Dont synchronize EMail
     }
 
     public Completable setCalendarId(int memberId, String calendarId) {
         return modify(
                 memberId,
-                prevMember -> new MemberEntity(
-                        prevMember.getId(),
-                        prevMember.getOfficeId(),
-                        prevMember.getFirstName(),
-                        prevMember.getLastName(),
-                        prevMember.getStatus(),
-                        prevMember.getPicture(),
-                        prevMember.getPictureMD5(),
-                        prevMember.getServerAuthCode(),
-                        calendarId
-                )
+                prevMemberClone -> prevMemberClone.setCalendarId(calendarId)
         );
     }
 
-    private Completable modify(final int memberId, final Function<MemberEntity, MemberEntity> modifier) {
+    private Completable modify(final int memberId, final Consumer<MemberEntity> modifier) {
         return db
                 .memberDao()
                 .loadOnce(memberId)
@@ -136,12 +118,18 @@ public class MemberRepository {
                         throwable -> Log.e(TAG, "Could not modify member " + memberId + ", since the member could not be found in the database.", throwable)
                 )
                 .flatMap(
-                        member -> api
-                                .patchMember(
-                                        auth.id,
-                                        member.getId(),
-                                        modifier.apply(member)
-                                )
+                        member -> {
+                            final MemberEntity replacement = member.deepCopy();
+
+                            modifier.accept(replacement);
+
+                            return api
+                                    .patchMember(
+                                            auth.id,
+                                            member.getId(),
+                                            replacement
+                                    );
+                        }
                 )
                 .doOnError(
                         throwable -> Log.e(TAG, "Could not modify member " + memberId + ", since the new data could not be uploaded.", throwable)

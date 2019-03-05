@@ -1,11 +1,15 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 import android.Manifest;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +18,8 @@ import android.widget.TextView;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.LocalCalendar;
 
 import org.threeten.bp.DateTimeUtils;
@@ -91,14 +95,29 @@ public class AppointmentRequestList extends Fragment{
         @Override
         public void onClick(View v) {
             try {
-                Member member = app.getOffice().getMemberById(app.getMemberId())
-                        .orElseThrow(() -> new RuntimeException("Cant accept an appointment when no Office Member is registered"));
-                member.setAppointmentRequestAccepted(app.getService(),app.getAuthentication(),appointmentRequest.getId(),accept);
-                String email = member.getEmail();
+                app
+                        .getRepo()
+                        .getAppointmentRepository()
+                        .setAccepted(appointmentRequest.getId(),accept);
+
                 if(accept){
-                    writeCalendarEvent(
-                            appointmentRequest,
-                            email
+                    LiveData<Member> memberLiveData = app.
+                            getRepo()
+                            .getMemberRepo()
+                            .getMember(app.getMemberId());
+
+                    memberLiveData.observe(AppointmentRequestList.this,
+                        new Observer<Member>() {
+                            @Override
+                            public void onChanged(@Nullable Member member) {
+                                memberLiveData.removeObserver(this);
+                                Log.d("AppointmentRequest","Writing calendar for email: "+member.getEmail());
+                                writeCalendarEvent(
+                                        appointmentRequest,
+                                        member.getEmail()
+                                );
+                            }
+                        }
                     );
                 }
             } catch (Throwable e){
