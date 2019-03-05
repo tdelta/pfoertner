@@ -50,7 +50,7 @@ public class SpionActivity extends AppCompatActivity {
 
                     Log.d(TAG, "Vor dem Erstellen der URL");
 
-                    Log.d(TAG, "Der Wert von office.getSpionPicture: " + office.getSpionPicture());
+                    Log.d(TAG, "(office.getSpionPicture, office.getSpionPictureMD5) = (" + office.getSpionPicture() + ", " + office.getSpionPictureMD5() + ")");
 
 //                    GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
 //                            new LazyHeaders.Builder()
@@ -101,7 +101,7 @@ public class SpionActivity extends AppCompatActivity {
         final ResponseBody response;
 
         response = service
-                .initSpionPhoto(app.getOffice().getId())
+                .initSpionPhoto(app.getAuthentication().id,app.getOffice().getId())
                 .execute()
                 .body();
         Log.d(TAG, "DIE RESPONSE VOM SERVER: " + response.toString());

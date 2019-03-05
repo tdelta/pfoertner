@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int MY_PERMISSIONS_READ_CALENDAR = 1;
 
     private DrawerLayout mDrawerLayout;
+
     private MemberProfileViewModel memberViewModel;
 
     private void init() {

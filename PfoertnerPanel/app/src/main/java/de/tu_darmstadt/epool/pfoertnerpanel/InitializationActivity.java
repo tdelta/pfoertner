@@ -1,10 +1,12 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -114,6 +116,8 @@ public class InitializationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialization);
+
+        ActivityCompat.requestPermissions(InitializationActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},0);
 
         eventChannel = new EventChannel(this) {
             @Override
