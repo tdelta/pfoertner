@@ -19,7 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_pfoertneradmin"
         android:supportsRtl="true"
         android:theme="@style/PfoertnerLight">
-        <activity android:name=".SpionActivity"></activity>
+        <activity android:name=".SpionActivity"
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".PictureUpload" />
         <activity android:name=".MainActivity">
             <intent-filter>
