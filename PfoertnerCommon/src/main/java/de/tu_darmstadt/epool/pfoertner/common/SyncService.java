@@ -54,6 +54,13 @@ public class SyncService extends Service {
 
         if (app.hasOffice()) {
             app.getOffice().updateMembersAsync(app.getSettings(), app.getService(), app.getAuthentication(), app.getFilesDir());
+
+            app
+                    .getRepo()
+                    .getMemberRepo()
+                    .refreshAllMembersFromOffice(
+                            app.getOffice().getId()
+                    );
         }
 
         else {
@@ -92,7 +99,6 @@ public class SyncService extends Service {
             else {
                 try {
                     final int memberId = Integer.parseInt(payload);
-
                     app.getRepo().getMemberRepo().refreshMember(
                             memberId
                     );
