@@ -1,5 +1,7 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.nfc.Tag;
 import android.support.v4.content.ContextCompat;
