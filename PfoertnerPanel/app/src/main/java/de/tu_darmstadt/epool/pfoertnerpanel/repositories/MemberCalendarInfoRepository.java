@@ -31,7 +31,7 @@ public class MemberCalendarInfoRepository {
         createIfNotPresent(memberId)
                 .subscribe(
                         () -> {},
-                        throwable -> Log.e(TAG, "Could not retrieve calendar info for member " +  memberId + ", since creating it failed.", throwable)
+                        throwable -> Log.e(TAG, "Could not retrieve calendar info for member " +  memberId + " from memory, since creating it failed.", throwable)
                 );
 
         return db
@@ -61,7 +61,7 @@ public class MemberCalendarInfoRepository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(
-                    () -> Log.d(TAG, "Successfully retrieved calendar info for member " + memberId)
+                    () -> Log.d(TAG, "Successfully wrote calendar info for member " + memberId + " into persistent memory")
                 )
                 .doOnError(
                     throwable -> Log.e(TAG, "Failed to create new calendar info for member " + memberId, throwable)
@@ -93,6 +93,9 @@ public class MemberCalendarInfoRepository {
                         calendarInfoEntity.getEMail()
                 )
         )
+                .doOnComplete(
+                        () -> Log.d(TAG,"Successfully saved calendar id "+newCalendarId+" for member "+memberId)
+                )
                 .doOnError(
                         throwable -> Log.e(TAG, "Failed to supplement calendar info of member " + memberId + " with new calendar id " + newCalendarId + ".", throwable)
                 );
