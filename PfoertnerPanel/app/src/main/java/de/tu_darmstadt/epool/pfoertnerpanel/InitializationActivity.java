@@ -117,7 +117,7 @@ public class InitializationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialization);
 
-        ActivityCompat.requestPermissions(InitializationActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},0);
+        ActivityCompat.requestPermissions(InitializationActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.SYSTEM_ALERT_WINDOW},0);
 
         eventChannel = new EventChannel(this) {
             @Override
