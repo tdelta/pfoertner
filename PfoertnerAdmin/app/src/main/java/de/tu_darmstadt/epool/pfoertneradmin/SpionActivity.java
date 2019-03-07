@@ -41,6 +41,12 @@ public class SpionActivity extends AppCompatActivity {
         service = app.getService();
         spion = (ImageView) findViewById(R.id.imageViewSpion);
 
+        if(spion == null){
+            Log.d(TAG,"The spion ImageView could not be found");
+        } else{
+            Log.d(TAG, "The spion ImageView was found");
+        }
+
 
         app
                 .getRepo()
@@ -48,33 +54,34 @@ public class SpionActivity extends AppCompatActivity {
                 .getOffice(app.getOffice().getId())
                 .observe(this, office -> {
 
-                    Log.d(TAG, "Vor dem Erstellen der URL");
-
                     Log.d(TAG, "(office.getSpionPicture, office.getSpionPictureMD5) = (" + office.getSpionPicture() + ", " + office.getSpionPictureMD5() + ")");
 
-//                    GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
-//                            new LazyHeaders.Builder()
-//                            .addHeader("Authorization", app.getAuthentication().id)
-//                            .build()
-//                            );
 
-                    Log.d(TAG, "Nach dem Erstellen der URL");
+
 
 
                     if (office != null) {
                         if (office.getSpionPicture() != null) {
+
+                            Log.d(TAG, "Starting to build the URL for the getSpion request");
+
                             GlideUrl glideUrl = new GlideUrl(office.getSpionPicture(),
                                     new LazyHeaders.Builder()
                                             .addHeader("Authorization", app.getAuthentication().id)
                                             .build()
                             );
 
+                            Log.d(TAG, "Finished to build  the URL for the getSpion request");
+
                             Glide
                                     .with(SpionActivity.this)
                                     .load(glideUrl)
+                                    .error(R.drawable.ic_warning_red_60dp)
                                     .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
                                     .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
                                     .into(spion);
+
+                            Log.d(TAG, "The gilde request is done");
                         }
 
                         else {
