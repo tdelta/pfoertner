@@ -3,16 +3,15 @@ package de.tu_darmstadt.epool.pfoertner.common;
 import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.util.Optional;
-import java.util.concurrent.Executors;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
@@ -24,16 +23,13 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.AsyncSubject;
-import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
-import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.PREFERENCES_NAME;
 
 public class PfoertnerApplication extends Application {
-    private static final String TAG = "PfoertnerApplication";
+    private static final String TAG = "PfoertnerApplicationLog";
 
     private CompletableSubject isInitializedSubject = CompletableSubject.create();
     private ReplaySubject<Integer> officeIdSubject = ReplaySubject.createWithSize(1);
@@ -51,8 +47,10 @@ public class PfoertnerApplication extends Application {
 
     private boolean hadBeenInitialized = false;
 
-    private Completable initProcess =
-        Single.fromCallable(
+    private Completable initProcess = null;
+
+    private Completable buildInitProcess() {
+        return Single.fromCallable(
                 () -> {
                     this.password = Password.loadPassword(this.preferences);
                     this.service = PfoertnerService.makeService();
@@ -65,62 +63,79 @@ public class PfoertnerApplication extends Application {
                     return repo;
                 }
         )
-        .doOnError(
-                throwable -> Log.e(TAG, "Something failed during base app initialization.", throwable)
-        )
-        .flatMap(
-                repo ->
-                    repo
-                            .getInitStatusRepo()
-                            .getInitStatus()
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io())
-                            .doOnError(
-                                   throwable -> Log.e(TAG, "Could not retrive init status, app cant be initialized.", throwable)
-                            )
-                            .doOnSuccess(
-                                    initStatus -> {
-                                        if (initStatus.hasJoinedOffice()) {
-                                            this.maybeOffice = Optional.of(
-                                                    Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
-                                            );
+                .doOnError(
+                        throwable -> Log.e(TAG, "Something failed during base app initialization.", throwable)
+                )
+                .flatMap(
+                        repo ->
+                                repo
+                                        .getInitStatusRepo()
+                                        .getInitStatus()
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(Schedulers.io())
+                                        .doOnError(
+                                                throwable -> Log.e(TAG, "Could not retrive init status, app cant be initialized.", throwable)
+                                        )
+                                        .doOnSuccess(
+                                                initStatus -> {
+                                                    if (initStatus.hasJoinedOffice()) {
+                                                        this.maybeOffice = Optional.of(
+                                                                Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
+                                                        );
 
-                                            repo
-                                                    .getOfficeRepo()
-                                                    .refreshOffice(
-                                                            initStatus.joinedOfficeId()
-                                                    );
+                                                        repo
+                                                                .getOfficeRepo()
+                                                                .refreshOffice(
+                                                                        initStatus.joinedOfficeId()
+                                                                );
 
-                                            repo
-                                                    .getMemberRepo()
-                                                    .refreshAllMembers();
+                                                        repo
+                                                                .getMemberRepo()
+                                                                .refreshAllLocalData();
 
-                                            officeIdSubject
-                                                    .onNext(initStatus.joinedOfficeId());
-                                        }
+                                                        officeIdSubject
+                                                                .onNext(initStatus.joinedOfficeId());
+                                                    } else {
+                                                        this.maybeOffice = Optional.empty();
+                                                    }
 
-                                        else {
-                                            this.maybeOffice = Optional.empty();
-                                        }
+                                                    onInit();
 
-                                        onInit();
-
-                                        this.hadBeenInitialized = true;
-                                        this.isInitializedSubject.onComplete();
-                                    }
-                            )
-                            .doOnError(
-                                    throwable -> Log.e(TAG, "Failed either while initializing the office, or while initializing subclasses.", throwable)
-                            )
-        )
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .ignoreElement()
-        .cache();
+                                                    this.hadBeenInitialized = true;
+                                                    this.isInitializedSubject.onComplete();
+                                                }
+                                        )
+                                        .doOnError(
+                                                throwable -> Log.e(TAG, "Failed either while initializing the office, or while initializing subclasses.", throwable)
+                                        )
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .ignoreElement()
+                .doOnComplete(
+                        () -> Log.d(TAG, "Successfully completed app initialization.")
+                )
+                .cache()
+                .doOnComplete(
+                        () -> Log.d(TAG, "Returned cached successful app initialization.")
+                );
+    }
 
     // Needs to be called in a RequestTask
-    public Completable init() {
-        return initProcess;
+    public synchronized Completable init() {
+        if (initProcess == null) {
+            Log.d(TAG, "Building the initialization process completable.");
+
+            initProcess = buildInitProcess();
+        }
+
+        return initProcess.doOnError(
+                throwable -> {
+                    Log.e(TAG, "Initializing the app failed, so we will reset the process, such that completing it may be retried.");
+
+                    initProcess = null;
+                }
+        );
     }
 
     protected void onInit() { }
@@ -132,6 +147,18 @@ public class PfoertnerApplication extends Application {
         AndroidThreeTen.init(this);
 
         this.preferences = getSharedPreferences(PREFERENCES_NAME,0);
+
+        observeInitialization()
+                .subscribe(
+                        () -> {
+                            Log.d(TAG, "Starting sync service on app initialization.");
+
+                            startService(
+                                    new Intent(this, SyncService.class)
+                            );
+                        },
+                        throwable -> Log.e(TAG, "Failed to observe app initialization, this should never happen.")
+                );
     }
 
     protected void checkInitStatus() {

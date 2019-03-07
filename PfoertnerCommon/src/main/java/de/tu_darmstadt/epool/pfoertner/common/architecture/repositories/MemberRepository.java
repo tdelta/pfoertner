@@ -149,7 +149,7 @@ public class MemberRepository {
     }
 
     @SuppressLint("CheckResult")
-    public void refreshAllMembers() {
+    public void refreshAllLocalData() {
         Single
                 .fromCallable(
                         db.memberDao()::getAllMembers

@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             app
                     .init()
                     .subscribe(
-                            () -> this.onInitialized(),
+                            this::onInitialized,
                             throwable -> {
                                 Log.e(TAG, "Could not initialize app. Will offer user to retry.", throwable);
 
@@ -110,10 +110,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onInitialized() {
-        this.startService(
-                new Intent(MainActivity.this, SyncService.class)
-        );
-
         {
             final FragmentManager fragmentManager = getSupportFragmentManager();
             final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
