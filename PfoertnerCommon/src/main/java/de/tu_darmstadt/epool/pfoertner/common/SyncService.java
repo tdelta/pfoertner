@@ -163,7 +163,6 @@ public class SyncService extends Service {
             else {
                 try {
                     final int memberId = Integer.parseInt(payload);
-
                     app.getRepo().getMemberRepo().refreshMember(
                             memberId
                     );
