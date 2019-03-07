@@ -8,6 +8,9 @@ var models = require('../models/models.js');
 // Get interface to firebase
 const firebase = require('../firebase/firebase.js');
 
+var notify = require('../notify.js');
+var notifyDevice = notify.notifyDevice;
+
 router.post('/', (req, res) => {
   if (req.body.password == null) {
     res.status(400).json({
@@ -29,7 +32,9 @@ router.patch('/:id/fcmToken', auth.authFun(), (req, res) => {
     console.error('Failed to set fcm token of device ' + device.id + ' since there was no token info in the body of the request.');
 
     res.status(400).send({ message: 'You need to provide a new fcm token.' });
-  } else {
+  }
+  
+  else {
     const targetId = parseInt(req.params.id, 10);
 
     if (targetId === device.id) {
@@ -39,8 +44,10 @@ router.patch('/:id/fcmToken', auth.authFun(), (req, res) => {
         .update({
           fcmToken: fcmToken,
         })
-        .then(() => {
-          console.info("Saved new FCM token " + fcmToken + " for device " + device.id);
+        .then(updatedDevice => {
+          console.info("Saved new FCM token " + updatedDevice.fcmToken + " for device " + updatedDevice.id);
+
+          notifyDevice(updatedDevice, 'DeviceUpdated', updatedDevice.id.toString());
 
           res.send(device);
         });

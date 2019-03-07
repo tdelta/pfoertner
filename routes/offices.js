@@ -115,7 +115,7 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
       ).then(member => {
         newOfficeMember = member;
         // Send fcm notification
-        notifyOfficeSubscribers(office, 'AdminJoined');
+        notifyOfficeSubscribers(office, 'AdminJoined', office.id.toString());
         res.status(200);
         res.send(newOfficeMember);
       });
@@ -234,7 +234,7 @@ function authenticateOfficeMember(req, res) {
           (loggedIn != null && loggedIn.OfficeId === officeId) ||
           device.OfficeId === officeId
         ) {
-          console.log('Office member authenticated');
+          console.log('Office member with device ' + device.id + ' authenticated');
           response();
         }
         // No user belongs to the device or the user belonging to the

@@ -30,13 +30,19 @@ exports.authenticatePanelOrOwner = function(req, res) {
             response(member);
           } else {
             req.user.getOfficeMember().then(officeMember => {
-              if (officeMember.OfficeId === office.id) {
-                // The requesting device is also member in the office the requested office member belongs to
-                response(member);
-              } else {
-                res
-                  .status('401')
-                  .send('You are not allowed to access this office member');
+              if (officeMember != null) {
+                if (officeMember.OfficeId === office.id) {
+                  // The requesting device is also member in the office the requested office member belongs to
+                  response(member);
+                } else {
+                  res
+                    .status('401')
+                    .send('You are not allowed to access this office member');
+                }
+              }
+
+              else {
+                console.error('Failed to authenticate member, since we could not deduce an office member from device ' + req.user.id);
               }
             });
           }
@@ -124,7 +130,7 @@ exports.authenticateOwner = function authenticateOwner(
     // The request do not have an correct authorization header
     if (device === null) {
       res.status(401).send({
-        message: 'You do not have the permission to access this officemember',
+        message: 'You do not have the permission to access this officemember. Seems your authentication token is invalid.',
       });
     }
     // The request do have an correct authorization header
@@ -135,7 +141,7 @@ exports.authenticateOwner = function authenticateOwner(
         // Check whether a officemember belongs to the authorized device
         // and whether that officemember is a part of the office
         if (loggedIn && loggedIn.id === officeMemberId) {
-          console.log('Office member authenticated');
+          console.log('Office member ' + officeMemberId + ' with device ' + device.id + ' authenticated');
           response(loggedIn);
         }
         // No user belongs to the device or the user belonging to the device

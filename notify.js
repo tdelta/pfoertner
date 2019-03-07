@@ -1,6 +1,17 @@
 // Get interface to firebase
 const firebase = require('./firebase/firebase.js');
 
+function buildMessage(eventName, payload) {
+  if (payload != null) {
+    return {
+      event: eventName,
+      payload: payload,
+    };
+  } else {
+    return { event: eventName };
+  }
+}
+
 /**
  * TODO: MARTIN FRAGEN
  *
@@ -10,16 +21,7 @@ const firebase = require('./firebase/firebase.js');
  */
 function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
   console.info('About to notify all members of office ' + office.id + ' as well as its panel to send event ' + eventName + ' with payload ' + payload);
-  let message;
-
-  if (payload != null) {
-    message = {
-      event: eventName,
-      payload: payload,
-    };
-  } else {
-    message = { event: eventName };
-  }
+  const message = buildMessage(eventName, payload);
 
   office.getDevice().then(device => {
     if (device.fcmToken) {
@@ -64,11 +66,7 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
 function notifyPanel(office, eventName, payload) {
   console.info('About to notify just the panel of office ' + office.id + ' to send event ' + eventName + ' with payload ' + payload);
 
-  let message;
-
-  message = {
-    event: eventName,
-  };
+  const message = buildMessage(eventName, payload);
 
   office.getDevice().then(paneldevice => {
     if (paneldevice.fcmToken != null) {
@@ -85,7 +83,26 @@ function notifyPanel(office, eventName, payload) {
   });
 }
 
+function notifyDevice(device, eventName, payload) {
+  console.info('About to notify the device ' + device.id + ' to send event ' + eventName + ' with payload ' + payload);
+
+  const message = buildMessage(eventName, payload);
+
+  if (device.fcmToken != null) {
+    console.info(
+      'Notifying device ' + device.id + ' using fcmToken ' + device.fcmToken + ' and the following message:', message
+    );
+
+    firebase.sendData(device.id, device.fcmToken, message);
+  }
+
+  else {
+    console.error('Failed to notify device ' + device.id + ' since it has no fcm token set.');
+  }
+}
+
 module.exports = {
   notifyOfficeSubscribers: notifyOfficeSubscribers,
   notifyPanel: notifyPanel,
+  notifyDevice: notifyDevice
 };
