@@ -1,14 +1,20 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import java.util.function.Consumer;
+
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.activities.SplashScreenActivity;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.MemberData;
@@ -24,7 +30,7 @@ public class JoinOfficeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_init2);
     }
 
-    private void joinOffice(String lastName, String firstName, String status, final int officeId, final String joinCode) {
+    private void joinOffice(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen, String lastName, String firstName, String status, final int officeId, final String joinCode) {
         final AdminApplication app = AdminApplication.get(JoinOfficeActivity.this);
 
         new RequestTask<Pair<Office, MemberData>>() {
@@ -66,19 +72,22 @@ public class JoinOfficeActivity extends AppCompatActivity {
                                             .getRepo()
                                             .getMemberRepo()
                                             .getMember(app.getMemberId())
-                                            .observe(JoinOfficeActivity.this, member -> {
+                                            .observe(splashScreenActivity, member -> {
                                                 if (member != null) {
                                                     JoinOfficeActivity.this.finish();
+                                                    closeSplashScreen.accept(null);
                                                 }
                                             });
                                 },
-                                throwable -> Log.e(TAG, "Failed to join office.", throwable)
+                                throwable -> Log.e(TAG, "Failed to register office after joining.", throwable)
                         );
             }
 
             @Override
             protected void onException(Exception e) {
-                ErrorInfoDialog.show(JoinOfficeActivity.this, e.getMessage(), aVoid -> joinOffice(lastName,firstName,"Available",officeId,joinCode),false);
+                Log.e(TAG, "Failed to join office", e);
+
+                ErrorInfoDialog.show(splashScreenActivity, e.getMessage(), aVoid -> joinOffice(splashScreenActivity, closeSplashScreen, lastName,firstName,"Available",officeId,joinCode),false);
             }
         }.execute();
     }
@@ -87,17 +96,23 @@ public class JoinOfficeActivity extends AppCompatActivity {
     public void createAccount(View view){
         final EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
         final String firstName = firstnameinput.getText().toString();
-        Log.e("ERROR", firstName);
+        Log.e(TAG, "Got first name: " + firstName);
 
         final EditText lastnameinput = (EditText) findViewById(R.id.NachnameInput);
         final String lastName = lastnameinput.getText().toString();
 
-        Log.e("ERROR", lastName);
+        Log.e(TAG, "Got last name: " + lastName);
 
         QRCodeData qrData = QRCodeData.deserialize(getIntent().getStringExtra("QrCodeDataRaw"));
 
-        Log.e("ERROR", "Read join code: " + qrData.joinCode);
+        Log.e(TAG, "Read join code: " + qrData.joinCode);
 
-        joinOffice(lastName, firstName, "", qrData.officeId, qrData.joinCode);
+        SplashScreenActivity.run(
+                this,
+                LayoutInflater.from(this).inflate(R.layout.activity_splash_screen, null),
+                ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT,
+                (splashScreenActivity, closeSplashScreen) ->
+                        joinOffice(splashScreenActivity, closeSplashScreen, lastName, firstName, "", qrData.officeId, qrData.joinCode)
+        );
     }
 }

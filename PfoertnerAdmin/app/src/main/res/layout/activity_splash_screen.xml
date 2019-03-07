@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="@color/pfoertner_light_primary"
+    tools:context="de.tu_darmstadt.epool.pfoertner.common.activities.SplashScreenActivity">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/aguafina_script_embedded"
+        android:fontFamily="@font/aguafina_script"
         android:text="Pförtner"
         android:textAlignment="center"
         android:textColor="@android:color/white"

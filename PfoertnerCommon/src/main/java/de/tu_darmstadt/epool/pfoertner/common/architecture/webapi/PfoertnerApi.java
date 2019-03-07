@@ -4,8 +4,10 @@ import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.DeviceEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Device;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
@@ -45,6 +47,9 @@ public interface PfoertnerApi {
 
         return api;
     }
+
+    @GET("/devices/{id}")
+    Single<DeviceEntity> getDevice(@Header("Authorization") String authToken, @Path("id") int deviceId);
 
     @GET("/offices/{id}/members")
     Single<List<MemberEntity>> getMembersFromOffice(@Header("Authorization") String authToken, @Path("id") int officeId);

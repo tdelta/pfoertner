@@ -38,13 +38,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_initialization"
             android:screenOrientation="landscape" />
-        <activity
-            android:name=".SplashScreenActivity"
-            android:label="@string/title_activity_splash_screen"
-            android:launchMode="singleTop"
-            android:screenOrientation="landscape"
-            android:theme="@style/PfoertnerStyle" />
-
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

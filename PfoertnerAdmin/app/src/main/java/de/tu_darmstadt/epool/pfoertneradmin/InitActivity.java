@@ -1,41 +1,68 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import java.util.function.Consumer;
+
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.SyncService;
+import de.tu_darmstadt.epool.pfoertner.common.activities.SplashScreenActivity;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class InitActivity extends AppCompatActivity {
-    private static final String TAG = "InitActivity";
+    private static final String TAG = "InitActivityLog";
     private CompositeDisposable disposables;
 
-    private void initApp(){
+    private void initApp(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen){
         final PfoertnerApplication app = PfoertnerApplication.get(InitActivity.this);
 
-        disposables.add(
-                app
-                    .init()
-                    .subscribe(
-                            () -> InitActivity.this.setContentView(R.layout.activity_init),
-                            throwable -> {
-                                Log.e(TAG, "Could not initialize app.", throwable);
+        app
+            .init()
+            .subscribe(
+                    () -> {
+                        Log.d(TAG, "App has been initialized, will continue, as soon as a fcm token is available.");
 
-                                ErrorInfoDialog.show(InitActivity.this, throwable.getMessage(), aVoid -> initApp(),false);
-                            }
-                    )
-        );
+                        app
+                                .getRepo()
+                                .getDeviceRepo()
+                                .getDevice(app.getDevice().id)
+                                .observe(splashScreenActivity, device -> {
+                                    if (device != null) {
+                                        if (device.getFcmToken() != null) {
+                                            Log.d(TAG, "FCM token is set, closing splash screen...");
+
+                                            InitActivity.this.setContentView(R.layout.activity_init);
+                                            closeSplashScreen.accept(null);
+                                        }
+
+                                        else {
+                                            Log.d(TAG, "Could not close splash screen yet, since there is no fcm token set right now.");
+                                        }
+                                    }
+
+                                    else {
+                                        Log.d(TAG, "Could not close splash screen yet, since there is no device data set right now.");
+                                    }
+                                });
+                    },
+                    throwable -> {
+                        Log.e(TAG, "Could not initialize app.", throwable);
+
+                        ErrorInfoDialog.show(splashScreenActivity, throwable.getMessage(), aVoid -> initApp(splashScreenActivity, closeSplashScreen),false);
+                    }
+            );
     }
 
     @Override
@@ -46,7 +73,12 @@ public class InitActivity extends AppCompatActivity {
         }
         disposables = new CompositeDisposable();
 
-        initApp();
+        SplashScreenActivity.run(
+                this,
+                LayoutInflater.from(this).inflate(R.layout.activity_splash_screen, null),
+                ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT,
+                this::initApp
+        );
     }
 
     @Override
@@ -60,7 +92,7 @@ public class InitActivity extends AppCompatActivity {
         IntentIntegrator scanner = new IntentIntegrator(this);
 
         scanner.setCaptureActivity(CaptureActivity.class);
-        scanner.setOrientationLocked(false);
+        scanner.setOrientationLocked(true);
         scanner.setBeepEnabled(false);
         scanner.setPrompt("Place the panel barcode inside the viewfinder rectangle.");
         scanner.initiateScan();
@@ -80,7 +112,8 @@ public class InitActivity extends AppCompatActivity {
                 String qrCodeDataRaw = data.getStringExtra("SCAN_RESULT");
 
                 // Set new intent for entering user information
-                Log.d("DEBUG","GOT SCAN DATA");
+                Log.d(TAG,"Got qr code scan.");
+
                 Intent joinOffice = new Intent(this, JoinOfficeActivity.class);
                 joinOffice.putExtra("QrCodeDataRaw", qrCodeDataRaw );
                 startActivity(joinOffice);
