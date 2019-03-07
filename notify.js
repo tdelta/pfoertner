@@ -9,6 +9,7 @@ const firebase = require('./firebase/firebase.js');
  * @param {*} eventName
  */
 function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
+  console.info('About to notify all members of office ' + office.id + ' as well as its panel to send event ' + eventName + ' with payload ' + payload);
   let message;
 
   if (payload != null) {
@@ -22,11 +23,16 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
 
   office.getDevice().then(device => {
     if (device.fcmToken) {
-      console.log(
+      console.info(
         'Notifying panel for office ' + office.id + '. This is the message: ',
         message
       );
-      firebase.sendData(device.fcmToken, message);
+
+      firebase.sendData(device.id, device.fcmToken, message);
+    }
+
+    else {
+      console.error('Could not notify panel ' + device.id + ' of office ' + office.id + ' since it has no fcm token set.');
     }
   });
 
@@ -34,7 +40,7 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
     officeMembers.forEach(member => {
       member.getDevice().then(device => {
         if (device.fcmToken != null) {
-          console.log(
+          console.info(
             'Notifying office member ' +
               member.id +
               ' of device ' +
@@ -44,10 +50,10 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
               '. This is the message: ',
             message
           );
-          firebase.sendData(device.fcmToken, message);
+          firebase.sendData(device.id, device.fcmToken, message);
         } else {
-          console.log(
-            'Could not notify an office member, since it did not set an fcm token.'
+          console.error(
+            'Could not notify office member ' + member.id + ', since it did not set an fcm token.'
           );
         }
       });
@@ -56,6 +62,8 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
 }
 
 function notifyPanel(office, eventName, payload) {
+  console.info('About to notify just the panel of office ' + office.id + ' to send event ' + eventName + ' with payload ' + payload);
+
   let message;
 
   message = {
@@ -64,11 +72,16 @@ function notifyPanel(office, eventName, payload) {
 
   office.getDevice().then(paneldevice => {
     if (paneldevice.fcmToken != null) {
-      console.log(
-        'Notifying panel device with this following message:' + message
+      console.info(
+        'Notifying panel device ' + paneldevice.id + ' using fcmToken ' + paneldevice.fcmToken + ' and the following message:', message
       );
+
+      firebase.sendData(paneldevice.id, paneldevice.fcmToken, message);
     }
-    firebase.sendData(paneldevice.fcmToken, message);
+
+    else {
+      console.error('Failed to notify panel device ' + paneldevice.id + ' of office ' + office.id + ' since it has no fcm token set.');
+    }
   });
 }
 

@@ -3,26 +3,29 @@ var admin = require('firebase-admin');
 var serviceAccount = require('./firebase-secret.json');
 
 module.exports.initialize = function() {
-  console.log('Initializing firebase connection');
+  console.info('Initializing firebase connection');
+
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://pfoertner-2b302.firebaseio.com',
   });
 };
 
-sendMessage = function(deviceToken, message) {
+sendMessage = function(deviceId, deviceToken, message) {
+  console.info("Sending message " + message + " to device " + device);
   admin
     .messaging()
     .send(message)
     .then(response => {
-      console.log('Successfully sent message:', response);
+      console.info('Successfully sent message:', response);
     })
     .catch(error => {
-      console.log('Error sending message:', error);
+      console.error('Error sending message to device ' + deviceId + ' with token ' + deviceToken + ':', error);
     });
 };
 
 module.exports.sendNotification = function(
+  deviceId,
   deviceToken,
   title,
   body,
@@ -45,14 +48,14 @@ module.exports.sendNotification = function(
       notification: notification,
     },
   };
-  sendMessage(deviceToken, message);
+  sendMessage(deviceId, deviceToken, message);
 };
 
 // sends data to the app. this is not displayed as a notification when the app is in the background
-module.exports.sendData = function(deviceToken, data) {
+module.exports.sendData = function(deviceId, deviceToken, data) {
   var message = {
     token: deviceToken,
     data: data,
   };
-  sendMessage(deviceToken, message);
+  sendMessage(deviceId, deviceToken, message);
 };

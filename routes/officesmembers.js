@@ -238,6 +238,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
       appointment.setOfficeMember(officemember);
       officemember.getDevice().then(device => {
         firebase.sendNotification(
+          device.id,
           device.fcmToken,
           'New Appointment request',
           start.split(' ')[0] +
@@ -258,6 +259,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
           ],
           appointment
         );
+
         officemember.getOffice().then(office => {
           notifyOfficeSubscribers(
             office,
@@ -265,6 +267,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
             officemember.id.toString()
           );
         });
+
         res.status('200').send('Successfully sent appointment request');
       });
     });
