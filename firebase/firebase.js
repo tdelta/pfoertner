@@ -12,7 +12,7 @@ module.exports.initialize = function() {
 };
 
 sendMessage = function(deviceId, deviceToken, message) {
-  console.info("Sending message " + message + " to device " + device);
+  console.info("Sending message " + message + " to device " + deviceId);
   admin
     .messaging()
     .send(message)
