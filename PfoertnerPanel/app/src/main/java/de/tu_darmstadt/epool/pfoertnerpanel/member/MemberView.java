@@ -33,14 +33,12 @@ import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
 import static android.support.constraint.Constraints.TAG;
 
 public class MemberView extends CardView {
-    final PfoertnerApplication app;
     private int memberId;
 
-    public MemberView(Context context, Member member) {
+    public MemberView(Context context, Member member, List<Event> events) {
         super(context);
         final LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        app = PfoertnerApplication.get(context);
 
         inflater.inflate(R.layout.member, this, true);
 
@@ -55,7 +53,7 @@ public class MemberView extends CardView {
                 .into((ImageView) findViewById(R.id.personalProfilePicture));
 
         setStatus(member.getStatus());
-        initOfficeHours();
+        initOfficeHours(events);
     }
 
     public String[] parseOffice(List<Event> events){
@@ -141,19 +139,19 @@ public class MemberView extends CardView {
         return null;
     }
 
-    public void initOfficeHours() {
-        FrameLayout info = findViewById(R.id.personalOfficeTimeBoard);
+    public void initOfficeHours(List<Event> events) {
+        LinearLayout info = findViewById(R.id.personalOfficeTimeBoard);
         info.removeAllViews();
 
-        if (getActivity() != null) {
-            Bundle bundle = new Bundle();
-            bundle.putInt("memberId", memberId);
-            MemberOfficeHourFragment officeHoursFrag = new MemberOfficeHourFragment();
-            officeHoursFrag.setArguments(bundle);
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.personalOfficeTimeBoard, officeHoursFrag);
-            transaction.commit();
+        events
+                .stream()
+                .forEach(event -> {
+                    TextView text = new TextView(getContext());
+                    text.setTypeface(null, Typeface.BOLD);
+                    text.setText("Neues event");
+                    info.addView(text);
+                });
 
-        }
     }
+
 }
