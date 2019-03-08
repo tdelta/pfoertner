@@ -12,6 +12,7 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class DeviceRepository {
@@ -41,14 +42,29 @@ public class DeviceRepository {
         );
     }
 
-    @SuppressLint("CheckResult")
-    public void refreshDevice(final int deviceId) {
-        api
+    public Disposable refreshDevice(final int deviceId) {
+        Log.d(TAG, "About to refresh device...");
+
+        return api
                 .getDevice(auth.id, deviceId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSuccess(
-                        deviceEntity -> db.deviceDao().upsert(deviceEntity)
+                        deviceEntity -> {
+                            Log.d(
+                                    TAG,
+                                    "Successfully retrieved new information about device " +
+                                            deviceId +
+                                            ". This is the new info: " +
+                                            "(id: " +
+                                            deviceEntity.getId() +
+                                            ", fcm token: " +
+                                            deviceEntity.getFcmToken() +
+                                            ") Will now insert it into the db."
+                            );
+
+                            db.deviceDao().upsert(deviceEntity);
+                        }
                 )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -57,8 +73,10 @@ public class DeviceRepository {
                 );
     }
 
-    public void refreshAllLocalData() {
-        Single
+    public Disposable refreshAllLocalData() {
+        Log.d(TAG, "About to refresh all data of already known devices...");
+
+        return Single
                 .fromCallable(
                         db.deviceDao()::getAllDevices
                 )
