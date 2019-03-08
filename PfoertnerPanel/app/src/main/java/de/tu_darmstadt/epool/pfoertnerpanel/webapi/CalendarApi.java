@@ -126,7 +126,6 @@ public class CalendarApi {
                     Log.d(TAG, "About to download events for calendar " + calendarId);
 
                     final Events events = service.events().list(calendarId)
-                            .setMaxResults(10)
                             .setTimeMin(start)
                             .setTimeMax(end)
                             .setOrderBy("startTime")
