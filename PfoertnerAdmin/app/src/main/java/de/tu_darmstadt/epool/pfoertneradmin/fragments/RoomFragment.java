@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.RoomFragmentViewModel;
@@ -33,17 +35,19 @@ public class RoomFragment extends Fragment {
         final View mainView = inflater.inflate(R.layout.room, container, false);
 
         mainView.setOnClickListener(
-                        v -> triggerRoomCreation()
+                        v -> triggerRoomCreation(mainView)
                 );
 
         return mainView;
     }
 
-    private void triggerRoomCreation() {
+    private void triggerRoomCreation(final View mainView) {
         final AlertDialog enterNewStatus;
         {
             final EditText input = new EditText(getActivity());
-            input.setText("");
+            final TextView roomInput = mainView.findViewById(R.id.summary);
+
+            input.setText(roomInput.getText().toString());
 
             AlertDialog.Builder enterNewStatusBuilder = new AlertDialog.Builder(getActivity());
             enterNewStatusBuilder.setView(input)
