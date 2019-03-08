@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_cannot_get_permission" />
+    <string name="error_cannot_write" />
+    <string name="error_cannot_open" />
+    <string name="error_not_having_camera" />
+</resources>

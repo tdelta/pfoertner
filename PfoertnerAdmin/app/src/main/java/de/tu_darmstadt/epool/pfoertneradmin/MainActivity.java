@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int MY_PERMISSIONS_READ_CALENDAR = 1;
 
     private DrawerLayout mDrawerLayout;
+
     private MemberProfileViewModel memberViewModel;
 
     private void init() {
@@ -98,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
                                     case R.id.showAppointments:
                                         this.goToAppointmentActivity(navigationView);
+                                        break;
+                                    case R.id.spion:
+                                        this.gotoSpionActivity(navigationView);
                                         break;
                                 }
 
@@ -190,6 +194,11 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == 0) {
             onInitialized();
         }
+    }
+
+    public void gotoSpionActivity(View view){
+        Intent intent = new Intent(this, SpionActivity.class);
+        startActivity(intent);
     }
 
     public void gotoQRCodeAcitvity(View view) {

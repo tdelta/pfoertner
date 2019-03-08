@@ -19,6 +19,7 @@ public class EventChannel {
         OfficeMemberUpdated,
         AppointmentsUpdated,
         CalendarCreated,
+        takephoto,
         DeviceUpdated
     }
 

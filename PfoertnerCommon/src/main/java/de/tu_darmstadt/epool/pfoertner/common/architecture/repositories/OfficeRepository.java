@@ -1,6 +1,5 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.repositories;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Transformations;
 import android.util.Log;
@@ -13,6 +12,7 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -41,6 +41,20 @@ public class OfficeRepository {
                 db.officeDao().load(officeId),
                 OfficeRepository::toInterface
         );
+    }
+
+    public Single<Office> getOfficeOnce(final int officeId) {
+        refreshOffice(officeId);
+
+        return db
+                .officeDao()
+                .loadOnce(officeId)
+                .subscribeOn(Schedulers.io())
+                .onErrorResumeNext(
+                        refreshOfficeSingle(officeId)
+                )
+                .map(OfficeRepository::toInterface)
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable setStatus(final int officeId, final String newStatus) {
@@ -87,35 +101,45 @@ public class OfficeRepository {
                 .ignoreElement();
     }
 
-    public void patchOffice(final OfficeEntity office) {
-        api
-                .patchOffice(auth.id, office.getId(), office)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(
-                        throwable -> Log.e(TAG, "Failed to patch office with id " + office.getId(), throwable)
-                )
-                .subscribe();
-    }
-
-    @SuppressLint("CheckResult")
-    public void refreshOffice(final int officeId) {
-        api
+    private Single<OfficeEntity> refreshOfficeSingle(final int officeId) {
+        return api
                 .getOffice(auth.id, officeId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSuccess(
-                        officeEntity -> db.officeDao().upsert(officeEntity)
+                        officeEntity -> {
+                            Log.d(
+                                    TAG,
+                                    "Successfully retrieved new information about office " +
+                                            officeId +
+                                            ". This is the new info: " +
+                                            "(id: " +
+                                            officeEntity.getId() +
+                                            ", Status: " +
+                                            officeEntity.getStatus() +
+                                            ") Will now insert it into the db."
+                            );
+
+                            db.officeDao().upsert(officeEntity);
+                        }
                 )
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Disposable refreshOffice(final int officeId) {
+        Log.d(TAG, "About to refresh office with id " + officeId);
+
+        return refreshOfficeSingle(officeId)
                 .subscribe(
                         officeEntity -> {},
                         throwable -> Log.e(TAG, "Could not refresh office.", throwable)
                 );
     }
 
-    public void refreshAllLocalData() {
-        Single
+    public Disposable refreshAllLocalData() {
+        Log.d(TAG, "About to refresh all data of already known offices...");
+
+        return Single
                 .fromCallable(
                         db.officeDao()::getAllOffices
                 )
