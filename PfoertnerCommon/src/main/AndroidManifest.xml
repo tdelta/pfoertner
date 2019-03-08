@@ -15,6 +15,6 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application>
-        <service android:name=".spion.SpionNew" />
+        <service android:name=".spion.Spion" />
     </application>
 </manifest>

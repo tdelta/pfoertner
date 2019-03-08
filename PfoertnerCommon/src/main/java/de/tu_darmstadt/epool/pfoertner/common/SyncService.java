@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
-import de.tu_darmstadt.epool.pfoertner.common.spion.SpionNew;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class SyncService extends Service {
@@ -44,9 +43,7 @@ public class SyncService extends Service {
                         break;
                     case takephoto:
                         Log.d("SpionNew","The new takePhoto service is about to launch!");
-                        startService(new Intent(getApplicationContext(), SpionNew.class));
-                        //Spion spion = new Spion(getApplicationContext());
-                        //spion.takePhoto();
+                        startService(new Intent(getApplicationContext(), Spion.class));
                         break;
                 }
             }
