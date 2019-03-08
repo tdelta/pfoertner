@@ -11,6 +11,7 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -110,6 +111,21 @@ public class OfficeRepository {
                 .subscribe(
                         officeEntity -> {},
                         throwable -> Log.e(TAG, "Could not refresh office.", throwable)
+                );
+    }
+
+    public void refreshAllLocalData() {
+        Single
+                .fromCallable(
+                        db.officeDao()::getAllOffices
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        offices -> offices.forEach(
+                                officeEntity -> refreshOffice(officeEntity.getId())
+                        ),
+                        throwable -> Log.e(TAG, "Could not refresh all offices.", throwable)
                 );
     }
 }

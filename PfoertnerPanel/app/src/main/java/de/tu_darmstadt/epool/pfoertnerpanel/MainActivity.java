@@ -47,11 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 app
                         .init()
                         .subscribe(
-                                () -> {
-                                    MainActivity.this.startService(
-                                            new Intent(MainActivity.this, SyncService.class)
-                                    );
-
+                            () -> {
                                 MainActivity.this.startService(
                                         new Intent(MainActivity.this, MemberCalendarInfoService.class)
                                 );

@@ -17,7 +17,9 @@ public class EventChannel {
         AdminJoined,
         OfficeDataUpdated,
         OfficeMemberUpdated,
-        AppointmentsUpdated
+        AppointmentsUpdated,
+        CalendarCreated,
+        DeviceUpdated
     }
 
     private final Context context;

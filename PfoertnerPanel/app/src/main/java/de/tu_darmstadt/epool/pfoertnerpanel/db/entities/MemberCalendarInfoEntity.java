@@ -16,6 +16,10 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     private String oAuthToken;
     private String eMail;
 
+    public static MemberCalendarInfo toInterface(MemberCalendarInfoEntity entity){
+        return entity;
+    }
+
     public MemberCalendarInfoEntity(final int memberId) {
         this.memberId = memberId;
     }
