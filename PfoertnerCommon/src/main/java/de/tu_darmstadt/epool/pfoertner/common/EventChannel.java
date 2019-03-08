@@ -18,7 +18,8 @@ public class EventChannel {
         OfficeDataUpdated,
         OfficeMemberUpdated,
         CalendarCreated,
-        takephoto
+        takephoto,
+        DeviceUpdated
     }
 
     private final Context context;

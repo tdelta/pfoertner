@@ -2,7 +2,7 @@ package de.tu_darmstadt.epool.pfoertner.common.qrcode;
 
 import com.google.gson.Gson;
 
-import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office;
 
 public class QRCodeData {
     public final int officeId;

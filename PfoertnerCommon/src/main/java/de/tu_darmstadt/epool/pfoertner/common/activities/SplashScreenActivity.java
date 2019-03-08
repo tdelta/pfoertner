@@ -1,21 +1,28 @@
-package de.tu_darmstadt.epool.pfoertnerpanel;
+package de.tu_darmstadt.epool.pfoertner.common.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SplashScreenActivity extends AppCompatActivity {
-    private static BiConsumer<Context, Consumer<Void>> s_work;
+    private static BiConsumer<SplashScreenActivity, Consumer<Void>> s_work;
+    private static View s_view;
+    private static int s_orientation;
 
-    public static void run(final Activity parent, final BiConsumer<Context, Consumer<Void>> work) {
+    public static void run(final Activity parent, final View view, final int screenOrientation, final BiConsumer<SplashScreenActivity, Consumer<Void>> work) {
         if (s_work != null) {
             throw new RuntimeException("There can only be a single active splash screen.");
         }
+
+        s_view = view;
+        s_orientation = screenOrientation;
 
         final Intent intent = new Intent(parent, SplashScreenActivity.class);
         parent.startActivity(intent);
@@ -26,7 +33,12 @@ public class SplashScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash_screen);
+        if (s_view.getParent() != null) {
+            ((ViewGroup) s_view.getParent()).removeView(s_view);
+        }
+
+        setRequestedOrientation(s_orientation);
+        setContentView(s_view);
 
         s_work.accept(
             this,
