@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.arch.lifecycle.ViewModel;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -9,26 +10,34 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.arch.lifecycle.ViewModelProviders;
 
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 
 
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.SyncService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
+import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberGrid;
 import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+
+import static android.support.constraint.Constraints.TAG;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "PfoertnerPanelMain";
@@ -37,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private ViewGroup container;
     private CompositeDisposable disposables;
 
-    private MemberGrid memberList;
     private OfficeViewModel viewModel;
 
     private void init() {
@@ -84,12 +92,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateMembers() {
-//        final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
-//        memberList.setMembers(app.getOffice().getMembers());
-
-    }
-
     private void initOffice() {
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
 
@@ -127,12 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 //updateMembers();
             }
         });
-
-        viewModel.getOfficeMembers(app.getOffice().getId()).observe(this, members -> {
-           if(members != null) {
-               memberList.setMembers(members);
-           }
-        });
+        initializeMemberGrid();
     }
 
     public void newtest(View view){
@@ -147,37 +144,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void registerForMemberChanges(final List<Member> members) {
-        final MemberObserver observer = new MemberObserver() {
-            @Override
-            public void onFirstNameChanged(String newFirstName) {
-                updateMembers();
-            }
-
-            @Override
-            public void onLastNameChanged(String newLastName) {
-                updateMembers();
-            }
-
-            @Override
-            public void onStatusChanged(String newStatus) {
-                updateMembers();
-            }
-
-            @Override
-            public void onPictureChanged() {
-                updateMembers();
-            }
-        };
-
-        for (final Member member : members) {
-            Log.d(TAG, "Registering MainActivity observer and CalenderApi on member with id " + member.getId());
-
-            member.addObserver(observer);
-
-            //member.setCalendarApi(new CalendarApi(member,this));
-        }
-    }
 
     private void checkForPlayServices() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
@@ -192,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        memberList = findViewById(R.id.member_list);
 
         checkForPlayServices();
 
@@ -209,7 +174,68 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setRoom(savedInstanceState.getString("room", null));
             setGlobalStatus(savedInstanceState.getString("globalStatus", null));
+            initializeMemberGrid();
         }
+
+    }
+
+    private void initializeMemberGrid() {
+        OfficeViewModel viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
+
+        MemberGrid memberList = findViewById(R.id.member_list);
+        final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
+        viewModel.getOfficeMembers(app.getOffice().getId()).observe(this, members -> {
+            if(members != null) {
+                memberList.setMembers(members);
+
+                members
+                        .stream()
+                        .forEach(member -> setTimeEvents(member, memberList));
+
+            }
+        });
+    }
+
+    private void setTimeEvents(Member member, MemberGrid memberList) {
+        final PanelApplication app = PanelApplication.get(this);
+        app
+                .getPanelRepo()
+                .getMemberCalendarInfoRepo()
+                .getCalendarInfoByMemberId(member.getId())
+                .observe(this, calendarInfo -> {
+                    if (calendarInfo != null && calendarInfo.getCalendarId() != null) {
+                        final DateTime start = new DateTime(System.currentTimeMillis());
+                        final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
+
+                        getEvents(calendarInfo, start, end)
+                                .subscribe(
+                                        events -> {
+
+                                            Log.d("OfficeHours received", "");
+
+                                            memberList.setEvents(member.getId(), events);
+
+                                        },
+                                        throwable -> Log.e(TAG, "Failed to fetch events.", throwable)
+                                );
+                    }
+                });
+    }
+
+
+    private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
+        final PanelApplication app = PanelApplication.get(this);
+
+        return app
+                .getCalendarApi()
+                .getCredential(calendarInfo.getOAuthToken())
+                .flatMap(
+                        credentials -> app
+                                .getCalendarApi()
+                                .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
