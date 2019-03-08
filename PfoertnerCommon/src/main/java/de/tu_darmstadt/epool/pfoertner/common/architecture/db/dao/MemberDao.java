@@ -33,7 +33,7 @@ public abstract class MemberDao {
         }
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     public abstract void insertMembers(MemberEntity... members);
 
     @Query("SELECT * FROM MemberEntity WHERE id = :memberId")

@@ -252,10 +252,6 @@ public class Member extends Observable<MemberObserver> {
         return memberData.calendarId;
     }
 
-    public void calendarUpdated(){
-        notifyEachObserver(memberObserver -> memberObserver.onCalendarCreated());
-    }
-
     void updateByData(final MemberData data) {
         Log.d(TAG, "The member with id " + this.getId() + " is being updated. We will now check, which attributes changed.");
         final MemberData oldMember = Member.this.memberData;
