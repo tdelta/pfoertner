@@ -36,7 +36,6 @@ public class CalendarApi {
 
     private static final String clientId = "626288801350-vk790l2a56u0m25p63q36asu4tv7gnsr.apps.googleusercontent.com";
     private static final String clientSecret = "wHAYULXTwsZWMQ827ITPIEVr";
-    private static final String credentialsPath = "pfoertner-e43d0751b099.p12";
 
     public Single<String> getAccessToken(final String serverAuthCode) {
         return Single.fromCallable(
@@ -45,7 +44,7 @@ public class CalendarApi {
                             new GoogleAuthorizationCodeTokenRequest(
                                     HTTP_TRANSPORT,
                                     JacksonFactory.getDefaultInstance(),
-                                    "https://oauth2.googleapis.com/token",
+                                    "https://www.googleapis.com/oauth2/v4/token",
                                     clientId,
                                     clientSecret,
                                     serverAuthCode,

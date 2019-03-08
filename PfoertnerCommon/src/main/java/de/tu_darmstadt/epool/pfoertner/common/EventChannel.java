@@ -17,6 +17,7 @@ public class EventChannel {
         AdminJoined,
         OfficeDataUpdated,
         OfficeMemberUpdated,
+        AppointmentsUpdated,
         CalendarCreated,
         DeviceUpdated
     }

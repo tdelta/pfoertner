@@ -96,6 +96,7 @@ public class MemberCalendarInfoService extends LifecycleService {
                     .getMemberRepo()
                     .getMember(member.getId())
                     .observe(this, observedMember -> {
+                        Log.d(TAG,"Observed Change in office member");
                         workQueue.onNext(
                                 new UpdatedMemberWork(observedMember.getId(), observedMember.getServerAuthCode())
                         );
@@ -123,7 +124,7 @@ public class MemberCalendarInfoService extends LifecycleService {
                                             calendarInfo.getServerAuthCode() == null || !work.serverAuthCode.equals(calendarInfo.getServerAuthCode())
                                     )
                                             ) {
-                                        Log.d(TAG, "The server calendar auth code changed, so we will request a new oauth token.");
+                                        Log.d(TAG, "Old server auth code: "+calendarInfo.getServerAuthCode()+", new server auth code: "+work.serverAuthCode+"; will request a new oauth token.");
 
                                         return fetchNewOAuthToken(work.memberId, work.serverAuthCode)
                                                 .doOnSuccess(
@@ -233,7 +234,7 @@ public class MemberCalendarInfoService extends LifecycleService {
         final PanelApplication app = PanelApplication.get(this);
 
         // TODO: Now that calendarId is part of Member, we can remove it from calendarInfo
-        return Completable.mergeArray(
+        return Completable.concatArray(
            // save server auth code and oauth token
            app
                 .getPanelRepo()
