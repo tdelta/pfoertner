@@ -48,6 +48,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
 
         final int memberId = getIntent().getIntExtra("MemberId",-1);
 
+
         if (memberId < 0) {
             Log.e(TAG, "A member must be selected to show appointments.");
         }
@@ -55,9 +56,13 @@ public class NewScheduleAppointment extends AppCompatActivity {
         else {
             final TextView room = (TextView) findViewById(R.id.schedule_room);
 
-            room.setText("A101"); //TODO: app.getoffice hat leider keinen raum wert...
+
 
             final PanelApplication app = PanelApplication.get(this);
+
+            app.getRepo().getOfficeRepo().getOffice(app.getOffice().getId()).observe(this, office ->{
+                room.setText(office.getRoom());
+            });
 
             app
                     .getRepo()

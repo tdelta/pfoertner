@@ -143,12 +143,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void test(View view){
-        Intent intent = new Intent(this, ScheduleAppointment.class);
-        intent.putExtra("MemberId",((MemberButton) view).getMemberId());
-        startActivity(intent);
-    }
-
     private void registerForMemberChanges(final List<Member> members) {
         final MemberObserver observer = new MemberObserver() {
             @Override
