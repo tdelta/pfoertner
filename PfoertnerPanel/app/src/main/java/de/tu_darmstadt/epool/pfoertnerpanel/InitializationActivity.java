@@ -4,11 +4,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.widget.ImageView;
 
 
@@ -18,19 +20,20 @@ import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.activities.SplashScreenActivity;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
 
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class InitializationActivity extends AppCompatActivity {
-    private static final String TAG = "InitializationActivity";
+    private static final String TAG = "InitializationActivityLog";
 
     private RequestTask<Office> initTask;
-
     private EventChannel eventChannel;
+
+    private CompositeDisposable disposables;
 
     @Override
     protected void onStart() {
@@ -42,9 +45,10 @@ public class InitializationActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         eventChannel.shutdown();
+        disposables.dispose();
     }
 
-    private void initPanel(final Context context, final Consumer<Void> closeSplashScreen) {
+    private void initPanel(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen) {
         final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
 
         this.initTask = new RequestTask<Office>() {
@@ -63,35 +67,60 @@ public class InitializationActivity extends AppCompatActivity {
             @Override
             @SuppressWarnings("CheckResult")
             protected void onSuccess(final Office office) {
-                // TODO: Proper disposing of subscription according to lifecycle
                 app
                     .setOffice(office)
                     .subscribe(
                             () -> {
-                                showQRCode(app.getOffice());
+                                Log.d(TAG, "The office has been set. We will now wait, until the necessary data is available, to display the QR code.");
 
-                                office.addObserver(
-                                        new OfficeObserver() {
-                                            @Override
-                                            public void onJoinCodeChanged(String newJoinCode) {
-                                                InitializationActivity.this.showQRCode(office);
+                                app
+                                        .getRepo()
+                                        .getOfficeRepo()
+                                        .getOffice(office.getId())
+                                        .observe(InitializationActivity.this, changedOffice -> {
+                                            if (changedOffice != null) {
+                                                Log.d(TAG, "Displaying QR code...");
+
+                                                InitializationActivity.this.showQRCode(changedOffice);
                                             }
-                                        }
-                                );
 
-                                closeSplashScreen.accept(null);
+                                            else {
+                                                Log.d(TAG, "Office data to display the QR code is not available yet, waiting till it is...");
+                                            }
+                                        });
+
+                                app
+                                        .getRepo()
+                                        .getDeviceRepo()
+                                        .getDevice(app.getDevice().id)
+                                        .observe(splashScreenActivity, device -> {
+                                            // wait until there is a fcm token
+                                            if (device != null) {
+                                                if (device.getFcmToken() != null) {
+                                                    closeSplashScreen.accept(null);
+                                                }
+
+                                                else {
+                                                    Log.d(TAG, "Can not yet remove initialization screen, since there is no fcm token set yet.");
+                                                }
+                                            }
+
+                                            else {
+                                                Log.d(TAG, "Can not yet remove initialization screen, since there is no device set yet.");
+                                            }
+                                        });
                             },
                             throwable -> {
                                 Log.e(TAG, "Failed to create an office. Asking the user to retry...", throwable);
 
-                                ErrorInfoDialog.show(context, throwable.getMessage(), aVoid -> initPanel(context, closeSplashScreen), false);
+                                ErrorInfoDialog.show(splashScreenActivity, throwable.getMessage(), aVoid -> initPanel(splashScreenActivity, closeSplashScreen), false);
                             }
                     );
             }
 
             @Override
             protected void onException(final Exception e) {
-                ErrorInfoDialog.show(context, e.getMessage(), aVoid -> initPanel(context, closeSplashScreen), false);
+                ErrorInfoDialog.show(splashScreenActivity, e.getMessage(), aVoid -> initPanel(splashScreenActivity, closeSplashScreen), false);
             }
         };
 
@@ -100,7 +129,7 @@ public class InitializationActivity extends AppCompatActivity {
         );
     }
 
-    private void showQRCode(final Office office) {
+    private void showQRCode(final de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office office) {
         final String displayedData = new QRCodeData(office).serialize();
         Log.d(TAG, "Displaying QRData: " + displayedData);
 
@@ -118,6 +147,12 @@ public class InitializationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_initialization);
 
         ActivityCompat.requestPermissions(InitializationActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.SYSTEM_ALERT_WINDOW},0);
+
+        if (this.disposables != null) {
+            this.disposables.dispose();
+        }
+
+        this.disposables = new CompositeDisposable();
 
         eventChannel = new EventChannel(this) {
             @Override
@@ -144,6 +179,8 @@ public class InitializationActivity extends AppCompatActivity {
         };
 
         SplashScreenActivity.run(this,
+            LayoutInflater.from(this).inflate(R.layout.activity_splash_screen, null),
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE,
             this::initPanel
         );
     }

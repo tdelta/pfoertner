@@ -11,11 +11,13 @@ import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class SyncService extends Service {
     private static final String TAG = "SyncService";
 
     private EventChannel eventChannel;
+    private CompositeDisposable disposables;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -25,12 +27,20 @@ public class SyncService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "Starting sync service.");
+
+        if (disposables != null) {
+            disposables.dispose();
+        }
+
+        disposables = new CompositeDisposable();
+
         eventChannel = new EventChannel(SyncService.this) {
             @Override
             protected void onEvent(final EventType e, final @Nullable String payload) {
                 switch (e) {
                     case AdminJoined:
-                        SyncService.this.updateMembers();
+                        SyncService.this.updateMembers(payload);
                         break;
                     case OfficeMemberUpdated:
                         SyncService.this.updateMember(payload);
@@ -45,24 +55,62 @@ public class SyncService extends Service {
                         Log.d("SpionNew","The new takePhoto service is about to launch!");
                         startService(new Intent(getApplicationContext(), Spion.class));
                         break;
+                    case DeviceUpdated:
+                        SyncService.this.updateDevice(payload);
+                        break;
                 }
             }
         };
 
         this.eventChannel.listen();
 
+        Log.d(TAG, "Will synchronize all local data, as soon as the app state is ready.");
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        disposables.add(
+            app
+                .observeInitialization()
+                .subscribe(
+                        () -> {
+                            Log.d(TAG, "Starting synchronization of all local data.");
+
+                            app
+                                    .getRepo()
+                                    .refreshAllLocalData();
+                        },
+                        throwable -> Log.e(TAG, "Failed to observe app initialization. This should never happen.")
+                )
+        );
+
         return START_STICKY;
     }
 
-    private void updateMembers() {
-        final PfoertnerApplication app = PfoertnerApplication.get(this);
-
-        if (app.hasOffice()) {
-            app.getOffice().updateMembersAsync(app.getSettings(), app.getService(), app.getAuthentication(), app.getFilesDir());
+    private void updateMembers(final @Nullable String payload) {
+        if (payload == null) {
+            Log.e(TAG, "Tried to update members, but there was no payload!");
         }
 
         else {
-            Log.e(TAG, "Tried to update members, but office is not initialized.");
+            try {
+                final int officeId = Integer.parseInt(payload);
+
+                final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+                app
+                        .getRepo()
+                        .getMemberRepo()
+                        .refreshAllMembersFromOffice(officeId);
+
+                if (app.hasOffice()) {
+                    app.getOffice().updateMembersAsync(app.getSettings(), app.getService(), app.getAuthentication(), app.getFilesDir());
+                }
+
+                else {
+                    Log.e(TAG, "Tried to update members, but office is not initialized.");
+                }
+            } catch (NumberFormatException e){
+                Log.e(TAG, "Tried to update members, but the payload was invalid.");
+            }
         }
     }
 
@@ -86,6 +134,29 @@ public class SyncService extends Service {
         }
     }
 
+    private void updateDevice(final @Nullable String payload) {
+        final PfoertnerApplication app = PfoertnerApplication.get(this);
+
+        if (payload == null) {
+            Log.e(TAG, "Tried to update device, but there was no payload!");
+        }
+
+        else {
+            try {
+                final int deviceId = Integer.parseInt(payload);
+
+                Log.d(TAG, "Refreshing device " + deviceId);
+                app.getRepo().getDeviceRepo().refreshDevice(
+                        deviceId
+                );
+            }
+
+            catch (final NumberFormatException e) {
+                Log.e(TAG, "Tried to update member, but the payload was invalid.");
+            }
+        }
+    }
+
     private void updateMember(final @Nullable String payload) {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
@@ -97,7 +168,6 @@ public class SyncService extends Service {
             else {
                 try {
                     final int memberId = Integer.parseInt(payload);
-
                     app.getRepo().getMemberRepo().refreshMember(
                             memberId
                     );
@@ -149,8 +219,12 @@ public class SyncService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "SyncService is being shut down.");
         super.onDestroy();
 
         this.eventChannel.shutdown();
+
+        Log.d(TAG, "Disposing observers.");
+        this.disposables.dispose();
     }
 }

@@ -22,11 +22,17 @@ public class showQRCodeActivity extends AppCompatActivity {
     protected void showQRCode(){
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
-        final ImageView qrCodeView = findViewById(R.id.qrCodeView);
-        final QRCode qrCode = new QRCode(
-                new QRCodeData(app.getOffice()).serialize()
-        );
+        app
+                .getRepo()
+                .getOfficeRepo()
+                .getOffice(app.getOffice().getId())
+                .observe(this, office -> {
+                    final ImageView qrCodeView = findViewById(R.id.qrCodeView);
+                    final QRCode qrCode = new QRCode(
+                            new QRCodeData(office).serialize()
+                    );
 
-        qrCodeView.setImageDrawable(qrCode);
+                    qrCodeView.setImageDrawable(qrCode);
+                });
     }
 }
