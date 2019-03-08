@@ -141,7 +141,7 @@ public class SpionFragment extends Fragment {
                 .subscribe(
                         () -> {Log.d(TAG, "Successfully completed asking for spion picture.");
 
-                            Toast toast = Toast.makeText(SpionActivity.this, "Spion picture is being taken.",
+                            Toast toast = Toast.makeText(getActivity(), "Spion picture is being taken.",
                                     Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.BOTTOM, 0, 200);
                             toast.show();
