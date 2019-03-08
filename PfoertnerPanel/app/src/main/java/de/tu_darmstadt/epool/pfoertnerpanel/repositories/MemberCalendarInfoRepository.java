@@ -3,6 +3,7 @@ package de.tu_darmstadt.epool.pfoertnerpanel.repositories;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -27,16 +28,18 @@ public class MemberCalendarInfoRepository {
     }
 
     @SuppressWarnings("CheckResult")
-    public LiveData<? extends MemberCalendarInfo> getCalendarInfoByMemberId(final int memberId) {
+    public LiveData<MemberCalendarInfo> getCalendarInfoByMemberId(final int memberId) {
         createIfNotPresent(memberId)
                 .subscribe(
                         () -> {},
                         throwable -> Log.e(TAG, "Could not retrieve calendar info for member " +  memberId + " from memory, since creating it failed.", throwable)
                 );
 
-        return db
-                .memberCalendarInfoDao()
-                .load(memberId);
+        return Transformations.map(
+                db.memberCalendarInfoDao().load(memberId),
+                MemberCalendarInfoEntity::toInterface
+            );
+
     }
 
     public Single<MemberCalendarInfo> getCalendarInfoByMemberIdOnce(final int memberId) {

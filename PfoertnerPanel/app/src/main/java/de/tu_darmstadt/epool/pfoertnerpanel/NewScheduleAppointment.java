@@ -1,5 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,12 +13,16 @@ import android.widget.TextView;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 
 import org.threeten.bp.LocalDateTime;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
@@ -26,7 +32,9 @@ import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 
 public class NewScheduleAppointment extends AppCompatActivity {
     private final String TAG = "NewScheduleAppointment";
@@ -37,6 +45,8 @@ public class NewScheduleAppointment extends AppCompatActivity {
     private LinearLayout dayviews;
     private LinearLayout timeslots;
 
+    private CompositeDisposable disposables = new CompositeDisposable();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +56,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
         timeslots = (LinearLayout) findViewById(R.id.timeslots);
         now = LocalDateTime.now();
 
-        final int memberId = getIntent().getIntExtra("MemberId",-1);
+        int memberId = getIntent().getIntExtra("MemberId",-1);
 
         if (memberId < 0) {
             Log.e(TAG, "A member must be selected to show appointments.");
@@ -69,43 +79,111 @@ public class NewScheduleAppointment extends AppCompatActivity {
                         appointmentMemberName.setText("Appointment times for: " + member.getFirstName() + " " + member.getLastName());
                     });
 
-            app
+            LiveData<MemberCalendarInfo> calendarInfoLiveData = app
                     .getPanelRepo()
                     .getMemberCalendarInfoRepo()
-                    .getCalendarInfoByMemberId(memberId)
-                    .observe(this, calendarInfo -> {
-                        if (calendarInfo == null) {
-                            Log.e(TAG, "There is no member calendar info set for member " + memberId + ", we can not load time slots.");
+                    .getCalendarInfoByMemberId(memberId);
+
+            LiveData<List<Appointment>> appointmentLiveData = app
+                    .getRepo()
+                    .getAppointmentRepository()
+                    .getAppointmentsOfMember(memberId);
+
+            calendarInfoLiveData.observe(
+                    this,
+                    calendarInfo -> updateEvents(memberId, appointmentLiveData.getValue(), calendarInfo)
+            );
+
+            appointmentLiveData.observe(
+                    this,
+                    appointments ->
+                    {
+                        if (calendarInfoLiveData.getValue() != null) {
+                            updateEvents(memberId, appointments, calendarInfoLiveData.getValue());
                         }
-
-                        else if (calendarInfo.getCalendarId() == null) {
-                            Log.e(TAG, "The member " + memberId + " does not have a calendar registered, we can not load time slots.");
-                        }
-
-                        else if (calendarInfo.getCalendarId() == null) {
-                            Log.e(TAG, "We do not have an oauth token to access the calendar of member " + memberId + ".");
-                        }
-
-                        else {
-                            Log.d(TAG, "Downloading time slot events...");
-
-                            final DateTime start = new DateTime(System.currentTimeMillis());
-                            final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
-
-                            getEvents(calendarInfo, start, end)
-                                    .subscribe(
-                                            events -> {
-                                                Log.d(TAG, "Got timeslot events: " + events.toString());
-
-                                                this.upcomingEvents = events;
-
-                                                initializeDayViews();
-                                            },
-                                            throwable -> Log.e(TAG, "Failed to fetch events.", throwable)
-                                    );
-                        }
-                    });
+                    }
+            );
         }
+    }
+
+    private void updateEvents(int memberId, List<Appointment> appointments, MemberCalendarInfo calendarInfo){
+        if (calendarInfo == null) {
+            Log.e(TAG, "There is no member calendar info set for member " + memberId + ", we can not load time slots.");
+        }
+
+        else if (calendarInfo.getCalendarId() == null) {
+            Log.e(TAG, "The member " + memberId + " does not have a calendar registered, we can not load time slots.");
+        }
+
+        else if (calendarInfo.getOAuthToken() == null) {
+            Log.e(TAG, "We do not have an oauth token to access the calendar of member " + memberId + ".");
+        }
+
+        else {
+            Log.d(TAG, "Downloading time slot events...");
+
+            final DateTime start = new DateTime(System.currentTimeMillis());
+            final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
+
+            disposables.add(getEvents(calendarInfo, start, end)
+                    .subscribe(
+                            events -> {
+                                Log.d(TAG, "Got timeslot events: " + events.toString());
+
+                                upcomingEvents = removeAcceptedAppointments(events,appointments);
+
+                                initializeDayViews();
+                            },
+                            throwable -> Log.e(TAG, "Failed to fetch events.", throwable)
+                    )
+            );
+        }
+    }
+
+    private List<Event> removeAcceptedAppointments(List<Event> timeslots,@Nullable List<Appointment> appointments){
+        List<Event> result = new LinkedList<>();
+        result.addAll(timeslots);
+
+        if(appointments == null) return result;
+
+        Log.d(TAG, "Number of appointments: "+appointments.size());
+
+        for(Appointment appointment: appointments){
+            Log.d(TAG,"Appointment accepted "+appointment.getAccepted());
+            if(appointment.getAccepted()){
+                Event timeslot;
+                for(int i = 0;i < result.size(); i++){
+                    timeslot = timeslots.get(i);
+
+                    Log.d(TAG,"Appointment start: "+appointment.getStart().toString()+" Timeslot start: "+timeslot.getStart().getDateTime().toString());
+
+                    long timeslotStartShift = timeslot.getStart().getDateTime().getTimeZoneShift() * 3600 * 1000L;
+                    Date timeslotStart = new Date(timeslot.getStart().getDateTime().getValue()+timeslotStartShift);
+                    long timeslotEndShift = timeslot.getEnd().getDateTime().getTimeZoneShift() * 3600 * 1000L;
+                    Date timeslotEnd = new Date(timeslot.getEnd().getDateTime().getValue()+timeslotEndShift);
+
+                    if(appointment.getEnd().after(timeslotStart) && appointment.getStart().before(timeslotEnd)){
+                        // The appointment intersects the timeslot
+                        result.remove(i);
+                        i--;
+
+                        if(appointment.getStart().after(timeslotStart)){
+                            // Add a timeslot before the accepted appointment
+                            Event newTimeslot = timeslot.clone();
+                            newTimeslot.setStart(newTimeslot.getStart().setDateTime(new DateTime(appointment.getStart().getTime())));
+                            result.add(newTimeslot);
+                        }
+                        if(appointment.getEnd().before(timeslotEnd)){
+                            // Add a timeslot after the accepted appointment
+                            Event newTimeslot = timeslot.clone();
+                            newTimeslot.setStart(newTimeslot.getStart().setDateTime(new DateTime(appointment.getEnd().getTime())));
+                            result.add(newTimeslot);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
@@ -194,5 +272,11 @@ public class NewScheduleAppointment extends AppCompatActivity {
 
 
         finish();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        disposables.dispose();
     }
 }

@@ -35,6 +35,8 @@ public class AppointmentRequestList extends Fragment{
     private LayoutInflater inflater;
     private static int WRITE_CALENDAR_PERMISSION_REQUEST = 0;
 
+    private static final String TAG = "AppointmentRequestList";
+
     private Appointment appointmentRequestToWrite;
     private String emailToWrite;
 
@@ -95,12 +97,16 @@ public class AppointmentRequestList extends Fragment{
         @Override
         public void onClick(View v) {
             try {
-                app
-                        .getRepo()
-                        .getAppointmentRepository()
-                        .setAccepted(appointmentRequest.getId(),accept);
-
                 if(accept){
+                    app
+                            .getRepo()
+                            .getAppointmentRepository()
+                            .setAccepted(appointmentRequest.getId(),accept)
+                            .subscribe(
+                                    () -> Log.d(TAG,"Successfully send accept appointment to server"),
+                                    throwable -> Log.e(TAG,"Could not send accept appointment to server")
+                            );
+
                     LiveData<Member> memberLiveData = app.
                             getRepo()
                             .getMemberRepo()
@@ -119,6 +125,15 @@ public class AppointmentRequestList extends Fragment{
                             }
                         }
                     );
+                } else {
+                    app
+                            .getRepo()
+                            .getAppointmentRepository()
+                            .removeAppointment(appointmentRequest.getId())
+                            .subscribe(
+                                    () -> Log.d(TAG,"Successfully removed appointment request "+appointmentRequest.getId()),
+                                    throwable -> Log.e(TAG,"Could not remove appointment request "+appointmentRequest.getId(),throwable)
+                            );
                 }
             } catch (Throwable e){
                 e.printStackTrace();

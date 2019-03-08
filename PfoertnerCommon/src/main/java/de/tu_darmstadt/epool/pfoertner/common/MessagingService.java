@@ -21,10 +21,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.FcmTokenCreationData;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";
@@ -37,44 +44,33 @@ public class MessagingService extends FirebaseMessagingService {
 
         final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
 
-        disposables.add(
-                app
-                        .observeInitialization()
-                        .retry()
-                        .subscribe(
-                                () -> {
-                                    // TODO Redo with rxjava and enable retry
-                                    new RequestTask<Void>() {
-                                        @Override
-                                        protected Void doRequests() {
-                                            // TODO: Race conditions mit Main?
-                                            final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
+        // Attention: Do not use any class attributes here, since this observer might outlive the service.
+        app
+                .observeInitialization()
+                .doOnSubscribe(
+                        disposable -> Log.d(TAG, "Waiting, until the app is initialized, so that we may try to upload the token.")
+                )
+                .andThen(
+                    Completable.fromAction(() -> {
+                        Log.d(TAG, "The app has been initialized, so we will try to upload the token right now.");
 
-                                            try {
-                                                app.getService()
-                                                        .setFcmToken(app.getAuthentication().id, app.getDevice().id, new FcmTokenCreationData(token))
-                                                        .execute();
-                                            }
-
-                                            catch (final IOException e) {
-                                                Log.e(TAG, "Could not upload the FCM token", e);
-
-                                                throw new RuntimeException("Could not upload the FCM token");
-                                            }
-
-                                            return null;
-                                        }
-
-                                        //TODO, was tun bei onException?
-                                    }.execute();
-
-                                    Log.d(TAG,"Uploaded new token.");
-                                },
-                                throwable -> {
-                                    Log.e(TAG, "Could not register token, since app initialization failed. Will retry.", throwable);
-                                }
+                        app.getService()
+                                .setFcmToken(app.getAuthentication().id, app.getDevice().id, new FcmTokenCreationData(token))
+                                .execute();
+                    })
+                        .subscribeOn(Schedulers.io())
+                        .doOnError(
+                                throwable -> Log.e(TAG, "Could not upload the FCM token", throwable)
                         )
-        );
+                        .retry()
+                        .doOnComplete(() -> Log.d(TAG,"Successfully uploaded new token."))
+                )
+                .subscribe(
+                        () -> Log.d(TAG, "Completed token registration."),
+                        throwable -> {
+                            Log.e(TAG, "Could not register token, this should not happen. Cant retry (anymore)", throwable);
+                        }
+                );
     }
 
     private void init() {
@@ -83,14 +79,18 @@ public class MessagingService extends FirebaseMessagingService {
         disposables.add(
                 app
                         .init()
-                        .subscribe(
-                                () -> {},
-                                throwable -> {
-                                    Log.e(TAG, "Failed to initialize app. Server might be unreachable. Will retry.", throwable);
+                        .retryWhen(
+                                throwables -> throwables.flatMap(
+                                        throwable -> {
+                                            Log.e(TAG, "Failed to initialize app. Server might be unreachable. Will retry.", throwable);
 
-                                    // Maybe slow down retries..?
-                                    init();
-                                }
+                                            return Flowable.timer(2, TimeUnit.SECONDS, AndroidSchedulers.mainThread());
+                                        }
+                                )
+                        )
+                        .subscribe(
+                                () -> Log.d(TAG, "Successfully initialized app from MessagingService."),
+                                throwable -> Log.e(TAG, "Failed to initialize app. Something went horribly wrong, cant retry.", throwable)
                         )
         );
     }
@@ -116,13 +116,17 @@ public class MessagingService extends FirebaseMessagingService {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "The messaging service is being destroyed.");
         super.onDestroy();
 
+        Log.d(TAG, "Disposing observers...");
         disposables.dispose();
     }
 
     @Override
     public void onMessageReceived(final RemoteMessage remoteMessage) {
+        // TODO: What if SyncService is not running, while we receive an important notification?
+        //       Throwing it into the EventChannel will cause it to get lost.
         {
             final Gson gson = new Gson();
             Log.d(TAG, "Received FCM message. It contains: " + gson.toJson(remoteMessage.getData()));

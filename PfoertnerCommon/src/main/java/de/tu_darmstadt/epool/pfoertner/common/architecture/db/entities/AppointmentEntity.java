@@ -43,9 +43,7 @@ public class AppointmentEntity implements Appointment{
 
     @PrimaryKey
     private int id;
-    @TypeConverters({DateConverter.class})
     private Date start;
-    @TypeConverters({DateConverter.class})
     private Date end;
     private String email;
     private String name;
