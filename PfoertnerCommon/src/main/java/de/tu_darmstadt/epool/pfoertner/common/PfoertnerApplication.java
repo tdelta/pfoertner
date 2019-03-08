@@ -52,10 +52,14 @@ public class PfoertnerApplication extends Application {
     private Completable buildInitProcess() {
         return Single.fromCallable(
                 () -> {
+                    Log.d(TAG, "App init process is now starting.");
+
+                    Log.d(TAG, "Retrieving password, building service, loading device and authenticating.");
                     this.password = Password.loadPassword(this.preferences);
                     this.service = PfoertnerService.makeService();
                     this.device = User.loadDevice(this.preferences, this.service, this.password);
                     this.authentication = Authentication.authenticate(this.preferences, this.service, this.device, this.password, this);
+                    Log.d(TAG, "Successfully retrieved password, service, device info and authentication.");
 
                     db = Room.databaseBuilder(this, AppDatabase.class, "AppDatabase").build();
                     repo = new PfoertnerRepository(api, this.authentication, db);
@@ -79,6 +83,8 @@ public class PfoertnerApplication extends Application {
                                         .doOnSuccess(
                                                 initStatus -> {
                                                     if (initStatus.hasJoinedOffice()) {
+                                                        Log.d(TAG, "The has already joined an office, so we will load it.");
+
                                                         this.maybeOffice = Optional.of(
                                                                 Office.loadOffice(this.preferences, this.service, this.authentication, this.getFilesDir())
                                                         );
@@ -96,11 +102,15 @@ public class PfoertnerApplication extends Application {
                                                         officeIdSubject
                                                                 .onNext(initStatus.joinedOfficeId());
                                                     } else {
+                                                        Log.d(TAG, "The app has never joined an office, so we will not load one.");
                                                         this.maybeOffice = Optional.empty();
                                                     }
 
+                                                    Log.d(TAG, "Initializing subclasses.");
                                                     onInit();
+                                                    Log.d(TAG, "Subclasses initialized.");
 
+                                                    Log.d(TAG, "Completing initialization.");
                                                     this.hadBeenInitialized = true;
                                                     this.isInitializedSubject.onComplete();
                                                 }
@@ -221,19 +231,36 @@ public class PfoertnerApplication extends Application {
 
         this.maybeOffice = Optional.of(office);
 
-
         getRepo()
                 .getOfficeRepo()
                 .refreshOffice(office.getId());
 
-        officeIdSubject
-                .onNext(office.getId());
-
         return getRepo()
-                .getInitStatusRepo()
-                .setJoinedOfficeId(office.getId())
-                .subscribeOn(Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread());
+                .getOfficeRepo()
+                .getOfficeOnce(office.getId())
+                .doOnSuccess(
+                        dboffice -> Log.d(TAG, "Office is now stored in db.")
+                )
+                .doOnError(
+                        throwable -> Log.e(TAG, "Storing office into db failed.")
+                )
+                .flatMapCompletable(
+                        dboffice -> getRepo()
+                            .getInitStatusRepo()
+                            .setJoinedOfficeId(office.getId())
+                )
+                .andThen(
+                        Completable.fromAction(
+                                () -> officeIdSubject
+                                        .onNext(office.getId())
+                        )
+                )
+                .doOnComplete(
+                        () -> Log.d(TAG, "Successfully set office.")
+                )
+                .doOnError(
+                        throwable -> Log.e(TAG, "Failed to set office.", throwable)
+                );
     }
 
     public ReplaySubject<Integer> observeOfficeId() {
