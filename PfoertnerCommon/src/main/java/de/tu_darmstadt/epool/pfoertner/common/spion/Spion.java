@@ -1,26 +1,43 @@
 package de.tu_darmstadt.epool.pfoertner.common.spion;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
-import android.os.Environment;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.androidhiddencamera.CameraConfig;
+import com.androidhiddencamera.CameraError;
+import com.androidhiddencamera.HiddenCameraService;
+import com.androidhiddencamera.HiddenCameraUtils;
+import com.androidhiddencamera.config.CameraFacing;
+import com.androidhiddencamera.config.CameraImageFormat;
+import com.androidhiddencamera.config.CameraResolution;
+
+
+import com.androidhiddencamera.CameraConfig;
+import com.androidhiddencamera.CameraError;
+import com.androidhiddencamera.HiddenCameraService;
+import com.androidhiddencamera.HiddenCameraUtils;
+import com.androidhiddencamera.config.CameraFacing;
+//import com.androidhiddencamera.config.CameraFocus;
+import com.androidhiddencamera.config.CameraImageFormat;
+import com.androidhiddencamera.config.CameraResolution;
+
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.R;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import io.reactivex.Completable;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
@@ -28,88 +45,47 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
-public class Spion {
-    private Camera camera;
+public class Spion extends HiddenCameraService {
+
     private static final String TAG = "Spion";
-    private PfoertnerApplication app;
-    private PfoertnerService service;
 
-    public Spion(Context context) {
-        app = PfoertnerApplication.get(context);
-        service = app.getService();
-        camera = checkDeviceCamera();
 
-        Log.d(TAG, "Cameranumber" + camera.getNumberOfCameras());
-    }
-
-    public void takePhoto(){
-
-        try {
-            camera.setPreviewTexture(new SurfaceTexture(0));
-            camera.startPreview();
-            camera.takePicture(null, null, pictureCallback);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
 
-    private Camera checkDeviceCamera(){
-        Camera mCamera = null;
-        try {
-            mCamera = Camera.open(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return mCamera;
+    @Override
+    public void onImageCapture(@NonNull File imageFile) {
+
+        Log.d("SpionNew", "We are in onImageCaptured and the takePhoto is about to get send");
+
+
+        // Do something with the image...
+        Completable.fromAction(
+                () -> sendSpion(imageFile)
+        )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> Log.d(TAG, "Successfully completed uploading spion picture."),
+                        throwable -> Log.e(TAG, "Failed to upload spion picture.", throwable)
+                );
+        stopSelf();
     }
 
-    @SuppressWarnings("CheckResult")
-    Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
-        @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
 
-            Log.d(TAG, "Transferring bitmap...");
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-//            if(bitmap==null){
-//                Toast.makeText(MainActivity.this, "Captured image is empty", Toast.LENGTH_LONG).show();
-//                return;
-//            }
-//            capturedImageHolder.setImageBitmap(bitmap);
-            Log.d(TAG, bitmap + "");
-            camera.stopPreview();
-            camera.release();
-            Log.d(TAG, "Transferred bitmap!");
-
-            Completable.fromAction(
-                    () -> saveSpion(data)
-            )
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            () -> Log.d(TAG, "Successfully completed uploading spion picture."),
-                            throwable -> Log.e(TAG, "Failed to upload spion picture.", throwable)
-                    );
-        }
-    };
-
-    private Bitmap scaleDownBitmapImage(Bitmap bitmap, int newWidth, int newHeight){
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-        return resizedBitmap;
-    }
-
-    private void saveSpion(byte[] data) throws IOException {
-        File f = new File(Environment.getExternalStorageDirectory() + File.separator + "spion.jpg");
-        Log.d(TAG, Environment.getExternalStorageDirectory() + File.separator + "spion");
-        Log.d(TAG, f.getPath());
-        FileOutputStream fos = null;
-        f.createNewFile();
-        fos = new FileOutputStream(f);
-        fos.write(data);
-        sendSpion(f);
-    }
 
     private void sendSpion(File file) throws IOException {
+
+        Log.d(TAG, "We are in sendSpion!");
+
+        PfoertnerApplication app = PfoertnerApplication.get(getApplicationContext());
+        PfoertnerService service = app.getService();
+
+
         final RequestBody requestFile =
                 RequestBody.create(
                         MediaType.parse(FilenameUtils.getExtension(file.getPath())),
@@ -136,6 +112,96 @@ public class Spion {
 
         if (response == null) {
             throw new RuntimeException("Uploading spion picture failed!");
+        }
+    }
+
+
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        Log.d(TAG, "We are in onStartCommand");
+
+
+        Log.d(TAG, "We ask for pressmisions now");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+
+
+            Log.d(TAG, "We have all needed permessions");
+
+            if (HiddenCameraUtils.canOverDrawOtherApps(this)) {
+                CameraConfig cameraConfig = new CameraConfig()
+                        .getBuilder(this)
+                        .setCameraFacing(CameraFacing.FRONT_FACING_CAMERA)
+                        .setCameraResolution(CameraResolution.MEDIUM_RESOLUTION)
+                        .setImageFormat(CameraImageFormat.FORMAT_JPEG)
+                        //.setCameraFocus(CameraFocus.AUTO)
+                        .build();
+
+                Log.d(TAG, "Camera is about to start");
+
+                startCamera(cameraConfig);
+
+                new android.os.Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(DemoCamService.this,
+                        //        "Capturing image.", Toast.LENGTH_SHORT).show();
+
+
+                        Log.d(TAG, "We are about to start the takePicture()");
+                        takePicture();
+                    }
+                }, 2000L);
+            } else {
+
+                //Open settings to grant permission for "Draw other apps".
+                HiddenCameraUtils.openDrawOverPermissionSetting(this);
+            }
+        } else {
+
+            Log.d(TAG,"We didnt have all the needed permissions");
+
+            //TODO Ask your parent activity for providing runtime permission
+            Toast.makeText(this, "Camera permission not available", Toast.LENGTH_SHORT).show();
+        }
+        return START_NOT_STICKY;
+    }
+
+
+
+
+
+    @Override
+    public void onCameraError(@CameraError.CameraErrorCodes int errorCode) {
+
+        Log.d(TAG, "Something went wrong");
+
+        switch (errorCode) {
+            case CameraError.ERROR_CAMERA_OPEN_FAILED:
+                //Camera open failed. Probably because another application
+                //is using the camera
+                Toast.makeText(this, R.string.error_cannot_open, Toast.LENGTH_LONG).show();
+                break;
+            case CameraError.ERROR_IMAGE_WRITE_FAILED:
+                //Image write failed. Please check if you have provided WRITE_EXTERNAL_STORAGE permission
+                Toast.makeText(this, R.string.error_cannot_write, Toast.LENGTH_LONG).show();
+                break;
+            case CameraError.ERROR_CAMERA_PERMISSION_NOT_AVAILABLE:
+                //camera permission is not available
+                //Ask for the camera permission before initializing it.
+                Toast.makeText(this, R.string.error_cannot_get_permission, Toast.LENGTH_LONG).show();
+                break;
+            case CameraError.ERROR_DOES_NOT_HAVE_OVERDRAW_PERMISSION:
+                //Display information dialog to the user with steps to grant "Draw over other app"
+                //permission for the app.
+                HiddenCameraUtils.openDrawOverPermissionSetting(this);
+                break;
+            case CameraError.ERROR_DOES_NOT_HAVE_FRONT_CAMERA:
+                Toast.makeText(this, R.string.error_not_having_camera, Toast.LENGTH_LONG).show();
+                break;
         }
     }
 }
