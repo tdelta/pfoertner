@@ -10,4 +10,5 @@ public interface Member {
     String getPictureMD5();
     String getServerAuthCode();
     String getCalendarId();
+    String getEmail();
 }

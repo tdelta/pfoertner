@@ -18,7 +18,7 @@ public class MemberEntity implements Member {
     public MemberEntity() {}
 
     @Ignore
-    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String serverAuthCode, String calendarId) {
+    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String serverAuthCode, String calendarId, String email) {
         this.id = id;
         this.OfficeId = officeId;
         this.firstName = firstName;
@@ -28,6 +28,7 @@ public class MemberEntity implements Member {
         this.pictureMD5 = pictureMD5;
         this.serverAuthCode = serverAuthCode;
         this.calendarId = calendarId;
+        this.email = email;
     }
 
     @PrimaryKey
@@ -43,6 +44,7 @@ public class MemberEntity implements Member {
     private String pictureMD5;
     private String serverAuthCode;
     private String calendarId;
+    private String email;
 
     public void setId(int id) {
         this.id = id;
@@ -71,6 +73,8 @@ public class MemberEntity implements Member {
     public void setServerAuthCode(String authCode) { this.serverAuthCode = authCode; }
 
     public void setCalendarId(String calendarId) { this.calendarId = calendarId; }
+
+    public void setEmail(String email) { this.email = email; }
 
     @Override
     public int getId() {
@@ -109,6 +113,9 @@ public class MemberEntity implements Member {
     @Override
     public String getCalendarId() { return calendarId; }
 
+    @Override
+    public String getEmail() { return email; }
+
     public MemberEntity deepCopy() {
         return new MemberEntity(
                 this.getId(),
@@ -119,7 +126,8 @@ public class MemberEntity implements Member {
                 this.getPicture(),
                 this.getPictureMD5(),
                 this.getServerAuthCode(),
-                this.getCalendarId()
+                this.getCalendarId(),
+                this.getEmail()
         );
     }
 }

@@ -52,6 +52,7 @@ public class LocalCalendar {
             String[] selectionArgs = new String[]{"1"};
 
             Cursor cursor = cr.query(calendarIdUri, projection, selection, selectionArgs, null);
+            cursor.moveToFirst();
             calendarId = cursor.getLong(0);
 
             SharedPreferences.Editor editor = app.getSettings().edit();

@@ -3,6 +3,7 @@ package de.tu_darmstadt.epool.pfoertnerpanel.repositories;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -27,16 +28,18 @@ public class MemberCalendarInfoRepository {
     }
 
     @SuppressWarnings("CheckResult")
-    public LiveData<? extends MemberCalendarInfo> getCalendarInfoByMemberId(final int memberId) {
+    public LiveData<MemberCalendarInfo> getCalendarInfoByMemberId(final int memberId) {
         createIfNotPresent(memberId)
                 .subscribe(
                         () -> {},
-                        throwable -> Log.e(TAG, "Could not retrieve calendar info for member " +  memberId + ", since creating it failed.", throwable)
+                        throwable -> Log.e(TAG, "Could not retrieve calendar info for member " +  memberId + " from memory, since creating it failed.", throwable)
                 );
 
-        return db
-                .memberCalendarInfoDao()
-                .load(memberId);
+        return Transformations.map(
+                db.memberCalendarInfoDao().load(memberId),
+                MemberCalendarInfoEntity::toInterface
+            );
+
     }
 
     public Single<MemberCalendarInfo> getCalendarInfoByMemberIdOnce(final int memberId) {
@@ -61,7 +64,7 @@ public class MemberCalendarInfoRepository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(
-                    () -> Log.d(TAG, "Successfully retrieved calendar info for member " + memberId)
+                    () -> Log.d(TAG, "Successfully wrote calendar info for member " + memberId + " into persistent memory")
                 )
                 .doOnError(
                     throwable -> Log.e(TAG, "Failed to create new calendar info for member " + memberId, throwable)
@@ -93,6 +96,9 @@ public class MemberCalendarInfoRepository {
                         calendarInfoEntity.getEMail()
                 )
         )
+                .doOnComplete(
+                        () -> Log.d(TAG,"Successfully saved calendar id "+newCalendarId+" for member "+memberId)
+                )
                 .doOnError(
                         throwable -> Log.e(TAG, "Failed to supplement calendar info of member " + memberId + " with new calendar id " + newCalendarId + ".", throwable)
                 );

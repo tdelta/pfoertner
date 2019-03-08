@@ -22,10 +22,14 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import java.util.List;
+
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertneradmin.AdminApplication;
+import de.tu_darmstadt.epool.pfoertneradmin.AppointmentRequestList;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
@@ -60,6 +64,13 @@ public class AppointmentFragment extends Fragment {
                 .getMemberRepo()
                 .getMember(app.getMemberId())
                 .observe(this, member -> reactToMemberChange(mainView.findViewById(R.id.appointment_layout), member));
+
+        final AppointmentRequestList appointments = (AppointmentRequestList) getChildFragmentManager().findFragmentById(R.id.appointments);
+        app
+                .getRepo()
+                .getAppointmentRepository()
+                .getAppointmentsOfMember(app.getMemberId())
+                .observe(this,appointmentData -> appointments.showAppointmentRequests(appointmentData));
 
         return mainView;
     }
@@ -113,10 +124,6 @@ public class AppointmentFragment extends Fragment {
         }
 
         topCard.addView(newContent);
-
-        // TODO appointments
-        // final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-        // appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
 
     private void reactToMemberChange(final View root, final Member member) {
@@ -132,13 +139,6 @@ public class AppointmentFragment extends Fragment {
 
                 buildUI(root, member, false);
             }
-
-            // TODO: Handle appointment requests
-            //@Override
-            //public void onAppointmentRequestsChanged(final List<AppointmentRequest> appointmentRequests){
-            //    final AppointmentRequestList appointments = (AppointmentRequestList) getSupportFragmentManager().findFragmentById(R.id.appointments);
-            //    appointments.showAppointmentRequests(appointmentRequests);
-            //}
         }
 
         else {
