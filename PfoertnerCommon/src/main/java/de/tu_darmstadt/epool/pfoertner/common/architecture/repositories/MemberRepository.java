@@ -15,8 +15,10 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -88,11 +90,15 @@ public class MemberRepository {
     }
 
     public Completable setServerAuthCode(final int memberId, final String serverAuthCode, final String eMail) {
-        // TODO: Honor EMail
         return modify(
                 memberId,
-                prevMemberClone -> prevMemberClone.setServerAuthCode(serverAuthCode)
+                prevMemberClone ->
+                {
+                    prevMemberClone.setServerAuthCode(serverAuthCode);
+                    prevMemberClone.setEmail(eMail);
+                }
         );
+        // TODO: Dont synchronize EMail
     }
 
     public Completable setCalendarId(int memberId, String calendarId) {

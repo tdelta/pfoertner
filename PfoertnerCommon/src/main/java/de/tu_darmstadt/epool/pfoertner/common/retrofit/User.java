@@ -2,6 +2,7 @@ package de.tu_darmstadt.epool.pfoertner.common.retrofit;
 
 import java.io.IOException;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 
@@ -27,6 +28,7 @@ public class User {
         else {
             // Create user
             try {
+                Log.d("CreateUser","CreateUser");
                 final Call<User> deviceCall = service.createUser(password);
                 device = deviceCall.execute().body();
 
