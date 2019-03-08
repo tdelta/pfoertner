@@ -37,15 +37,21 @@ public class MemberOfficeHourFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
 
+        return inflater.inflate(R.layout.member_officehour, container, false);
+    }
+
+    @Override
+    public void onActivityCreated (Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             memberId = savedInstanceState.getInt("memberId", -1);
             officeHours = savedInstanceState.getStringArrayList("officeHours");
             refreshOfficeHours();
         }
-        // Inflate the layout for this fragment
+        init(memberId);
+        super.onActivityCreated(savedInstanceState);
 
-        return inflater.inflate(R.layout.member_officehour, container, false);
     }
 
     @Override
@@ -71,7 +77,7 @@ public class MemberOfficeHourFragment extends Fragment {
                                 .subscribe(
                                         events -> {
 
-                                            System.out.println("OfficeHours received");
+                                            Log.d("OfficeHours received", "");
                                             clearOfficeHours();
 
                                             events
