@@ -7,10 +7,12 @@ import android.arch.persistence.room.PrimaryKey;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 
-@Entity(foreignKeys = @ForeignKey(entity = OfficeEntity.class,
-        parentColumns = "id",
-        childColumns = "OfficeId",
-        onDelete = ForeignKey.CASCADE)
+@Entity(foreignKeys = @ForeignKey(
+            entity = OfficeEntity.class,
+            parentColumns = "id",
+            childColumns = "OfficeId",
+            onDelete = ForeignKey.CASCADE
+    )
 )
 public class MemberEntity implements Member {
     public MemberEntity() {}
