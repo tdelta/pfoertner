@@ -1,12 +1,15 @@
-package de.tu_darmstadt.epool.pfoertneradmin;
+package de.tu_darmstadt.epool.pfoertneradmin.fragments;
 
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,42 +21,68 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
+import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
+import de.tu_darmstadt.epool.pfoertneradmin.AdminApplication;
+import de.tu_darmstadt.epool.pfoertneradmin.R;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
 
-public class AppointmentActivity extends AppCompatActivity{
+import static android.content.Context.NOTIFICATION_SERVICE;
+
+public class AppointmentFragment extends Fragment {
+    private static final String TAG = "AppointmentFragment";
 
     private static final int CONNECT_GOOGLE_CALENDAR = 1408;
     private static final int CALENDAR_NAME_ID = View.generateViewId();
-    private static final String TAG = "AppointmentActivity";
 
-    private AdminApplication app;
-    private ViewGroup root;
+    public AppointmentFragment() {
+
+    }
 
     @Override
-    public void onCreate(final Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        cancelNotifications();
-        setContentView(R.layout.activity_appointment);
 
-        app = AdminApplication.get(this);
-        root = findViewById(R.id.appointment_layout);
+        cancelNotifications();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View mainView = inflater.inflate(R.layout.fragment_appointment, container, false);
+
+        final AdminApplication app = AdminApplication.get(getContext());
 
         app
                 .getRepo()
                 .getMemberRepo()
                 .getMember(app.getMemberId())
-                .observe(this, this::reactToMemberChange);
+                .observe(this, member -> reactToMemberChange(mainView.findViewById(R.id.appointment_layout), member));
+
+        return mainView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     private void cancelNotifications(){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if(notificationManager!=null) {
+        final NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(NOTIFICATION_SERVICE);
+
+        if(notificationManager != null) {
             notificationManager.cancelAll();
         }
     }
 
-    private void buildUI(final Member member, boolean calendarCreated){
+    private void buildUI(final View root, final Member member, boolean calendarCreated){
         final LinearLayout topCard = root.findViewById(R.id.top_card);
         // TODO: topCard seems sometimes not to exist
 
@@ -90,18 +119,18 @@ public class AppointmentActivity extends AppCompatActivity{
         // appointments.showAppointmentRequests(member.getAppointmentRequests());
     }
 
-    private void reactToMemberChange(final Member member) {
+    private void reactToMemberChange(final View root, final Member member) {
         if (member != null) {
             if (member.getCalendarId() != null) {
-                Helpers.requestCalendarsSync(this, "TODO: EMail");
+                Helpers.requestCalendarsSync(getContext(), "TODO: EMail");
 
-                buildUI(member, true);
+                buildUI(root, member, true);
             }
 
             else {
                 Log.d(TAG,"Though a member is present, there is no calendar id set yet, so we cant show any appointments.");
 
-                buildUI(member, false);
+                buildUI(root, member, false);
             }
 
             // TODO: Handle appointment requests
@@ -126,14 +155,15 @@ public class AppointmentActivity extends AppCompatActivity{
                 .requestServerAuthCode(serverClientId)
                 .requestEmail()
                 .build();
-        final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+        final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+
         final Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent,CONNECT_GOOGLE_CALENDAR);
     }
 
     @Override
     @SuppressWarnings("CheckResult")
-    protected void onActivityResult(final int requestCode,final int resultCode,final Intent data){
+    public void onActivityResult(final int requestCode,final int resultCode,final Intent data){
         if(requestCode==CONNECT_GOOGLE_CALENDAR){
             Log.d(TAG, "Google calendar oauth connection task finished.");
 
@@ -145,6 +175,8 @@ public class AppointmentActivity extends AppCompatActivity{
                 final String email = account.getEmail();
 
                 // Send the auth code to the server
+                final AdminApplication app = AdminApplication.get(getContext());
+
                 app
                         .getRepo()
                         .getMemberRepo()

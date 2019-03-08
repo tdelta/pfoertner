@@ -4,6 +4,7 @@ package de.tu_darmstadt.epool.pfoertneradmin;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -26,12 +27,13 @@ import java.util.Optional;
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.SyncService;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
-import de.tu_darmstadt.epool.pfoertneradmin.fragments.GlobalStatusFragment;
-import de.tu_darmstadt.epool.pfoertneradmin.fragments.MemberStatusFragment;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.AppointmentFragment;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.MainScreenFragment;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.PictureUploadFragment;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.ShowQrCodeFragment;
+import de.tu_darmstadt.epool.pfoertneradmin.fragments.SpionFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
-import de.tu_darmstadt.epool.pfoertneradmin.fragments.RoomFragment;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
@@ -86,30 +88,56 @@ public class MainActivity extends AppCompatActivity {
                                 // close drawer when item is tapped
                                 mDrawerLayout.closeDrawers();
 
+                                final FragmentManager fragmentManager = getSupportFragmentManager();
+                                final FragmentTransaction transaction = fragmentManager.beginTransaction();
+
                                 // Add code here to update the UI based on the item selected
                                 // For example, swap UI fragments here
+                                Class fragmentClass = null;
                                 switch (menuItem.getItemId()) {
+                                    case R.id.showHome:
+                                        fragmentClass = MainScreenFragment.class;
+                                        break;
+
                                     case R.id.addMember:
-                                        this.gotoQRCodeAcitvity(navigationView);
+                                        fragmentClass = ShowQrCodeFragment.class;
                                         break;
 
                                     case R.id.editProfile:
-                                        this.gotoPictureUploader(navigationView);
+                                        fragmentClass = PictureUploadFragment.class;
                                         break;
 
                                     case R.id.showAppointments:
-                                        this.goToAppointmentActivity(navigationView);
+                                        fragmentClass = AppointmentFragment.class;
                                         break;
                                     case R.id.spion:
-                                        this.gotoSpionActivity(navigationView);
+                                        fragmentClass = SpionFragment.class;
                                         break;
+                                }
+
+                                if (fragmentClass != null) {
+                                    try {
+                                        transaction
+                                                .replace(R.id.flContent, (Fragment) fragmentClass.newInstance())
+                                                .commit();
+                                    }
+
+                                    catch (final Exception e) {
+                                        Log.e(TAG, "Could instantiate fragment.", e);
+                                    }
+                                }
+
+                                else {
+                                    Log.e(TAG, "Cant handle unknown menu item.");
                                 }
 
                                 return true;
                             });
 
                     final View header = navigationView.getHeaderView(0);
-                    header.setOnClickListener(this::gotoPictureUploader);
+                    header.setOnClickListener(
+                            v -> gotoPictureUploader(navigationView, v)
+                    );
                 });
     }
 
@@ -118,14 +146,7 @@ public class MainActivity extends AppCompatActivity {
             final FragmentManager fragmentManager = getSupportFragmentManager();
             final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            final GlobalStatusFragment globalStatusFragment = new GlobalStatusFragment();
-            fragmentTransaction.add(R.id.global_status_view, globalStatusFragment);
-
-            final RoomFragment roomFragment = new RoomFragment();
-            fragmentTransaction.add(R.id.room_card, roomFragment);
-
-            final MemberStatusFragment memberStatusFragment = new MemberStatusFragment();
-            fragmentTransaction.add(R.id.member_status_view, memberStatusFragment);
+            fragmentTransaction.replace(R.id.flContent, new MainScreenFragment());
 
             fragmentTransaction.commit();
         }
@@ -196,23 +217,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void gotoSpionActivity(View view){
-        Intent intent = new Intent(this, SpionActivity.class);
-        startActivity(intent);
-    }
+    public void gotoPictureUploader(final NavigationView navigationView, final View view){
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, new PictureUploadFragment()).commit();
 
-    public void gotoQRCodeAcitvity(View view) {
-        Intent intent = new Intent(this, showQRCodeActivity.class);
-        startActivity(intent);
-    }
-
-    public void goToAppointmentActivity(View view) {
-        Intent intent = new Intent(this,AppointmentActivity.class);
-        startActivity(intent);
-    }
-
-    public void gotoPictureUploader(View view){
-        Intent intent = new Intent(this, PictureUpload.class);
-        startActivity(intent);
+        navigationView.setCheckedItem(R.id.editProfile);
+        mDrawerLayout.closeDrawers();
     }
 }

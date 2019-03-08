@@ -1,14 +1,13 @@
-package de.tu_darmstadt.epool.pfoertneradmin;
+package de.tu_darmstadt.epool.pfoertneradmin.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
-import android.nfc.Tag;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -19,29 +18,43 @@ import com.bumptech.glide.signature.ObjectKey;
 import java.io.IOException;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
+import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.PfoertnerService;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertneradmin.R;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
-public class SpionActivity extends AppCompatActivity {
-    String TAG = "spion";
+public class SpionFragment extends Fragment {
+    private static final String TAG = "SpionFragment";
+
     ImageView spion;
     PfoertnerApplication app;
     PfoertnerService service;
 
     private Disposable spionDisposable;
 
+    public SpionFragment() {
+
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spion);
-        app = PfoertnerApplication.get(this);
+
+        app = PfoertnerApplication.get(getContext());
         service = app.getService();
-        spion = (ImageView) findViewById(R.id.imageViewSpion);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View mainView = inflater.inflate(R.layout.fragment_spion, container, false);
+
+        spion = (ImageView) mainView.findViewById(R.id.imageViewSpion);
 
         if(spion == null){
             Log.d(TAG,"The spion ImageView could not be found");
@@ -49,18 +62,12 @@ public class SpionActivity extends AppCompatActivity {
             Log.d(TAG, "The spion ImageView was found");
         }
 
-
         app
                 .getRepo()
                 .getOfficeRepo()
                 .getOffice(app.getOffice().getId())
                 .observe(this, office -> {
-
                     Log.d(TAG, "(office.getSpionPicture, office.getSpionPictureMD5) = (" + office.getSpionPicture() + ", " + office.getSpionPictureMD5() + ")");
-
-
-
-
 
                     if (office != null) {
                         if (office.getSpionPicture() != null) {
@@ -76,10 +83,10 @@ public class SpionActivity extends AppCompatActivity {
                             Log.d(TAG, "Finished to build  the URL for the getSpion request");
 
                             Glide
-                                    .with(SpionActivity.this)
+                                    .with(this)
                                     .load(glideUrl)
                                     .error(R.drawable.ic_warning_red_60dp)
-                                    .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
+                                    .placeholder(ContextCompat.getDrawable(getContext(), R.drawable.ic_account_circle_grey_500dp))
                                     .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
                                     .into(spion);
 
@@ -91,6 +98,36 @@ public class SpionActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        mainView.findViewById(R.id.button).setOnClickListener(
+                this::getNewSpionPicture
+        );
+
+        return mainView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (spionDisposable != null) {
+            spionDisposable.dispose();
+        }
+    }
+
+    public void initSpion() throws IOException {
+        final ResponseBody response;
+
+        response = service
+                .initSpionPhoto(app.getAuthentication().id,app.getOffice().getId())
+                .execute()
+                .body();
+        Log.d(TAG, "DIE RESPONSE VOM SERVER: " + response.toString());
     }
 
     public void getNewSpionPicture(View view)  {
@@ -104,24 +141,5 @@ public class SpionActivity extends AppCompatActivity {
                         () -> Log.d(TAG, "Successfully completed asking for spion picture."),
                         throwable -> Log.e(TAG, "Failed asking for spion picture.", throwable)
                 );
-    }
-
-    public void initSpion() throws IOException{
-        final ResponseBody response;
-
-        response = service
-                .initSpionPhoto(app.getAuthentication().id,app.getOffice().getId())
-                .execute()
-                .body();
-        Log.d(TAG, "DIE RESPONSE VOM SERVER: " + response.toString());
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (spionDisposable != null) {
-            spionDisposable.dispose();
-        }
     }
 }

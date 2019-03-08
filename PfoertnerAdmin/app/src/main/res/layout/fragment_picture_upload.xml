@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.PictureUploadFragment">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_gravity="center_horizontal">
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
+
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile_image"
+            android:layout_width="325dp"
+            android:layout_height="325dp"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_account_circle_grey_500dp"
+            />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Click me to upload a picture!"
+            android:textAlignment="center"
+            android:paddingBottom="20dp"
+            android:textSize="22sp" />
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/firstNameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:layout_marginBottom="20dp"
+            android:elevation="1dp"
+            android:paddingEnd="?android:attr/scrollbarSize">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dip"
+                android:layout_marginTop="6dip"
+                android:layout_marginEnd="6dip"
+                android:layout_marginBottom="6dip"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/firstNameView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="loading..."
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/primary_text_light" />
+            </RelativeLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:foregroundGravity="center"
+                android:minWidth="58dip">
+
+
+                <ImageView
+                    android:id="@android:id/icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_edit_black_24dp" />
+            </FrameLayout>
+
+
+            <!-- Preference should place its actual preference widget here. -->
+            <LinearLayout
+                android:id="@android:id/widget_frame"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/lastNameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:elevation="1dp"
+            android:paddingEnd="?android:attr/scrollbarSize">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dip"
+                android:layout_marginTop="6dip"
+                android:layout_marginEnd="6dip"
+                android:layout_marginBottom="6dip"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/lastNameView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal"
+                    android:singleLine="true"
+                    android:text="loading..."
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/primary_text_light" />
+            </RelativeLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:foregroundGravity="center"
+                android:minWidth="58dip">
+
+
+                <ImageView
+                    android:id="@android:id/icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_edit_black_24dp" />
+            </FrameLayout>
+
+
+            <!-- Preference should place its actual preference widget here. -->
+            <LinearLayout
+                android:id="@android:id/widget_frame"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
