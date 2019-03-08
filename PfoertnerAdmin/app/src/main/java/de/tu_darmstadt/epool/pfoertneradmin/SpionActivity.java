@@ -8,8 +8,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -78,8 +80,7 @@ public class SpionActivity extends AppCompatActivity {
                             Glide
                                     .with(SpionActivity.this)
                                     .load(glideUrl)
-                                    .error(R.drawable.ic_warning_red_60dp)
-                                    .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_account_circle_grey_500dp))
+                                    .placeholder(ContextCompat.getDrawable(this, R.drawable.ic_user_secret_solid))
                                     .signature(new ObjectKey(office.getSpionPictureMD5() == null ? "null" : office.getSpionPictureMD5()))
                                     .into(spion);
 
@@ -101,7 +102,13 @@ public class SpionActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        () -> Log.d(TAG, "Successfully completed asking for spion picture."),
+                        () -> {Log.d(TAG, "Successfully completed asking for spion picture.");
+
+                            Toast toast = Toast.makeText(SpionActivity.this, "Spion picture is being taken.",
+                                    Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.BOTTOM, 0, 200);
+                            toast.show();
+                        },
                         throwable -> Log.e(TAG, "Failed asking for spion picture.", throwable)
                 );
     }
