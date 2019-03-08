@@ -35,6 +35,6 @@ public abstract class DeviceDao {
     @Query("SELECT * FROM DeviceEntity WHERE id = :deviceId")
     public abstract LiveData<DeviceEntity> load(int deviceId);
 
-    @Query("SELECT * FROM MemberEntity")
+    @Query("SELECT * FROM DeviceEntity")
     public abstract List<DeviceEntity> getAllDevices();
 }

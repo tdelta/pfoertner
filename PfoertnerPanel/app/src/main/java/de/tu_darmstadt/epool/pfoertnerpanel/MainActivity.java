@@ -1,6 +1,8 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.Manifest;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -138,12 +140,6 @@ public class MainActivity extends AppCompatActivity {
     public void newtest(View view){
         Intent intent = new Intent(this, NewScheduleAppointment.class);
         intent.putExtra("MemberId", ((MemberButton) view).getMemberId());
-        startActivity(intent);
-    }
-
-    public void test(View view){
-        Intent intent = new Intent(this, ScheduleAppointment.class);
-        intent.putExtra("MemberId",((MemberButton) view).getMemberId());
         startActivity(intent);
     }
 

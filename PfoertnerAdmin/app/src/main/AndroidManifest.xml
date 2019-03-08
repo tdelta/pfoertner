@@ -17,9 +17,11 @@
         android:icon="@mipmap/ic_launcher_pfoertneradmin"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_pfoertneradmin"
-        android:theme="@style/PfoertnerLight"
-        android:supportsRtl="true">
-        <activity android:name=".PictureUpload"></activity>
+        android:supportsRtl="true"
+        android:theme="@style/PfoertnerLight">
+        <activity android:name=".SpionActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".PictureUpload" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
