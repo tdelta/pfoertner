@@ -28,6 +28,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
 import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import io.reactivex.Flowable;
@@ -162,30 +163,31 @@ public class NewScheduleAppointment extends AppCompatActivity {
     private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
-        return app
-                .getCalendarApi()
-                .getCredential(calendarInfo.getOAuthToken())
-                .flatMap(
-                        credentials -> {
-                            if (calendarInfo == null) {
-                                throw new RuntimeException( "There is no member calendar info set we can not load time slots.");
-                            }
-
-                            else if (calendarInfo.getCalendarId() == null) {
-                                throw new RuntimeException( "The member " + calendarInfo.getMemberId() + " does not have a calendar registered, we can not load time slots.");
-                            }
-
-                            else if (calendarInfo.getOAuthToken() == null) {
-                                throw new RuntimeException( "We do not have an oauth token to access the calendar of member " + calendarInfo.getMemberId() + ".");
-                            } else {
-                                return app
+        return Single.fromCallable(
+            () -> {
+                if (calendarInfo == null) {
+                    throw new RuntimeException("There is no member calendar info set we can not load time slots.");
+                } else if (calendarInfo.getCalendarId() == null) {
+                    throw new RuntimeException("The member " + calendarInfo.getMemberId() + " does not have a calendar registered, we can not load time slots.");
+                }else if (calendarInfo.getOAuthToken() == null) {
+                    throw new RuntimeException("We do not have an oauth token to access the calendar of member " + calendarInfo.getMemberId() + ".");
+                } else {
+                    return calendarInfo;
+                }
+            }).flatMap(
+                checkedCalendarInfo -> app
+                        .getCalendarApi()
+                        .getCredential(checkedCalendarInfo.getOAuthToken())
+                        .flatMap(
+                                credentials ->
+                                     app
                                         .getCalendarApi()
-                                        .getEvents(calendarInfo.getCalendarId(), credentials, start, end);
-                            }
-                        }
-                )
+                                        .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
+                        )
+            )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+
     }
 
     private void recolorDayViews(DayView selectedDayView){

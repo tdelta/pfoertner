@@ -206,6 +206,7 @@ public class CalendarApi implements MemberObserver {
                         "")
                         .setScopes(SCOPES)
                         .execute();
+        tokenResponse.getRefreshToken();
         return tokenResponse.getAccessToken();
     }
 
