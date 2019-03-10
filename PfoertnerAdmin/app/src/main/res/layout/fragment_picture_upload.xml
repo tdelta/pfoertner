@@ -5,6 +5,9 @@
     android:layout_height="match_parent"
     tools:context=".fragments.PictureUploadFragment">
 
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -162,4 +165,5 @@
 
         </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 </FrameLayout>
