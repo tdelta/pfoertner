@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/showHome"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="Home" />
+        <item
             android:id="@+id/showAppointments"
             android:icon="@drawable/baseline_calendar_today_24px"
             android:title="Your appointment requests" />
@@ -13,5 +17,9 @@
             android:icon="@drawable/ic_person_black_24dp"
             android:id="@+id/editProfile"
             android:title="Edit profile" />
+        <item
+            android:icon="@drawable/ic_person_black_24dp"
+            android:id="@+id/spion"
+            android:title="Spion" />
     </group>
 </menu>

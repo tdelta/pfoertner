@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.Optional;
 
+import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -46,6 +47,10 @@ public class SyncService extends Service {
                         break;
                     case OfficeDataUpdated:
                         SyncService.this.updateOfficeData();
+                        break;
+                    case takephoto:
+                        Log.d("SpionNew","The new takePhoto service is about to launch!");
+                        startService(new Intent(getApplicationContext(), Spion.class));
                         break;
                     case AppointmentsUpdated:
                         SyncService.this.updateAppointmentsOfMember(payload);
@@ -125,7 +130,6 @@ public class SyncService extends Service {
             } catch (NumberFormatException e){
                 Log.e(TAG,"Tried to update appointments of an officemember but the payload was invalid",e);
             }
-
         }
     }
 

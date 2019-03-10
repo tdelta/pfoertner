@@ -138,25 +138,45 @@ public class MemberRepository {
                 .ignoreElement();
     }
 
-    @SuppressLint("CheckResult")
-    public void refreshMember(final int memberId) {
-        api
+    public Disposable refreshMember(final int memberId) {
+        Log.d(TAG, "About to refresh member...");
+
+        return api
                 .getMember(auth.id, memberId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSuccess(
-                        memberEntity -> db.memberDao().upsert(memberEntity)
+                        memberEntity -> {
+                            Log.d(
+                                    TAG,
+                                    "Successfully retrieved new information about member " +
+                                        memberId +
+                                        ". This is the new info: " +
+                                        "(id: " +
+                                        memberEntity.getId() +
+                                        ", office id: " +
+                                        memberEntity.getOfficeId() +
+                                        ", Name: " +
+                                        memberEntity.getFirstName() +
+                                        " " +
+                                        memberEntity.getLastName() +
+                                        ") Will now insert it into the db."
+                            );
+
+                            db.memberDao().upsert(memberEntity);
+                        }
                 )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         memberEntity -> {},
-                        throwable -> Log.e(TAG, "Could not refresh member.", throwable)
+                        throwable -> Log.e(TAG, "Could not refresh member with id " + memberId, throwable)
                 );
     }
 
-    @SuppressLint("CheckResult")
-    public void refreshAllLocalData() {
-        Single
+    public Disposable refreshAllLocalData() {
+        Log.d(TAG, "About to refresh all data of already known members...");
+
+        return Single
                 .fromCallable(
                         db.memberDao()::getAllMembers
                 )
@@ -170,13 +190,41 @@ public class MemberRepository {
                 );
     }
 
-    @SuppressLint("CheckResult")
-    public void refreshAllMembersFromOffice(final int officeId) {
-        api
+    public Disposable refreshAllMembersFromOffice(final int officeId) {
+        Log.d(TAG, "About to refresh all data for members of office " + officeId + "...");
+
+        return api
                 .getMembersFromOffice(auth.id,officeId)
                 .subscribeOn(Schedulers.io())
                 .doOnSuccess(
-                        memberEntities -> db.memberDao().insertMembers(memberEntities.toArray(new MemberEntity[0]))
+                        memberEntities -> {
+                            Log.d(
+                                    TAG,
+                                    "Successfully retrieved new information about all members of office " +
+                                            officeId +
+                                            ". Inserting the following info into db:"
+                            );
+
+                            for (final MemberEntity memberEntity : memberEntities) {
+                                Log.d(
+                                        TAG,
+                                        "Inserting new information about member " +
+                                                memberEntity.getId() +
+                                                "into the db. This is the new info: " +
+                                                "(id: " +
+                                                memberEntity.getId() +
+                                                ", office id: " +
+                                                memberEntity.getOfficeId() +
+                                                ", Name: " +
+                                                memberEntity.getFirstName() +
+                                                " " +
+                                                memberEntity.getLastName() +
+                                                ")"
+                                );
+                            }
+
+                            db.memberDao().insertMembers(memberEntities.toArray(new MemberEntity[0]));
+                        }
                 )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

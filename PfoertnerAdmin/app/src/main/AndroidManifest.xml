@@ -17,9 +17,8 @@
         android:icon="@mipmap/ic_launcher_pfoertneradmin"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_pfoertneradmin"
-        android:theme="@style/PfoertnerLight"
-        android:supportsRtl="true">
-        <activity android:name=".PictureUpload"></activity>
+        android:supportsRtl="true"
+        android:theme="@style/PfoertnerLight">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,9 +36,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <activity android:name=".showQRCodeActivity" />
-
         <service
             android:enabled="true"
             android:name="ProcessAppointmentRequest">
@@ -48,8 +44,6 @@
                 <action android:name="DeclineAppointmentRequest" />
             </intent-filter>
         </service>
-
-        <activity android:name=".AppointmentActivity" />
 
         <service android:name="de.tu_darmstadt.epool.pfoertner.common.MessagingService">
             <intent-filter>
