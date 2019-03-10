@@ -27,6 +27,7 @@ import java.util.Optional;
 import de.hdodenhof.circleimageview.CircleImageView;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.AppointmentFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.MainScreenFragment;
@@ -61,6 +62,21 @@ public class MainActivity extends AppCompatActivity {
                                 ErrorInfoDialog.show(MainActivity.this, throwable.getMessage(), aVoid -> init(), false);
                             }
                     );
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawers();
+        }
+
+        else if(getFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -119,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                                     try {
                                         transaction
                                                 .replace(R.id.flContent, (Fragment) fragmentClass.newInstance())
+                                                .addToBackStack(null)
                                                 .commit();
                                     }
 
@@ -191,6 +208,41 @@ public class MainActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        this.getSupportFragmentManager().addOnBackStackChangedListener(
+                () -> {
+                    final Fragment current = getSupportFragmentManager().findFragmentById(R.id.flContent);
+                    final NavigationView navigationView = findViewById(R.id.nav_view);
+
+                    if (current != null && navigationView != null) {
+                        Integer itemToCheck = null;
+
+                        if (current instanceof MainScreenFragment) {
+                            itemToCheck = R.id.showHome;
+                        }
+
+                        else if (current instanceof ShowQrCodeFragment) {
+                            itemToCheck = R.id.addMember;
+                        }
+
+                        else if (current instanceof PictureUploadFragment) {
+                            itemToCheck = R.id.editProfile;
+                        }
+
+                        else if (current instanceof AppointmentFragment) {
+                            itemToCheck = R.id.showAppointments;
+                        }
+
+                        else if (current instanceof SpionFragment) {
+                            itemToCheck = R.id.spion;
+                        }
+
+                        if (itemToCheck != null) {
+                            navigationView.setCheckedItem(itemToCheck);
+                        }
+                    }
+                }
+        );
+
         initNavigation();
 
         init();
@@ -219,7 +271,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void gotoPictureUploader(final NavigationView navigationView, final View view){
         final FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, new PictureUploadFragment()).commit();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.flContent, new PictureUploadFragment())
+                .addToBackStack(null)
+                .commit();
 
         navigationView.setCheckedItem(R.id.editProfile);
         mDrawerLayout.closeDrawers();
