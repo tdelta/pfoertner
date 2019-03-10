@@ -4,6 +4,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
+import org.threeten.bp.LocalDateTime;
+
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 
 @Entity
@@ -15,6 +17,9 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     private String serverAuthCode;
     private String oAuthToken;
     private String eMail;
+    private LocalDateTime created;
+    private long oauth2TtlMinutes;
+    private String refreshToken;
 
     public static MemberCalendarInfo toInterface(MemberCalendarInfoEntity entity){
         return entity;
@@ -25,12 +30,15 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     }
 
     @Ignore
-    public MemberCalendarInfoEntity(int memberId, String calendarId, String serverAuthCode, String oAuthToken, String eMail) {
+    public MemberCalendarInfoEntity(int memberId, String calendarId, String serverAuthCode, String oAuthToken, String eMail, LocalDateTime created, long oauth2TtlMinutes, String refreshToken) {
         this.calendarId = calendarId;
         this.memberId = memberId;
         this.serverAuthCode = serverAuthCode;
         this.oAuthToken = oAuthToken;
         this.eMail = eMail;
+        this.created = created;
+        this.oauth2TtlMinutes = oauth2TtlMinutes;
+        this.refreshToken = refreshToken;
     }
 
     @Override
@@ -76,5 +84,32 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
 
     public void setEMail(String eMail) {
         this.eMail = eMail;
+    }
+
+    @Override
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    @Override
+    public long getOauth2TtlMinutes() {
+        return oauth2TtlMinutes;
+    }
+
+    public void setOauth2TtlMinutes(long oauth2TtlMinutes) {
+        this.oauth2TtlMinutes = oauth2TtlMinutes;
+    }
+
+    @Override
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

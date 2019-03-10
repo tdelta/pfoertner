@@ -125,8 +125,7 @@ public class SyncService extends Service {
                 int memberId = Integer.parseInt(payload);
                 app.getRepo()
                         .getAppointmentRepository()
-                        .refreshAllAppointmentsFromMember(memberId)
-                        .subscribe();
+                        .refreshAllAppointmentsFromMember(memberId);
             } catch (NumberFormatException e){
                 Log.e(TAG,"Tried to update appointments of an officemember but the payload was invalid",e);
             }

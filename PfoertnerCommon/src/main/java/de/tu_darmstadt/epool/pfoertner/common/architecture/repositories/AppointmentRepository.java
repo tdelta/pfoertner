@@ -17,6 +17,7 @@ import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -94,7 +95,7 @@ public class AppointmentRepository {
     }
 
     @SuppressLint("CheckResult")
-    public Single refreshAllAppointmentsFromMember(final int memberId){
+    public Disposable refreshAllAppointmentsFromMember(final int memberId){
         return api
                 .getAppointmentsOfMember(auth.id,memberId)
                 .subscribeOn(Schedulers.io())
@@ -109,6 +110,10 @@ public class AppointmentRepository {
                             db.appointmentDao().insertAppointments(appointments.toArray(new AppointmentEntity[0]));
                         }
                 )
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        appointmentEntities -> {},
+                        throwable -> Log.e(TAG,"Could not refresh appointments of member "+memberId)
+                );
     }
 }
