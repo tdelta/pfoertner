@@ -106,8 +106,9 @@ public class PictureUploadFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "destroyed");
 
         disposables.dispose();
     }
@@ -171,13 +172,13 @@ public class PictureUploadFragment extends Fragment {
     }
 
     public void setFirstName(final View btn) {
-        final TextView firstNameTextView = getView().findViewById(R.id.firstNameView);
+        final TextView firstNameTextView = btn.findViewById(R.id.firstNameView);
 
         promptForString(
                 "Please enter a new first name.",
                 firstNameTextView.getText().toString(),
                 newFirstName -> {
-                    final AdminApplication app = AdminApplication.get(getContext());
+                    final AdminApplication app = AdminApplication.get(getActivity());
 
                     disposables.add(
                             app
@@ -194,7 +195,7 @@ public class PictureUploadFragment extends Fragment {
     }
 
     public void setLastName(final View btn) {
-        final TextView lastNameTextView = getView().findViewById(R.id.lastNameView);
+        final TextView lastNameTextView = btn.findViewById(R.id.lastNameView);
 
         promptForString(
                 "Please enter a new last name.",
