@@ -1,7 +1,10 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModel;
+import android.Manifest;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -138,12 +141,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void test(View view){
-        Intent intent = new Intent(this, ScheduleAppointment.class);
-        intent.putExtra("MemberId",((MemberButton) view).getMemberId());
-        startActivity(intent);
-    }
-
 
     private void checkForPlayServices() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
@@ -207,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
                         final DateTime start = new DateTime(System.currentTimeMillis());
                         final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
 
+                        disposables.add(
                         getEvents(calendarInfo, start, end)
                                 .subscribe(
                                         events -> {
@@ -217,9 +215,9 @@ public class MainActivity extends AppCompatActivity {
 
                                         },
                                         throwable -> Log.e(TAG, "Failed to fetch events.", throwable)
-                                );
-                    }
-                });
+                                )
+                        );
+                    }});
     }
 
 
