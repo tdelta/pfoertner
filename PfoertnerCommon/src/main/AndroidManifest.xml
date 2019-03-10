@@ -4,22 +4,23 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <application>
-        <activity
-            android:name=".activities.SplashScreenActivity"
-            android:launchMode="singleTop" />
-    </application>
-    <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-feature android:name="android.hardware.camera" />
-
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application>
+        <activity
+            android:name=".activities.SplashScreenActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop" />
+        
         <service android:name=".spion.Spion" />
     </application>
+
+
+
 </manifest>

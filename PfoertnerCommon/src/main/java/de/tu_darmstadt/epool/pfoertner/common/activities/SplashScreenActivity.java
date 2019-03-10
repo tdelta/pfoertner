@@ -26,12 +26,12 @@ public class SplashScreenActivity extends AppCompatActivity {
         }
 
         s_view = view;
+        s_work = work;
         s_orientation = screenOrientation;
 
         final Intent intent = new Intent(parent, SplashScreenActivity.class);
         parent.startActivity(intent);
 
-        s_work = work;
     }
 
     @Override
