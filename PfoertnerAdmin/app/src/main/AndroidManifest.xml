@@ -19,19 +19,28 @@
         android:roundIcon="@mipmap/ic_launcher_pfoertneradmin"
         android:supportsRtl="true"
         android:theme="@style/PfoertnerLight">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InitActivity" />
+        <activity
+            android:name=".InitActivity"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
-        <activity android:name=".JoinOfficeActivity" />
+        <activity
+            android:name=".JoinOfficeActivity"
+            android:screenOrientation="portrait"
+            />
 
         <meta-data
             android:name="preloaded_fonts"

@@ -76,7 +76,7 @@ public class InitActivity extends AppCompatActivity {
         SplashScreenActivity.run(
                 this,
                 LayoutInflater.from(this).inflate(R.layout.activity_splash_screen, null),
-                ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT,
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
                 this::initApp
         );
     }
