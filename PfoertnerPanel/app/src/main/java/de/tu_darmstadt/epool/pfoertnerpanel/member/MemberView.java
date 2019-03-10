@@ -22,6 +22,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.api.services.calendar.model.Event;
 
+import org.threeten.bp.format.DateTimeFormatter;
+
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +38,7 @@ import static android.support.constraint.Constraints.TAG;
 
 public class MemberView extends CardView {
     private int memberId;
+    private final static String TAG = "MemberView";
 
     public MemberView(Context context, Member member, List<Event> events) {
         super(context);
@@ -56,21 +61,21 @@ public class MemberView extends CardView {
         initOfficeHours(events);
     }
 
-    public String[] parseOffice(List<Event> events){
-        String[] nextOfficeHours = new String[2];
+    public List<String> parseOffice(List<Event> events){
+        List<String> nextOfficeHours = new LinkedList<String>();
         Timehelpers timehelper = new Timehelpers();
 
         int count = 0;
         for (Event e : events) {
             if (count < 2){
-                nextOfficeHours[count] = timehelper.toLocalDateTime(e.getStart()).getDayOfWeek().toString()
-                        +timehelper.toLocalDateTime(e.getStart()).getHour()
-                        +""
-                        +timehelper.toLocalDateTime(e.getStart()).getMinute()
-                        +" - "
-                        +timehelper.toLocalDateTime(e.getEnd()).getHour()
-                        +":"
-                        +timehelper.toLocalDateTime(e.getEnd()).getMinute();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                String startTime = timehelper.toLocalDateTime(e.getStart()).format(formatter);
+                String endTime = timehelper.toLocalDateTime(e.getEnd()).format(formatter);
+
+                nextOfficeHours.add(timehelper.toLocalDateTime(e.getStart()).getDayOfWeek().toString().substring(0, 1)
+                        +timehelper.toLocalDateTime(e.getStart()).getDayOfWeek().toString().substring(1).toLowerCase()
+                        +" "
+                        +startTime + " - " + endTime);
             }
             count++;
         }
@@ -143,12 +148,14 @@ public class MemberView extends CardView {
         LinearLayout info = findViewById(R.id.personalOfficeTimeBoard);
         info.removeAllViews();
 
-        events
+        List<String> officeHours = parseOffice(events);
+
+        officeHours
                 .stream()
-                .forEach(event -> {
+                .forEach(officeHour -> {
                     TextView text = new TextView(getContext());
                     text.setTypeface(null, Typeface.BOLD);
-                    text.setText("Neues event");
+                    text.setText(officeHour);
                     info.addView(text);
                 });
 
