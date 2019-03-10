@@ -11,6 +11,7 @@ import android.arch.persistence.room.Update;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;

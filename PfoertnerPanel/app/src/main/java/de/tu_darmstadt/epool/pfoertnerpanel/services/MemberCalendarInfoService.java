@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+
+import org.threeten.bp.LocalDateTime;
+
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
@@ -131,10 +135,10 @@ public class MemberCalendarInfoService extends LifecycleService {
                                                         newOAuthToken -> Log.d(TAG, "Received new oauth token from google for member " + work.memberId + ": " + newOAuthToken)
                                                 )
                                                 .flatMapCompletable(
-                                                        newOAuthToken ->
+                                                        tokenResponse ->
                                                                 app
                                                                         .getCalendarApi()
-                                                                        .getCredential(newOAuthToken)
+                                                                        .getCredential(tokenResponse.getAccessToken())
                                                                         .doOnSuccess(
                                                                                 credential -> Log.d(TAG, "Received credentials from google server for member " + work.memberId)
                                                                         )
@@ -147,7 +151,7 @@ public class MemberCalendarInfoService extends LifecycleService {
                                                                                                         calendarId -> Log.d(TAG, "Got calendar id for member calendar of member " + work.memberId + ": " + calendarId)
                                                                                                 )
                                                                                                 .flatMapCompletable(
-                                                                                                        calendarId -> this.saveCalendarInfo(work.memberId, work.serverAuthCode, newOAuthToken, calendarId)
+                                                                                                        calendarId -> this.saveCalendarInfo(work.memberId, work.serverAuthCode, tokenResponse, calendarId)
                                                                                                 )
                                                                         )
                                                 )
@@ -217,12 +221,12 @@ public class MemberCalendarInfoService extends LifecycleService {
     }
 
     @SuppressWarnings("CheckResult")
-    private Single<String> fetchNewOAuthToken(final int memberId, final String serverAuthCode) {
+    private Single<GoogleTokenResponse> fetchNewOAuthToken(final int memberId, final String serverAuthCode) {
         final PanelApplication app = PanelApplication.get(this);
 
         return app
                         .getCalendarApi()
-                        .getAccessToken(serverAuthCode)
+                        .getRefreshToken(serverAuthCode)
                         .subscribeOn(Schedulers.io())
                         .doOnError(
                                 throwable -> Log.e(TAG, "Failed to fetch new oauth token for member " + memberId + " and server auth code " + serverAuthCode, throwable)
@@ -230,28 +234,34 @@ public class MemberCalendarInfoService extends LifecycleService {
                         .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Completable saveCalendarInfo(final int memberId, final String serverAuthCode, final String oAuthToken, final String calendarId) {
+    private Completable saveCalendarInfo(final int memberId, final String serverAuthCode, GoogleTokenResponse tokenResponse, final String calendarId) {
         final PanelApplication app = PanelApplication.get(this);
 
         // TODO: Now that calendarId is part of Member, we can remove it from calendarInfo
         return Completable.concatArray(
-           // save server auth code and oauth token
-           app
-                .getPanelRepo()
-                .getMemberCalendarInfoRepo()
-                .setOAuthToken(memberId, serverAuthCode, oAuthToken),
-           //save calendarId
-           app
+            // save server auth code and oauth token
+            app
+                 .getPanelRepo()
+                 .getMemberCalendarInfoRepo()
+                 .setOAuthToken(memberId,
+                         serverAuthCode,
+                         tokenResponse.getAccessToken(),
+                         tokenResponse.getRefreshToken(),
+                         tokenResponse.getExpiresInSeconds()/60,
+                         LocalDateTime.now()
+                 ),
+            //save calendarId
+            app
                 .getPanelRepo()
                 .getMemberCalendarInfoRepo()
                 .setCalendarId(memberId, calendarId),
-           app
+            app
                 .getRepo()
                 .getMemberRepo()
                 .setCalendarId(memberId, calendarId)
         )
                 .doOnError(
-                        throwable -> Log.e(TAG, "Failed to save new calendar informatin.", throwable)
+                        throwable -> Log.e(TAG, "Failed to save new calendar information.", throwable)
                 )
                 .doOnComplete(
                         () -> Log.d(TAG, "Successfully saved new calendar id, server auth code and oauth token for member " + memberId)

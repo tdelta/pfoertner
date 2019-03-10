@@ -3,9 +3,13 @@ package de.tu_darmstadt.epool.pfoertnerpanel.webapi;
 import android.util.Log;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.RefreshTokenRequest;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.BasicAuthentication;
+import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
@@ -15,9 +19,15 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
+import org.threeten.bp.Duration;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.util.Arrays;
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertnerpanel.PanelApplication;
+import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -37,24 +47,37 @@ public class CalendarApi {
     private static final String clientId = "626288801350-vk790l2a56u0m25p63q36asu4tv7gnsr.apps.googleusercontent.com";
     private static final String clientSecret = "wHAYULXTwsZWMQ827ITPIEVr";
 
-    public Single<String> getAccessToken(final String serverAuthCode) {
+    public Single<TokenResponse> getAccessTokenFromRefreshToken(String refreshToken){
         return Single.fromCallable(
-                () -> {
-                    final GoogleTokenResponse tokenResponse =
-                            new GoogleAuthorizationCodeTokenRequest(
-                                    HTTP_TRANSPORT,
-                                    JacksonFactory.getDefaultInstance(),
-                                    "https://www.googleapis.com/oauth2/v4/token",
-                                    clientId,
-                                    clientSecret,
-                                    serverAuthCode,
-                                    ""
-                            )
-                                    .setScopes(SCOPES)
-                                    .execute();
+            () ->
+                new RefreshTokenRequest(
+                        HTTP_TRANSPORT,
+                        JacksonFactory.getDefaultInstance(),
+                        new GenericUrl("https://www.googleapis.com/oauth2/v4/token"),
+                        refreshToken
+                )
+                        .setClientAuthentication(
+                                new BasicAuthentication(clientId, clientSecret)
+                        ).execute()
+        )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
 
-                    return tokenResponse.getAccessToken();
-                }
+    public Single<GoogleTokenResponse> getRefreshToken(final String serverAuthCode) {
+        return Single.fromCallable(
+                () ->
+                    new GoogleAuthorizationCodeTokenRequest(
+                            HTTP_TRANSPORT,
+                            JacksonFactory.getDefaultInstance(),
+                            "https://www.googleapis.com/oauth2/v4/token",
+                            clientId,
+                            clientSecret,
+                            serverAuthCode,
+                            ""
+                    )
+                            .setScopes(SCOPES)
+                            .execute()
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -63,20 +86,19 @@ public class CalendarApi {
     public Single<Credential> getCredential(final String oauthToken) {
         return Single.fromCallable(
                 () -> {
-                    final Credential credential = new GoogleCredential.Builder()
-                            .setTransport(HTTP_TRANSPORT)
-                            .setJsonFactory(JacksonFactory.getDefaultInstance())
-                            .setClientSecrets(
-                                    clientId,
-                                    clientSecret)
-                            .build();
+                        final Credential credential = new GoogleCredential.Builder()
+                                .setTransport(HTTP_TRANSPORT)
+                                .setJsonFactory(JacksonFactory.getDefaultInstance())
+                                .setClientSecrets(
+                                        clientId,
+                                        clientSecret)
+                                .build();
 
-                    credential.setAccessToken(oauthToken);
+                        credential.setAccessToken(oauthToken);
 
-                    return credential;
-                }
-        )
-                .subscribeOn(Schedulers.io());
+                        return credential;
+                    }
+            );
     }
 
     public Single<String> getCalendarId(final Credential credential) {

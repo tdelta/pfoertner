@@ -16,7 +16,7 @@ public class PanelApplication extends PfoertnerApplication {
     @Override
     public void onInit() {
         db = Room.databaseBuilder(this, PanelDatabase.class, "PanelDatabase").build();
-        repo = new PanelRepository(db);
+        repo = new PanelRepository(db,this);
         calendarApi = new CalendarApi();
     }
 
