@@ -16,6 +16,7 @@ public interface MemberCalendarInfo {
     String getEMail();
 
     default boolean hasExpired(){
+        if(getCreated()==null) return false;
         final LocalDateTime now = LocalDateTime.now();
         final Duration passedTime = Duration.between(getCreated(), now);
 
