@@ -15,6 +15,7 @@ var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 var notifyPanel = notify.notifyPanel;
 
+var pwgenerator = require('generate-password');
 
 /**
  * ENDPOINT: POST /offices/
@@ -36,7 +37,12 @@ var notifyPanel = notify.notifyPanel;
  * 
  */
 router.post('/', auth.authFun(), (req, res) => {
-  var joinCode = 'Hallo Welt';
+  const joinCode = pwgenerator.generate({
+    length: 30,
+    numbers: true,
+    symbols: true,
+    strict: true
+  });
 
   const device = req.user;
 
