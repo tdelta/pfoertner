@@ -20,6 +20,7 @@
     "nodemon": "^1.18.9",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "sendmail": "^1.4.1",
     "sequelize": "^4.42.0",
     "sqlite3": "^4.0.6"
   },

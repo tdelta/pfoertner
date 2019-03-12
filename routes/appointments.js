@@ -2,7 +2,7 @@
 var express = require('express');
 var router = express.Router();
 
-var mail = require("nodemailer").mail;
+//var sendmail = require('sendmail')();
 
 // Get the required models
 var models = require('../models/models.js');
@@ -26,23 +26,29 @@ router.patch('/:id', auth.authFun(), (req, res) => {
         appointment.update(req.body).then(newAppointment => {
           res.status(200).send('Updated appointment request successfully');
 
-          if (newAppointment.accepted) {
-            if (newAppointment.email != null) {
-              console.log('Sending mail to ' + newAppointment.email);
-
-              mail({
-                  from: "Pfoertner",
-                  to: newAppointment.email,
-                  subject: "Your appointment",
-                  text: "Your appointment got accepted ✔"
-              });
-            }
-
-            else {
-              console.log('Cant send email, since it has not been set.');
-            }
-          }
-
+//          if (newAppointment.accepted) {
+//            if (newAppointment.email != null) {
+//              console.log('Sending mail to ' + newAppointment.email);
+//
+//              sendmail(
+//                {
+//                  from: "pfoertner@deh.duckdns.com",
+//                  to: newAppointment.email,
+//                  subject: "Your appointment",
+//                  html: "Your appointment got accepted ✔"
+//                },
+//                (err, reply) => {
+//                  console.log(err && err.stack);
+//                  console.dir(reply);
+//                }
+//              );
+//            }
+//
+//            else {
+//              console.log('Cant send email, since it has not been set.');
+//            }
+//          }
+//
           officemember.getOffice().then(office => {
             notifyOfficeSubscribers(
               office,
