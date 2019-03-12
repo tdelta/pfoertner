@@ -7,6 +7,9 @@ apply plugin: 'com.google.gms.google-services'
 
 
 android {
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9' // fix for weird findbugs error
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "de.tu_darmstadt.epool.pfoertnerpanel"
