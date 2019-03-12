@@ -38,17 +38,19 @@ module.exports.sendNotification = function(
     title: title,
     body: body,
     buttons: buttons,
-    intent: activity,
+    activity: activity,
     data: data,
   };
+
   notification = JSON.stringify(notification);
 
-  var message = {
+  const message = {
     token: deviceToken,
     data: {
       notification: notification,
     },
   };
+
   sendMessage(deviceId, deviceToken, message);
 };
 

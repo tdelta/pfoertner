@@ -226,8 +226,9 @@ router.get('/:id/appointments', auth.authFun(), (req, res) => {
  * Endpoint to create an appointment that belongs to an office member
  */
 router.post('/:id/appointment', auth.authFun(), (req, res) => {
-  let start = req.body.start;
-  let end = req.body.end;
+  const start = req.body.start;
+  const end = req.body.end;
+
   if (!start || !end) {
     res.status('400').send('You must specify a start and end date');
     return;
@@ -246,7 +247,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
             start.split(' ')[1] +
             ' to ' +
             end.split(' ')[1],
-          'AppointmentActivity',
+          'MainActivity',
           [
             {
               title: 'Accept',
