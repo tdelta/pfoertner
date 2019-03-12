@@ -249,6 +249,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent has been called.");
+
+        super.onNewIntent(intent);
+
+        final String intentPurpose = intent.getExtras().getString("intentPurpose", null);
+        if (intentPurpose != null) {
+            if (intentPurpose.equals("AppointmentRequest")) {
+                gotoAppointments();
+            }
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -260,11 +274,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult has been called.");
+
         super.onActivityResult(requestCode, resultCode, data);
 
         initNavigation(); // Ich weiß nicht warum, aber wenn man dies nicht hier auch setzt, dann lädt der Drawer manchmal nicht
 
         if(requestCode == 0) {
+            Log.d(TAG, "JoinOfficeActivity triggered onActivityResult.");
             onInitialized();
         }
     }
@@ -278,6 +295,18 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
 
         navigationView.setCheckedItem(R.id.editProfile);
+        mDrawerLayout.closeDrawers();
+    }
+
+    public void gotoAppointments(){
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.flContent, new AppointmentFragment())
+                .addToBackStack(null)
+                .commit();
+
         mDrawerLayout.closeDrawers();
     }
 }

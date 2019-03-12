@@ -134,6 +134,7 @@ public class MessagingService extends FirebaseMessagingService {
 
         if(remoteMessage.getData().containsKey("notification")){
             Log.d(TAG,"Building a notification");
+
             NotificationHelper.displayNotification(remoteMessage.getData().get("notification"),this);
         }
 
