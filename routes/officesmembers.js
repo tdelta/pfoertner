@@ -251,11 +251,11 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
           [
             {
               title: 'Accept',
-              intent: 'AcceptAppointmentRequest',
+              isAccepted: true,
             },
             {
               title: 'Decline',
-              intent: 'DeclineAppointmentRequest',
+              isAccepted: false,
             },
           ],
           appointment
