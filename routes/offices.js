@@ -327,7 +327,7 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
         
         else {
           const downloadPath =
-                'http://deh.duckdns.org:3000/offices/' +
+                'https://deh.duckdns.org:3000/offices/' +
                 req.params.officeId +
                 '/spion';
 
