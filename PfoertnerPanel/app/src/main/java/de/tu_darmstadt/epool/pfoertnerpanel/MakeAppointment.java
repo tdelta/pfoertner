@@ -25,58 +25,62 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
 public class MakeAppointment extends AppCompatActivity {
-    String TAG = "MakeAppointment";
-    private SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-    private Member member;
-
+    private static final String TAG = "MakeAppointment";
+    private final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         setContentView(R.layout.activity_make_appointment);
-        TextView title = findViewById(R.id.textView3);
+
+        final TextView title = findViewById(R.id.textView3);
         title.setText("One last step required");
-        TextView underTitle = findViewById(R.id.textView5);
+
+        final TextView underTitle = findViewById(R.id.textView5);
         underTitle.setText("Please enter your name, mail and a message.");
-        Button confirm = findViewById(R.id.confirmbutton);
+
+        final Button confirm = findViewById(R.id.confirmbutton);
         confirm.setText("REQUEST APPOINTMENT");
-        TextInputLayout enterName = findViewById(R.id.textInputLayout);
+
+        final TextInputLayout enterName = findViewById(R.id.textInputLayout);
         enterName.setHint("Enter your full name here");
-        TextInputLayout enterEmail = findViewById(R.id.textInputLayout6);
+
+        final TextInputLayout enterEmail = findViewById(R.id.textInputLayout6);
         enterEmail.setHint("Enter your email address here");
-        TextInputLayout enterMessage = findViewById(R.id.textInputLayout7);
+
+        final TextInputLayout enterMessage = findViewById(R.id.textInputLayout7);
         enterMessage.setHint("Enter a message");
-        TextView appointmentTime = findViewById(R.id.textView6);
+
+        final TextView appointmentTime = findViewById(R.id.textView6);
         appointmentTime.setText(getIntent().getIntExtra("appointmentStartTimeHour", -1)
                 +":"
                 +getIntent().getStringExtra("appointmentStartTimeMinutes")
                 +" - "
                 +getIntent().getIntExtra("appointmentEndTimeHour", -1)
                 +":"
-                +getIntent().getStringExtra("appointmentEndTimeMinutes"));
+                +getIntent().getStringExtra("appointmentEndTimeMinutes")
+        );
     }
 
     public void onConfirmAppointment(View view){
         // yyyy-MM-dd HH:mm -> itentstrings -> parse to LocalDateTime -> richtige String darstellung
         // (musste so weil sonst der monat nicht richtig was 2 statt 02)
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
                 , getIntent().getIntExtra("Day", 1)
                 , getIntent().getIntExtra("appointmentStartTimeHour", -1)
                 , Integer.valueOf(getIntent().getStringExtra("appointmentStartTimeMinutes")));
-        String startTime = dateTime.format(formatter);
+
+        final String startTime = dateTime.format(formatter);
 
         dateTime = LocalDateTime.of(getIntent().getIntExtra("Year", 2019)
                 , getIntent().getIntExtra("Month", 1)
                 , getIntent().getIntExtra("Day", 1)
                 , getIntent().getIntExtra("appointmentEndTimeHour", -1)
                 , Integer.valueOf(getIntent().getStringExtra("appointmentEndTimeMinutes")));
-        String endTime = dateTime.format(formatter);
+        final String endTime = dateTime.format(formatter);
 
 //        Log.d(TAG, startTime);
 //        Log.d(TAG, endTime);
@@ -95,18 +99,29 @@ public class MakeAppointment extends AppCompatActivity {
         Log.d(TAG, "end for request" + end.toString());
 
         //Build request
-        TextView email = (TextView) findViewById(R.id.emailInput);
-        TextView name = (TextView) findViewById(R.id.nameInput);
-        TextView message = (TextView) findViewById(R.id.messageInput);
+        final TextView email = (TextView) findViewById(R.id.emailInput);
+        final TextView name = (TextView) findViewById(R.id.nameInput);
+        final TextView message = (TextView) findViewById(R.id.messageInput);
 
-        AppointmentRequest request = new AppointmentRequest(start, end, email.getText().toString(), name.getText().toString(), message.getText().toString(), false);
+        final AppointmentRequest request = new AppointmentRequest(
+                start,
+                end,
+                email.getText().toString(),
+                name.getText().toString(),
+                message.getText().toString(),
+                false
+        );
 
 
         new RequestTask<Void>(){
             @Override
             protected Void doRequests() throws Exception {
-                PfoertnerApplication app = PfoertnerApplication.get(MakeAppointment.this);
-                app.getService().createNewAppointment(app.getAuthentication().id,getIntent().getIntExtra("MemberId", 0), request).execute();
+                final PfoertnerApplication app = PfoertnerApplication.get(MakeAppointment.this);
+
+                app
+                        .getService()
+                        .createNewAppointment(app.getAuthentication().id, getIntent().getIntExtra("MemberId", 0), request).execute();
+
                 return null;
             }
 

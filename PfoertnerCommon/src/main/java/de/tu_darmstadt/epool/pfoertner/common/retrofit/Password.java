@@ -4,6 +4,10 @@ import android.content.SharedPreferences;
 
 import com.google.gson.annotations.Expose;
 
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
+
 import java.util.UUID;
 
 // Only fields with the Expose annotation will be sent to the server
@@ -25,7 +29,15 @@ public class Password {
 
         else {
           // Generate a cryptographically strong random String
-          final String password = UUID.randomUUID().toString();
+          final PasswordGenerator passayGen = new PasswordGenerator();
+
+          final String password = passayGen.generatePassword(
+                  80,
+                  new CharacterRule(EnglishCharacterData.UpperCase, 15),
+                  new CharacterRule(EnglishCharacterData.LowerCase, 20),
+                  new CharacterRule(EnglishCharacterData.Digit, 10),
+                  new CharacterRule(EnglishCharacterData.Special, 10)
+          );
 
           // Persist to storage
           final SharedPreferences.Editor e = deviceRegistrationInfo.edit();
