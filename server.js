@@ -2,6 +2,10 @@
 const express = require('express');
 const server = express();
 
+// Get filesync and https module
+const fs = require('fs');
+const https = require('https');
+
 // Get our own models
 const models = require('./models/models.js');
 
@@ -26,11 +30,18 @@ server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
 server.use(fileupload());
 
-// Listen on port 3000 localhost
-db.sequelize.sync().then(() => server.listen(3000));
-
 // Connect to firebase
 firebase.initialize();
+
+// Load https certificate
+const privateKey = fs.readFileSync('./letsencript/live/deh.duckdns.org/privkey.pem', 'utf8');
+const fullchain = fs.readFileSync('./letsencript/live/deh.duckdns.org/fullchain.pem','utf8');
+
+const credentials = {
+    key: privateKey,
+    cert: fullchain
+};
+
 
 // Get routes
 const officesroutes = require('./routes/offices.js');
@@ -42,3 +53,9 @@ server.use('/offices', officesroutes);
 server.use('/devices', devicesroutes);
 server.use('/officemembers', officemembersroutes);
 server.use('/appointments', appointmentroutes);
+
+// Listen on port 3000 localhost
+db.sequelize.sync().then(() => {
+  const httpsServer = https.createServer(credentials, server);
+  httpsServer.listen(3000,() => console.log('Listening on port 3000'));
+});
