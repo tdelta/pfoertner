@@ -49,36 +49,44 @@ router.delete('/:id', auth.authFun(), (req, res) => {
     authenticateOfficemember(req, res, appointment.OfficeMemberId).then(
       officemember => {
         appointment.destroy().then(u => {
-          console.log('Successfully deleted appointment. Sending mail to ' + u.email);
+          console.log(
+            'Successfully deleted appointment. Sending mail to ' + u.email
+          );
 
           const transporter = nodemailer.createTransport({
-              host: "mail.gmx.net",
-              port: 587,
-              secureConnection: false,
-              auth: {
-                user: 'pfoertner.app@gmx.de',
-                pass: '9x8e92UaPZSvw7ejpju3njcNbDRsWW7MEZRRqSnn'
-              },
-              tls:{
-                  ciphers:'SSLv3'
-              }
-            });
+            host: 'mail.gmx.net',
+            port: 587,
+            secureConnection: false,
+            auth: {
+              user: 'pfoertner.app@gmx.de',
+              pass: '9x8e92UaPZSvw7ejpju3njcNbDRsWW7MEZRRqSnn',
+            },
+            tls: {
+              ciphers: 'SSLv3',
+            },
+          });
 
           // setup email data with unicode symbols
           const mailOptions = {
-                from: '"Pförtner App <pfoertner.app@gmx.de>',
-                to: u.email,
-                subject: "Appointment has been rejected", // Subject line
-                text: "Hello " + u.name + ",\n\n sadly your appointment at " + u.start + " got rejected.", // plain text body
-              };
+            from: '"Pförtner App <pfoertner.app@gmx.de>',
+            to: u.email,
+            subject: 'Appointment has been rejected', // Subject line
+            text:
+              'Hello ' +
+              u.name +
+              ',\n\n sadly your appointment at ' +
+              u.start +
+              ' got rejected.', // plain text body
+          };
 
           // send mail with defined transport object
-          const info = transporter.sendMail(mailOptions)
+          const info = transporter
+            .sendMail(mailOptions)
             .catch(err => {
               console.error('Failed to send mail to ' + u.email, err);
             })
             .then(() => {
-              console.log("Sent email to " + u.email);
+              console.log('Sent email to ' + u.email);
             });
 
           res.status(200).send('Successfully deleted appointment request');

@@ -34,29 +34,36 @@ server.use(fileupload());
 firebase.initialize();
 
 // Load https certificate
-const privateKey = fs.readFileSync('./letsencript/live/deh.duckdns.org/privkey.pem', 'utf8');
-const fullchain = fs.readFileSync('./letsencript/live/deh.duckdns.org/fullchain.pem','utf8');
+const privateKey = fs.readFileSync(
+  './letsencript/live/deh.duckdns.org/privkey.pem',
+  'utf8'
+);
+const fullchain = fs.readFileSync(
+  './letsencript/live/deh.duckdns.org/fullchain.pem',
+  'utf8'
+);
 
 const credentials = {
-    key: privateKey,
-    cert: fullchain
+  key: privateKey,
+  cert: fullchain,
 };
-
 
 // Get routes
 const officesroutes = require('./routes/offices.js');
 const devicesroutes = require('./routes/devices.js');
 const officemembersroutes = require('./routes/officesmembers.js');
 const appointmentroutes = require('./routes/appointments.js');
+const google_notifications = require('./routes/google-notifications.js');
 
 server.use('/offices', officesroutes);
 server.use('/devices', devicesroutes);
 server.use('/officemembers', officemembersroutes);
 server.use('/appointments', appointmentroutes);
+server.use('/notifications', google_notifications);
 server.use(express.static('public_files'));
 
 // Listen on port 3000 localhost
 db.sequelize.sync().then(() => {
   const httpsServer = https.createServer(credentials, server);
-  httpsServer.listen(3000,() => console.log('Listening on port 3000'));
+  httpsServer.listen(3000, () => console.log('Listening on port 3000'));
 });

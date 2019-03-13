@@ -12,7 +12,7 @@ module.exports.initialize = function() {
 };
 
 sendMessage = function(deviceId, deviceToken, message) {
-  console.info("Sending message to device " + deviceId + ': ', message);
+  console.info('Sending message to device ' + deviceId + ': ', message);
 
   admin
     .messaging()
@@ -21,7 +21,14 @@ sendMessage = function(deviceId, deviceToken, message) {
       console.info('Successfully sent message:', response);
     })
     .catch(error => {
-      console.error('Error sending message to device ' + deviceId + ' with token ' + deviceToken + ':', error);
+      console.error(
+        'Error sending message to device ' +
+          deviceId +
+          ' with token ' +
+          deviceToken +
+          ':',
+        error
+      );
     });
 };
 

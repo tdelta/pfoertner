@@ -255,7 +255,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
             },
             {
               title: 'Decline',
-              intent: 'DeclineAppointmentRequest'
+              intent: 'DeclineAppointmentRequest',
             },
           ],
           appointment

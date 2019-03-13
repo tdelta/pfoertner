@@ -41,7 +41,7 @@ router.post('/', auth.authFun(), (req, res) => {
     length: 30,
     numbers: true,
     symbols: true,
-    strict: true
+    strict: true,
   });
 
   const device = req.user;
@@ -240,7 +240,9 @@ function authenticateOfficeMember(req, res) {
           (loggedIn != null && loggedIn.OfficeId === officeId) ||
           device.OfficeId === officeId
         ) {
-          console.log('Office member with device ' + device.id + ' authenticated');
+          console.log(
+            'Office member with device ' + device.id + ' authenticated'
+          );
           response();
         }
         // No user belongs to the device or the user belonging to the
@@ -301,18 +303,18 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
 // ENDPOINT: GET /offices/:id/spion
 router.get('/:officeId/spion', auth.authFun(), (req, res) => {
   console.log('GET /offices/' + req.officeId + '/spion has been called.');
-  
+
   const officeId = parseInt(req.params.officeId, 10);
 
-  authenticateAnyOfficeDevice(officeId, req, res).then(
-    office => {
-      if (office.spionPicture == null) {
-        res.status('404').send('There is no spion picture in this office');
-      } else {
-        res.sendFile('/' + req.params.officeId + '.jpg', { root: 'spionuploads' });
-      }
+  authenticateAnyOfficeDevice(officeId, req, res).then(office => {
+    if (office.spionPicture == null) {
+      res.status('404').send('There is no spion picture in this office');
+    } else {
+      res.sendFile('/' + req.params.officeId + '.jpg', {
+        root: 'spionuploads',
+      });
     }
-  );
+  });
 });
 
 // ENDPOINT: PATCH /offices/:id/spion
@@ -324,39 +326,43 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
 
   const officeId = parseInt(req.params.officeId, 10);
 
-  authenticateAnyOfficeDevice(officeId, req, res).then(
-    office => {
-      picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
-        if (err) {
-          return res.status(500).send(err);
-        }
-        
-        else {
-          const downloadPath =
-                'https://deh.duckdns.org:3000/offices/' +
-                req.params.officeId +
-                '/spion';
+  authenticateAnyOfficeDevice(officeId, req, res).then(office => {
+    picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        const downloadPath =
+          'https://deh.duckdns.org:3000/offices/' +
+          req.params.officeId +
+          '/spion';
 
-          console.log('\nUploaded new spion picture for office ' + office.id + ' with hash ' + hash + '. It will be available on ' + downloadPath + '.\n');
+        console.log(
+          '\nUploaded new spion picture for office ' +
+            office.id +
+            ' with hash ' +
+            hash +
+            '. It will be available on ' +
+            downloadPath +
+            '.\n'
+        );
 
-          office
-            .update({
-              spionPicture: downloadPath,
-              spionPictureMD5: hash,
-            })
-            .then(() => {
-              notifyOfficeSubscribers(
-                office,
-                'OfficeDataUpdated',
-                officeId.toString()
-              );
+        office
+          .update({
+            spionPicture: downloadPath,
+            spionPictureMD5: hash,
+          })
+          .then(() => {
+            notifyOfficeSubscribers(
+              office,
+              'OfficeDataUpdated',
+              officeId.toString()
+            );
 
-              res.status(200).send('File uploaded!');
-            });
-        }
-      });
-    }
-  );
+            res.status(200).send('File uploaded!');
+          });
+      }
+    });
+  });
 });
 
 // ENDPOINT: GET /offices/:id/takephoto
@@ -364,11 +370,9 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
 router.get('/:officeId/takephoto', auth.authFun(), (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
-  authenticateAnyOfficeDevice(officeId, req, res).then(
-    office => {
-      notifyPanel(office, 'takephoto')
-    }
-  );
+  authenticateAnyOfficeDevice(officeId, req, res).then(office => {
+    notifyPanel(office, 'takephoto');
+  });
 
   return res.status(200).send('takephoto fcm event successfully sent.');
 });
