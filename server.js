@@ -53,6 +53,7 @@ server.use('/offices', officesroutes);
 server.use('/devices', devicesroutes);
 server.use('/officemembers', officemembersroutes);
 server.use('/appointments', appointmentroutes);
+server.use(express.static('public_files'));
 
 // Listen on port 3000 localhost
 db.sequelize.sync().then(() => {
