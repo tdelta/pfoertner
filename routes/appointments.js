@@ -49,9 +49,17 @@ router.delete('/:id', auth.authFun(), (req, res) => {
     authenticateOfficemember(req, res, appointment.OfficeMemberId).then(
       officemember => {
         appointment.destroy().then(u => {
-          console.log(
-            'Successfully deleted appointment. Sending mail to ' + u.email
-          );
+          officemember.getOffice().then(office => {
+            console.log('Notifying office members about updated appointments');
+
+            notifyOfficeSubscribers(
+              office,
+              'AppointmentsUpdated',
+              officemember.id.toString()
+            );
+          });
+
+          console.log('Successfully deleted appointment. Sending mail to ' + u.email);
 
           const transporter = nodemailer.createTransport({
             host: 'mail.gmx.net',
@@ -90,14 +98,6 @@ router.delete('/:id', auth.authFun(), (req, res) => {
             });
 
           res.status(200).send('Successfully deleted appointment request');
-
-          officemember.getOffice().then(office => {
-            notifyOfficeSubscribers(
-              office,
-              'AppointmentsUpdated',
-              officemember.id.toString()
-            );
-          });
         });
       }
     );
