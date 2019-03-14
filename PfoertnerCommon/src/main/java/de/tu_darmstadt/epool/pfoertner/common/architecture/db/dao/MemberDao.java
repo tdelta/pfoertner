@@ -63,14 +63,6 @@ public abstract class MemberDao {
     public abstract LiveData<MemberEntity> load(int memberId);
 
     /**
-     * Loads a Flowable Object (changes in the database can be observed by an rxjava observer) for an office member
-     * @param memberId The id of the office member to load
-     * @return Flowable containing the requested office member
-     */
-    @Query("SELECT * FROM MemberEntity WHERE id = :memberId")
-    public abstract Flowable<MemberEntity> loadFlowable(int memberId);
-
-    /**
      * Loads a Single Object (data can be asynchronously used after loading is done) for an office member
      * @param memberId The id of the office member to load
      * @return Single containing the requested office member
