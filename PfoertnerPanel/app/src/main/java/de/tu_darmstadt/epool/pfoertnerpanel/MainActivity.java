@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Change active activity to ScheduleAppointmentActivity
-     * @param view
+     * @param view view context of layout
      */
     public void gotoScheduleAppointment(View view){
         Intent intent = new Intent(this, ScheduleAppointment.class);
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Sets the Room Name in the panel user interface.
-     * @param str
+     * @param str New name of the Room
      */
     public void setRoom(final String str){
         TextView room = findViewById(R.id.room);
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Returns the current Room Name in the panel user interface.
-     * @return
+     * @return String with the current room name
      */
     public String getRoom(){
         TextView room = findViewById(R.id.room);
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Sets the Global Status in the panel user interface.
-     * @param status
+     * @param status String with the new global status
      */
     public void setGlobalStatus(final String status){
         if (status != null) {
@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Retuns the current Global Status in the panel user interface.
-     * @return
+     * @return String with the current global status
      */
     public String getGlobalStatus() {
         TextView global = findViewById(R.id.global_status);

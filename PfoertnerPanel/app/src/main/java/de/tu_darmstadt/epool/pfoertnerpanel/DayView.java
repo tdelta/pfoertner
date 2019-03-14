@@ -23,7 +23,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * DayView constructor
-     * @param context
+     * @param context context view containing layout
      */
     public DayView(Context context) {
         super(context);
@@ -34,7 +34,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * DayView constructor
-     * @param context
+     * @param context context view containing layout
      * @param attrs
      */
     public DayView(Context context, AttributeSet attrs) {
@@ -45,9 +45,9 @@ public class DayView extends RelativeLayout {
 
     /**
      * DayView constructor
-     * @param context
-     * @param attrs
-     * @param defStyleAttr
+     * @param context context view containing layout
+     * @param attrs this parameter is filled by the android inflator
+     * @param defStyleAttr this parameter is filled by the android inflator
      */
     public DayView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -57,10 +57,10 @@ public class DayView extends RelativeLayout {
 
     /**
      * DayView constructor
-     * @param context
-     * @param attrs
-     * @param defStyleAttr
-     * @param defStyleRes
+     * @param context context view containing layout
+     * @param attrs this parameter is filled by the android inflator
+     * @param defStyleAttr this parameter is filled by the android inflator
+     * @param defStyleRes this parameter is filled by the android inflator
      */
     public DayView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -70,7 +70,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * Needs to be run while creating interface elements programmatically
-     * @param context
+     * @param context view containing layout
      */
     private void init(final Context context) {
         LayoutInflater inflater = (LayoutInflater) context
@@ -81,7 +81,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * Sets the data for a DayView
-     * @param date
+     * @param date LocalDateTime to be set
      */
     public void setDate(LocalDateTime date){
         this.date = date;
@@ -120,7 +120,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * Returns the date of the DayView
-     * @return
+     * @return LocalDateTime with the date of the Dayview
      */
     public LocalDateTime getDate(){
         return date;
@@ -128,7 +128,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * Returns the list of events contained in the DayView
-     * @return
+     * @return LinkedList<Event> containing the events of the DayView
      */
     public LinkedList<Event> getEvents(){
         return events;
@@ -136,7 +136,7 @@ public class DayView extends RelativeLayout {
 
     /**
      * Add an event e to the DayView
-     * @param e
+     * @param e Event to be added to DayView
      */
     public void addEvents(Event e){
         events.add(e);
