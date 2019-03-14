@@ -119,6 +119,12 @@ public class PictureUploadFragment extends Fragment {
         disposables.dispose();
     }
 
+    /**
+     * Resulthandler for selecting a picture to be uploaded
+     * @param reqCode Request Code
+     * @param resultCode Result Code
+     * @param data Data in the Intent
+     */
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);

@@ -43,6 +43,10 @@ public class SpionFragment extends Fragment {
 
     }
 
+    /**
+     * called on activity creation
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
