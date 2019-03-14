@@ -41,6 +41,11 @@ public class PictureUploadFragment extends Fragment {
 
     }
 
+    /**
+     * Is called when activity gets created
+     *
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +60,7 @@ public class PictureUploadFragment extends Fragment {
         viewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
         viewModel.init(app.getMemberId());
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
