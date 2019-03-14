@@ -51,6 +51,14 @@ public class SpionFragment extends Fragment {
         service = app.getService();
     }
 
+    /**
+     * gets called when fragment is created
+     * and initializes glide to keep to spion picture in sync with the server
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -121,6 +129,10 @@ public class SpionFragment extends Fragment {
         }
     }
 
+    /**
+     * send request to panel to take picture
+     * @throws IOException
+     */
     public void initSpion() throws IOException {
         final ResponseBody response;
 
@@ -131,8 +143,12 @@ public class SpionFragment extends Fragment {
         Log.d(TAG, "DIE RESPONSE VOM SERVER: " + response.toString());
     }
 
+    /**
+     * gets executed when get current picture button has been pressed
+     * and orders the panel to take and send a new spion picture
+     * @param view
+     */
     public void getNewSpionPicture(View view)  {
-        Log.d(TAG, "ICHWERDEAUSGEFÜHRT");
         spionDisposable = Completable.fromAction(
                 this::initSpion
         )
