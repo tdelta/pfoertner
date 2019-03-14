@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/PfoertnerStyle"
         >
-        <activity android:name=".NewScheduleAppointment"
+        <activity android:name=".ScheduleAppointment"
             android:hardwareAccelerated="true"
             android:screenOrientation="landscape"></activity>
         <activity

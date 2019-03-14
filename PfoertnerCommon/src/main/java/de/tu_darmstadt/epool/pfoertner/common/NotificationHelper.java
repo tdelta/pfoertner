@@ -13,73 +13,84 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class NotificationHelper {
-
     private static final String ADMIN_PACKAGE = "de.tu_darmstadt.epool.pfoertneradmin";
     private static final String TAG = "Notification";
     private static final String SAVED_NOTIFICATION_ID = "saved notification id";
 
-    private static int getNextId(Context context){
-        PfoertnerApplication app = PfoertnerApplication.get(context);
-        SharedPreferences settings = app.getSettings();
-        SharedPreferences.Editor editor = settings.edit();
+    private static int getNextId(final Context context){
+        final PfoertnerApplication app = PfoertnerApplication.get(context);
+        final SharedPreferences settings = app.getSettings();
+        final SharedPreferences.Editor editor = settings.edit();
+
         int id = settings.getInt(SAVED_NOTIFICATION_ID,0);
         id = (id + 1) % Integer.MAX_VALUE;
+
         editor.putInt(SAVED_NOTIFICATION_ID,id);
         editor.apply();
+
         return id;
     }
 
-    public static void displayNotification(String notificationContent, Context context) {
+    public static void displayNotification(final String notificationContent, final Context context) {
         try {
-            JSONObject notificationJson = new JSONObject(notificationContent);
-            String title = notificationJson.getString("title");
-            String body = notificationJson.getString("body");
-            String contentIntentClass = notificationJson.optString("intent", null);
+            final JSONObject notificationJson = new JSONObject(notificationContent);
+            final String title = notificationJson.getString("title");
+            final String body = notificationJson.getString("body");
+            final String contentIntentClass = notificationJson.optString("activity", null);
 
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context.getApplicationContext(), "appointments")
-                    .setSmallIcon(R.drawable.common_full_open_on_phone)
+            final String intentPurpose = "AppointmentRequest";
+
+            final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context.getApplicationContext(), "appointments")
+                    .setSmallIcon(R.drawable.ic_tablet_black_24dp)
                     .setContentTitle(title)
                     .setContentText(body)
                     .setColor(0x1111ee)
+                    .setVibrate(new long[]{0, 150})
                     .setAutoCancel(true);
 
             if (contentIntentClass != null) {
-                Intent appIntent = context.getPackageManager().getLaunchIntentForPackage(ADMIN_PACKAGE);
+                final Intent appIntent = context.getPackageManager().getLaunchIntentForPackage(ADMIN_PACKAGE);
                 appIntent.setClassName(ADMIN_PACKAGE, ADMIN_PACKAGE + "." + contentIntentClass);
-                appIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                appIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                appIntent.putExtra("intentPurpose", intentPurpose);
 
-                PendingIntent pendingIntent = PendingIntent.getActivity(
+                final PendingIntent pendingIntent = PendingIntent.getActivity(
                         context.getApplicationContext(),
                         1,
                         appIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
+                        PendingIntent.FLAG_ONE_SHOT
+                );
+
                 notificationBuilder.setContentIntent(pendingIntent);
             }
 
-            JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
-            if (buttonsJson != null) {
-                for (int i = 0; i < buttonsJson.length(); i++) {
-                    String buttonText = buttonsJson.getJSONObject(i).getString("title");
-                    String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
+            //final JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
+            //if (buttonsJson != null) {
+            //    for (int i = 0; i < buttonsJson.length(); i++) {
+            //        final String buttonText = buttonsJson.getJSONObject(i).getString("title");
+            //        final String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
 
-                    Intent buttonIntent = new Intent(intentUrl);
-                    buttonIntent.putExtra("data", notificationJson.optString("data"));
-                    PendingIntent pendingIntent = PendingIntent.getService(
-                            context.getApplicationContext(),
-                            i,
-                            buttonIntent,
-                            PendingIntent.FLAG_ONE_SHOT);
-                    NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
-                    notificationBuilder.addAction(action);
-                }
-            }
+            //        final Intent buttonIntent = new Intent(intentUrl);
+            //        buttonIntent.putExtra("data", notificationJson.optString("data"));
 
-            NotificationManager notificationManager =
+            //        final PendingIntent pendingIntent = PendingIntent.getService(
+            //                context.getApplicationContext(),
+            //                i,
+            //                buttonIntent,
+            //                PendingIntent.FLAG_ONE_SHOT);
+
+            //        final NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
+            //        notificationBuilder.addAction(action);
+            //    }
+            //}
+
+            final NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify("de.tu_darmstadt.epool.pfoertner",getNextId(context), notificationBuilder.build());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.d(TAG, "Could not parse JSON payload of notification");
+        }
+
+        catch (final JSONException e) {
+            Log.d(TAG, "Could not parse JSON payload of notification", e);
         }
     }
 }
