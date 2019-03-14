@@ -155,8 +155,8 @@ public class PictureUploadFragment extends Fragment {
 
     /**
      * get the path to the picture you want to upload
-     * @param uri
-     * @return
+     * @param uri uri containing path to picture
+     * @return path to picture as String
      */
     private String getPath(final Uri uri) {
         final String[] projection = { MediaStore.Images.Media.DATA };
@@ -178,7 +178,7 @@ public class PictureUploadFragment extends Fragment {
 
     /**
      * Set the first name for the owner of the admin app
-     * @param btn
+     * @param btn view context for layout
      */
     public void setFirstName(final View btn) {
         final TextView firstNameTextView = btn.findViewById(R.id.firstNameView);
@@ -205,7 +205,7 @@ public class PictureUploadFragment extends Fragment {
 
     /**
      * Set the last name for the owner of the admin app
-     * @param btn
+     * @param btn view context for layout
      */
     public void setLastName(final View btn) {
         final TextView lastNameTextView = btn.findViewById(R.id.lastNameView);
@@ -254,7 +254,7 @@ public class PictureUploadFragment extends Fragment {
 
     /**
      * calls activity to choose which photo you like to upload
-     * @param view
+     * @param view context for layout
      */
     public void getPicture(View view){
         ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
