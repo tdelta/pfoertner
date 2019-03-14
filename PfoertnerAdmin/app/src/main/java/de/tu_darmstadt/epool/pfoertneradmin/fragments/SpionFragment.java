@@ -54,10 +54,10 @@ public class SpionFragment extends Fragment {
     /**
      * gets called when fragment is created
      * and initializes glide to keep to spion picture in sync with the server
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return
+     * @param inflater needed to create views in the fragment
+     * @param container parent view of the fragment
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     * @return view for layout context
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -146,7 +146,7 @@ public class SpionFragment extends Fragment {
     /**
      * gets executed when get current picture button has been pressed
      * and orders the panel to take and send a new spion picture
-     * @param view
+     * @param view context of layout
      */
     public void getNewSpionPicture(View view)  {
         spionDisposable = Completable.fromAction(

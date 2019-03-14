@@ -54,7 +54,7 @@ public class ScheduleAppointment extends AppCompatActivity {
     /**
      * Is called when activity gets created
      * Creates User Interface and listens to changes in the livedata
-     * @param savedInstanceState
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +137,8 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     /**
      * Removes already accepted appointments from the displayed schedule
-     * @param eventsAndAppointments
-     * @return
+     * @param eventsAndAppointments pair of events and appointments meant to be removed from events
+     * @return List of events minus the accepted appointment
      */
     private List<Event> removeAcceptedAppointments(Pair<List<Event>,List<Appointment>> eventsAndAppointments){
         List<Event> result = new LinkedList<>(eventsAndAppointments.first);
@@ -172,9 +172,9 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     /**
      * Get all events from the calendarAPI in a certain time span.
-     * @param calendarInfo
-     * @param start
-     * @param end
+     * @param calendarInfo api used to get events from google calendar
+     * @param start Start of the time span
+     * @param end End of the time span
      * @return
      */
     private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
@@ -209,7 +209,7 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     /**
      * Color the DayView elements depending whether there is an event on that day or not
-     * @param selectedDayView
+     * @param selectedDayView DayView in the sidebar
      */
     private void recolorDayViews(DayView selectedDayView){
         for (DayView d : upcomingDayViews.values()) {
@@ -220,7 +220,7 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     /**
      * When a DayView is clicked the event TimeSlots for that day get initialized
-     * @param dayview
+     * @param dayview DayView in the sidebar
      */
     private void createTimeSlotsPerDay(DayView dayview){
         selectedDay = dayview.getDate();
@@ -237,7 +237,7 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     /**
      * DayViews get created for the next 4 weeks
-     * @param upcomingEvents
+     * @param upcomingEvents Events in the next 4 weeks
      */
     private void initializeDayViews(List<Event> upcomingEvents){
         dayviews.removeAllViews();
@@ -262,8 +262,8 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     /**
      * Add an event to a DayView
-     * @param dayview
-     * @param upcomingEvents
+     * @param dayview DayView in the sidebar
+     * @param upcomingEvents Events in the next 4 weeks
      */
     private void addEventsToDayView(DayView dayview, List<Event> upcomingEvents){
         for (Event e : upcomingEvents){
@@ -276,8 +276,8 @@ public class ScheduleAppointment extends AppCompatActivity {
     /**
      * Change current activity to MakeAppointmentActivity, while including data about the chosen
      * event in the intent
-     * @param view
-     * @param timeslot
+     * @param view view of the layout
+     * @param timeslot timeslot in the right sidebar
      */
     public void gotoMakeAppointment(View view, TimeslotView timeslot) {
         final Intent intent = new Intent(this, MakeAppointment.class);
