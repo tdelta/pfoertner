@@ -1,402 +1,276 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.google.api.services.calendar.model.Event;
+
 import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
-import org.threeten.bp.Duration;
+import org.reactivestreams.Publisher;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
-import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
-import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
-import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import javax.annotation.Nullable;
+
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
+import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
+import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
+import android.arch.lifecycle.LiveDataReactiveStreams;
 
 public class ScheduleAppointment extends AppCompatActivity {
+    private final String TAG = "ScheduleAppointment";
     private LocalDateTime now;
-    private String TAG = "Schedule ";
-    private DayView days[];
-    private final int selected = 0xFFFF4081;
-    private final int nothing = 0xFF808080;
-    private final int normal = 0xFF8BC34A;
-    private int currentDay;
-    private LinearLayout slots;
-    private List<LinkedList<String>> calendarSlots;
-    private TextView officeHours;
-    private DateTime todayTime;
-    private DateTime endTime;
+    private Timehelpers timehelper;
+    private HashMap<LocalDateTime, DayView> upcomingDayViews = new HashMap<>();
+    private LinearLayout dayviews;
+    private LinearLayout timeslots;
     private LocalDateTime selectedDay;
 
-    private int memberId;
-
-    private CompositeDisposable disposables;
-
-    private static class CalendarSlot {
-        public final LocalDateTime startDay;
-        public final LocalDateTime endDay;
-
-        public CalendarSlot(final LocalDateTime startDay, final LocalDateTime endDay) {
-            this.startDay = startDay;
-            this.endDay = endDay;
-        }
-
-        public String makeLabel() {
-            return startDay.getHour() + ":" + startDay.getMinute() + "-" + endDay.getHour() + ":" + endDay.getMinute();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        disposables.dispose();
-    }
+    private CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (disposables != null) {
-            disposables.dispose();
-        }
-        disposables = new CompositeDisposable();
-
-        memberId = getIntent().getIntExtra("MemberId",-1);
-        if(memberId < 0) {
-            throw new RuntimeException("An office member has to be selected when opening the appointment activity");
-        }
-
-        setContentView(R.layout.activity_schedule_appointment);
-        slots = (LinearLayout) findViewById(R.id.officehours);
-        officeHours = findViewById(R.id.textView4);
-
-        days = new DayView[12];
-        days[0] = (DayView) findViewById(R.id.day0);
-        days[1] = (DayView) findViewById(R.id.day1);
-        days[2] = (DayView) findViewById(R.id.day2);
-        days[3] = (DayView) findViewById(R.id.day3);
-        days[4] = (DayView) findViewById(R.id.day4);
-        days[7] = (DayView) findViewById(R.id.day5);
-        days[8] = (DayView) findViewById(R.id.day6);
-        days[9] = (DayView) findViewById(R.id.day7);
-        days[10] = (DayView) findViewById(R.id.day8);
-        days[11] = (DayView) findViewById(R.id.day9);
-
+        setContentView(R.layout.activity_new_schedule_appointment);
+        dayviews = (LinearLayout) findViewById(R.id.dayviews);
+        timehelper = new Timehelpers();
+        timeslots = (LinearLayout) findViewById(R.id.timeslots);
         now = LocalDateTime.now();
-        todayTime = new DateTime(System.currentTimeMillis());
-        // 86400000 = 1Tag, 14 = 2 Wochen
-        endTime = new DateTime(System.currentTimeMillis() + 86400000 *14);
 
-        Log.d(TAG,"Heute ist " + todayTime.toString());
-        Log.d(TAG,"Dann ist " + endTime.toString());
 
-        calendarSlots = new ArrayList<>(Collections.nCopies(12, new LinkedList<>()));
+        final TextView room = findViewById(R.id.schedule_room);
 
+        PanelApplication app = PanelApplication.get(this);
+        app.getRepo()
+                .getOfficeRepo()
+                .getOffice(app.getOffice().getId())
+                .observe(this,
+                        office -> {
+                            if(office.getRoom()==null){
+                                room.setText("Room Name Not Set");
+                            } else {
+                                room.setText(office.getRoom());
+                            }
+                        });
+
+        int memberId = getIntent().getIntExtra("MemberId",-1);
+
+        if (memberId < 0) {
+            Log.e(TAG, "A member must be selected to show appointments.");
+        }
+
+        else {
+            app
+                    .getRepo()
+                    .getMemberRepo()
+                    .getMember(memberId)
+                    .observe(this, member -> {
+                        final TextView appointmentMemberName = (TextView) findViewById(R.id.appointment_member);
+                        appointmentMemberName.setText("Appointment times for: " + member.getFirstName() + " " + member.getLastName());
+                    });
+
+            // ---------------
+            // Build an rxjava pipeline from the database to the screen
+            // ---------------
+
+            // This block only converts livedata to observables
+            LiveData<MemberCalendarInfo> calendarInfoLiveData = app
+                    .getPanelRepo()
+                    .getMemberCalendarInfoRepo()
+                    .getCalendarInfoByMemberId(memberId);
+
+            Publisher<MemberCalendarInfo> memberCalendarInfoPublisher = LiveDataReactiveStreams.toPublisher(this,calendarInfoLiveData);
+            Observable<MemberCalendarInfo> calendarInfoObservable = Observable.fromPublisher(memberCalendarInfoPublisher);
+
+            LiveData<List<Appointment>> appointmentLiveData = app
+                    .getRepo()
+                    .getAppointmentRepository()
+                    .getAppointmentsOfMember(memberId);
+
+            Publisher<List<Appointment>> appointmentPublisher = LiveDataReactiveStreams.toPublisher(this,appointmentLiveData);
+            Observable<List<Appointment>> appointmentObservable = Observable.fromPublisher(appointmentPublisher);
+
+            final DateTime start = new DateTime(System.currentTimeMillis());
+            final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
+
+            Observable<List<Event>> calendarEventsObservable = calendarInfoObservable
+                    .flatMapSingle(memberCalendarInfo -> getEvents(memberCalendarInfo,start,end));
+
+            Observable.combineLatest(appointmentObservable,calendarEventsObservable,
+                    (appointments,events) -> new Pair<List<Event>,List<Appointment>>(events,appointments))
+                    .map(this::removeAcceptedAppointments)
+                    .subscribe(
+                            events -> initializeDayViews(events),
+                            throwable -> Log.e(TAG,"Could not load events and appointments",throwable)
+                    );
+
+        }
+    }
+
+    private List<Event> removeAcceptedAppointments(Pair<List<Event>,List<Appointment>> eventsAndAppointments){
+        List<Event> result = new LinkedList<>(eventsAndAppointments.first);
+
+        List<Appointment> appointments = eventsAndAppointments.second;
+        if(appointments == null) {
+            return result;
+        }
+
+        Log.d(TAG, "Number of appointments: "+appointments.size());
+
+        for(Appointment appointment: appointments){
+            Log.d(TAG,"Appointment accepted "+appointment.getAccepted());
+            if(appointment.getAccepted()){
+                for(Event timeslot: eventsAndAppointments.first){
+
+                    long timeslotStartShift = timeslot.getStart().getDateTime().getTimeZoneShift() * 3600 * 1000L;
+                    Date timeslotStart = new Date(timeslot.getStart().getDateTime().getValue()+timeslotStartShift);
+                    long timeslotEndShift = timeslot.getEnd().getDateTime().getTimeZoneShift() * 3600 * 1000L;
+                    Date timeslotEnd = new Date(timeslot.getEnd().getDateTime().getValue()+timeslotEndShift);
+
+                    if(appointment.getEnd().after(timeslotStart) && appointment.getStart().before(timeslotEnd)){
+                        // The appointment intersects the timeslot
+                        result.remove(timeslot);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
-        app
-                .getPanelRepo()
-                .getMemberCalendarInfoRepo()
-                .getCalendarInfoByMemberId(memberId)
-                .observe(this, calendarInfo -> {
-                    if (calendarInfo == null) {
-                        Log.e(TAG, "There is no member calendar info set, we can not load time slots.");
-                    }
-
-                    else if (calendarInfo.getCalendarId() == null) {
-                        Log.e(TAG, "The member does not have a calendar registered, we can not load time slots.");
-                    }
-
-                    else if (calendarInfo.getCalendarId() == null) {
-                        Log.e(TAG, "We do not have an oauth token to access the calendar.");
-                    }
-
-                    else {
-                        // Use LiveData instead?
-                        disposables.add(app
-                                .getCalendarApi()
-                                .getCredential(calendarInfo.getOAuthToken())
-                                .flatMap(
-                                        credentials -> app
-                                                .getCalendarApi()
-                                                .getEvents(calendarInfo.getCalendarId(), credentials, todayTime, endTime)
-                                )
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        events -> setEventsForTimeslots(events, currentDay),
-                                        throwable -> Log.e(TAG, "Failed to retrieve events from calendar.", throwable)
-                                )
-                        );
-                    }
-                });
-
-        //final LinkedList<String> test = new LinkedList<>();
-        //test.add("11:40 - 12:40");
-        //test.add("13:40 - 14:40");
-        //test.add("14:40 - 15:40");
-        //test.add("15:40 - 16:40");
-        //test.add("16:40 - 17:40");
-        //test.add("17:40 - 18:40");
-        //test.add("11:40 - 12:40");
-        //test.add("13:40 - 14:40");
-        //test.add("14:40 - 15:40");
-        //test.add("15:40 - 16:40");
-        //test.add("16:40 - 17:40");
-        //test.add("17:40 - 18:40");
-        //test.add("11:40 - 12:40");
-        //test.add("13:40 - 14:40");
-        //test.add("14:40 - 15:40");
-        //test.add("15:40 - 16:40");
-        //test.add("16:40 - 17:40");
-        //test.add("17:40 - 18:40");
-        //test.add("11:40 - 12:40");
-        //test.add("13:40 - 14:40");
-        //test.add("14:40 - 15:40");
-        //test.add("15:40 - 16:40");
-        //test.add("16:40 - 17:40");
-        //test.add("17:40 - 18:40");
-
-        //calendarSlots.set(7, test);
-        //calendarSlots.set(9, test);
-        //calendarSlots.set(11, test);
-
-//        for(int i = 0;i<12;i++){
-//            if (i!= 5 && i != 6) {
-//                String abc = "day" + i;
-//                int resID = getResources().getIdentifier(abc, "id", getPackageName());
-//                days[i] = (DayView) findViewById(resID);
-//            }
-//        }
-
-//
-
-        renderDayViews();
-//        setEventsForTimeslots(currentDay);
-    }
-
-    public void onDayPressed(final View view){
-        colorDaysForDayViews(normal);
-        slots.removeAllViews();
-
-        switch (view.getId()){
-            case R.id.day0:
-                updateDayViewButton(0);
-                break;
-            case R.id.day1:
-                updateDayViewButton(1);
-                break;
-            case R.id.day2:
-                updateDayViewButton(2);
-                break;
-            case R.id.day3:
-                updateDayViewButton(3);
-                break;
-            case R.id.day4:
-                updateDayViewButton(4);
-                break;
-            case R.id.day5:
-                updateDayViewButton(7);
-                break;
-            case R.id.day6:
-                updateDayViewButton(8);
-                break;
-            case R.id.day7:
-                updateDayViewButton(9);
-                break;
-            case R.id.day8:
-                updateDayViewButton(10);
-                break;
-            case R.id.day9:
-                updateDayViewButton(11);
-                break;
-        }
-    }
-
-    private void updateDayViewButton(final int dayOffset){
-        days[dayOffset].setBackgroundColor(selected);
-
-        createTimeSlot(dayOffset);
-
-        selectedDay = days[dayOffset].getDate();
-    }
-
-    private void setDateForDayViews(final int start, final int weekend){
-        for(int i = start; i < 12; ++i) {
-            if (i != 5 && i != 6){
-                days[i].setDate(now.plusDays(i-start+weekend));
-            }
-        }
-
-        for(int i = 0; i < start; ++i){
-            days[i].setDate(now.plusDays(i-start));
-        }
-    }
-
-    private void colorDaysForDayViews(final int start){
-        for(int i = 0; i < 12; ++i){
-            if (i != 5 && i != 6) {
-                Log.d(TAG, "events wurden eingetragen in tabelle " + i + " size : " + calendarSlots.get(i).size());
-                if(calendarSlots.get(i).size() == 0 || i < start){
-                    days[i].setBackgroundColor(nothing);
+        return Single.fromCallable(
+            () -> {
+                if (calendarInfo == null) {
+                    throw new RuntimeException("There is no member calendar info set we can not load time slots.");
+                } else if (calendarInfo.getCalendarId() == null) {
+                    throw new RuntimeException("The member " + calendarInfo.getMemberId() + " does not have a calendar registered, we can not load time slots.");
+                }else if (calendarInfo.getOAuthToken() == null) {
+                    throw new RuntimeException("We do not have an oauth token to access the calendar of member " + calendarInfo.getMemberId() + ".");
+                } else {
+                    return calendarInfo;
                 }
+            }).flatMap(
+                checkedCalendarInfo -> app
+                        .getCalendarApi()
+                        .getCredential(checkedCalendarInfo.getOAuthToken())
+                        .flatMap(
+                                credentials ->
+                                     app
+                                        .getCalendarApi()
+                                        .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
+                        )
+            )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
 
-                else {
-                    days[i].setBackgroundColor(normal);
-                }
+    }
+
+    private void recolorDayViews(DayView selectedDayView){
+        for (DayView d : upcomingDayViews.values()) {
+            d.setColor();
+        }
+        selectedDayView.setBackgroundColor(0xFFFF4081);
+    }
+
+    private void createTimeSlotsPerDay(DayView dayview){
+        selectedDay = dayview.getDate();
+        timeslots.removeAllViews();
+        for (Event e : dayview.getEvents()){
+            TimeslotView timeslot = new TimeslotView(this, e);
+            timeslot.setOnClickListener((View v) -> gotoMakeAppointment(v, timeslot));
+            final FrameLayout.LayoutParams timeslotMarginParams = (FrameLayout.LayoutParams) timeslots.getLayoutParams();
+            timeslotMarginParams.setMargins(1, 1, 1, 1);
+            timeslots.addView(timeslot, timeslotMarginParams);
+        }
+        recolorDayViews(dayview);
+    }
+
+    private void initializeDayViews(List<Event> upcomingEvents){
+        dayviews.removeAllViews();
+        upcomingDayViews.clear();
+        for(int i = 0; i < 28; i++){
+            DayView dayview = new DayView(this);
+            LocalDateTime date = now.plusDays(i).withHour(0).withMinute(0);
+            dayview.setDate(date);
+            addEventsToDayView(dayview,upcomingEvents);
+            dayview.setColor();
+            dayview.setOnClickListener((View v) -> createTimeSlotsPerDay(dayview));
+            final FrameLayout.LayoutParams dayViewMarginParams = (FrameLayout.LayoutParams) dayviews.getLayoutParams();
+            dayViewMarginParams.setMargins(0, 1, 0, 1);
+            dayviews.addView(dayview, dayViewMarginParams);
+            upcomingDayViews.put(date,dayview);
+        }
+
+        if(selectedDay != null) {
+            createTimeSlotsPerDay(upcomingDayViews.get(selectedDay));
+        }
+    }
+
+    private void addEventsToDayView(DayView dayview, List<Event> upcomingEvents){
+        for (Event e : upcomingEvents){
+            if(timehelper.isItToday(dayview.getDate(),timehelper.toLocalDateTime(e.getStart()))){
+                dayview.addEvents(e);
             }
         }
     }
 
-    private void createTimeSlot(final int day){
-        //if(calendarSlots.get(day).size() != 0) {
-        //    officeHours.setText("Available office hours");
-
-        //    for (final String appointmentTime : calendarSlots.get(day)) {
-        //        final TimeslotView timeSlot = new TimeslotView(this);
-
-        //        timeSlot.setAppointmentTime(appointmentTime);
-        //        timeSlot.setOnClickListener(v -> gotoMakeAppointment(v, appointmentTime, day));
-
-        //        final FrameLayout.LayoutParams timeSlotMarginParams = (FrameLayout.LayoutParams) slots.getLayoutParams();
-
-        //        timeSlotMarginParams.setMargins(0, 0, 15, 0);
-
-        //        slots.addView(timeSlot, timeSlotMarginParams);
-        //    }
-        //}
-
-        //else {
-        //    officeHours.setText("Sorry no office hours on this day");
-        //}
-    }
-
-    private static LocalDateTime toLocalDateTime(final EventDateTime edt) {
-        final DateTime calendarDateTime = edt.getDateTime();
-        final int timeShiftInMinutes = calendarDateTime.getTimeZoneShift();
-
-        return LocalDateTime.ofEpochSecond(
-                calendarDateTime.getValue() / 1000,
-                0,
-                ZoneOffset.ofHoursMinutes(timeShiftInMinutes / 60, timeShiftInMinutes % 60)
-        );
-    }
-
-    private void setEventsForTimeslots(final List<Event> upcomingEvents, final int day){
-        for (final Event e : upcomingEvents) {
-            final LocalDateTime startDay = toLocalDateTime(e.getStart());
-            final Duration timePassed = Duration.between(now, startDay);
-            final LocalDateTime endDay = toLocalDateTime(e.getEnd());
-
-            switch (startDay.getDayOfWeek().toString()){
-                case "MONDAY":
-                    Log.d(TAG, "Montag");
-                    setTimeSlotCaption(timePassed.toDays(), 0, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                    break;
-                case "TUESDAY":
-                    Log.d(TAG, "dienstag");
-                    setTimeSlotCaption(timePassed.toDays(), 1, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                    break;
-                case "WEDNESDAY":
-                    Log.d(TAG, "mittwoch");
-                    setTimeSlotCaption(timePassed.toDays(), 2, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                    break;
-                case "THURSDAY":
-                    Log.d(TAG, "donnerstag");
-                    setTimeSlotCaption(timePassed.toDays(), 3, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                    break;
-                case "FRIDAY":
-                    Log.d(TAG, "freitag");
-                    setTimeSlotCaption(timePassed.toDays(), 4, startDay.getHour(), startDay.getMinute(), endDay.getHour(), endDay.getMinute());
-                    break;
-                default:
-                    break;
-            }
-
-            renderDayViews();
-        }
-    }
-
-    private void setTimeSlotCaption(float passed, int day, int startHours, int startMinutes, int endHours, int endMinutes){
-        Log.d(TAG, "eingetragen");
-        if(passed < day){
-            calendarSlots.get(day).add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
-        }else{
-            calendarSlots.get(day+7).add(startHours + ":" + startMinutes + "-" + endHours + ":" + endMinutes);
-        }
-    }
-
-    private void renderDayViews(){
-        switch (now.getDayOfWeek().toString()){
-            case "MONDAY":
-                currentDay = 0;
-                colorDaysForDayViews(currentDay);
-                setDateForDayViews(currentDay,0);
-                break;
-            case "TUESDAY":
-                currentDay = 1;
-                colorDaysForDayViews(currentDay);
-                setDateForDayViews(currentDay,0);
-                break;
-            case "WEDNESDAY":
-                currentDay = 2;
-                colorDaysForDayViews(currentDay);
-                setDateForDayViews(currentDay,0);
-                break;
-            case "THURSDAY":
-                currentDay = 3;
-                setDateForDayViews(currentDay,0);
-                colorDaysForDayViews(currentDay);
-                break;
-            case "FRIDAY":
-                currentDay = 4;
-                setDateForDayViews(currentDay,0);
-                colorDaysForDayViews(currentDay);
-                break;
-            default:
-                colorDaysForDayViews(currentDay);
-                switch (now.getDayOfWeek().toString()){
-                    case "SATURDAY":
-                        currentDay = 0;
-                        setDateForDayViews(currentDay,2);
-                        break;
-                    case "SUNDAY":
-                        currentDay = 0;
-                        setDateForDayViews(currentDay,1);
-                        break;
-                }
-                break;
-        }
-
-
-    }
-
-    public void gotoMakeAppointment(View view, String time, int day) {
+    public void gotoMakeAppointment(View view, TimeslotView timeslot) {
         final Intent intent = new Intent(this, MakeAppointment.class);
-        intent.putExtra("appointmentTime", time);
-        intent.putExtra("Day", selectedDay.getDayOfMonth());
-        intent.putExtra("Month", selectedDay.getMonthValue());
-        intent.putExtra("Year", selectedDay.getYear());
-        intent.putExtra("MemberId", memberId);
+
+        Event e = timeslot.getEvent();
+
+        intent.putExtra("appointmentStartTimeHour", timehelper.toLocalDateTime(e.getStart()).getHour());
+        if(timehelper.toLocalDateTime(e.getStart()).getMinute() > 9){
+            intent.putExtra("appointmentStartTimeMinutes", "" + timehelper.toLocalDateTime(e.getStart()).getMinute());
+        }else{
+            intent.putExtra("appointmentStartTimeMinutes", "0" + timehelper.toLocalDateTime(e.getStart()).getMinute());
+        }
+        intent.putExtra("appointmentEndTimeHour", timehelper.toLocalDateTime(e.getEnd()).getHour());
+        if(timehelper.toLocalDateTime(e.getEnd()).getMinute() > 9){
+            intent.putExtra("appointmentEndTimeMinutes", "" + timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        }else{
+            intent.putExtra("appointmentEndTimeMinutes", "0" + timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        }
+        intent.putExtra("Day", timehelper.toLocalDateTime(e.getStart()).getDayOfMonth());
+        intent.putExtra("Month", timehelper.toLocalDateTime(e.getStart()).getMonthValue());
+        intent.putExtra("Year", timehelper.toLocalDateTime(e.getStart()).getYear());
+        intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));
 
         // yyyy-MM-dd HH:mm
         startActivity(intent);
+
+
+        finish();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        disposables.dispose();
     }
 }
