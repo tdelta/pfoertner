@@ -40,7 +40,7 @@ import io.reactivex.schedulers.Schedulers;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import android.arch.lifecycle.LiveDataReactiveStreams;
 
-public class NewScheduleAppointment extends AppCompatActivity {
+public class ScheduleAppointment extends AppCompatActivity {
     private final String TAG = "NewScheduleAppointment";
     private LocalDateTime now;
     private Timehelpers timehelper;
@@ -51,6 +51,11 @@ public class NewScheduleAppointment extends AppCompatActivity {
 
     private CompositeDisposable disposables = new CompositeDisposable();
 
+    /**
+     * Is called when activity gets created
+     * Creates User Interface and listens to changes in the livedata
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +135,11 @@ public class NewScheduleAppointment extends AppCompatActivity {
         }
     }
 
+    /**
+     * Removes already accepted appointments from the displayed schedule
+     * @param eventsAndAppointments
+     * @return
+     */
     private List<Event> removeAcceptedAppointments(Pair<List<Event>,List<Appointment>> eventsAndAppointments){
         List<Event> result = new LinkedList<>(eventsAndAppointments.first);
 
@@ -160,36 +170,47 @@ public class NewScheduleAppointment extends AppCompatActivity {
         return result;
     }
 
+    /**
+     * Get all events from the calendarAPI in a certain time span.
+     * @param calendarInfo
+     * @param start
+     * @param end
+     * @return
+     */
     private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
         return Single.fromCallable(
-            () -> {
-                if (calendarInfo == null) {
-                    throw new RuntimeException("There is no member calendar info set we can not load time slots.");
-                } else if (calendarInfo.getCalendarId() == null) {
-                    throw new RuntimeException("The member " + calendarInfo.getMemberId() + " does not have a calendar registered, we can not load time slots.");
-                }else if (calendarInfo.getOAuthToken() == null) {
-                    throw new RuntimeException("We do not have an oauth token to access the calendar of member " + calendarInfo.getMemberId() + ".");
-                } else {
-                    return calendarInfo;
-                }
-            }).flatMapObservable(
+                () -> {
+                    if (calendarInfo == null) {
+                        throw new RuntimeException("There is no member calendar info set we can not load time slots.");
+                    } else if (calendarInfo.getCalendarId() == null) {
+                        throw new RuntimeException("The member " + calendarInfo.getMemberId() + " does not have a calendar registered, we can not load time slots.");
+                    }else if (calendarInfo.getOAuthToken() == null) {
+                        throw new RuntimeException("We do not have an oauth token to access the calendar of member " + calendarInfo.getMemberId() + ".");
+                    } else {
+                        return calendarInfo;
+                    }
+                }).flatMapObservable(
                 checkedCalendarInfo -> app
                         .getCalendarApi()
                         .getCredential(checkedCalendarInfo.getOAuthToken())
                         .flatMapObservable(
                                 credentials ->
-                                     app
-                                        .getCalendarApi()
-                                        .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
+                                        app
+                                                .getCalendarApi()
+                                                .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
                         )
-            )
+        )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
 
     }
 
+    /**
+     * Color the DayView elements depending whether there is an event on that day or not
+     * @param selectedDayView
+     */
     private void recolorDayViews(DayView selectedDayView){
         for (DayView d : upcomingDayViews.values()) {
             d.setColor();
@@ -197,6 +218,10 @@ public class NewScheduleAppointment extends AppCompatActivity {
         selectedDayView.setBackgroundColor(0xFFFF4081);
     }
 
+    /**
+     * When a DayView is clicked the event TimeSlots for that day get initialized
+     * @param dayview
+     */
     private void createTimeSlotsPerDay(DayView dayview){
         selectedDay = dayview.getDate();
         timeslots.removeAllViews();
@@ -210,6 +235,10 @@ public class NewScheduleAppointment extends AppCompatActivity {
         recolorDayViews(dayview);
     }
 
+    /**
+     * DayViews get created for the next 4 weeks
+     * @param upcomingEvents
+     */
     private void initializeDayViews(List<Event> upcomingEvents){
         dayviews.removeAllViews();
         upcomingDayViews.clear();
@@ -231,6 +260,11 @@ public class NewScheduleAppointment extends AppCompatActivity {
         }
     }
 
+    /**
+     * Add an event to a DayView
+     * @param dayview
+     * @param upcomingEvents
+     */
     private void addEventsToDayView(DayView dayview, List<Event> upcomingEvents){
         for (Event e : upcomingEvents){
             if(timehelper.isItToday(dayview.getDate(),timehelper.toLocalDateTime(e.getStart()))){
@@ -239,6 +273,12 @@ public class NewScheduleAppointment extends AppCompatActivity {
         }
     }
 
+    /**
+     * Change current activity to MakeAppointmentActivity, while including data about the chosen
+     * event in the intent
+     * @param view
+     * @param timeslot
+     */
     public void gotoMakeAppointment(View view, TimeslotView timeslot) {
         final Intent intent = new Intent(this, MakeAppointment.class);
 

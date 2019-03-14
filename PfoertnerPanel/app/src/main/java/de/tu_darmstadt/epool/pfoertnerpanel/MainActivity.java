@@ -1,10 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.annotation.SuppressLint;
-import android.arch.lifecycle.ViewModel;
-import android.Manifest;
 import android.content.Intent;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.TextView;
 import android.arch.lifecycle.ViewModelProviders;
 
@@ -29,7 +24,6 @@ import java.util.List;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
-import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
@@ -40,8 +34,6 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "PfoertnerPanelMain";
@@ -136,8 +128,12 @@ public class MainActivity extends AppCompatActivity {
         initializeMemberGrid();
     }
 
-    public void newtest(View view){
-        Intent intent = new Intent(this, NewScheduleAppointment.class);
+    /**
+     * Change active activity to ScheduleAppointmentActivity
+     * @param view
+     */
+    public void gotoScheduleAppointment(View view){
+        Intent intent = new Intent(this, ScheduleAppointment.class);
         intent.putExtra("MemberId", ((MemberButton) view).getMemberId());
         startActivity(intent);
     }
@@ -254,6 +250,10 @@ public class MainActivity extends AppCompatActivity {
         checkForPlayServices();
     }
 
+    /**
+     * Sets the Room Name in the panel user interface.
+     * @param str
+     */
     public void setRoom(final String str){
         TextView room = findViewById(R.id.room);
         if (str != null) {
@@ -263,11 +263,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns the current Room Name in the panel user interface.
+     * @return
+     */
     public String getRoom(){
         TextView room = findViewById(R.id.room);
         return room.getText().toString();
     }
 
+    /**
+     * Sets the Global Status in the panel user interface.
+     * @param status
+     */
     public void setGlobalStatus(final String status){
         if (status != null) {
             TextView global = findViewById(R.id.global_status);
@@ -297,6 +305,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Retuns the current Global Status in the panel user interface.
+     * @return
+     */
     public String getGlobalStatus() {
         TextView global = findViewById(R.id.global_status);
         return global.getText().toString();

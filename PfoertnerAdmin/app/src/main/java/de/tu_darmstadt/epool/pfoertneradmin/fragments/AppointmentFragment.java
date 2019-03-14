@@ -21,6 +21,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import java.util.List;
 
