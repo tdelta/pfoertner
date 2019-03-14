@@ -127,6 +127,10 @@ public class MainActivity extends AppCompatActivity {
         initializeMemberGrid();
     }
 
+    /**
+     * Change active activity to ScheduleAppointmentActivity
+     * @param view
+     */
     public void gotoScheduleAppointment(View view){
         Intent intent = new Intent(this, ScheduleAppointment.class);
         intent.putExtra("MemberId", ((MemberButton) view).getMemberId());
@@ -245,6 +249,10 @@ public class MainActivity extends AppCompatActivity {
         checkForPlayServices();
     }
 
+    /**
+     * Sets the Room Name in the panel user interface.
+     * @param str
+     */
     public void setRoom(final String str){
         TextView room = findViewById(R.id.room);
         if (str != null) {
@@ -254,11 +262,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns the current Room Name in the panel user interface.
+     * @return
+     */
     public String getRoom(){
         TextView room = findViewById(R.id.room);
         return room.getText().toString();
     }
 
+    /**
+     * Sets the Global Status in the panel user interface.
+     * @param status
+     */
     public void setGlobalStatus(final String status){
         if (status != null) {
             TextView global = findViewById(R.id.global_status);
@@ -288,6 +304,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Retuns the current Global Status in the panel user interface.
+     * @return
+     */
     public String getGlobalStatus() {
         TextView global = findViewById(R.id.global_status);
         return global.getText().toString();

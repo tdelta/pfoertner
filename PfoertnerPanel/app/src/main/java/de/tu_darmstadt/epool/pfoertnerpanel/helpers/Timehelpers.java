@@ -14,6 +14,11 @@ import java.util.TimeZone;
 
 public class Timehelpers {
 
+    /**
+     * Converts a EventDateTime to LocalDateTime
+     * @param edt
+     * @return
+     */
     public static LocalDateTime toLocalDateTime(final EventDateTime edt) {
         final DateTime calendarDateTime = edt.getDateTime();
         final int timeShiftInMinutes = calendarDateTime.getTimeZoneShift();
@@ -25,6 +30,12 @@ public class Timehelpers {
         );
     }
 
+    /**
+     * checks if a given day object is actually today
+     * @param today
+     * @param timeOfEvent
+     * @return
+     */
     public static boolean isItToday(final LocalDateTime today, final LocalDateTime timeOfEvent){
         final Duration timeToEvent = Duration.between(today, timeOfEvent);
         final Duration timeToNextDay = Duration.between(today, today.plusDays(1));

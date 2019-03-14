@@ -20,12 +20,21 @@ public class TimeslotView extends RelativeLayout {
     private Event event;
     private Timehelpers timehelper;
 
+    /**
+     * constructor
+     * @param context
+     */
     public TimeslotView(Context context) {
         super(context);
 
         init(context);
     }
 
+    /**
+     * constructor
+     * @param context
+     * @param event
+     */
     public TimeslotView(Context context, Event event) {
         super(context);
         init(context);
@@ -34,24 +43,46 @@ public class TimeslotView extends RelativeLayout {
         setAppointmentTime();
     }
 
+    /**
+     * constructor
+     * @param context
+     * @param attrs
+     */
     public TimeslotView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         init(context);
     }
 
+    /**
+     * constructor
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public TimeslotView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         init(context);
     }
 
+    /**
+     * constructor
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     * @param defStyleRes
+     */
     public TimeslotView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         init(context);
     }
 
+    /**
+     * Needs to be run while creating interface elements programmatically
+     * @param context
+     */
     private void init(final Context context) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -60,6 +91,9 @@ public class TimeslotView extends RelativeLayout {
 
     }
 
+    /**
+     * Set the time of the Appointment
+     */
     public void setAppointmentTime() {
         final TextView startTime = (TextView) findViewById(R.id.start);
         final TextView endTime = (TextView) findViewById(R.id.end);
@@ -78,14 +112,26 @@ public class TimeslotView extends RelativeLayout {
 
     }
 
+    /**
+     * Return the StartTime
+     * @return
+     */
     private LocalDateTime getStartTime(){
         return timehelper.toLocalDateTime(event.getStart());
     }
 
+    /**
+     * Return the EndTime
+     * @return
+     */
     private LocalDateTime getEndTime(){
         return timehelper.toLocalDateTime(event.getEnd());
     }
 
+    /**
+     * Return the event of the Timeslot
+     * @return
+     */
     public Event getEvent(){
         return event;
     }
