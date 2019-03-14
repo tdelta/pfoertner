@@ -16,8 +16,8 @@ public class Timehelpers {
 
     /**
      * Converts a EventDateTime to LocalDateTime
-     * @param edt
-     * @return
+     * @param edt The EventDateTime to convert
+     * @return A LocalDateTime containing the same date, time and timezone
      */
     public static LocalDateTime toLocalDateTime(final EventDateTime edt) {
         final DateTime calendarDateTime = edt.getDateTime();

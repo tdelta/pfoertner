@@ -40,6 +40,10 @@ public class DeviceEntity implements Device {
         return this.fcmToken;
     }
 
+    /**
+     * Creates DeviceEntity Object with the same values as the current object
+     * @return A new DeviceEntity
+     */
     public DeviceEntity deepCopy() {
         return new DeviceEntity(
                 this.getId(),

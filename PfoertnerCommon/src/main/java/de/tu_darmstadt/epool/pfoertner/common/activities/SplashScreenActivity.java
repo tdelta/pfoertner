@@ -18,6 +18,13 @@ public class SplashScreenActivity extends AppCompatActivity {
     private static View s_view;
     private static int s_orientation;
 
+    /**
+     * Creates an Intent that starts a splash screen activity. Throws a RuntimeException, if a splashscreen activity is already running
+     * @param parent The parent activity to base the intent off
+     * @param view The view to display on the splash screen
+     * @param screenOrientation The orientation to display the splash screen in
+     * @param work Task to execute while the splash screen is open. Receives a context and a callback to close the splash screen
+     */
     public static void run(final Activity parent, final View view, final int screenOrientation, final BiConsumer<SplashScreenActivity, Consumer<Void>> work) {
         Log.d(TAG, "Initializing splash screen");
 
@@ -34,6 +41,12 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Android Callback, called when the views are created.
+     * Displays the splash screen and fills the consumer s_work (see function run)
+     * @param savedInstanceState If views are recreated after the app is loaded from background, this can be filled with a state.
+     *                          We are not using this variable here.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "Splash screen activity is being created.");
@@ -57,6 +70,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Android Callback, called when the user presses the back button
+     */
     @Override
     public void onBackPressed() {
         // prevent the user from removing the splash screen from the activity stack. (pressing back button)
@@ -64,6 +80,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+    /**
+     * Android Callback, called when the activity is moved to background
+     */
     @Override
     protected void onStop() {
         Log.d(TAG, "Splash screen activity is closing.");

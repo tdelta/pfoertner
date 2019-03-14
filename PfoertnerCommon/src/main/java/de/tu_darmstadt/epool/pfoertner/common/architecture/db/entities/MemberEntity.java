@@ -125,6 +125,10 @@ public class MemberEntity implements Member {
     @Override
     public String getWebhookId() { return webhookId; }
 
+    /**
+     * Creates a MemberEntity Object with the same values as the current object
+     * @return A new MemberEntity Object
+     */
     public MemberEntity deepCopy() {
         return new MemberEntity(
                 this.getId(),
