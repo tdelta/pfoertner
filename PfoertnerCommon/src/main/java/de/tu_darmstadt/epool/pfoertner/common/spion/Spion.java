@@ -57,6 +57,10 @@ public class Spion extends HiddenCameraService {
     }
 
 
+    /**
+     * action that happens after a picture gets taken
+     * @param imageFile
+     */
     @Override
     public void onImageCapture(@NonNull File imageFile) {
 
@@ -77,10 +81,13 @@ public class Spion extends HiddenCameraService {
     }
 
 
-
+    /**
+     * Sends spion picture to the server
+     * @param file
+     * @throws IOException
+     */
     private void sendSpion(File file) throws IOException {
 
-        Log.d(TAG, "We are in sendSpion!");
 
         PfoertnerApplication app = PfoertnerApplication.get(getApplicationContext());
         PfoertnerService service = app.getService();
@@ -116,8 +123,13 @@ public class Spion extends HiddenCameraService {
     }
 
 
-
-
+    /**
+     * init camera and reqiure persmissions
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -171,9 +183,10 @@ public class Spion extends HiddenCameraService {
     }
 
 
-
-
-
+    /**
+     * error handler if there are errors with taken a picture
+     * @param errorCode
+     */
     @Override
     public void onCameraError(@CameraError.CameraErrorCodes int errorCode) {
 
