@@ -24,6 +24,9 @@ import retrofit2.http.Streaming;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
+/**
+ * Defines the server endpoint routes
+ */
 public interface PfoertnerService {
   @POST("/devices")
   Call<User> createUser(@Body final Password password);
