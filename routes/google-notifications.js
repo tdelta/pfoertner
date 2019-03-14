@@ -12,6 +12,7 @@ router.post('/', (req, res) => {
       firebase.sendData(device.id, device.token, { event: 'CalendarUpdated' });
     });
   }
+  res.status(200).send();
 });
 
 module.exports = router;
