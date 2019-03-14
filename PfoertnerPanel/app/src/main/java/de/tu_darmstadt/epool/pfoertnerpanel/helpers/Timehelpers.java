@@ -16,8 +16,8 @@ public class Timehelpers {
 
     /**
      * Converts a EventDateTime to LocalDateTime
-     * @param edt The EventDateTime to convert
-     * @return A LocalDateTime containing the same date, time and timezone
+     * @param edt given EventDateTime
+     * @return converted LocalDateTime
      */
     public static LocalDateTime toLocalDateTime(final EventDateTime edt) {
         final DateTime calendarDateTime = edt.getDateTime();
@@ -32,8 +32,8 @@ public class Timehelpers {
 
     /**
      * checks if a given day object is actually today
-     * @param today
-     * @param timeOfEvent
+     * @param today Today given as LocalDateTime
+     * @param timeOfEvent Time of event that needs to be checked
      * @return
      */
     public static boolean isItToday(final LocalDateTime today, final LocalDateTime timeOfEvent){

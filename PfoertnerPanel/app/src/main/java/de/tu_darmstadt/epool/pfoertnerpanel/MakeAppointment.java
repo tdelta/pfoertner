@@ -31,7 +31,7 @@ public class MakeAppointment extends AppCompatActivity {
     /**
      * Is called when activity gets created
      * Initializes User Interface
-     * @param savedInstanceState
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +72,7 @@ public class MakeAppointment extends AppCompatActivity {
      * Executed when button confirm is pressed.
      * Gets infos about the chosen event from the intent, create a new Date object,
      * sends request with the selected Date to the server
-     * @param view
+     * @param view view context of layout
      */
     public void onConfirmAppointment(View view){
         // yyyy-MM-dd HH:mm -> itentstrings -> parse to LocalDateTime -> richtige String darstellung
