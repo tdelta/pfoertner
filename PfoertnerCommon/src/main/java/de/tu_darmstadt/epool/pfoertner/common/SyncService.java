@@ -6,12 +6,17 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.reactivestreams.Publisher;
+
 import java.util.List;
+import java.util.Observable;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.subjects.PublishSubject;
 
 public class SyncService extends Service {
     private static final String TAG = "SyncService";

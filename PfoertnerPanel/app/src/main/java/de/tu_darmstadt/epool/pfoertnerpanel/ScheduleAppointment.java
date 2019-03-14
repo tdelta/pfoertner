@@ -134,7 +134,7 @@ public class ScheduleAppointment extends AppCompatActivity {
                         disposables.add(app
                                 .getCalendarApi()
                                 .getCredential(calendarInfo.getOAuthToken())
-                                .flatMap(
+                                .flatMapObservable(
                                         credentials -> app
                                                 .getCalendarApi()
                                                 .getEvents(calendarInfo.getCalendarId(), credentials, todayTime, endTime)

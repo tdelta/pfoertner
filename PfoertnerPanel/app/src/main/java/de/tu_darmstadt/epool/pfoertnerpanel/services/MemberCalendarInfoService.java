@@ -7,12 +7,16 @@ import android.util.Log;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 
 import java.util.List;
+import java.util.UUID;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.helpers.MemberCollectionsDiffTool;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.WebhookRequest;
 import de.tu_darmstadt.epool.pfoertnerpanel.PanelApplication;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -143,16 +147,30 @@ public class MemberCalendarInfoService extends LifecycleService {
                                                                                 credential -> Log.d(TAG, "Received credentials from google server for member " + work.memberId)
                                                                         )
                                                                         .flatMapCompletable(
-                                                                                credential ->
-                                                                                        app
-                                                                                                .getCalendarApi()
-                                                                                                .getCalendarId(credential)
-                                                                                                .doOnSuccess(
-                                                                                                        calendarId -> Log.d(TAG, "Got calendar id for member calendar of member " + work.memberId + ": " + calendarId)
-                                                                                                )
-                                                                                                .flatMapCompletable(
-                                                                                                        calendarId -> this.saveCalendarInfo(work.memberId, work.serverAuthCode, tokenResponse, calendarId)
-                                                                                                )
+                                                                            credential ->
+                                                                                app
+                                                                                    .getCalendarApi()
+                                                                                    .getCalendarId(credential)
+                                                                                    .flatMapCompletable(
+                                                                                            calendarId -> {
+                                                                                                Log.d(TAG, "Got calendar id for member calendar of member " + work.memberId + ": " + calendarId);
+                                                                                                String webhookId = UUID.randomUUID().toString();
+                                                                                                WebhookRequest webhookRequest = new WebhookRequest(webhookId);
+                                                                                                return app
+                                                                                                        .getApi()
+                                                                                                        .requestCalendarWebhook("Bearer "+credential.getAccessToken(), calendarId, webhookRequest)
+                                                                                                        .flatMapCompletable(
+                                                                                                                (webhookResponse) -> saveCalendarInfo(
+                                                                                                                        work.memberId,
+                                                                                                                        work.serverAuthCode,
+                                                                                                                        tokenResponse,
+                                                                                                                        calendarId,
+                                                                                                                        webhookResponse.getExpiration(),
+                                                                                                                        webhookId
+                                                                                                                        )
+                                                                                                        );
+                                                                                            }
+                                                                                    )
                                                                         )
                                                 )
                                                 .doOnComplete(
@@ -234,7 +252,13 @@ public class MemberCalendarInfoService extends LifecycleService {
                         .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Completable saveCalendarInfo(final int memberId, final String serverAuthCode, GoogleTokenResponse tokenResponse, final String calendarId) {
+    private Completable saveCalendarInfo(final int memberId,
+                                         final String serverAuthCode,
+                                         final GoogleTokenResponse tokenResponse,
+                                         final String calendarId,
+                                         final long webhookExpiration,
+                                         final String webhookId) {
+
         final PanelApplication app = PanelApplication.get(this);
 
         // TODO: Now that calendarId is part of Member, we can remove it from calendarInfo
@@ -250,11 +274,19 @@ public class MemberCalendarInfoService extends LifecycleService {
                          tokenResponse.getExpiresInSeconds()/60,
                          LocalDateTime.now()
                  ),
+            app
+                 .getPanelRepo()
+                 .getMemberCalendarInfoRepo()
+                 .setWebhookExpiration(memberId,webhookExpiration),
             //save calendarId
             app
                 .getPanelRepo()
                 .getMemberCalendarInfoRepo()
                 .setCalendarId(memberId, calendarId),
+            app
+                .getRepo()
+                .getMemberRepo()
+                .setWebhookId(memberId,webhookId),
             app
                 .getRepo()
                 .getMemberRepo()

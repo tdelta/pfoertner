@@ -20,6 +20,7 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     private LocalDateTime created;
     private long oauth2TtlMinutes;
     private String refreshToken;
+    private LocalDateTime webhookExpiration;
 
     public static MemberCalendarInfo toInterface(MemberCalendarInfoEntity entity){
         return entity;
@@ -30,7 +31,17 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     }
 
     @Ignore
-    public MemberCalendarInfoEntity(int memberId, String calendarId, String serverAuthCode, String oAuthToken, String eMail, LocalDateTime created, long oauth2TtlMinutes, String refreshToken) {
+    public MemberCalendarInfoEntity(
+            int memberId,
+            String calendarId,
+            String serverAuthCode,
+            String oAuthToken,
+            String eMail,
+            LocalDateTime created,
+            long oauth2TtlMinutes,
+            String refreshToken,
+            LocalDateTime webhookExpiration)
+    {
         this.calendarId = calendarId;
         this.memberId = memberId;
         this.serverAuthCode = serverAuthCode;
@@ -39,6 +50,7 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
         this.created = created;
         this.oauth2TtlMinutes = oauth2TtlMinutes;
         this.refreshToken = refreshToken;
+        this.webhookExpiration = webhookExpiration;
     }
 
     @Override
@@ -105,11 +117,34 @@ public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     }
 
     @Override
+    public LocalDateTime getWebhookExpiration(){
+        return webhookExpiration;
+    }
+
+    public void setWebhookExpiration(LocalDateTime webhookExpiration){
+        this.webhookExpiration = webhookExpiration;
+    }
+
+    @Override
     public String getRefreshToken() {
         return refreshToken;
     }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public MemberCalendarInfoEntity deepCopy(){
+        return new MemberCalendarInfoEntity(
+                getMemberId(),
+                getCalendarId(),
+                getServerAuthCode(),
+                getOAuthToken(),
+                getEMail(),
+                getCreated(),
+                getOauth2TtlMinutes(),
+                getRefreshToken(),
+                getWebhookExpiration()
+        );
     }
 }

@@ -35,6 +35,7 @@ import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberGrid;
 import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -221,13 +222,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
+    private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
         return app
                 .getCalendarApi()
                 .getCredential(calendarInfo.getOAuthToken())
-                .flatMap(
+                .flatMapObservable(
                         credentials -> app
                                 .getCalendarApi()
                                 .getEvents(calendarInfo.getCalendarId(), credentials, start, end)

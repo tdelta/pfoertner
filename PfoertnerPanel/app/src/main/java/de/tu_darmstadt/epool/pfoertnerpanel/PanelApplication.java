@@ -17,7 +17,7 @@ public class PanelApplication extends PfoertnerApplication {
     public void onInit() {
         db = Room.databaseBuilder(this, PanelDatabase.class, "PanelDatabase").build();
         repo = new PanelRepository(db,this);
-        calendarApi = new CalendarApi();
+        calendarApi = new CalendarApi(this);
     }
 
     public static PanelApplication get(final Context context) {

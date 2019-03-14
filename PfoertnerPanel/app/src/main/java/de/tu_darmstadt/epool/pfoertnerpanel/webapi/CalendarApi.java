@@ -1,5 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.webapi;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -26,16 +27,24 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
+import de.tu_darmstadt.epool.pfoertner.common.EventChannel;
 import de.tu_darmstadt.epool.pfoertnerpanel.PanelApplication;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 public class CalendarApi {
     private static final String TAG = "CalendarApi";
 
     private final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+
+    private EventChannel calendarUpdatesChannel;
+    private PublishSubject<String> calendarUpdates = PublishSubject.create();
 
     private static final List<String> SCOPES = Arrays.asList(
             CalendarScopes.CALENDAR_READONLY,
@@ -46,6 +55,19 @@ public class CalendarApi {
 
     private static final String clientId = "626288801350-vk790l2a56u0m25p63q36asu4tv7gnsr.apps.googleusercontent.com";
     private static final String clientSecret = "wHAYULXTwsZWMQ827ITPIEVr";
+
+    public CalendarApi(Context context){
+        calendarUpdatesChannel = new EventChannel(context){
+            @Override
+            public void onEvent(EventType type ,String payload){
+                if(type == EventType.CalendarUpdated){
+                    calendarUpdates.onNext(payload);
+                }
+            }
+        };
+        calendarUpdatesChannel.listen();
+    }
+
 
     public Single<TokenResponse> getAccessTokenFromRefreshToken(String refreshToken){
         return Single.fromCallable(
@@ -138,28 +160,31 @@ public class CalendarApi {
                 .subscribeOn(Schedulers.io());
     }
 
-    public Single<List<Event>> getEvents(final String calendarId, final Credential credentials, final DateTime start, final DateTime end) {
-        return Single.fromCallable(
-                () -> {
-                    final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credentials)
-                            .setApplicationName("Pfoertner")
-                            .build();
+    public Observable<List<Event>> getEvents(final String calendarId, final Credential credentials, final DateTime start, final DateTime end) {
+        return calendarUpdates
+                .startWith(calendarId)
+                .filter(modifiedCalendar -> modifiedCalendar.equals(calendarId))
+                .observeOn(Schedulers.io())
+                .map(
+                        modifiedCalendar -> {
+                            final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credentials)
+                                    .setApplicationName("Pfoertner")
+                                    .build();
 
-                    Log.d(TAG, "About to download events for calendar " + calendarId);
+                            Log.d(TAG, "About to download events for calendar " + calendarId);
 
-                    final Events events = service.events().list(calendarId)
-                            .setTimeMin(start)
-                            .setTimeMax(end)
-                            .setOrderBy("startTime")
-                            .setSingleEvents(true)
-                            .execute();
+                            final Events events = service.events().list(calendarId)
+                                    .setTimeMin(start)
+                                    .setTimeMax(end)
+                                    .setOrderBy("startTime")
+                                    .setSingleEvents(true)
+                                    .execute();
 
-                    Log.d(TAG, "Downloaded the following events: " + events.getItems().toString());
+                            Log.d(TAG, "Downloaded the following events: " + events.getItems().toString());
 
-
-                    return events.getItems();
-                }
-        )
+                            return events.getItems();
+                        }
+                )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

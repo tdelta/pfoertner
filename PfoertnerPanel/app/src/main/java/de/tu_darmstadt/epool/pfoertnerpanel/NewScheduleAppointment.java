@@ -117,7 +117,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
             final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
 
             Observable<List<Event>> calendarEventsObservable = calendarInfoObservable
-                    .flatMapSingle(memberCalendarInfo -> getEvents(memberCalendarInfo,start,end));
+                    .flatMap(memberCalendarInfo -> getEvents(memberCalendarInfo,start,end));
 
             Observable.combineLatest(appointmentObservable,calendarEventsObservable,
                     (appointments,events) -> new Pair<List<Event>,List<Appointment>>(events,appointments))
@@ -160,7 +160,7 @@ public class NewScheduleAppointment extends AppCompatActivity {
         return result;
     }
 
-    private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
+    private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
         return Single.fromCallable(
@@ -174,11 +174,11 @@ public class NewScheduleAppointment extends AppCompatActivity {
                 } else {
                     return calendarInfo;
                 }
-            }).flatMap(
+            }).flatMapObservable(
                 checkedCalendarInfo -> app
                         .getCalendarApi()
                         .getCredential(checkedCalendarInfo.getOAuthToken())
-                        .flatMap(
+                        .flatMapObservable(
                                 credentials ->
                                      app
                                         .getCalendarApi()

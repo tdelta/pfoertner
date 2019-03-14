@@ -18,7 +18,7 @@ public class MemberEntity implements Member {
     public MemberEntity() {}
 
     @Ignore
-    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String serverAuthCode, String calendarId, String email) {
+    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String serverAuthCode, String calendarId, String email,String webhookId) {
         this.id = id;
         this.OfficeId = officeId;
         this.firstName = firstName;
@@ -29,6 +29,7 @@ public class MemberEntity implements Member {
         this.serverAuthCode = serverAuthCode;
         this.calendarId = calendarId;
         this.email = email;
+        this.webhookId = webhookId;
     }
 
     @PrimaryKey
@@ -45,6 +46,7 @@ public class MemberEntity implements Member {
     private String serverAuthCode;
     private String calendarId;
     private String email;
+    private String webhookId;
 
     public void setId(int id) {
         this.id = id;
@@ -75,6 +77,10 @@ public class MemberEntity implements Member {
     public void setCalendarId(String calendarId) { this.calendarId = calendarId; }
 
     public void setEmail(String email) { this.email = email; }
+
+    public void setWebhookId(String webhookId) {
+        this.webhookId = webhookId;
+    }
 
     @Override
     public int getId() {
@@ -116,6 +122,9 @@ public class MemberEntity implements Member {
     @Override
     public String getEmail() { return email; }
 
+    @Override
+    public String getWebhookId() { return webhookId; }
+
     public MemberEntity deepCopy() {
         return new MemberEntity(
                 this.getId(),
@@ -127,7 +136,8 @@ public class MemberEntity implements Member {
                 this.getPictureMD5(),
                 this.getServerAuthCode(),
                 this.getCalendarId(),
-                this.getEmail()
+                this.getEmail(),
+                this.getWebhookId()
         );
     }
 }

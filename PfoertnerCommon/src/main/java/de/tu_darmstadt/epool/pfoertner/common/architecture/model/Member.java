@@ -11,4 +11,5 @@ public interface Member {
     String getServerAuthCode();
     String getCalendarId();
     String getEmail();
+    String getWebhookId();
 }

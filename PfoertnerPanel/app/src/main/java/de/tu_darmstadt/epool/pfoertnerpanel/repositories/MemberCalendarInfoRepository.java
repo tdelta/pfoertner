@@ -1,29 +1,26 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.repositories;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.util.Log;
 
+import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
+import java.util.UUID;
+import java.util.function.Consumer;
 
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.WebhookRequest;
 import de.tu_darmstadt.epool.pfoertnerpanel.PanelApplication;
-import de.tu_darmstadt.epool.pfoertnerpanel.webapi.CalendarApi;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.PanelDatabase;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MemberCalendarInfoRepository {
@@ -55,12 +52,18 @@ public class MemberCalendarInfoRepository {
                 calendarInfo -> {
                     if(calendarInfo == null){
                         calendarInfoFilter.setValue(null);
-                    } else if(calendarInfo.hasExpired()) {
+                    } else if(calendarInfo.oauthTokenHasExpired()) {
                         refreshOAuthToken(calendarInfo).subscribe(
                                 () -> Log.d(TAG,"Successfully refreshed oauth code from google servers"),
                                 throwable -> Log.e(TAG,"Error refreshing oauth code from google servers",throwable)
                         );
                     } else {
+                        if(calendarInfo.webhookHasExpired()){
+                            refreshWebhook(calendarInfo).subscribe(
+                                    () -> Log.d(TAG,"Successfully refreshed webhook"),
+                                    throwable -> Log.e(TAG,"Error refreshing webhook",throwable)
+                            );
+                        }
                         calendarInfoFilter.setValue(calendarInfo);
                     }
                 }
@@ -68,7 +71,30 @@ public class MemberCalendarInfoRepository {
         return calendarInfoFilter;
     }
 
-    public Completable refreshOAuthToken(MemberCalendarInfo calendarInfo){
+    private Completable refreshWebhook(MemberCalendarInfo calendarInfo){
+        return app.getRepo()
+                .getMemberRepo()
+                .getMemberOnce(calendarInfo.getMemberId())
+                .flatMapCompletable(
+                    member ->{
+                        Log.d(TAG,"Member webhook id: "+member.getWebhookId());
+                        WebhookRequest webhookRequest = new WebhookRequest(member.getWebhookId());
+                        return app.getApi()
+                                .requestCalendarWebhook("Bearer "+calendarInfo.getOAuthToken(), calendarInfo.getCalendarId(), webhookRequest)
+                                .flatMapCompletable(
+                                        webhookResponse ->
+                                                setWebhookExpiration(
+                                                                calendarInfo.getMemberId(),
+                                                                webhookResponse.getExpiration()
+                                                        )
+                                );
+
+                    }
+                )
+                .subscribeOn(Schedulers.io());
+    }
+
+    private Completable refreshOAuthToken(MemberCalendarInfo calendarInfo){
         return app.getCalendarApi()
                 .getAccessTokenFromRefreshToken(calendarInfo.getRefreshToken())
                 .flatMapCompletable(
@@ -116,17 +142,14 @@ public class MemberCalendarInfoRepository {
                                      final String refreshToken,
                                      final long oAuthTtlMinutes,
                                      LocalDateTime created) {
-        return modifyCalendarInfo(memberId, calendarInfoEntity ->
-            new MemberCalendarInfoEntity(
-                    calendarInfoEntity.getMemberId(),
-                    calendarInfoEntity.getCalendarId(),
-                    serverAuthCode,
-                    oAuthToken,
-                    calendarInfoEntity.getEMail(),
-                    created,
-                    oAuthTtlMinutes,
-                    refreshToken
-            )
+        return modifyCalendarInfo(memberId, calendarInfoEntityCopy ->
+                {
+                    calendarInfoEntityCopy.setServerAuthCode(serverAuthCode);
+                    calendarInfoEntityCopy.setOAuthToken(oAuthToken);
+                    calendarInfoEntityCopy.setRefreshToken(refreshToken);
+                    calendarInfoEntityCopy.setOauth2TtlMinutes(oAuthTtlMinutes);
+                    calendarInfoEntityCopy.setCreated(created);
+                }
         )
                 .doOnComplete(
                         () -> Log.d(TAG,"Successfully updated oAuth data, refresh-token: "+refreshToken+", ttl: "+oAuthTtlMinutes)
@@ -136,18 +159,17 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    public Completable setWebhookExpiration(final int memberId, final long newWebhookExpirationUnixtimestamp){
+        final LocalDateTime webhookExpirationDate =
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(newWebhookExpirationUnixtimestamp), ZoneId.systemDefault());
+        return modifyCalendarInfo(memberId, calendarInfoENtityCopy ->
+                    calendarInfoENtityCopy.setWebhookExpiration(webhookExpirationDate)
+                );
+    }
+
     public Completable setCalendarId(final int memberId, final String newCalendarId) {
-        return modifyCalendarInfo(memberId, calendarInfoEntity ->
-                new MemberCalendarInfoEntity(
-                        calendarInfoEntity.getMemberId(),
-                        newCalendarId,
-                        calendarInfoEntity.getServerAuthCode(),
-                        calendarInfoEntity.getOAuthToken(),
-                        calendarInfoEntity.getEMail(),
-                        calendarInfoEntity.getCreated(),
-                        calendarInfoEntity.getOauth2TtlMinutes(),
-                        calendarInfoEntity.getRefreshToken()
-                )
+        return modifyCalendarInfo(memberId, calendarInfoEntityCopy ->
+                calendarInfoEntityCopy.setCalendarId(newCalendarId)
         )
                 .doOnComplete(
                         () -> Log.d(TAG,"Successfully saved calendar id "+newCalendarId+" for member "+memberId)
@@ -157,7 +179,7 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
-    private Completable modifyCalendarInfo(final int memberId, final Function<MemberCalendarInfoEntity, MemberCalendarInfoEntity> modifier) {
+    private Completable modifyCalendarInfo(final int memberId, final Consumer<MemberCalendarInfoEntity> modifier) {
         return
                 db
                         .memberCalendarInfoDao()
@@ -165,13 +187,19 @@ public class MemberCalendarInfoRepository {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .flatMapCompletable(
-                                calendarInfo -> Completable.fromAction(
-                                        () -> db
-                                                .memberCalendarInfoDao()
-                                                .upsert(
-                                                        modifier.apply(calendarInfo)
-                                                )
-                                )
+                                calendarInfo -> {
+
+                                    MemberCalendarInfoEntity copy = calendarInfo.deepCopy();
+                                    modifier.accept(copy);
+
+                                    return Completable.fromAction(
+                                            () -> db
+                                                    .memberCalendarInfoDao()
+                                                    .upsert(
+                                                            copy
+                                                    )
+                                    );
+                                }
                         )
                         .doOnComplete(
                                 () -> Log.d(TAG, "Successfully modified calendar info of member " + memberId)
