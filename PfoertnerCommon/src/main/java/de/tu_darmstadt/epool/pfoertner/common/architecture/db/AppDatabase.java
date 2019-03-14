@@ -19,6 +19,11 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEnt
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.helpers.DateConverter;
 
+/**
+ * Room automatically fills this class with useful Data access objects.
+ * They are defined with queries and used as interfaces to the database
+ * https://developer.android.com/topic/libraries/architecture/room
+ */
 @TypeConverters({DateConverter.class})
 @Database(entities = {DeviceEntity.class, OfficeEntity.class, MemberEntity.class, InitStatusEntity.class, AppointmentEntity.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {

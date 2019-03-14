@@ -72,6 +72,10 @@ public class OfficeEntity implements Office {
     @Override
     public String getSpionPictureMD5() { return spionPictureMD5; }
 
+    /**
+     * Creates an OfficeEntity Object with the same values as the current object
+     * @return A new OfficeEntity Object
+     */
     public OfficeEntity deepCopy() {
         return new OfficeEntity(
                 this.id,
