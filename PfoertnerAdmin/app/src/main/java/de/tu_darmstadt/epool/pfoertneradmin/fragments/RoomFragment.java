@@ -26,6 +26,14 @@ public class RoomFragment extends Fragment {
 
     private RoomFragmentViewModel viewModel;
 
+
+    /**
+     *
+     * @param inflater needed to create views in the fragment
+     * @param container parent view of the fragment
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     * @return view for layout context
+     */
     @Override
     public View onCreateView(
             LayoutInflater inflater,
@@ -61,6 +69,10 @@ public class RoomFragment extends Fragment {
         enterNewStatus.show();
     }
 
+    /**
+     *
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

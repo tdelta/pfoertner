@@ -26,6 +26,13 @@ public class GlobalStatusFragment extends Fragment {
 
     private GlobalStatusFragmentViewModel viewModel;
 
+    /**
+     *
+     * @param inflater needed to create views in the fragment
+     * @param container parent view of the fragment
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     * @return view for layout context
+     */
     @Override
     public View onCreateView(
             LayoutInflater inflater,
@@ -76,6 +83,10 @@ public class GlobalStatusFragment extends Fragment {
         status_select.show();
     }
 
+    /**
+     *
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +117,11 @@ public class GlobalStatusFragment extends Fragment {
         });
     }
 
+    /**
+     * Choose status symbol according to given string
+     * @param status status given as String
+     * @return Drawable chosen symbol
+     */
     private Drawable selectIcon(final String status) {
         final Activity activity = getActivity();
 

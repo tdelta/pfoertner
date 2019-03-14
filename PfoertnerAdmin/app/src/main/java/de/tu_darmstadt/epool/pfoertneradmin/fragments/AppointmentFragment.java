@@ -48,6 +48,10 @@ public class AppointmentFragment extends Fragment {
 
     }
 
+    /**
+     *
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +59,13 @@ public class AppointmentFragment extends Fragment {
         cancelNotifications();
     }
 
+    /**
+     *
+     * @param inflater needed to create views in the fragment
+     * @param container parent view of the fragment
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     * @return view for layout context
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

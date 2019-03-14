@@ -42,12 +42,24 @@ public class ShowQrCodeFragment extends Fragment {
 
     }
 
+    /**
+     * called on activity creation
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
     }
 
+    /**
+     * Called on creation
+     * initialize the fragment
+     * @param inflater needed to create views in the fragment
+     * @param container parent view of the fragment
+     * @param savedInstanceState needed if app needs to come back from background (not used by us)
+     * @return view for layout context
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -68,6 +80,10 @@ public class ShowQrCodeFragment extends Fragment {
         super.onStop();
     }
 
+    /**
+     * Get and display the QR-Code in the Admin App
+     * @param mainView view context for layout
+     */
     protected void showQRCode(final View mainView){
         final PfoertnerApplication app = PfoertnerApplication.get(getContext());
 
