@@ -26,6 +26,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
@@ -79,4 +80,8 @@ public interface PfoertnerApi {
 
     @GET("/officemembers/{id}/appointments")
     Single<List<AppointmentEntity>> getAppointmentsOfMember(@Header("Authorization") String authToken, @Path("id") int memberId);
+
+    @POST("https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events/watch")
+    Single<WebhookResponse> requestCalendarWebhook(@Header("Authorization") String authToken, @Path("calendarId") String calendarId, @Body WebhookRequest webhookRequest);
+
 }

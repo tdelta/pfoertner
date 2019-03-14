@@ -68,6 +68,12 @@ public class MemberRepository {
                 .map(MemberRepository::toInterface);
     }
 
+    public Single<Member> getMemberOnce(final int memberId){
+        return db.memberDao()
+                .loadOnce(memberId)
+                .map(MemberRepository::toInterface);
+    }
+
     public Completable setStatus(final int memberId, final String newStatus) {
         return modify(
                 memberId,
@@ -105,6 +111,13 @@ public class MemberRepository {
         return modify(
                 memberId,
                 prevMemberClone -> prevMemberClone.setCalendarId(calendarId)
+        );
+    }
+
+    public Completable setWebhookId(int memberId, String webhookId) {
+        return modify(
+                memberId,
+                prevMemberClone -> prevMemberClone.setWebhookId(webhookId)
         );
     }
 

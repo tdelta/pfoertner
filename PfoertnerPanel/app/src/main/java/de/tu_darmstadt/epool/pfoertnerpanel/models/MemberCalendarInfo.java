@@ -14,13 +14,19 @@ public interface MemberCalendarInfo {
     String getServerAuthCode();
     String getOAuthToken();
     String getEMail();
+    LocalDateTime getWebhookExpiration();
 
-    default boolean hasExpired(){
+    default boolean oauthTokenHasExpired(){
         if(getCreated()==null) return false;
         final LocalDateTime now = LocalDateTime.now();
         final Duration passedTime = Duration.between(getCreated(), now);
 
         final Duration expirationTime = Duration.ofMinutes(getOauth2TtlMinutes());
         return expirationTime.compareTo(passedTime) < 0;
+    }
+
+    default boolean webhookHasExpired(){
+        if(getWebhookExpiration() == null) return false;
+        return getWebhookExpiration().isBefore(LocalDateTime.now());
     }
 }
