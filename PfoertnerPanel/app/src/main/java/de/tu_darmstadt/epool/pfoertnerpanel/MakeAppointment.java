@@ -28,6 +28,11 @@ public class MakeAppointment extends AppCompatActivity {
     private static final String TAG = "MakeAppointment";
     private final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
+    /**
+     * Is called when activity gets created
+     * Initializes User Interface
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +68,12 @@ public class MakeAppointment extends AppCompatActivity {
         );
     }
 
+    /**
+     * Executed when button confirm is pressed.
+     * Gets infos about the chosen event from the intent, create a new Date object,
+     * sends request with the selected Date to the server
+     * @param view
+     */
     public void onConfirmAppointment(View view){
         // yyyy-MM-dd HH:mm -> itentstrings -> parse to LocalDateTime -> richtige String darstellung
         // (musste so weil sonst der monat nicht richtig was 2 statt 02)

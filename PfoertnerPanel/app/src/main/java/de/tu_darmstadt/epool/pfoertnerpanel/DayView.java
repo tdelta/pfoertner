@@ -21,6 +21,10 @@ public class DayView extends RelativeLayout {
     private final int nothing = 0xFF808080;
     private final int normal = 0xFF8BC34A;
 
+    /**
+     * DayView constructor
+     * @param context
+     */
     public DayView(Context context) {
         super(context);
         this.events = new LinkedList<Event>();
@@ -28,24 +32,46 @@ public class DayView extends RelativeLayout {
         init(context);
     }
 
+    /**
+     * DayView constructor
+     * @param context
+     * @param attrs
+     */
     public DayView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         init(context);
     }
 
+    /**
+     * DayView constructor
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public DayView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         init(context);
     }
 
+    /**
+     * DayView constructor
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     * @param defStyleRes
+     */
     public DayView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         init(context);
     }
 
+    /**
+     * Needs to be run while creating interface elements programmatically
+     * @param context
+     */
     private void init(final Context context) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -53,24 +79,37 @@ public class DayView extends RelativeLayout {
 
     }
 
+    /**
+     * Sets the data for a DayView
+     * @param date
+     */
     public void setDate(LocalDateTime date){
         this.date = date;
         setTitle();
         setDay();
     }
 
+    /**
+     * Sets the Title in the DayView
+     */
     private void setTitle() {
         final TextView imagetest = (TextView) findViewById(R.id.title);
 
         imagetest.setText(date.getDayOfWeek().toString().substring(0, 1).toUpperCase() + date.getDayOfWeek().toString().substring(1,3).toLowerCase());
     }
 
+    /**
+     * Sets the Day in the DayView
+     */
     private void setDay(){
         final TextView imagetest = (TextView) findViewById(R.id.summary);
 
         imagetest.setText(date.getDayOfMonth() + "-" + date.getMonthValue());
     }
 
+    /**
+     * Sets the color of the Dayview
+     */
     public void setColor(){
         if(events.size() == 0){
             this.setBackgroundColor(nothing);
@@ -79,14 +118,26 @@ public class DayView extends RelativeLayout {
         }
     }
 
+    /**
+     * Returns the date of the DayView
+     * @return
+     */
     public LocalDateTime getDate(){
         return date;
     }
 
+    /**
+     * Returns the list of events contained in the DayView
+     * @return
+     */
     public LinkedList<Event> getEvents(){
         return events;
     }
 
+    /**
+     * Add an event e to the DayView
+     * @param e
+     */
     public void addEvents(Event e){
         events.add(e);
     }

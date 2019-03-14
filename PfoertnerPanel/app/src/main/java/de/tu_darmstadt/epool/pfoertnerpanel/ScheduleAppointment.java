@@ -51,6 +51,11 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     private CompositeDisposable disposables = new CompositeDisposable();
 
+    /**
+     * Is called when activity gets created
+     * Creates User Interface and listens to changes in the livedata
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +135,11 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
+    /**
+     * Removes already accepted appointments from the displayed schedule
+     * @param eventsAndAppointments
+     * @return
+     */
     private List<Event> removeAcceptedAppointments(Pair<List<Event>,List<Appointment>> eventsAndAppointments){
         List<Event> result = new LinkedList<>(eventsAndAppointments.first);
 
@@ -160,6 +170,13 @@ public class ScheduleAppointment extends AppCompatActivity {
         return result;
     }
 
+    /**
+     * Get all events from the calendarAPI in a certain time span.
+     * @param calendarInfo
+     * @param start
+     * @param end
+     * @return
+     */
     private Single<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -190,6 +207,10 @@ public class ScheduleAppointment extends AppCompatActivity {
 
     }
 
+    /**
+     * Color the DayView elements depending whether there is an event on that day or not
+     * @param selectedDayView
+     */
     private void recolorDayViews(DayView selectedDayView){
         for (DayView d : upcomingDayViews.values()) {
             d.setColor();
@@ -197,6 +218,10 @@ public class ScheduleAppointment extends AppCompatActivity {
         selectedDayView.setBackgroundColor(0xFFFF4081);
     }
 
+    /**
+     * When a DayView is clicked the event TimeSlots for that day get initialized
+     * @param dayview
+     */
     private void createTimeSlotsPerDay(DayView dayview){
         selectedDay = dayview.getDate();
         timeslots.removeAllViews();
@@ -210,6 +235,10 @@ public class ScheduleAppointment extends AppCompatActivity {
         recolorDayViews(dayview);
     }
 
+    /**
+     * DayViews get created for the next 4 weeks
+     * @param upcomingEvents
+     */
     private void initializeDayViews(List<Event> upcomingEvents){
         dayviews.removeAllViews();
         upcomingDayViews.clear();
@@ -231,6 +260,11 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
+    /**
+     * Add an event to a DayView
+     * @param dayview
+     * @param upcomingEvents
+     */
     private void addEventsToDayView(DayView dayview, List<Event> upcomingEvents){
         for (Event e : upcomingEvents){
             if(timehelper.isItToday(dayview.getDate(),timehelper.toLocalDateTime(e.getStart()))){
@@ -239,6 +273,12 @@ public class ScheduleAppointment extends AppCompatActivity {
         }
     }
 
+    /**
+     * Change current activity to MakeAppointmentActivity, while including data about the chosen
+     * event in the intent
+     * @param view
+     * @param timeslot
+     */
     public void gotoMakeAppointment(View view, TimeslotView timeslot) {
         final Intent intent = new Intent(this, MakeAppointment.class);
 
