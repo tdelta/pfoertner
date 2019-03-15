@@ -153,4 +153,10 @@ public class MakeAppointment extends AppCompatActivity {
 
         finish();
     }
+
+    public void onAtheneInfo(View view) {
+        final Intent intent = new Intent(this, AtheneInfo.class);
+        intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));
+        startActivity(intent);
+    }
 }

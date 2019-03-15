@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="32dp"
             android:background="@color/colorPrimary"
-            android:onClick="onConfirmAppointment"
+            android:onClick="onAtheneInfo"
             android:text="Optional: Register your Athene Card" />
 
     </LinearLayout>
