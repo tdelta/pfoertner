@@ -12,6 +12,7 @@ var auth = require('../authInit.js');
 var firebase = require('../firebase/firebase.js');
 
 var authenticateOfficemember = require('../deviceAuth.js').authenticateOwner;
+var authenticatePanelOrOwner = require('../deviceAuth.js').authenticatePanelOrOwner;
 var notifyOfficeSubscribers = require('../notify.js').notifyOfficeSubscribers;
 
 router.patch('/:id', auth.authFun(), (req, res) => {
@@ -46,7 +47,7 @@ router.delete('/:id', auth.authFun(), (req, res) => {
       res.status(404).send('The appointment does not exist');
       return;
     }
-    authenticateOfficemember(req, res, appointment.OfficeMemberId).then(
+    authenticatePanelOrOwner(req, res, appointment.OfficeMemberId).then(
       officemember => {
         appointment.destroy().then(u => {
           officemember.getOffice().then(office => {
