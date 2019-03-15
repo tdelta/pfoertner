@@ -3,10 +3,12 @@ package de.tu_darmstadt.epool.pfoertnerpanel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.content.Intent;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -226,10 +228,17 @@ public class ScheduleAppointment extends AppCompatActivity {
         selectedDay = dayview.getDate();
         timeslots.removeAllViews();
         for (Event e : dayview.getEvents()){
-            TimeslotView timeslot = new TimeslotView(this, e);
+            final TimeslotView timeslot = new TimeslotView(this, e);
             timeslot.setOnClickListener((View v) -> gotoMakeAppointment(v, timeslot));
             final FrameLayout.LayoutParams timeslotMarginParams = (FrameLayout.LayoutParams) timeslots.getLayoutParams();
-            timeslotMarginParams.setMargins(1, 1, 1, 1);
+            timeslotMarginParams.setMargins(10, 10, 10, 10);
+
+            ViewCompat.setElevation(timeslot, TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                2,
+                getResources().getDisplayMetrics()
+            ));
+
             timeslots.addView(timeslot, timeslotMarginParams);
         }
         recolorDayViews(dayview);
