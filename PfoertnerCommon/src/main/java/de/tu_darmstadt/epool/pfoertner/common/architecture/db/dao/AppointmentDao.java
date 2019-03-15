@@ -114,6 +114,6 @@ public abstract class AppointmentDao {
      * @param atheneId The id of the athene card of the person who requested the appointment.
      * @return LiveData containing the requested appointments.
      */
-    @Query("SELECT * FROM AppointmentEntity WHERE AtheneId = :atheneId")
-    public abstract LiveData<List<AppointmentEntity>> getAppointmentsByAtheneId(long atheneId);
+    @Query("SELECT * FROM AppointmentEntity WHERE atheneId = :atheneId")
+    public abstract LiveData<List<AppointmentEntity>> getAppointmentsByAtheneId(String atheneId);
 }

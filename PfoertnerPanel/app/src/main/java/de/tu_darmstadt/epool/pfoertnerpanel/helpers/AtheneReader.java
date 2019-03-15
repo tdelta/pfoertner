@@ -88,11 +88,11 @@ public class AtheneReader {
         return NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction());
     }
 
-    public long extractAtheneId(Intent intent){
+    public String extractAtheneId(Intent intent){
         final Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG); // the intent will carry the nfc card (tag) as extra data
 
         BigInteger atheneId = normalizeTagID(tag.getId()); // the tag id can be interpreted in different formats, see normalize method
-        return atheneId.longValue();
+        return atheneId.toString();
     }
 
     public void beep(){
