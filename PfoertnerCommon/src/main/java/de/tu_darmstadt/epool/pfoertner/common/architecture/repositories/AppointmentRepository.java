@@ -104,7 +104,7 @@ public class AppointmentRepository {
      * @param atheneId id of the athene card of which the appointments shall be retrieved.
      * @return auto-refreshing appointment data
      */
-    public LiveData<List<Appointment>> getAppointmentsForAtheneId(final long atheneId){
+    public LiveData<List<Appointment>> getAppointmentsForAtheneId(final String atheneId){
         // TODO: Refresh appointments for office (useless if there is only one panel)
         return Transformations.map(
                 db.appointmentDao().getAppointmentsByAtheneId(atheneId),
@@ -221,11 +221,6 @@ public class AppointmentRepository {
                 .observeOn(Schedulers.io())
                 .doOnSuccess(
                         appointments -> {
-                            Log.d(TAG, "Number of loaded appointments: " + appointments.size());
-                            for (Appointment appointment : appointments) {
-                                Log.d(TAG,
-                                        "Foreign key member: " + appointment.getOfficeMemberId());
-                            }
                             db.appointmentDao().deleteAllAppointmentsOfMember(memberId);
                             db.appointmentDao().insertAppointments(appointments.toArray(new AppointmentEntity[0]));
                         }
