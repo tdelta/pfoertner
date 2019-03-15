@@ -40,6 +40,13 @@ public class MemberView extends CardView {
     private int memberId;
     private final static String TAG = "MemberView";
 
+    /**
+     * Constructor
+     * initializes the card content including setting up glide
+     * @param context view context for the layout
+     * @param member Member corresponding to the memeber card
+     * @param events List of Events for the Member
+     */
     public MemberView(Context context, Member member, List<Event> events) {
         super(context);
         final LayoutInflater inflater = (LayoutInflater) context
@@ -61,6 +68,12 @@ public class MemberView extends CardView {
         initOfficeHours(events);
     }
 
+    /**
+     * Extracts and encodes the first 2 events in the calender to be displayed as office hours
+     * @param events List of events in the calendar
+     * @return List of the first 2 events from the calendar formated as strings
+     * for use as office hour display
+     */
     public List<String> parseOffice(List<Event> events){
         List<String> nextOfficeHours = new LinkedList<String>();
         Timehelpers timehelper = new Timehelpers();
@@ -97,6 +110,10 @@ public class MemberView extends CardView {
         textView.setText(firstName + " " + lastName);
     }
 
+    /**
+     * Set the personal status from a given string
+     * @param status Personal status as string
+     */
     public void setStatus(String status) {
         final Drawable statusIcon;
         final int bgColor;
@@ -131,19 +148,10 @@ public class MemberView extends CardView {
         }
     }
 
-    // Please don't hate me for this.. This is copied from the OFFICIAL support library, so hate them
-    // https://android.googlesource.com/platform/frameworks/support/+/refs/heads/marshmallow-release/v7/mediarouter/src/android/support/v7/app/MediaRouteButton.java#262
-    private AppCompatActivity getActivity() {
-        Context context = getContext();
-        while (context instanceof ContextWrapper) {
-            if (context instanceof AppCompatActivity) {
-                return (AppCompatActivity)context;
-            }
-            context = ((ContextWrapper)context).getBaseContext();
-        }
-        return null;
-    }
-
+    /**
+     * Initializes the office hours for a member
+     * @param events List of events for a member
+     */
     public void initOfficeHours(List<Event> events) {
         LinearLayout info = findViewById(R.id.personalOfficeTimeBoard);
         info.removeAllViews();
