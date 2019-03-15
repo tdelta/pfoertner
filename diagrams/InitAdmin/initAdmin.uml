@@ -1,0 +1,134 @@
+@startuml
+
+participant "MainActivity" as Main
+participant "InitActivity" as Init
+participant "PfoertnerApplication" as App
+participant "SplashScreenActivity" as Splash
+participant "repo: PfoertnerRepository" as Repo
+participant "JoinOfficeActivity" as JoinOffice
+participant "QRCode Source" as QRCodeSource
+participant "m: Member" as MemberModel
+
+actor "Office member" as Member
+
+[o-> Main: onCreate()
+activate Main
+
+Main -> Main++: init()
+alt app joined no office yet
+  Main -> Init++: startActivityForResult()
+
+  == Splash Screen, until App and FCM are ready ==
+
+  Init ->> Splash++: run()
+
+  rnote right #white: <img splashSmall.png>
+
+  Init ->> App++: init()
+
+  App ->> Init: completedInit()
+  deactivate App
+
+  Init -> App++: repo = getRepo()
+  deactivate App
+
+  Init ->> Repo++: (wait until FCM token is set for device)
+  note right
+    A background service (MessagingService)
+    is responsible for receiving an FCM token
+    from Google and sending it to the server.
+    To make sure we will receive all future
+    events from the server, we will wait for it.
+  end note
+  deactivate Init
+
+  ...
+
+  Repo ->> Init++: (fcm token is set)
+  deactivate Repo
+
+  Init -> Splash: close()
+  deactivate Splash
+
+  == Scanning QR Code and joining Office ==
+
+  rnote right #white: <img initActivitySmall.png>
+
+  Member -> Init: pressing scan button
+  Init -> Init++: scanQR()
+  
+  Init -> QRCodeSource++ : (scanning QR code)
+  note right
+    The QRCode source can be an
+    uninitialized door panel,
+    or the AdminApp of a Coworker,
+    who is already part of the office
+  end note
+
+  rnote right of Init #white
+    <img ./QRScan.png>
+  end rnote
+
+  return (officeId, joinCode)
+
+  Init -> JoinOffice++: startActivity()
+  deactivate Init
+  rnote right #white: <img joinOfficeActivitySmall.png>
+
+  Member -> JoinOffice: entering name and pressing accept button
+
+  == Splash screen, until joining office is complete ==
+
+  JoinOffice ->> Splash++: run()
+  rnote right #white: <img splashSmall.png>
+
+  JoinOffice ->> JoinOffice++: joinOffice()
+  JoinOffice -> MemberModel++: m = joinOffice(officeId, joinCode, firstName, lastName, ...)
+
+  MemberModel -> Server++ : /offices/{officeId}/members(PUT, header={"Authorization": authToken}, body={joinCode, firstName, lastName, ...})
+  return 200 body={id, ...}
+  
+  MemberModel -> MemberModel++: store data from server
+  deactivate MemberModel
+  deactivate MemberModel
+
+  JoinOffice -> Office++: office = loadOffice(officeId, joinCode, firstName, lastName, ...)
+  deactivate Office
+
+  JoinOffice -> App++: setOffice(office)
+  deactivate App
+
+  JoinOffice -> App++: setMemberId(m.id)
+  deactivate App
+
+  JoinOffice ->> Repo++: (wait until member data is synchronized)
+  deactivate JoinOffice
+
+  ...
+  
+  Repo ->> JoinOffice++: (member data has been synchronized)
+  deactivate Repo
+
+  JoinOffice -> Splash: close()
+  deactivate Splash
+
+  deactivate JoinOffice
+
+  deactivate Init
+else otherwise
+  Main ->> App++: init()
+
+  App ->> Main: completedInit()
+  deactivate App
+end
+
+== Setting up Main UI ==
+
+Main -> Main++: onInitialized()
+rnote right #white: <img ./MainActivitySmall.png>
+deactivate Main
+
+deactivate Main
+deactivate Main
+
+@enduml
