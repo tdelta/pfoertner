@@ -10,10 +10,11 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
     <uses-permission android:name="android.permission.NFC" />
-    <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
 
     <application
         android:name=".PanelApplication"
@@ -23,10 +24,11 @@
         android:roundIcon="@mipmap/ic_launcher_pfoertnerpanel"
         android:supportsRtl="true"
         android:theme="@style/PfoertnerStyle">
+        <activity android:name=".AtheneInfo"></activity>
         <activity
             android:name=".EditAppointmentsActivity"
             android:label="@string/title_activity_edit_appointments"
-            android:theme="@style/PfoertnerStyle.NoActionBar"></activity>
+            android:theme="@style/PfoertnerStyle.NoActionBar" />
         <activity
             android:name=".ScheduleAppointment"
             android:hardwareAccelerated="true"
