@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent){
         if(atheneReader.isTechDiscovered(intent)){
             atheneReader.beep();
-            long atheneId = atheneReader.extractAtheneId(intent);
+            String atheneId = atheneReader.extractAtheneId(intent);
             Intent editAppointmentsActivityIntent = new Intent(this,EditAppointmentsActivity.class);
             editAppointmentsActivityIntent.putExtra("atheneId",atheneId);
             startActivity(editAppointmentsActivityIntent);
