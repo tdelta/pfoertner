@@ -29,7 +29,8 @@ public class AppointmentEntity implements Appointment{
             String name,
             String message,
             boolean accepted,
-            int OfficeMemberId
+            int OfficeMemberId,
+            long atheneId
     ) {
         this.id = id;
         this.start = start;
@@ -39,6 +40,7 @@ public class AppointmentEntity implements Appointment{
         this.message = message;
         this.accepted = accepted;
         this.OfficeMemberId = OfficeMemberId;
+        this.atheneId = atheneId;
     }
 
     @PrimaryKey
@@ -50,6 +52,7 @@ public class AppointmentEntity implements Appointment{
     private String message;
     private boolean accepted;
     private int OfficeMemberId;
+    private long atheneId;
 
     public void setOfficeMemberId(int memberId) {
         this.OfficeMemberId = memberId;
@@ -81,6 +84,10 @@ public class AppointmentEntity implements Appointment{
 
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
+    }
+
+    public void setAtheneId(long atheneId){
+        this.atheneId = atheneId;
     }
 
     @Override
@@ -122,4 +129,10 @@ public class AppointmentEntity implements Appointment{
     public int getOfficeMemberId() {
         return OfficeMemberId;
     }
+
+    @Override
+    public long getAtheneId(){
+        return atheneId;
+    }
 }
+

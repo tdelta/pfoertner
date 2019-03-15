@@ -22,6 +22,7 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.ReplaySubject;
@@ -155,6 +156,8 @@ public class PfoertnerApplication extends Application {
         super.onCreate();
 
         AndroidThreeTen.init(this);
+
+        RxJavaPlugins.setErrorHandler(Throwable::printStackTrace);
 
         this.preferences = getSharedPreferences(PREFERENCES_NAME,0);
 
