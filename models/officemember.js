@@ -16,6 +16,7 @@ var OfficeMember = db.sequelize.define('OfficeMember', {
   serverAuthCode: Sequelize.STRING,
   calendarId: Sequelize.STRING,
   appointmentRequests: Sequelize.VIRTUAL,
+  webhookId: Sequelize.STRING,
 });
 
 module.exports = OfficeMember;
