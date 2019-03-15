@@ -87,11 +87,11 @@ public abstract class AppointmentDao {
     public abstract int countEntities(int appointmentId);
 
     /**
-     * Loads all appointments from the local database in a blocking call
-     * @return The appointments
+     * Loads a Single Object (data can be asynchronously used after loading is done) for all appointments in the database.
+     * @return Single Object containing a list of appointments
      */
     @Query("SELECT * FROM AppointmentEntity")
-    public abstract List<AppointmentEntity> getAllAppointments();
+    public abstract Single<List<AppointmentEntity>> getAllAppointments();
 
     /**
      * Loads a LiveData Object (can be observed by an activity) containing all appointments in the local database,
@@ -108,4 +108,12 @@ public abstract class AppointmentDao {
      */
     @Query("DELETE FROM AppointmentEntity WHERE OfficeMemberId = :memberId")
     public abstract void deleteAllAppointmentsOfMember(int memberId);
+
+    /**
+     * Loads a LiveData Object (can be observed by an activity) containing all appointments with a specific athene id.
+     * @param atheneId The id of the athene card of the person who requested the appointment.
+     * @return LiveData containing the requested appointments.
+     */
+    @Query("SELECT * FROM AppointmentEntity WHERE AtheneId = :atheneId")
+    public abstract LiveData<List<AppointmentEntity>> getAppointmentsByAtheneId(long atheneId);
 }

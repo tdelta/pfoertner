@@ -20,5 +20,6 @@
     <string name="clientId">626288801350-vk790l2a56u0m25p63q36asu4tv7gnsr.apps.googleusercontent.com</string>
     <string name="clientSecret">wHAYULXTwsZWMQ827ITPIEVr</string>
     <string name="credentialsPath">pfoertner-e43d0751b099.p12</string>
+    <string name="title_activity_edit_appointments">EditAppointmentsActivity</string>
 
 </resources>
