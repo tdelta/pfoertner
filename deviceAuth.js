@@ -5,9 +5,14 @@ var models = require('./models/models.js');
  * authenticated as a panel and the requested member belongs to the corresponding office
  * @result a promise with an officemember
  */
-exports.authenticatePanelOrOwner = function(req, res) {
+exports.authenticatePanelOrOwner = function(req, res, id) {
   return new Promise(response => {
-    const officememberid = parseInt(req.params.id, 10);
+    let officememberid;
+    if(id){
+      officememberid = id;
+    } else {
+      officememberid = parseInt(req.params.id, 10);
+    }
 
     // Get the officemember matching the given id
     models.OfficeMember.findById(officememberid).then(member => {
