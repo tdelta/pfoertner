@@ -16,6 +16,10 @@ public interface MemberCalendarInfo {
     String getEMail();
     LocalDateTime getWebhookExpiration();
 
+    /**
+     * checks if the oauthToken has expired
+     * @return boolean depending if oauthtoken has expired
+     */
     default boolean oauthTokenHasExpired(){
         if(getCreated()==null) return false;
         final LocalDateTime now = LocalDateTime.now();
@@ -25,6 +29,10 @@ public interface MemberCalendarInfo {
         return expirationTime.compareTo(passedTime) < 0;
     }
 
+    /**
+     * checks if the webhook has expired
+     * @return boolean depending if the webhook has expired
+     */
     default boolean webhookHasExpired(){
         if(getWebhookExpiration() == null) return false;
         return getWebhookExpiration().isBefore(LocalDateTime.now());
