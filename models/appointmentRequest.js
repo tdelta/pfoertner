@@ -13,7 +13,7 @@ var AppointmentRequest = db.sequelize.define('AppointmentRequest', {
   name: Sequelize.STRING,
   message: Sequelize.STRING,
   accepted: Sequelize.BOOLEAN,
-  atheneId: Sequelize.BIGINT
+  atheneId: Sequelize.STRING
 });
 
 module.exports = AppointmentRequest;
