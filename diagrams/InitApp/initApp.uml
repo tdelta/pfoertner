@@ -1,0 +1,58 @@
+@startuml
+
+participant "PfoertnerApplication" as App
+participant "PfoertnerRepository" as Repo
+participant "db: AppDatabase" as Db
+participant "Authentication" as Auth
+
+[o-> App : init()
+activate App
+
+App -> Password++: password = loadPassword()
+alt password already exists
+  Password -> Password++: load from storage
+  deactivate Password
+else otherwise
+  Password -> Password++: generate random password
+  deactivate Password
+end
+deactivate Password
+
+App -> User++: device = loadDevice(password)
+alt device data already exists
+  User -> User++: load from storage
+  deactivate User
+else otherwise
+  User -> Server++ : /devices(POST, body={password})
+  note left: Registering a new device
+  return 200 body={id: deviceId}
+end
+deactivate User
+
+App -> Auth++: authentication = authenticate(device, password)
+alt authentication token already exists and has not expired
+  Auth -> Auth++: load from storage
+  deactivate Auth
+else otherwise
+  Auth -> Server++ : /devices/{deviceId}/authToken(POST, body={password})
+  return 200 body={id: authToken, ...}
+end
+deactivate Auth
+
+App -> Db** : create
+App -> Repo** : create(authToken, db)
+
+App -> Repo++ : initStatus = getInitStatus()
+deactivate Repo
+
+opt initStatus.hasJoinedOffice()
+  App -> Office++: loadOffice(authentication)
+  deactivate Office
+  App -> Repo++ : refreshOffice(initStatus.joinedOfficeId)
+  deactivate Repo
+  App -> Repo++ : refreshAllLocalData()
+  deactivate Repo
+end
+
+deactivate App
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+
+|#b8e8fe|Admin-App|
+|Geteilte Initialisierung|
+|#e4f1d5|Panel-App|
+
+|Geteilte Initialisierung|
+
+start
+:Generierung zufälligen Passworts;
+:Registrierung des Geräts beim Server;
+:Abholen eines Authentifizierungstokens
+mittels Passwort und GeräteId;
+
+if (App Typ?) then (Admin-App)
+  |Admin-App|
+
+  #White:Scannen des Panel QRCode durch Nutzer;
+  note left
+    Wurde das Panel bereits
+    initialisiert, so kann
+    der Beitritt zum Büro
+    nur über ein bereits
+    beigetretenes Mitglied
+    erfolgen, dessen
+    AdminApp auch den
+    QRCode anzeigen kann
+  end note
+  #White:Angabe des Namens durch Nutzer;
+  #White:Beitritt zum Büro mittels gescanntem Join Code
+  und Büro durch Anfrage beim Server;
+  #White:Anzeige des Hauptbildschirms, sobald Beitritt abgeschlossen;
+else (Panel-App)
+  |Panel-App|
+
+  #White:Registrierung eines neuen Büros beim Server;
+  note right
+    Das Panel erhält neben
+    einer Id für das Büro
+    auch den sog. Join Code,
+    der notwendig ist,
+    um einem Büro beizutreten.
+    ====
+    Durch die Registrierung
+    ist das Panel automatisch
+    Mitglied des Büros.
+  end note
+  #White:Anzeige von Join Code + Id als QRCode;
+  #White:Anzeige des Hauptbildschirms, sobald ein Admin beigetreten ist;
+endif
+
+|Geteilte Initialisierung|
+
+stop
+
+@enduml
