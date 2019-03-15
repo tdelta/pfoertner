@@ -1,5 +1,21 @@
 @startuml
 
+skinparam sequence {
+  ParticipantFontName DejaVu Sans Condensed
+	ParticipantFontSize 19
+  ActorFontName DejaVu Sans Condensed
+	ActorFontSize 19
+  ArrowFontName DejaVu Sans Condensed
+  ArrowFontSize 19
+  NoteFontName DejaVu Sans Condensed
+  NoteFontSize 19
+  DefaultFontName DejaVu Sans Condensed
+  DefaultFontSize 19
+
+  ParticipantPadding 1
+  BoxPadding 1
+}
+
 participant "MainActivity" as Main
 participant "InitActivity" as Init
 participant "PfoertnerApplication" as App
@@ -34,11 +50,16 @@ alt app joined no office yet
 
   Init ->> Repo++: (wait until FCM token is set for device)
   note right
-    A background service (MessagingService)
-    is responsible for receiving an FCM token
-    from Google and sending it to the server.
-    To make sure we will receive all future
-    events from the server, we will wait for it.
+    A background service
+    (MessagingService) is
+    responsible for
+    receiving an FCM token
+    from Google and sending
+    it to the server. To
+    make sure we will
+    receive all future
+    events from the server,
+    we will wait for it.
   end note
   deactivate Init
 
@@ -59,10 +80,12 @@ alt app joined no office yet
   
   Init -> QRCodeSource++ : (scanning QR code)
   note right
-    The QRCode source can be an
-    uninitialized door panel,
-    or the AdminApp of a Coworker,
-    who is already part of the office
+    The QRCode source can
+    be an uninitialized
+    door panel, or the
+    AdminApp of a Coworker,
+    who is already part of
+    the office
   end note
 
   rnote right of Init #white
@@ -83,9 +106,9 @@ alt app joined no office yet
   rnote right #white: <img splashSmall.png>
 
   JoinOffice ->> JoinOffice++: joinOffice()
-  JoinOffice -> MemberModel++: m = joinOffice(officeId, joinCode, firstName, lastName, ...)
+  JoinOffice -> MemberModel++: m = joinOffice(officeId,\njoinCode, firstName, lastName, ...)
 
-  MemberModel -> Server++ : /offices/{officeId}/members(PUT, header={"Authorization": authToken}, body={joinCode, firstName, lastName, ...})
+  MemberModel -> Server++ : /offices/{officeId}/members\n(PUT, header={"Authorization": authToken},\nbody={joinCode, firstName, lastName, ...})
   return 200 body={id, ...}
   
   MemberModel -> MemberModel++: store data from server
@@ -101,12 +124,12 @@ alt app joined no office yet
   JoinOffice -> App++: setMemberId(m.id)
   deactivate App
 
-  JoinOffice ->> Repo++: (wait until member data is synchronized)
+  JoinOffice ->> Repo++: (wait until member\ndata is synchronized)
   deactivate JoinOffice
 
   ...
   
-  Repo ->> JoinOffice++: (member data has been synchronized)
+  Repo ->> JoinOffice++: (member data has\nbeen synchronized)
   deactivate Repo
 
   JoinOffice -> Splash: close()
