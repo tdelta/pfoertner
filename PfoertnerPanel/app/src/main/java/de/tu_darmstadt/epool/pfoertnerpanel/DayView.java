@@ -18,7 +18,7 @@ public class DayView extends RelativeLayout {
     private LocalDateTime date;
     private LinkedList<Event> events;
     private final int selected = 0xFFFF4081;
-    private final int nothing = 0xFF808080;
+    private final int nothing = 0xFFC4C4C4;
     private final int normal = 0xFF8BC34A;
 
     /**
