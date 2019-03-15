@@ -34,7 +34,7 @@ public class MakeAppointment extends AppCompatActivity {
 
     private AtheneReader atheneReader;
 
-    private long atheneId;
+    private String atheneId;
 
     /**
      * Is called when activity gets created
