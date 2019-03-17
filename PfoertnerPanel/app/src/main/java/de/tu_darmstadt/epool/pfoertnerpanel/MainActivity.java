@@ -24,6 +24,7 @@ import java.util.List;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertnerpanel.helpers.AtheneReader;
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private CompositeDisposable disposables;
 
     private OfficeViewModel viewModel;
+
+    private AtheneReader atheneReader;
 
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
@@ -65,6 +68,17 @@ public class MainActivity extends AppCompatActivity {
                             }
                     )
         );
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent){
+        if(atheneReader.isTechDiscovered(intent)){
+            atheneReader.beep();
+            String atheneId = atheneReader.extractAtheneId(intent);
+            Intent editAppointmentsActivityIntent = new Intent(this,EditAppointmentsActivity.class);
+            editAppointmentsActivityIntent.putExtra("atheneId",atheneId);
+            startActivity(editAppointmentsActivityIntent);
+        }
     }
 
     @Override
@@ -152,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "MainActivity created.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        atheneReader = new AtheneReader(this);
 
         checkForPlayServices();
 
@@ -242,11 +257,18 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    protected void onPause(){
+        super.onPause();
+        atheneReader.pause();
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        atheneReader.resume();
         checkForPlayServices();
     }
 

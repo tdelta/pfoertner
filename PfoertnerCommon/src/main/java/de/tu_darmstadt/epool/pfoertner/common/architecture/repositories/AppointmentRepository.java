@@ -84,7 +84,7 @@ public class AppointmentRepository {
      * finished, the LiveData will contain the old cached data, or null.
      *
      * @param memberId id of the member for which the data model shall be retrieved.
-     * @return auto-refreshing member data
+     * @return auto-refreshing appointment data
      */
     public LiveData<List<Appointment>> getAppointmentsOfMember(final int memberId) {
         refreshAllAppointmentsFromMember(memberId);
@@ -94,6 +94,22 @@ public class AppointmentRepository {
                         db.appointmentDao().getAllAppointmentsOfMember(memberId),
                         ArrayList<Appointment>::new
                 );
+    }
+
+    /**
+     * Retrieves Appointment data by the athene card id that was registered when requesting the appointment. Since it returns {@link LiveData}, the retrieved data is always refreshed, as
+     * soon as the value in the repository changes.
+     * <p>
+ *     Calling this method will <b>not</b> initiate an asynchronous network request
+     * @param atheneId id of the athene card of which the appointments shall be retrieved.
+     * @return auto-refreshing appointment data
+     */
+    public LiveData<List<Appointment>> getAppointmentsForAtheneId(final String atheneId){
+        // TODO: Refresh appointments for office (useless if there is only one panel)
+        return Transformations.map(
+                db.appointmentDao().getAppointmentsByAtheneId(atheneId),
+                ArrayList<Appointment>::new
+        );
     }
 
     /**
@@ -133,9 +149,16 @@ public class AppointmentRepository {
                         prevAppointment.getName(),
                         prevAppointment.getMessage(),
                         accepted,
-                        prevAppointment.getOfficeMemberId()
+                        prevAppointment.getOfficeMemberId(),
+                        prevAppointment.getAtheneId()
                 )
         );
+    }
+
+    public Completable createAppointment(final AppointmentEntity appointment){
+        return api
+                .createNewAppointment(auth.id,appointment.getOfficeMemberId(),appointment)
+                .subscribeOn(Schedulers.io());
     }
 
     /**
@@ -198,11 +221,6 @@ public class AppointmentRepository {
                 .observeOn(Schedulers.io())
                 .doOnSuccess(
                         appointments -> {
-                            Log.d(TAG, "Number of loaded appointments: " + appointments.size());
-                            for (Appointment appointment : appointments) {
-                                Log.d(TAG,
-                                        "Foreign key member: " + appointment.getOfficeMemberId());
-                            }
                             db.appointmentDao().deleteAllAppointmentsOfMember(memberId);
                             db.appointmentDao().insertAppointments(appointments.toArray(new AppointmentEntity[0]));
                         }
