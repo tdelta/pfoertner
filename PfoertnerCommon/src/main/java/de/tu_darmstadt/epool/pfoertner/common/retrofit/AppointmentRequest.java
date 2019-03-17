@@ -7,6 +7,12 @@ import java.util.Date;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 
+/**
+ * Deprecated
+ * Old marshalling class used for calls to the server and saving data in local settings
+ * Use instead: de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment
+ */
+@Deprecated
 public class AppointmentRequest {
     @Expose public int id;
     @Expose public Date start;

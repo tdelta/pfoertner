@@ -14,6 +14,9 @@ import java.io.IOException;
 // Only fields with the Expose annotation will be sent to the server
 // Other fields will only be persisted in local memory
 
+/**
+ * Marshalling class, used for api calls and for saving the authentication info in local settings
+ */
 public class Authentication {
     @Expose public final String id;
     @Expose public final int ttl;
@@ -32,6 +35,11 @@ public class Authentication {
         this.userId = userId;
     }
 
+    /**
+     * Checks if the authentication token has expired
+     * @param context Unused
+     * @return true if created plus ttl is after the current time
+     */
     public boolean hasExpired(final Context context) {
 
         final LocalDateTime creationDate = LocalDateTime.parse(created, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
@@ -44,6 +52,17 @@ public class Authentication {
         return timePassed.plus(Duration.ofHours(1)).compareTo(timeToLive) > 0;
     }
 
+    /**
+     * Makes a <b>blocking</b> call to the server to retrieve an authentication token,
+     * if the current token has expired or no token exists. Saves the new token into local settings
+     * @param deviceRegistrationInfo Local settings used for loading and saving authentication info
+     * @param service Server API
+     * @param user User id used for login
+     * @param password Password used for login
+     * @param context Unused
+     * @throws RuntimeException if the server call fails
+     * @return Authentication instance with a valid token
+     */
     public static Authentication authenticate(
             final SharedPreferences deviceRegistrationInfo,
             final PfoertnerService service,
