@@ -32,6 +32,13 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
 
     private CompositeDisposable disposables;
 
+    /**
+     * This is the constructor of the MemberStatusFragementViewModel
+     * class.
+     * Initializes repo.
+     *
+     * @param rawApp PfoertnerApplication
+     */
     public MemberStatusFragmentViewModel(final Application rawApp) {
         super(rawApp);
 
@@ -40,6 +47,11 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
         repo = app.getRepo();
     }
 
+    /**
+     * This method initializes the MemberStatusFragment
+     *
+     * @param memberId of the given member
+     */
     @SuppressWarnings("unchecked")
     public void init(final int memberId) {
         if (this.currentMemberStatusIdx != null) {
@@ -102,6 +114,13 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * This method transforms member status to their corresponding
+     * idxs.
+     *
+     * @param str status string which will be transformed
+     * @return idx corresponding to the given status string
+     */
     private int statusToIdx(final String str) {
         final int i = statusList.indexOf(str);
 
@@ -114,26 +133,56 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * getter for currentMemberStatus
+     *
+     * @return observable currentMemberStatus
+     */
     public LiveData<Integer> getCurrentMemberStatusIdx() {
         return currentMemberStatusIdx;
     }
 
+    /**
+     * setter for newIdx
+     *
+     * @param newIdx which will be set
+     */
     public void setNewIdx(final int newIdx) {
         this.newIdx = newIdx;
     }
 
+    /**
+     * getter for newIdx
+     *
+     * @return newIdx
+     */
     public int getNewIdx() {
         return this.newIdx;
     }
 
+    /**
+     * getter for the currently selected status
+     *
+     * @return the currently selected status
+     */
     public String getSelectedStatus() {
         return this.statusList.get(this.getNewIdx());
     }
 
+    /**
+     * getter for statusList
+     *
+     * @return statusList
+     */
     public List<String> getStatusList() {
         return statusList;
     }
 
+    /**
+     * This method adds a new status to the list of status.
+     *
+     * @param text new status, which will be added to the list
+     */
     public void addToStatusList(final String text) {
         if (!text.trim().equals("") && !statusList.contains(text.trim())) {
             final PfoertnerApplication app = PfoertnerApplication.get(getApplication().getApplicationContext());
@@ -148,6 +197,10 @@ public class MemberStatusFragmentViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * setter for the personal status
+     *
+     */
     public void setStatus() {
         final String newStatus = statusList.get(getNewIdx());
 

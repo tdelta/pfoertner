@@ -50,6 +50,11 @@ public class MemberStatusFragment extends Fragment {
         return mainView;
     }
 
+    /**
+     * This method is called to trigger the status creation of
+     * the personal status of an office member
+     *
+     */
     private void triggerStatusCreation() {
         final AlertDialog enterNewStatus;
         {
@@ -70,6 +75,11 @@ public class MemberStatusFragment extends Fragment {
         enterNewStatus.show();
     }
 
+    /**
+     * This method triggers the personal status selection of an
+     * office member
+     *
+     */
     private void triggerStatusSelection() {
         final AlertDialog status_select = new AlertDialog.Builder(getActivity())
                 .setTitle("Select your Status")
