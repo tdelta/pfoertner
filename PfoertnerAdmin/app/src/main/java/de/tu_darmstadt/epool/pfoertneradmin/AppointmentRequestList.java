@@ -30,6 +30,10 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Fragment class that contains all appointment requests
+ * or an option to access the calendar if the permission wasn't given yet
+ */
 public class AppointmentRequestList extends Fragment{
 
     private LayoutInflater inflater;
@@ -46,6 +50,10 @@ public class AppointmentRequestList extends Fragment{
         return inflater.inflate(R.layout.appointment_request_list,container,true);
     }
 
+    /**
+     * Show appoitnments in the UI and an options to accept or deny
+     * @param appointmentRequestList a list of appoitnments that should be displayed
+     */
     public void showAppointmentRequests(List<Appointment> appointmentRequestList){
         LinearLayout scrollRequests = getView().findViewById(R.id.scroll_requests);
 
@@ -82,10 +90,22 @@ public class AppointmentRequestList extends Fragment{
         }
     }
 
+    /**
+     * Button Listener for Appointment requests
+     */
     private class ButtonListener implements View.OnClickListener {
 
+        /**
+         * Appointment associated with the listener
+         */
         private Appointment appointmentRequest;
+        /**
+         * boolean on wether to accept this appointment or to deny it
+         */
         private boolean accept;
+        /**
+         * shared application state
+         */
         private AdminApplication app;
 
         public ButtonListener(Appointment appointmentRequest, boolean accept){
@@ -94,6 +114,10 @@ public class AppointmentRequestList extends Fragment{
             app = AdminApplication.get(getContext());
         }
 
+        /**
+         * Accept or deny a request depending on the state of the accept boolean
+         * @param view the view that invoked the method
+         */
         @Override
         public void onClick(View v) {
             try {
@@ -140,6 +164,12 @@ public class AppointmentRequestList extends Fragment{
             }
         }
     }
+
+    /**
+     * write an accepted appointment into the google calendar
+     * @param appointmentRequest the appointment request
+     * @param email the email of the member
+     */
     private void writeCalendarWithPermission(Appointment appointmentRequest,String email){
         try{
             LocalCalendar.getInstance(getContext(),email).writeEvent(
@@ -155,7 +185,12 @@ public class AppointmentRequestList extends Fragment{
         }
     }
 
-    private void writeCalendarEvent(Appointment appointmentRequest,String email){
+    /**
+     * checks if it has the required permission to write in the calendar and requests it if not
+     * @param appointmentRequest the appointment request
+     * @param email the email of the member
+     */
+    private void writeCalendarEvent(Appointment appointmentRequest, String email){
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED){
             requestPermissions(
@@ -169,6 +204,13 @@ public class AppointmentRequestList extends Fragment{
         }
     }
 
+    /**
+     * When the permission request returns it executes this method.
+     * If the permission was granted write the appointment into the calendar.
+     * @param requestCode the requestCode of the request
+     * @param permissions not used 
+     * @param grantResults contains the information if the permission got granted
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults){
         if(requestCode == WRITE_CALENDAR_PERMISSION_REQUEST) {
