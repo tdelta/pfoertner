@@ -4,6 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+/**
+ * An image view whose whole purpose is to display an image as a square
+ */
 public class MemberIcon extends android.support.v7.widget.AppCompatImageView {
 
     public MemberIcon(final Context context) {
@@ -19,6 +22,13 @@ public class MemberIcon extends android.support.v7.widget.AppCompatImageView {
         super(context, attrs, defStyle);
     }
 
+    /**
+     * This is called to find out how big a view should be.
+     * The parent supplies constraint information in the width and height parameters. 
+     * Sets the height to the same value as the width
+     * @param widthMeasureSpec Horizontal space requirements as imposed by the parent
+     * @param heightMeasureSpec Vertical space requirements as imposed by the parent
+     */
     @Override
     protected void onMeasure(int width, int height) {
         super.onMeasure(width, height);

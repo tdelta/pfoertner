@@ -14,6 +14,10 @@ import com.google.api.services.calendar.model.Event;
 import java.util.LinkedList;
 
 
+/**
+ * Lists days in a vertical list and highlights them differently
+ * depending on the number of available timeslots
+ */
 public class DayView extends RelativeLayout {
     private LocalDateTime date;
     private LinkedList<Event> events;

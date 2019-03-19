@@ -8,6 +8,10 @@ import de.tu_darmstadt.epool.pfoertnerpanel.db.PanelDatabase;
 import de.tu_darmstadt.epool.pfoertnerpanel.repositories.PanelRepository;
 import de.tu_darmstadt.epool.pfoertnerpanel.webapi.CalendarApi;
 
+/**
+ * Class for maintaining global application state that is required in the 
+ * whole panel
+ */
 public class PanelApplication extends PfoertnerApplication {
     private PanelDatabase db;
     private PanelRepository repo;

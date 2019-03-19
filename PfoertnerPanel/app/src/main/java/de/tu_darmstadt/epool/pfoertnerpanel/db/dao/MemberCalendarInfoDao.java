@@ -16,6 +16,10 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Data Access Objects class defines database interactions. 
+ * It includes a variety of query methods. 
+ */
 @Dao
 public abstract class MemberCalendarInfoDao {
     @Query("SELECT * FROM MemberCalendarInfoEntity WHERE memberId = :memberId")

@@ -12,6 +12,9 @@ import org.threeten.bp.ZoneOffset;
 
 import java.util.TimeZone;
 
+/**
+ * Contains various helper methods for time related operations
+ */
 public class Timehelpers {
 
     /**

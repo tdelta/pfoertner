@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +28,9 @@ import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Office;
 import io.reactivex.disposables.CompositeDisposable;
 
+/**
+ * Displays the qr-code that should be scanned with the admin app
+ */
 public class InitializationActivity extends AppCompatActivity {
     private static final String TAG = "InitializationActivityLog";
 
@@ -48,6 +52,11 @@ public class InitializationActivity extends AppCompatActivity {
         disposables.dispose();
     }
 
+    /**
+     * Create the office on the server
+     * @param splashScreenActivity the context for the AlertDialog Builder if something happens
+     * @param closeSplashScreen callback to close the splash screen
+     */
     private void initPanel(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen) {
         final PfoertnerApplication app = PfoertnerApplication.get(InitializationActivity.this);
 
@@ -64,6 +73,7 @@ public class InitializationActivity extends AppCompatActivity {
                 return office;
             }
 
+            @SuppressLint("RxLeakedSubscription")
             @Override
             @SuppressWarnings("CheckResult")
             protected void onSuccess(final Office office) {
@@ -129,6 +139,10 @@ public class InitializationActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Display the QR-Code
+     * @param office the office to be displayed in the QR-Code
+     */
     private void showQRCode(final de.tu_darmstadt.epool.pfoertner.common.architecture.model.Office office) {
         final String displayedData = new QRCodeData(office).serialize();
         Log.d(TAG, "Displaying QRData: " + displayedData);
@@ -141,6 +155,10 @@ public class InitializationActivity extends AppCompatActivity {
         qrCodeView.setImageDrawable(qrCode);
     }
 
+    /**
+     * Creates the activity and  registers listener to close the activity when initialized
+     * @param savedInstanceState not used
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

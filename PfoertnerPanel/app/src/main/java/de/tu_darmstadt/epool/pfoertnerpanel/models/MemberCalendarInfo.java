@@ -4,6 +4,9 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+/**
+ * Provides methods to access calendar related information for an office member
+ */
 public interface MemberCalendarInfo {
     int getMemberId();
 

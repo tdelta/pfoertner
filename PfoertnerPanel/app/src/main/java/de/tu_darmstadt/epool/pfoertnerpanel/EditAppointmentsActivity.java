@@ -23,6 +23,10 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import io.reactivex.disposables.CompositeDisposable;
 
+/**
+ * Displays all appointments associated with an Athene-Card
+ * and offers a delete operations
+ */
 public class EditAppointmentsActivity extends AppCompatActivity{
 
     private LinearLayout scrollRequests;
@@ -31,6 +35,10 @@ public class EditAppointmentsActivity extends AppCompatActivity{
 
     private CompositeDisposable disposables = new CompositeDisposable();
 
+    /**
+     * Create the activity
+     * @param savedInstanceState not used
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -56,6 +64,11 @@ public class EditAppointmentsActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * Display all appointments
+     * @param appointmentRequests list off appointments
+     *
+     */
     public void displayAppointmentRequests(List<Appointment> appointmentRequests){
         scrollRequests.removeAllViews();
 
@@ -97,6 +110,11 @@ public class EditAppointmentsActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * Returns an onclick method listener for an appointment
+     * @param appointmentId the id of the appointment to delete
+     * @return an onclick method listener that can be used for a view
+     */
     private View.OnClickListener createDeleteAppointmentListener(int appointmentId){
         return view -> {
             disposables.add(app
@@ -111,6 +129,9 @@ public class EditAppointmentsActivity extends AppCompatActivity{
         };
     }
 
+    /**
+     * Dispose RXJava disposables
+     */
     @Override
     protected void onDestroy(){
         super.onDestroy();

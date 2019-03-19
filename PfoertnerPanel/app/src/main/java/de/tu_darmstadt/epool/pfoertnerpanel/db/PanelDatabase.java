@@ -9,6 +9,9 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.helpers.DateConverter
 import de.tu_darmstadt.epool.pfoertnerpanel.db.dao.MemberCalendarInfoDao;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
 
+/**
+ * Provides direct access to the underlying database implementation.
+ */
 @TypeConverters({DateConverter.class})
 @Database(entities = {MemberCalendarInfoEntity.class}, version = 1)
 public abstract class PanelDatabase extends RoomDatabase {
