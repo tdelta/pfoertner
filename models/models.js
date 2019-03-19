@@ -1,13 +1,13 @@
 var db = require('../database.js');
 var Sequelize = require('sequelize');
 
-// Define device
+// Get device data model
 var Device = require('./device.js');
-// Define officemember
+// Get officemember data model
 var OfficeMember = require('./officemember.js');
-// Define office
+// Get office data model
 var Office = require('./office.js');
-// Define appointment
+// Get appointment data model
 var AppointmentRequest = require('./appointmentRequest.js');
 
 // Define relations

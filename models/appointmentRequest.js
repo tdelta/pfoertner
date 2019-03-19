@@ -1,6 +1,7 @@
 var db = require('../database.js');
 var Sequelize = require('sequelize');
 
+//Define appointmentRequest sequelize data model
 var AppointmentRequest = db.sequelize.define('AppointmentRequest', {
   id: {
     type: Sequelize.INTEGER,

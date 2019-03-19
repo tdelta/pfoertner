@@ -127,7 +127,7 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
   });
 });
 
-// ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
+// ENDPOINT: POST /offices/:officeId/notify
 // Send a notification event to all devices of an office
 router.post('/:officeId/notify', (req, res) => {
   findOffice(req, res).then(office => {
@@ -250,11 +250,13 @@ function authenticateOfficeMember(req, res) {
 }
 
 /**
- * TODO: MARTIN FRAGEN
+ * ENDPOINT: PATCH /offices/:officeId
+ * 
+ * This function updates the in the requested specified office object 
+ * with the in the body given data
  *
- *
- * @param {*} req
- * @param {*} res
+ * @param {*} req request contains data which is supposed to be updated
+ * @param {*} res response contains the updated office object
  */
 router.patch('/:officeId', auth.authFun(), (req, res) => {
   console.log('Patching office');
@@ -278,8 +280,10 @@ router.patch('/:officeId', auth.authFun(), (req, res) => {
  * ATTENTION: YOU HAVE TO BE AUTHENTICATED FOR THIS
  * ACTION.
  *
- * Nochmal Martin fragen.
- *
+ * This function return the in the request specified office object
+ * 
+ * @param {*} req request  
+ * @param {*} res response contains the in the request speficid office object
  *
  */
 router.get('/:officeId', auth.authFun(), (req, res) => {
@@ -292,7 +296,15 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
   );
 });
 
-// ENDPOINT: GET /offices/:id/spion
+/** 
+ * ENDPOINT: GET /offices/:id/spion
+ *
+ * This endpoint provides the spion picture for the admin apps
+ * 
+ * @param {*} req request
+ * @param {*} res response file with the spion picture
+ * 
+ */
 router.get('/:officeId/spion', auth.authFun(), (req, res) => {
   console.log("/offices/id/spion");
   console.log(req.headers);
@@ -311,7 +323,16 @@ router.get('/:officeId/spion', auth.authFun(), (req, res) => {
   );
 });
 
-// ENDPOINT: PATCH /offices/:id/spion
+/**
+ * ENDPOINT: PATCH /offices/:id/spion
+ *
+ * This endpoint is called, when the panelApp wants to upload a new 
+ * spion picture.
+ * 
+ * @param {*} req request contains the picture which will be uploaded
+ * @param {*} res response 
+ *  
+ */
 router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
   console.log('function patch spion called');
 
@@ -352,8 +373,16 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
   );
 });
 
-// ENDPOINT: GET /offices/:id/takephoto
-// TODO: think of a proper name for this endpoint
+/**
+ * ENDPOINT: GET /offices/:id/takephoto
+ * 
+ * This endpoint sends a fcmMessage to the office matching :officeId. The 
+ * panel then starts to take a spion picture 
+ * 
+ * @param {*} req request
+ * @param {*} res response
+ * 
+ */
 router.get('/:officeId/takephoto', auth.authFun(), (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 

@@ -45,7 +45,15 @@ exports.authenticatePanelOrOwner = function(req, res) {
     });
   });
 };
-
+/**
+ * This function authenticated/checks whether the device owner
+ * is in the given office
+ * 
+ * @param {*} req request 
+ * @param {*} res result
+ * @param {*} officeId officeId of the office which will be used for authentication/comparison
+ * 
+ */
 exports.authenticateAnyOfficeDevice = function(officeId, req, res) {
   return new Promise(response => {
     if (req.user == null) {
@@ -107,7 +115,15 @@ exports.authenticateAnyOfficeDevice = function(officeId, req, res) {
     }
   });
 };
-
+/**
+ * This function authenticates/checks whether the owner of 
+ * the (in the parameter request) given device matches the officemember
+ * with the officeMemberId from officememberIdParam.
+ * 
+ * @param {*} req request contains owner of a device, who wants to be authenticated
+ * @param {*} res result
+ * @param {*} officememberIdParam officememberId, which will be used for the authentication/comparison
+ */
 exports.authenticateOwner = function authenticateOwner(
   req,
   res,

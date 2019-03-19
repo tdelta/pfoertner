@@ -12,6 +12,14 @@ var jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 };
 
+/**
+ * This function checks whether the information within the authToken are valid.
+ * If the token is well-formed and the additional information are correct, 
+ * the function then returns the owner of the authToken.
+ * 
+ * @param {*} serverKey  serverKey
+ * @param {*} findUserById function to search for the owner of a authToken 
+ */
 function getStrategy(serverKey, findUserById) {
   jwtOptions.secretOrKey = serverKey;
 
@@ -40,6 +48,12 @@ function getStrategy(serverKey, findUserById) {
   });
 }
 
+/**
+ * This function genereates authTokens for devices
+ * 
+ * 
+ * @param {*} user user which requested an authToken
+ */
 function genToken(user) {
   let ttl = 604800; // 2 weeks
   let created = moment().toISOString(); // return in ISO-8601 format

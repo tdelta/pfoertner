@@ -9,7 +9,14 @@ module.exports.initialize = function() {
     databaseURL: 'https://pfoertner-2b302.firebaseio.com',
   });
 };
-
+/**
+ * This function sends a fcmMessage to the device with the
+ * fcmToken matching deviceToken. 
+ * 
+ * @param {*} deviceToken fcmToken of the receiver device
+ * @param {*} message message which will be send to the receiver
+ * 
+ */
 sendMessage = function(deviceToken, message) {
   admin
     .messaging()
@@ -22,6 +29,18 @@ sendMessage = function(deviceToken, message) {
     });
 };
 
+/**
+ * This function sends a Notification to the receiver device
+ * via fcm.
+ * 
+ * @param {*} deviceToken fcmToken of the receiver device
+ * @param {*} title title of the notification
+ * @param {*} body body content of the notification
+ * @param {*} activity activity which will be display if the notification is pressed
+ * @param {*} buttons buttons which will be display within the notification
+ * @param {*} data generelle data which can be used to transport data to the app 
+ * 
+ */
 module.exports.sendNotification = function(
   deviceToken,
   title,

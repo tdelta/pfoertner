@@ -12,6 +12,18 @@ var firebase = require('../firebase/firebase.js');
 var authenticateOfficemember = require('../deviceAuth.js').authenticateOwner;
 var notifyOfficeSubscribers = require('../notify.js').notifyOfficeSubscribers;
 
+/**
+ * ENDPOINT: PATCH /appointments/:id
+ * 
+ * This endpoint updates existing appointments and notifies
+ * officemembers about the change. If there is no appointment
+ * matching :id, the endpoint returns a 404 status code and informs
+ * about it.
+ * 
+ * @param {*} req request contains the new values for the appointment
+ * @param {*} res response
+ * 
+ */
 router.patch('/:id', auth.authFun(), (req, res) => {
   let appointmentId = parseInt(req.params.id, 10);
   models.AppointmentRequest.findByPk(appointmentId).then(appointment => {
@@ -36,6 +48,17 @@ router.patch('/:id', auth.authFun(), (req, res) => {
   });
 });
 
+/**
+ * ENDPOINT: DELETE /appointments/:id
+ * 
+ * This endpoint deletes the appointment matching id and informs 
+ * about the success. If there is no appointment with :id, then it returns
+ * a 404 status code and informs about it.
+ * 
+ * @param {*} req request
+ * @param {*} res result
+ * 
+ */
 router.delete('/:id', auth.authFun(), (req, res) => {
   let appointmentId = parseInt(req.params.id, 10);
   models.AppointmentRequest.findByPk(appointmentId).then(appointment => {

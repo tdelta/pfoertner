@@ -14,7 +14,6 @@ var authenticatePanelOrOwner = require('../deviceAuth.js')
 
 var auth = require('../authInit.js');
 
-// ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 // List all users created in the database
 router.get('/', (req, res) => {
   models.OfficeMember.findAll().then(officesmembers =>
@@ -22,7 +21,7 @@ router.get('/', (req, res) => {
   );
 });
 
-// ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
+// ONLY FOR DEBUGING/TESTING PURPOSES.
 // Return a specific user (which matches a id)
 router.get('/:id/debug', (req, res) =>
   models.OfficeMember.findById(req.params.id).then(officemember =>
@@ -30,7 +29,6 @@ router.get('/:id/debug', (req, res) =>
   )
 );
 
-// ONLY FOR DEBUGING/TESTING PURPOSES. REMOVE FOR FINAL SUBMISSION
 router.get('/:id/office', (req, res) =>
   models.OfficeMember.findById(req.params.id).then(officemember =>
     officemember.getOffice().then(office => res.send(office))
@@ -53,7 +51,6 @@ router.get('/:id', auth.authFun(), (req, res) => {
  * ENDPOINT: PATCH /officemembers/:id/picture
  *
  * Updates the picture of the officemember
- * DARK JAVASCRIPT MAGIC!
  */
 router.patch('/:id/picture', (req, res) => {
   const picture = req.files.picture;
@@ -189,6 +186,9 @@ router.patch('/:id', auth.authFun(), (req, res) => {
  * ENDPOINT: GET /officemembers/:id/picture
  *
  * Get the picture of the officemember
+ * 
+ * @param {*} req request
+ * @param {*} res response contains the picture of the officemember matching :id
  *
  */
 router.get('/:id/picture', (req, res) => {
@@ -214,6 +214,15 @@ router.get('/:id/picture', (req, res) => {
   });
 });
 
+/**
+ * ENDPOINT: GET /officesmembers/:id/appointments
+ * 
+ * This endpoint provides all the appointment of the officemember matching :id
+ * 
+ * @param {*} req request 
+ * @param {*} res response contains alll the appointments of the officemember matching :id
+ * 
+ */
 router.get('/:id/appointments', auth.authFun(), (req, res) => {
   authenticatePanelOrOwner(req, res).then(officemember => {
     officemember.getAppointmentRequests().then(appointments => {
@@ -223,7 +232,13 @@ router.get('/:id/appointments', auth.authFun(), (req, res) => {
 });
 
 /**
+ * ENDPOINT: POST /officesmembers/:id/appointment
+ * 
  * Endpoint to create an appointment that belongs to an office member
+ * 
+ * @param {*} req request containing all the necessary data to create an appointment
+ * @param {*} res response 
+ * 
  */
 router.post('/:id/appointment', auth.authFun(), (req, res) => {
   let start = req.body.start;
@@ -275,7 +290,10 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
  * ENDPOINT: PATCH /officemembers/:id/status
  * Updates the officemember with the status given
  * in the request body
- *
+ * 
+ * @param {*} req request contains the new value for the status field off the officemember matching :id
+ * @param {*} res response
+ * 
  */
 router.patch('/:id/status', (req, res) => {
   const officememberid = parseInt(req.params.id, 10);

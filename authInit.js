@@ -14,6 +14,10 @@ var passportStrategy = auth.getStrategy(
   }
 );
 
+/**
+ * This function checks whether a given authToken is a well-formed
+ * Json-Web-Token.
+ */
 function authFun() {
   return passport.authenticate('jwt', { session: false });
 }

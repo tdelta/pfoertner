@@ -1,6 +1,7 @@
 var db = require('../database.js');
 var Sequelize = require('sequelize');
 
+// Define the office sequelize data model
 var Office = db.sequelize.define('Office', {
   id: {
     type: Sequelize.INTEGER,

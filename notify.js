@@ -2,11 +2,11 @@
 const firebase = require('./firebase/firebase.js');
 
 /**
- * TODO: MARTIN FRAGEN
+ * This function sends a fcmMessage to all officeMembers of
+ * a given office
  *
- *
- * @param {*} office
- * @param {*} eventName
+ * @param {*} office office of which officemembers will receive the message
+ * @param {*} eventName eventName of the message
  */
 function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
   let message;
@@ -55,6 +55,13 @@ function notifyOfficeSubscribers(office, eventName, /* optional */ payload) {
   });
 }
 
+/**
+ * This function send a fcmMessage to a (via parameters) given panel
+ * 
+ * @param {*} office office of the panel which shall be notified 
+ * @param {*} eventName eventName of the event which will be send to the panel 
+ * @param {*} payload payload of the message which will be send to the panel
+ */
 function notifyPanel(office, eventName, payload) {
   let message;
 

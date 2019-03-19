@@ -38,6 +38,7 @@ const devicesroutes = require('./routes/devices.js');
 const officemembersroutes = require('./routes/officesmembers.js');
 const appointmentroutes = require('./routes/appointments.js');
 
+// Use routes
 server.use('/offices', officesroutes);
 server.use('/devices', devicesroutes);
 server.use('/officemembers', officemembersroutes);
