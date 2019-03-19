@@ -6,8 +6,6 @@ import android.util.Log;
 import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +22,13 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.helpers.ResourceInitProtoco
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.Observable;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.OfficeObserver;
 
+/**
+ * Old office class that can save and load office data in local storage, send modified data to the server
+ * and propagate updates in the office to observers
+ *
+ * Use instead: {@link de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.OfficeRepository}
+ */
+@Deprecated
 public class Office extends Observable<OfficeObserver> {
     private final static String TAG = "Office";
 
@@ -53,6 +58,11 @@ public class Office extends Observable<OfficeObserver> {
                 .findFirst();
     }
 
+    /**
+     * Writes the office data to local settings
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param data Data to save
+     */
     private static void writeOfficeToLocalStorage(final SharedPreferences preferences, final OfficeData data) {
         final SharedPreferences.Editor e = preferences.edit();
 
@@ -67,6 +77,11 @@ public class Office extends Observable<OfficeObserver> {
         e.apply();
     }
 
+    /**
+     * Loads the office data from local settings
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @return Loaded Data
+     */
     private static OfficeData loadOfficeFromLocalStorage(final SharedPreferences preferences) {
         return new OfficeData(
                 preferences.getInt("OfficeId", -1),
@@ -77,6 +92,11 @@ public class Office extends Observable<OfficeObserver> {
         );
     }
 
+    /**
+     * Loads office member data from local settings
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @return Loaded member data
+     */
     private static MemberData[] loadMembersFromLocalStorage(final SharedPreferences preferences) {
         final Gson gson = new Gson();
 
@@ -91,6 +111,11 @@ public class Office extends Observable<OfficeObserver> {
         }
     }
 
+    /**
+     * Writes data of office members into local settings
+     * @param preferences local settings (PfoertnerApplication.getSettings())
+     * @param data Member data to save
+     */
     static void writeMembersToLocalStorage(final SharedPreferences preferences, final MemberData[] data) {
         final Gson gson = new Gson();
 
@@ -102,6 +127,11 @@ public class Office extends Observable<OfficeObserver> {
         e.commit();
     }
 
+    /**
+     * Requests office data from the server (Office members not included) on an io thread
+     * If the load was successful the loaded data is written into memory.
+     * If the data changed, all observers of the office are notified of the changes.
+     */
     private class DownloadOfficeTask extends RequestTask<OfficeData> {
         // TODO: Refactor! Shares many similarities with the other methods
         private SharedPreferences settings;
@@ -154,6 +184,11 @@ public class Office extends Observable<OfficeObserver> {
         }
     }
 
+    /**
+     * Requests office member data for all members of this office from the server on an io thread
+     * If the load was successful the loaded data is written into memory.
+     * If the data changed, all observers of the office are notified of the changes.
+     */
     private class DownloadMembersTask extends RequestTask<MemberData[]> {
         // TODO: Refactor! Shares many similarities with the other methods
         private SharedPreferences settings;
@@ -191,6 +226,9 @@ public class Office extends Observable<OfficeObserver> {
         }
     }
 
+    /**
+     * Uploads current office data to the server on an io thread.
+     */
     private class UploadOfficeTask extends RequestTask<Void> {
         // TODO: Refactor! Shares many similarities with the other methods
         private PfoertnerService service;
@@ -227,6 +265,10 @@ public class Office extends Observable<OfficeObserver> {
     private final UploadOfficeTask uploadOfficeTask = new UploadOfficeTask();
     private final DownloadMembersTask downloadMembersTask = new DownloadMembersTask();
 
+    /**
+     * Converts the member objects of this office to MemberData objects, that can be used in a server call
+     * @return Array of MemberData
+     */
     MemberData[] membersToData() {
         return this.members
                 .stream()
@@ -234,6 +276,14 @@ public class Office extends Observable<OfficeObserver> {
                 .toArray(MemberData[]::new);
     }
 
+    /**
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @param filesDir Directory to load/ save metadata like pictures for office members
+     * @param data Underlying data to fill this wrapper
+     * @param members Underlying data to fill this wrapper
+     */
     private Office(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir, final OfficeData data, final MemberData[] members) {
         super();
 
@@ -244,6 +294,13 @@ public class Office extends Observable<OfficeObserver> {
         this.setMembers(preferences, service, auth, filesDir, members);
     }
 
+    /**
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @param filesDir Directory to load/ save metadata like pictures for office members
+     * @param members Underlying data to fill this wrapper
+     */
     private void setMembers(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir, final MemberData[] members) {
         Log.d(TAG, "Office members are being reset. There have been " + this.members.size() + " members before and there will be " + members.length + " members after this.");
 
@@ -290,18 +347,42 @@ public class Office extends Observable<OfficeObserver> {
         this.notifyEachObserver(officeObserver -> officeObserver.onMembersChanged(newMembers, removedMembers));
     }
 
+    /**
+     * Requests office data from the server (Office members not included) on an io thread
+     * If the load was successful the loaded data is written into memory.
+     * If the data changed, all observers of the office are notified of the changes.
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     */
     public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
         this.downloadOfficeTask.whenDone(
                 aVoid -> downloadOfficeTask.execute(preferences, service, auth)
         );
     }
-
+    /**
+     * Requests office member data for all members of this office from the server on an io thread
+     * If the load was successful the loaded data is written into memory.
+     * If the data changed, all observers of the office are notified of the changes.
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     */
     public void updateMembersAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         this.downloadMembersTask.whenDone(
                 aVoid -> downloadMembersTask.execute(preferences, service, auth, filesDir)
         );
     }
 
+    /**
+     * Uploads office data with a changed status to the server
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @param newStatus New status to upload
+     */
     public void setStatus(final PfoertnerService service, final Authentication auth, final String newStatus) {
         final OfficeData data = new OfficeData(
                 this.id,
@@ -318,6 +399,16 @@ public class Office extends Observable<OfficeObserver> {
         );
     }
 
+    /**
+     * Loads office data including office members from local settings or if no office data exists,
+     * asks server to create a new office and saves it.
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @param filesDir Directory to load/ save metadata like pictures for office members
+     * @return Office
+     */
     public static Office createOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         final OfficeData officeData;
 
@@ -349,6 +440,16 @@ public class Office extends Observable<OfficeObserver> {
         return new Office(preferences, service, auth, filesDir, officeData, members);
     }
 
+    /**
+     * Loads office data for this office from the server or from local settings if loading from the server fails.
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @param filesDir Directory to load/ save metadata like pictures for office members
+     * @throws RuntimeException if no office data was ever created or the settings are invalid
+     * @return
+     */
     public static Office loadOffice(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         final int officeID = preferences.getInt("OfficeId", -1);
         if (officeID == -1){
@@ -364,6 +465,16 @@ public class Office extends Observable<OfficeObserver> {
         );
     }
 
+    /**
+     * Loads office data for an office from the server or from local settings if loading from the server fails.
+     *
+     * @param officeId Id of the office to load
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @param filesDir Directory to load/ save metadata like pictures for office members
+     * @return Loaded office
+     */
     public static Office loadOffice(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         final OfficeData officeData = new ResourceInitProtocol<OfficeData>() {
             @Override
@@ -392,6 +503,15 @@ public class Office extends Observable<OfficeObserver> {
         return new Office(preferences, service, auth, filesDir, officeData, members);
     }
 
+    /**
+     * Loads office member data for an office from the server or from local settings if loading from the server fails.
+     *
+     * @param officeId Id of the office to load
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication to make server calls (PfoertnerApplication.getAuthentication())
+     * @return Loaded member data
+     */
     private static MemberData[] loadMembers(final int officeId, final SharedPreferences preferences, final PfoertnerService service, final Authentication auth) {
         return new ResourceInitProtocol<MemberData[]>(
                 "Could not load members of office."
@@ -416,6 +536,10 @@ public class Office extends Observable<OfficeObserver> {
         }.execute();
     }
 
+    /**
+     * @param settings Local settings (PfoertnerApplication.getSettings())
+     * @return True if an office was saved in local settings
+     */
     public static boolean hadBeenRegistered(final SharedPreferences settings) {
         return settings.contains("OfficeId");
     }

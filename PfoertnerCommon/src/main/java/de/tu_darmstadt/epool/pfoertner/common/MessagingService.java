@@ -33,12 +33,20 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Service that always runs, handles Firebase notifications and sends them into EventChannel
+ */
 public class MessagingService extends FirebaseMessagingService {
     private static final String TAG = "MessagingService";
     private EventChannel eventChannel;
 
     private CompositeDisposable disposables;
 
+    /**
+     * Upload a firebase token to the server. This is needed for the server to address this device with notifications.
+     *
+     * @param token Firebase token to upload
+     */
     private void registerToken(final String token) {
         Log.d(TAG,"About to upload new token.");
 
@@ -73,6 +81,9 @@ public class MessagingService extends FirebaseMessagingService {
                 );
     }
 
+    /**
+     * Make sure the application is initialized when the service runs
+     */
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(MessagingService.this);
 
@@ -95,6 +106,10 @@ public class MessagingService extends FirebaseMessagingService {
         );
     }
 
+    /**
+     * Android callback, called when the views are created.
+     * Initializes the app and the event channel and creates a notification channel for displaying custom notifications
+     */
     @Override
     public void onCreate() {
         Log.d(TAG, "Messaging service startet.");
@@ -114,6 +129,9 @@ public class MessagingService extends FirebaseMessagingService {
         init();
     }
 
+    /**
+     * Android callback, called when the views are destroyed. Disposes all rxjava callbacks.
+     */
     @Override
     public void onDestroy() {
         Log.d(TAG, "The messaging service is being destroyed.");
@@ -123,6 +141,13 @@ public class MessagingService extends FirebaseMessagingService {
         disposables.dispose();
     }
 
+    /**
+     * Called when a firebase notification arrives.
+     * If the notification data contains the key notification displays a notification.
+     * If the notification data contains the key event sends the event via the event channel.
+     *
+     * @param remoteMessage The firebase notification
+     */
     @Override
     public void onMessageReceived(final RemoteMessage remoteMessage) {
         // TODO: What if SyncService is not running, while we receive an important notification?
@@ -160,6 +185,10 @@ public class MessagingService extends FirebaseMessagingService {
         }
     }
 
+    /**
+     * Called when a firebase token is assigned to the device. Uploads the token to the server.
+     * @param token
+     */
     @Override
     public void onNewToken(final String token) {
         Log.d(TAG, "Refreshed token: " + token);

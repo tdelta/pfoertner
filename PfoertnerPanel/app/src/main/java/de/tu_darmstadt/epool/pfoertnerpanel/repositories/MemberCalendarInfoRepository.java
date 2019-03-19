@@ -23,16 +23,31 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Calendar Info should not be synchronized with the server.
+ * This repository only saves and loads data from the local database.
+ */
 public class MemberCalendarInfoRepository {
     private static final String TAG = "MemberCalendarInfoRepository";
     private final PanelDatabase db;
     private final PanelApplication app;
 
+    /**
+     * @param db Database (PfoertnerApplication.getDb())
+     * @param app PanelApplication, specific implementation of application context
+     */
     public MemberCalendarInfoRepository(final PanelDatabase db, final PanelApplication app) {
         this.db = db;
         this.app = app;
     }
 
+    /**
+     * Asynchronously loads member data from the database. The data is only returned after the access token is refreshed and valid.
+     * Also requests a new webhook for calendar updates if it has expired.
+     *
+     * @param memberId The id of the office member to load
+     * @return LiveData object that can be observed by a lifecycle owner and receives updates if there are changes in the database
+     */
     // TODO: Properly dispose disposables
     @SuppressWarnings("CheckResult")
     public LiveData<MemberCalendarInfo> getCalendarInfoByMemberId(final int memberId) {
@@ -71,6 +86,13 @@ public class MemberCalendarInfoRepository {
         return calendarInfoFilter;
     }
 
+    /**
+     * Requests notifications for calendar updates from google that will be sent to our server
+     * (resulting in fcm notifications to the app)
+     *
+     * @param calendarInfo Login and webhook information
+     * @return A Completable that calls onComplete, when the call to the google api is done.
+     */
     private Completable refreshWebhook(MemberCalendarInfo calendarInfo){
         return app.getRepo()
                 .getMemberRepo()
@@ -94,6 +116,11 @@ public class MemberCalendarInfoRepository {
                 .subscribeOn(Schedulers.io());
     }
 
+    /**
+     * Requests a refreshed authentication token using the saved refresh token and saves the result in the local database.
+     * @param calendarInfo Login information
+     * @return A Completable that calls onComplete, when the call to the google api is done.
+     */
     private Completable refreshOAuthToken(MemberCalendarInfo calendarInfo){
         return app.getCalendarApi()
                 .getAccessTokenFromRefreshToken(calendarInfo.getRefreshToken())
@@ -107,6 +134,11 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    /**
+     * Loads the calendar id for a member from the database
+     * @param memberId Id of the member to load
+     * @return A Single Object that asynchronously delivers data once, when the database access is done
+     */
     public Single<MemberCalendarInfo> getCalendarInfoByMemberIdOnce(final int memberId) {
         return createIfNotPresent(memberId)
                 .andThen(
@@ -120,6 +152,11 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    /**
+     * Asynchronously writes calendar info into the database
+     * @param memberId Id of the office member to write
+     * @return Completable that calls onComplete when the database access is done
+     */
     private Completable createIfNotPresent(final int memberId) {
         return Completable.fromRunnable(
                 () -> db.memberCalendarInfoDao().insert(
@@ -136,6 +173,16 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    /**
+     * Asynchronously writes authenticaion information into the database
+     * @param memberId Id of the office member to write to
+     * @param serverAuthCode Server authentication code
+     * @param oAuthToken Authentication token (used to make requests)
+     * @param refreshToken Refresh token (used to get Authentication tokens)
+     * @param oAuthTtlMinutes Time to live for the authentication token in minutes
+     * @param created Timestamp when the authentication token was received
+     * @return Completable that calls onComplete when the database access is done
+     */
     public Completable setOAuthToken(final int memberId,
                                      final String serverAuthCode,
                                      final String oAuthToken,
@@ -159,6 +206,13 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    /**
+     * Asynchronously writes the expiration time for the webhook into the database
+     *
+     * @param memberId Id of the office member to write to
+     * @param newWebhookExpirationUnixtimestamp New Expiration time
+     * @return Completable that calls onComplete when the database access is done
+     */
     public Completable setWebhookExpiration(final int memberId, final long newWebhookExpirationUnixtimestamp){
         final LocalDateTime webhookExpirationDate =
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(newWebhookExpirationUnixtimestamp), ZoneId.systemDefault());
@@ -167,6 +221,13 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    /**
+     * Asynchronously writes the calendar url into the local database
+     *
+     * @param memberId Id of the office member to write to
+     * @param newCalendarId new calendar id
+     * @return Completable that calls onComplete when the database access is done
+     */
     public Completable setCalendarId(final int memberId, final String newCalendarId) {
         return modifyCalendarInfo(memberId, calendarInfoEntityCopy ->
                 calendarInfoEntityCopy.setCalendarId(newCalendarId)
@@ -179,6 +240,13 @@ public class MemberCalendarInfoRepository {
                 );
     }
 
+    /**
+     * Performs a database operation to change a given member calendar info
+     *
+     * @param memberId Id of the office member to write to
+     * @param modifier Modifier accepts the current MemberCalenderInfoEntity and makes changes to it, before writing into the database
+     * @return Completable that calls onComplete when the database access is done
+     */
     private Completable modifyCalendarInfo(final int memberId, final Consumer<MemberCalendarInfoEntity> modifier) {
         return
                 db

@@ -50,6 +50,13 @@ public class PfoertnerApplication extends Application {
 
     private Completable initProcess = null;
 
+    /**
+     * Creates the init process. It is saved in a variable and cached to prevent multiple concurrent initializations.
+     * Creates a device account at the server or loads it from local settings.
+     * Loads office data from the server if the app has already joined an office.
+     *
+     * @return Completable that calls onComplete, when the app is initialized.
+     */
     private Completable buildInitProcess() {
         return Single.fromCallable(
                 () -> {
@@ -132,7 +139,14 @@ public class PfoertnerApplication extends Application {
                 );
     }
 
-    // Needs to be called in a RequestTask
+    /**
+     * Returns the init process. It is saved in a variable and cached to prevent multiple concurrent initializations.
+     * Creates a device account at the server or loads it from local settings.
+     * Loads office data from the server if the app has already joined an office.
+     *
+     * @return Completable that calls onComplete, when the app is initialized.
+     * @return
+     */
     public synchronized Completable init() {
         if (initProcess == null) {
             Log.d(TAG, "Building the initialization process completable.");
@@ -151,6 +165,10 @@ public class PfoertnerApplication extends Application {
 
     protected void onInit() { }
 
+    /**
+     * Android callback, called when the app is started.
+     * Initializes libraries and starts the SyncService, when the initialization at the server is complete.
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -174,16 +192,26 @@ public class PfoertnerApplication extends Application {
                 );
     }
 
+    /**
+     * @throws IllegalStateException if init was not called or is not complete.
+     */
     protected void checkInitStatus() {
         if (!hadBeenInitialized) {
             throw new IllegalStateException("The application has to be initialized before you can use most methods!");
         }
     }
 
+    /**
+     * @param context Activity, Service or application context
+     * @return The singleton instance of this class
+     */
     public static PfoertnerApplication get(final Context context) {
         return (PfoertnerApplication) context.getApplicationContext();
     }
 
+    /**
+     * @return Persistent app settings
+     */
     public SharedPreferences getSettings() {
         return this.preferences;
     }
@@ -229,6 +257,11 @@ public class PfoertnerApplication extends Application {
         return this.maybeOffice.isPresent();
     }
 
+    /**
+     * Sets the office variable of this class and saves the office in the room database.
+     * @param office Office to save
+     * @return Completable that calls onComplete, when the office is saved
+     */
     public Completable setOffice(final Office office) {
         checkInitStatus();
 
@@ -266,6 +299,9 @@ public class PfoertnerApplication extends Application {
                 );
     }
 
+    /**
+     * @return ReplaySubject, returns the officeId when a new Observer subscribes, if the device has already joined an office
+     */
     public ReplaySubject<Integer> observeOfficeId() {
         return officeIdSubject;
     }
@@ -288,6 +324,9 @@ public class PfoertnerApplication extends Application {
         return this.api;
     }
 
+    /**
+     * @return CompletableSubject calls onComplete when the initialization is done.
+     */
     public CompletableSubject observeInitialization() {
         return this.isInitializedSubject;
     }
