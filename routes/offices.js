@@ -15,6 +15,7 @@ var notify = require('../notify.js');
 var notifyOfficeSubscribers = notify.notifyOfficeSubscribers;
 var notifyPanel = notify.notifyPanel;
 
+var pwgenerator = require('generate-password');
 
 /**
  * ENDPOINT: POST /offices/
@@ -36,7 +37,12 @@ var notifyPanel = notify.notifyPanel;
  * 
  */
 router.post('/', auth.authFun(), (req, res) => {
-  var joinCode = 'Hallo Welt';
+  const joinCode = pwgenerator.generate({
+    length: 30,
+    numbers: true,
+    symbols: true,
+    strict: true,
+  });
 
   const device = req.user;
 
@@ -115,7 +121,7 @@ router.post('/:officeId/members', auth.authFun(), (req, res) => {
       ).then(member => {
         newOfficeMember = member;
         // Send fcm notification
-        notifyOfficeSubscribers(office, 'AdminJoined');
+        notifyOfficeSubscribers(office, 'AdminJoined', office.id.toString());
         res.status(200);
         res.send(newOfficeMember);
       });
@@ -234,7 +240,9 @@ function authenticateOfficeMember(req, res) {
           (loggedIn != null && loggedIn.OfficeId === officeId) ||
           device.OfficeId === officeId
         ) {
-          console.log('Office member authenticated');
+          console.log(
+            'Office member with device ' + device.id + ' authenticated'
+          );
           response();
         }
         // No user belongs to the device or the user belonging to the
@@ -306,21 +314,19 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
  * 
  */
 router.get('/:officeId/spion', auth.authFun(), (req, res) => {
-  console.log("/offices/id/spion");
-  console.log(req.headers);
-  console.log(req.user);
-  
+  console.log('GET /offices/' + req.officeId + '/spion has been called.');
+
   const officeId = parseInt(req.params.officeId, 10);
 
-  authenticateAnyOfficeDevice(officeId, req, res).then(
-    office => {
-      if (office.picture == null) {
-        res.status('404').send('There is no spion picture in this office');
-      } else {
-        res.sendFile('/' + req.params.officeId + '.jpg', { root: 'spionuploads' });
-      }
+  authenticateAnyOfficeDevice(officeId, req, res).then(office => {
+    if (office.spionPicture == null) {
+      res.status('404').send('There is no spion picture in this office');
+    } else {
+      res.sendFile('/' + req.params.officeId + '.jpg', {
+        root: 'spionuploads',
+      });
     }
-  );
+  });
 });
 
 /**
@@ -341,36 +347,43 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
 
   const officeId = parseInt(req.params.officeId, 10);
 
-  authenticateAnyOfficeDevice(officeId, req, res).then(
-    office => {
-      picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
-        if (err) {
-          return res.status(500).send(err);
-        }
-        
-        else {
-          console.log('Das Office' + office);
-          office
-            .update({
-              spionPicture:
-                'http://deh.duckdns.org:3000/offices/' +
-                req.params.officeId +
-                '/spion',
-              spionPictureMD5: hash,
-            })
-            .then(() => {
-              notifyOfficeSubscribers(
-                office,
-                'OfficeUpdated',
-                officeId.toString()
-              );
+  authenticateAnyOfficeDevice(officeId, req, res).then(office => {
+    picture.mv('spionuploads/' + req.params.officeId + '.jpg', function(err) {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        const downloadPath =
+          'https://deh.duckdns.org:3000/offices/' +
+          req.params.officeId +
+          '/spion';
 
-              res.status(200).send('File uploaded!');
-            });
-        }
-      });
-    }
-  );
+        console.log(
+          '\nUploaded new spion picture for office ' +
+            office.id +
+            ' with hash ' +
+            hash +
+            '. It will be available on ' +
+            downloadPath +
+            '.\n'
+        );
+
+        office
+          .update({
+            spionPicture: downloadPath,
+            spionPictureMD5: hash,
+          })
+          .then(() => {
+            notifyOfficeSubscribers(
+              office,
+              'OfficeDataUpdated',
+              officeId.toString()
+            );
+
+            res.status(200).send('File uploaded!');
+          });
+      }
+    });
+  });
 });
 
 /**
@@ -386,11 +399,9 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
 router.get('/:officeId/takephoto', auth.authFun(), (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
-  authenticateAnyOfficeDevice(officeId, req, res).then(
-    office => {
-      notifyPanel(office, 'takephoto')
-    }
-  );
+  authenticateAnyOfficeDevice(officeId, req, res).then(office => {
+    notifyPanel(office, 'takephoto');
+  });
 
   return res.status(200).send('takephoto fcm event successfully sent.');
 });

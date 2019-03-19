@@ -8,6 +8,10 @@ var models = require('../models/models.js');
 // Get interface to firebase
 const firebase = require('../firebase/firebase.js');
 
+var notify = require('../notify.js');
+var notifyDevice = notify.notifyDevice;
+
+
 /**
  * ENDPOINT: POST /devices/
  * 
@@ -41,20 +45,51 @@ router.post('/', (req, res) => {
  * 
  */
 router.patch('/:id/fcmToken', auth.authFun(), (req, res) => {
+  const device = req.user;
+
   if (req.body.fcmToken == null) {
+    console.error(
+      'Failed to set fcm token of device ' +
+        device.id +
+        ' since there was no token info in the body of the request.'
+    );
+
     res.status(400).send({ message: 'You need to provide a new fcm token.' });
   } else {
-    const device = req.user;
+    const targetId = parseInt(req.params.id, 10);
 
-    if (parseInt(req.params.id, 10) === device.id) {
+    if (targetId === device.id) {
       const fcmToken = req.body.fcmToken;
 
       device
         .update({
           fcmToken: fcmToken,
         })
-        .then(() => res.send(device));
+        .then(updatedDevice => {
+          console.info(
+            'Saved new FCM token ' +
+              updatedDevice.fcmToken +
+              ' for device ' +
+              updatedDevice.id
+          );
+
+          notifyDevice(
+            updatedDevice,
+            'DeviceUpdated',
+            updatedDevice.id.toString()
+          );
+
+          res.send(device);
+        });
     } else {
+      console.error(
+        'Setting the fcm token for device ' +
+          device.id +
+          ' failed, since it tried to set the token of device ' +
+          targetId +
+          ', not its own.'
+      );
+
       res
         .status(401)
         .send({ message: 'You cannot access devices but your own.' });

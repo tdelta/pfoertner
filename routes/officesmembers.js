@@ -68,7 +68,7 @@ router.patch('/:id/picture', (req, res) => {
           officemember
             .update({
               picture:
-                'http://deh.duckdns.org:3000/officemembers/' +
+                'https://deh.duckdns.org:3000/officemembers/' +
                 req.params.id +
                 '/picture',
               pictureMD5: hash,
@@ -241,8 +241,9 @@ router.get('/:id/appointments', auth.authFun(), (req, res) => {
  * 
  */
 router.post('/:id/appointment', auth.authFun(), (req, res) => {
-  let start = req.body.start;
-  let end = req.body.end;
+  const start = req.body.start;
+  const end = req.body.end;
+
   if (!start || !end) {
     res.status('400').send('You must specify a start and end date');
     return;
@@ -253,6 +254,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
       appointment.setOfficeMember(officemember);
       officemember.getDevice().then(device => {
         firebase.sendNotification(
+          device.id,
           device.fcmToken,
           'New Appointment request',
           start.split(' ')[0] +
@@ -260,7 +262,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
             start.split(' ')[1] +
             ' to ' +
             end.split(' ')[1],
-          'AppointmentActivity',
+          'MainActivity',
           [
             {
               title: 'Accept',
@@ -273,6 +275,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
           ],
           appointment
         );
+
         officemember.getOffice().then(office => {
           notifyOfficeSubscribers(
             office,
@@ -280,6 +283,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
             officemember.id.toString()
           );
         });
+
         res.status('200').send('Successfully sent appointment request');
       });
     });

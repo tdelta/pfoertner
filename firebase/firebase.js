@@ -3,12 +3,14 @@ var admin = require('firebase-admin');
 var serviceAccount = require('./firebase-secret.json');
 
 module.exports.initialize = function() {
-  console.log('Initializing firebase connection');
+  console.info('Initializing firebase connection');
+
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://pfoertner-2b302.firebaseio.com',
   });
 };
+
 /**
  * This function sends a fcmMessage to the device with the
  * fcmToken matching deviceToken. 
@@ -17,15 +19,26 @@ module.exports.initialize = function() {
  * @param {*} message message which will be send to the receiver
  * 
  */
-sendMessage = function(deviceToken, message) {
+
+
+sendMessage = function(deviceId, deviceToken, message) {
+  console.info('Sending message to device ' + deviceId + ': ', message);
+
   admin
     .messaging()
     .send(message)
     .then(response => {
-      console.log('Successfully sent message:', response);
+      console.info('Successfully sent message:', response);
     })
     .catch(error => {
-      console.log('Error sending message:', error);
+      console.error(
+        'Error sending message to device ' +
+          deviceId +
+          ' with token ' +
+          deviceToken +
+          ':',
+        error
+      );
     });
 };
 
@@ -42,6 +55,7 @@ sendMessage = function(deviceToken, message) {
  * 
  */
 module.exports.sendNotification = function(
+  deviceId,
   deviceToken,
   title,
   body,
@@ -53,25 +67,27 @@ module.exports.sendNotification = function(
     title: title,
     body: body,
     buttons: buttons,
-    intent: activity,
+    activity: activity,
     data: data,
   };
+
   notification = JSON.stringify(notification);
 
-  var message = {
+  const message = {
     token: deviceToken,
     data: {
       notification: notification,
     },
   };
-  sendMessage(deviceToken, message);
+
+  sendMessage(deviceId, deviceToken, message);
 };
 
 // sends data to the app. this is not displayed as a notification when the app is in the background
-module.exports.sendData = function(deviceToken, data) {
+module.exports.sendData = function(deviceId, deviceToken, data) {
   var message = {
     token: deviceToken,
     data: data,
   };
-  sendMessage(deviceToken, message);
+  sendMessage(deviceId, deviceToken, message);
 };
