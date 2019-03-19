@@ -83,7 +83,8 @@
             android:layout_margin="32dp"
             android:background="@color/selected"
             android:onClick="onConfirmAppointment"
-            android:text="CONFIRM APPOINTMENT" />
+            android:text="CONFIRM APPOINTMENT"
+            android:textColor="@color/pfoertner_light_primary_dark_text" />
 
         <Button
             android:id="@+id/athenebutton"
@@ -92,7 +93,8 @@
             android:layout_margin="32dp"
             android:background="@color/colorPrimary"
             android:onClick="onAtheneInfo"
-            android:text="Optional: Register your Athene Card" />
+            android:text="Info: Register your Athene Card"
+            android:textColor="@color/pfoertner_light_primary_dark_text" />
 
     </LinearLayout>
 
