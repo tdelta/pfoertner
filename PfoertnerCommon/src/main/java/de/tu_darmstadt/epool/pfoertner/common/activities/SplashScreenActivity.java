@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Activity used to display a Splash screen.
+ * It can be used to hide the UI until it is ready.
+ */
 public class SplashScreenActivity extends AppCompatActivity {
     private static final String TAG = "SplashScreenActivity";
 

@@ -72,11 +72,17 @@ public class AtheneReader {
         }
     }
 
+    /**
+     * Disable capturing of NFC data, if the activity is paused
+     */
     public void pause(){
         // when this activity is paused, there is no more need to capture nfc data
         mAdapter.disableForegroundDispatch(mContext);
     }
 
+    /**
+     * Resume capturing of NFC data, if the activity is resumed after being paused.
+     */
     public void resume(){
         // when discovering a nfc tag (athene card) dispatch it to this activity, if it is on top
         mAdapter.enableForegroundDispatch(
@@ -87,10 +93,16 @@ public class AtheneReader {
         );
     }
 
+    /**
+     * Check, whether an NFC token has been detected
+     */
     public boolean isTechDiscovered(Intent intent){
         return NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction());
     }
 
+    /**
+     * Reads Athene Id from a card.
+     */
     public String extractAtheneId(Intent intent){
         final Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG); // the intent will carry the nfc card (tag) as extra data
 
@@ -98,6 +110,9 @@ public class AtheneReader {
         return atheneId.toString();
     }
 
+    /**
+     * Play a beep sound.
+     */
     public void beep(){
         mediaPlayer.start();
     }

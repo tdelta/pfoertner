@@ -18,6 +18,10 @@ import de.tu_darmstadt.epool.pfoertneradmin.AdminApplication;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
 
+/**
+ * First fragment shown in MainActivity. It corresponds to the "Home" entry in
+ * the Drawer
+ */
 public class MainScreenFragment extends Fragment {
     public MainScreenFragment() {
 

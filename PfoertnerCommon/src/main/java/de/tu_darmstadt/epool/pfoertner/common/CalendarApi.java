@@ -35,6 +35,10 @@ import java.util.Arrays;
 import de.tu_darmstadt.epool.pfoertner.common.synced.observers.MemberObserver;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 
+/**
+ * (Old class for accessing the Google Calendar API. Can be removed.)
+ */
+@Deprecated
 public class CalendarApi implements MemberObserver {
 
     private static final String TAG = "CalendarApi";

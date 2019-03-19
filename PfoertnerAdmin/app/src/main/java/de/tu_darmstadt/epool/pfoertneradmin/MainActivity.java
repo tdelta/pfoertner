@@ -36,6 +36,9 @@ import de.tu_darmstadt.epool.pfoertneradmin.fragments.ShowQrCodeFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.fragments.SpionFragment;
 import de.tu_darmstadt.epool.pfoertneradmin.viewmodels.MemberProfileViewModel;
 
+/**
+ * First Activity which is run after the App has been started.
+ */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PfoertnerAdmin_MainActivity";
     private final static int MY_PERMISSIONS_READ_CALENDAR = 1;
@@ -70,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Reaction to pressing the back button
+     *
+     * - Closes the drawer, if it is open
+     * - Goes back to the previously shown fragment otherwise
+     */
     @Override
     public void onBackPressed() {
         mDrawerLayout = findViewById(R.id.drawer_layout);

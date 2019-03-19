@@ -7,6 +7,9 @@ import android.arch.lifecycle.Observer;
 import android.database.Observable;
 import android.support.annotation.Nullable;
 
+/**
+ * Collection of utilities for manipulating Room LiveData.
+ */
 public class LiveDataUtils {
     /**
      * Helper function that delivers the first data to an observer and then unregisters it.
