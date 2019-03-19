@@ -14,6 +14,10 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 
+/**
+ * Class for maintaining global application state that is required in the 
+ * whole app
+ */
 public class AdminApplication extends PfoertnerApplication {
     private Optional<Integer> maybeMemberId = Optional.empty();
 
@@ -29,6 +33,10 @@ public class AdminApplication extends PfoertnerApplication {
         startService(new Intent(this,ProcessAppointmentRequest.class));
     }
 
+    /**
+     * Set the id of the member
+     * @param id the new id
+     */
     public void setMemberId(final int id) {
         checkInitStatus();
 
@@ -40,6 +48,10 @@ public class AdminApplication extends PfoertnerApplication {
         this.maybeMemberId = Optional.of(id);
     }
 
+    /**
+     * Retrieve the id of the member
+     * @return the id
+     */
     public int getMemberId() {
         checkInitStatus();
 
@@ -53,10 +65,18 @@ public class AdminApplication extends PfoertnerApplication {
         }
     }
 
+    /**
+     * Check if the member has an id
+     * @return true if the member has an id else false
+     */
     public boolean hasMemberId() {
         return this.maybeMemberId.isPresent();
     }
 
+    /**
+     * Get an instance of of the Application
+     * @param context the context of the application
+     */
     public static AdminApplication get(final Context context) {
         return (AdminApplication) context.getApplicationContext();
     }

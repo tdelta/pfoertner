@@ -8,7 +8,16 @@ import android.content.Intent;
 
 import de.tu_darmstadt.epool.pfoertner.common.MessagingService;
 
+/**
+ * Class for code that receives and handles broadcast intents.
+ * It is started on device startup.
+ */
 public class BootDeviceReceiver extends BroadcastReceiver {
+    /**
+     * Method is called when the receiver receives a broadcast
+     * @param context The Context in which the receiver is running.
+     * @param intent The Intent being received.
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent messagingServiceIntent = new Intent(context, MessagingService.class);
