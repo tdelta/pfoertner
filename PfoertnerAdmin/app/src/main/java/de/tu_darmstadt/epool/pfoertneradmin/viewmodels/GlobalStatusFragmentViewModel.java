@@ -32,6 +32,12 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
 
     private CompositeDisposable disposables;
 
+    /**
+     * Constructor of the GlobalStatusFragmentViewModel class.
+     * Initializes repo.
+     *
+     * @param rawApp PfoertnerApplication
+     */
     public GlobalStatusFragmentViewModel(final Application rawApp) {
         super(rawApp);
 
@@ -40,6 +46,11 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
         repo = app.getRepo();
     }
 
+    /**
+     * This method initializes the GlobalStatusFragment.
+     *
+     * @param officeId of the given office
+     */
     @SuppressWarnings("unchecked")
     public void init(final int officeId) {
         if (this.currentOfficeStatusIdx != null) {
@@ -102,6 +113,13 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * This method transforms status strings to their
+     * corresponding idxs.
+     *
+     * @param str status string
+     * @return to the given status string corresponding idx
+     */
     private int statusToIdx(final String str) {
         final int i = statusList.indexOf(str);
 
@@ -114,26 +132,57 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * Getter for currentOfficeStatusIdx
+     *
+     * @return currentOfficeStatusIdx
+     */
     public LiveData<Integer> getCurrentOfficeStatusIdx() {
         return currentOfficeStatusIdx;
     }
 
+    /**
+     * Setter for NewIdx
+     *
+     * @param newIdx which will be set
+     */
     public void setNewIdx(final int newIdx) {
         this.newIdx = newIdx;
     }
 
+    /**
+     * Getter for NewIdx
+     *
+     * @return newIdx
+     */
     public int getNewIdx() {
         return this.newIdx;
     }
 
+    /**
+     * Gette for the currently selected status
+     *
+     * @return currently selected status
+     */
     public String getSelectedStatus() {
         return this.statusList.get(this.getNewIdx());
     }
 
+    /**
+     * Getter of statusList
+     *
+     * @return list of the currently available status
+     */
     public List<String> getStatusList() {
         return statusList;
     }
 
+    /**
+     * This method is called, in order to add a newly created
+     * status to the list of status
+     *
+     * @param text new office status
+     */
     public void addToStatusList(final String text) {
         if (!text.trim().equals("") && !statusList.contains(text.trim())) {
             final PfoertnerApplication app = PfoertnerApplication.get(getApplication().getApplicationContext());
@@ -148,6 +197,10 @@ public class GlobalStatusFragmentViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * This method sets the global office status
+     *
+     */
     public void setStatus() {
         final String newStatus = statusList.get(getNewIdx());
 

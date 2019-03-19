@@ -40,6 +40,10 @@ import io.reactivex.schedulers.Schedulers;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import android.arch.lifecycle.LiveDataReactiveStreams;
 
+/**
+ * Activity that is used for making appointments.
+ * Creates Dayviews and TimeSlotViews as needed
+ */
 public class ScheduleAppointment extends AppCompatActivity {
     private final String TAG = "NewScheduleAppointment";
     private LocalDateTime now;

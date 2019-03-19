@@ -28,6 +28,10 @@ import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertnerpanel.helpers.AtheneReader;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Activity that is used to confirm an appointment and
+ * to specify details for an appointment.
+ */
 public class MakeAppointment extends AppCompatActivity {
     private static final String TAG = "MakeAppointment";
     private final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
