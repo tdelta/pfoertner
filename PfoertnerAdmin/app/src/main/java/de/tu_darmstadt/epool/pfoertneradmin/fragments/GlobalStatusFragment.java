@@ -50,6 +50,12 @@ public class GlobalStatusFragment extends Fragment {
         return mainView;
     }
 
+    /**
+     *
+     * This method is called to trigger the status creation
+     * for the office.
+     *
+     */
     private void triggerStatusCreation() {
         final AlertDialog enterNewStatus;
         {
@@ -70,6 +76,12 @@ public class GlobalStatusFragment extends Fragment {
         enterNewStatus.show();
     }
 
+    /**
+     *
+     * This method is called to trigger the status selection
+     * for the office.
+     *
+     */
     private void triggerStatusSelection() {
         final AlertDialog status_select = new AlertDialog.Builder(getActivity())
                 .setTitle("Select Global Status")
