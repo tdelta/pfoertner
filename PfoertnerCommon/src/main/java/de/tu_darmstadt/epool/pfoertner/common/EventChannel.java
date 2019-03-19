@@ -8,6 +8,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+/**
+ * Wrapper for broadcast manager, used to communicate between Messaging Service and Activities.
+ */
 public class EventChannel {
     private static final String TAG = "EventChannel";
 
@@ -27,11 +30,17 @@ public class EventChannel {
     private final LocalBroadcastManager broadcaster;
     private boolean listening = false;
 
+    /**
+     * @param context Context to set up the LocalBroadcastManager
+     */
     public EventChannel(final Context context) {
         this.context = context;
         broadcaster = LocalBroadcastManager.getInstance(context);
     }
 
+    /**
+     * Listen for events, call onEvent when an event is received.
+     */
     public void listen() {
         if (!listening) {
             LocalBroadcastManager.getInstance(context).registerReceiver(messageReceiver,
@@ -42,12 +51,21 @@ public class EventChannel {
         }
     }
 
+    /**
+     * Stop listening for events.
+     */
     public void shutdown() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(messageReceiver);
 
         listening = false;
     }
 
+    /**
+     * Send an event to every EventChannel instance.
+     *
+     * @param eventType Type of the event
+     * @param payload Payload of the event
+     */
     public void send(final EventType eventType, final @Nullable String payload) {
         final Intent intent = new Intent("events");
 
@@ -57,6 +75,12 @@ public class EventChannel {
         broadcaster.sendBroadcast(intent);
     }
 
+    /**
+     * Should be implemented when using this class. Callback for received events.
+     *
+     * @param e Type of the received event
+     * @param payload Payload of the received event
+     */
     protected void onEvent(final EventType e, final @Nullable String payload) {
 
     }

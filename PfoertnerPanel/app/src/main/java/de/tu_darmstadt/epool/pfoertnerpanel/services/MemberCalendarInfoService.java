@@ -25,12 +25,19 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
+/**
+ * Service that listens for changes in office members and retrieves a refresh token,
+ * if the office member is connecting his/ her google account.
+ */
 public class MemberCalendarInfoService extends LifecycleService {
     private static final String TAG = "MemberCalendarInfoService";
 
     private CompositeDisposable disposables;
     private MemberCollectionsDiffTool membersDiffTool;
 
+    /**
+     * Update to the office member to process
+     */
     private class UpdatedMemberWork {
         final int memberId;
         final String serverAuthCode;
@@ -50,6 +57,13 @@ public class MemberCalendarInfoService extends LifecycleService {
         return null;
     }
 
+    /**
+     * Android callback, called when the service is started
+     * @param intent Intent that started the service
+     * @param flags Flags of the intent
+     * @param startId Id of the intent
+     * @return START_STICKY: Restart the service if it is terminated
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -79,6 +93,9 @@ public class MemberCalendarInfoService extends LifecycleService {
         waitForAppInit();
     }
 
+    /**
+     * Calls observerOfficeInit, when the initialization of the app is complete
+     */
     private void waitForAppInit() {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -91,6 +108,10 @@ public class MemberCalendarInfoService extends LifecycleService {
         );
     }
 
+    /**
+     * Called when there was an update to an office member. Triggers process work for every member that changed.
+     * @param members New office member data
+     */
     private void reactToMembersChange(final List<Member> members) {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -112,6 +133,16 @@ public class MemberCalendarInfoService extends LifecycleService {
         }
     }
 
+    /**
+     * Called when there was an update to an office member.
+     * Checks if the server authentication code changed.
+     * If so, requests a new refresh and authentication token from the server.
+     * Afterwards, uses the authentication token to load the url of the calendar "Office hours"
+     * and requests push notifications for that url via a webhook.
+     * Finally saves the gathered information in the database.
+     * @param work
+     * @return
+     */
     private Completable processWork(final UpdatedMemberWork work) {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -191,6 +222,10 @@ public class MemberCalendarInfoService extends LifecycleService {
                         .subscribeOn(Schedulers.single());
     }
 
+    /**
+     * Called when an office id is retrieved, after the app joined an office
+     * @param officeId Id of the office that the observed members belong to.
+     */
     private void observeMembersChange(final int officeId) {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -206,6 +241,9 @@ public class MemberCalendarInfoService extends LifecycleService {
                 );
     }
 
+    /**
+     * Called when the initialization of the app is done. Starts the work queue that listens to changes in office members.
+     */
     private void observeOfficeInit() {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -229,6 +267,10 @@ public class MemberCalendarInfoService extends LifecycleService {
         );
     }
 
+    /**
+     * Android lifecycle method called when the service is destroyed.
+     * Disposes all rxjava callbacks.
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -238,6 +280,12 @@ public class MemberCalendarInfoService extends LifecycleService {
         Log.d(TAG, "Destroyed service.");
     }
 
+    /**
+     * Makes an asynchronous call to google to retrieve refresh token and an authorization token from a server auth code.
+     * @param memberId The id of the office member, that the auth code belongs to
+     * @param serverAuthCode The server auth code used to make the request
+     * @return A Single that delivers a GoogleTokenResponse, containing refresh and authorization token, when the request to the server is done
+     */
     @SuppressWarnings("CheckResult")
     private Single<GoogleTokenResponse> fetchNewOAuthToken(final int memberId, final String serverAuthCode) {
         final PanelApplication app = PanelApplication.get(this);
@@ -252,6 +300,16 @@ public class MemberCalendarInfoService extends LifecycleService {
                         .observeOn(AndroidSchedulers.mainThread());
     }
 
+    /**
+     * Asynchronously saves authorization and webhook information in the database.
+     * @param memberId Id of the office member that the information belongs to
+     * @param serverAuthCode Server authentication code
+     * @param tokenResponse Google token response containing refresh token and authorization token
+     * @param calendarId Url for the google calendar "Office hours"
+     * @param webhookExpiration Unix timestamp of the expiration time of the webhook
+     * @param webhookId Id of the webhook for push notifications
+     * @return A Completable that calls onComplete, when the database access is done.
+     */
     private Completable saveCalendarInfo(final int memberId,
                                          final String serverAuthCode,
                                          final GoogleTokenResponse tokenResponse,

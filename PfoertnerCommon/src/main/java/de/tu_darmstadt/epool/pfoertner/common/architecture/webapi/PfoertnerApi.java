@@ -31,10 +31,13 @@ import retrofit2.http.Path;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
+/**
+ * Defines the server endpoints, the body of the requests and the body of the responses for each endpoint.
+ * The responses are wrapped in different rxjava classes for asynchronous handling.
+ */
 public interface PfoertnerApi {
 
     /**
-     *
      * @return A retrofit instance that implements the API calls specified in this interface.
      */
     static PfoertnerApi makeApi() {

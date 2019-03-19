@@ -4,6 +4,11 @@ import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 
+/**
+ * Old implementation used to propagate changes in synchronized data to the views.
+ * Use instead: {@link de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.MemberRepository}
+ */
+@Deprecated
 public interface MemberObserver {
     default void onFirstNameChanged(final String newFirstName) {}
     default void onLastNameChanged(final String newFirstName) {}

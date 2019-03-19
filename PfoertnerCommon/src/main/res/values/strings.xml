@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="error_cannot_get_permission" />
-    <string name="error_cannot_write" />
-    <string name="error_cannot_open" />
-    <string name="error_not_having_camera" />
+    <string name="error_cannot_get_permission">Camera permission is not available. Ask for the camera permission before initializing it.</string>
+    <string name="error_cannot_write">Image write failed. Please check if you have provided WRITE_EXTERNAL_STORAGE permission</string>
+    <string name="error_cannot_open">Camera open failed. Probably because another application is using the camera</string>
+    <string name="error_not_having_camera">Could not take a picture since this device does not have a front camera</string>
 </resources>

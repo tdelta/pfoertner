@@ -6,6 +6,15 @@ import android.content.Context;
 import java.util.function.Consumer;
 
 public class ErrorInfoDialog {
+
+    /**
+     * Displays an alert
+     *
+     * @param context Needed to build an alert in Android. For example Application Context.
+     * @param message Message displayed in the alert
+     * @param retryFunction Called when the user clicks retry
+     * @param cancelable If true, a cancel button will be displayed
+     */
     public static void show(
             final Context context,
             final String message,
