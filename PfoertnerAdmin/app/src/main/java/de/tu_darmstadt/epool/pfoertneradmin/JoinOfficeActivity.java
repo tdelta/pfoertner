@@ -30,6 +30,21 @@ public class JoinOfficeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_init2);
     }
 
+    /**
+     * This method creates a new officemember with network requests
+     * to the server. If the creation is successful, then the updated
+     * office is inserted into the application repository. If there is
+     * an error during the creation process, there will be an error window
+     * displaying the error.
+     *
+     * @param splashScreenActivity
+     * @param closeSplashScreen
+     * @param lastName of the newly added officemember
+     * @param firstName of the newly added officemember
+     * @param status of the newly added officemember
+     * @param officeId of the office, where the new officemember was added
+     * @param joinCode of the office, where the new officemembe was added
+     */
     private void joinOffice(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen, String lastName, String firstName, String status, final int officeId, final String joinCode) {
         final AdminApplication app = AdminApplication.get(JoinOfficeActivity.this);
 
@@ -92,7 +107,14 @@ public class JoinOfficeActivity extends AppCompatActivity {
         }.execute();
     }
 
-
+    /**
+     * This method is called when pressing the createAccount button during
+     * the initialization of the app. Then this method takes the input from
+     * the firstName and lastName textInputs and creates via a network call
+     * (joinOffice()) a new officemember account
+     *
+     * @param view of the button createAccount
+     */
     public void createAccount(View view){
         final EditText firstnameinput = (EditText) findViewById(R.id.VornameInput);
         final String firstName = firstnameinput.getText().toString();

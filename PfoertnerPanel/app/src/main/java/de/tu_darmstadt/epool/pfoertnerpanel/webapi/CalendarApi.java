@@ -38,6 +38,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
+/**
+ * Uses the google web api to access the google calendar
+ */
 public class CalendarApi {
     private static final String TAG = "CalendarApi";
 
@@ -69,6 +72,13 @@ public class CalendarApi {
     }
 
 
+    /**
+     * Access tokens have limited lifetimes. 
+     * If the application needs access to a Google API beyond the lifetime of a single access token,
+     * it can use a refresh token. A refresh token allows the application to obtain new access tokens. 
+     * Use the refresh token to get a new access token on expiration
+     * @param refreshToken the refresh token used for the calendar API
+     */
     public Single<TokenResponse> getAccessTokenFromRefreshToken(String refreshToken){
         return Single.fromCallable(
             () ->
@@ -86,6 +96,11 @@ public class CalendarApi {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    /**
+     * Use the serverAuthCode to obtain a refresh token.
+     * A refresh token allows the application to obtain new access tokens. 
+     * @param serverAuthCode the code used for authentification
+     */
     public Single<GoogleTokenResponse> getRefreshToken(final String serverAuthCode) {
         return Single.fromCallable(
                 () ->
@@ -105,6 +120,11 @@ public class CalendarApi {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    /**
+     * Obtains OAuth 2.0 credentials such as a client ID and client secret that
+     * are known to both Google and the application. 
+     * @param oauthToken token used to obtain credentials
+     */
     public Single<Credential> getCredential(final String oauthToken) {
         return Single.fromCallable(
                 () -> {
@@ -123,6 +143,10 @@ public class CalendarApi {
             );
     }
 
+    /**
+     * Get the id of the office hours calendar and if it doesn't exist create one
+     * @param credential OAuth 2.0 credentials
+     */
     public Single<String> getCalendarId(final Credential credential) {
         return Single.fromCallable(
                 () -> {
@@ -160,6 +184,13 @@ public class CalendarApi {
                 .subscribeOn(Schedulers.io());
     }
 
+    /**
+     * Get all events of the office hour calendar in the specified time range
+     * @param calendarId the id of the office hour calendar
+     * @param credential OAuth 2.0 credentials
+     * @param start the starting point where to retrieve events
+     * @param end the ending point where to retrieve events
+     */
     public Observable<List<Event>> getEvents(final String calendarId, final Credential credentials, final DateTime start, final DateTime end) {
         return calendarUpdates
                 .startWith(calendarId)

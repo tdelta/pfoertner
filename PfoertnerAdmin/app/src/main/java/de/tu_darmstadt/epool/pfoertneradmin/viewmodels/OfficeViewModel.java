@@ -12,12 +12,22 @@ public class OfficeViewModel extends AndroidViewModel {
     private LiveData<? extends Office> office;
     private PfoertnerRepository repo;
 
+    /**
+     * Constructor of the OfficeViewModel class
+     *
+     * @param app PfoertnerApplication
+     */
     public OfficeViewModel(final Application app) {
         super(app);
 
         this.repo = AdminApplication.get(getApplication().getApplicationContext()).getRepo();
     }
 
+    /**
+     * This method initializes the office field
+     *
+     * @param officeId
+     */
     public void init(final int officeId) {
         if (this.office != null) {
             // ViewModel is created on a per-Fragment basis, so the memberId
@@ -28,6 +38,11 @@ public class OfficeViewModel extends AndroidViewModel {
         this.office = repo.getOfficeRepo().getOffice(officeId);
     }
 
+    /**
+     * getter for office
+     *
+     * @return observable Office object
+     */
     public LiveData<? extends Office> getOffice() {
         return office;
     }

@@ -49,6 +49,12 @@ public class RoomFragment extends Fragment {
         return mainView;
     }
 
+    /**
+     * This method triggers the custom room creation.
+     *
+     *
+     * @param mainView view which will be pressed to call this function
+     */
     private void triggerRoomCreation(final View mainView) {
         final AlertDialog enterNewStatus;
         {

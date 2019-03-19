@@ -107,6 +107,15 @@ public class AppointmentFragment extends Fragment {
         }
     }
 
+    /**
+     * This method displays the necessary cards to initially
+     * setup the google calendar access.
+     *
+     *
+     * @param root root view
+     * @param member for which the calendar should be initialized
+     * @param calendarCreated boolean whether the calender was setup already
+     */
     private void buildUI(final View root, final Member member, boolean calendarCreated){
         final LinearLayout topCard = root.findViewById(R.id.top_card);
         // TODO: topCard seems sometimes not to exist
@@ -140,10 +149,19 @@ public class AppointmentFragment extends Fragment {
         topCard.addView(newContent);
     }
 
+    /**
+     *
+     * This method is called if the member has changed. Then there will
+     * be a request to synchronise the local google calender with the
+     * online google calendar.
+     *
+     * @param root view
+     * @param member which has changed
+     */
     private void reactToMemberChange(final View root, final Member member) {
         if (member != null) {
             if (member.getCalendarId() != null) {
-                Helpers.requestCalendarsSync(getContext(), "TODO: EMail");
+                Helpers.requestCalendarsSync(getContext(), member.getEmail()!=null ? member.getEmail() : "TODO: Email");
 
                 buildUI(root, member, true);
             }
@@ -160,6 +178,12 @@ public class AppointmentFragment extends Fragment {
         }
     }
 
+    /**
+     *
+     * This method establishes the connection to the
+     * online google calender.
+     *
+     */
     public void connectGoogleCalendar(){
         Log.d(TAG, "Trying to connect google calendar...");
 

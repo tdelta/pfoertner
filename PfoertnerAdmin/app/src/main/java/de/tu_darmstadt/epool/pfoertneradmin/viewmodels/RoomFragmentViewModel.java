@@ -21,6 +21,12 @@ public class RoomFragmentViewModel extends AndroidViewModel {
 
     private CompositeDisposable disposables;
 
+    /**
+     * Constructor of the RoomFragmentViewModel class.
+     * Initializes repo.
+     *
+     * @param rawApp PfoertnerApplication
+     */
     public RoomFragmentViewModel(final Application rawApp) {
         super(rawApp);
 
@@ -29,6 +35,11 @@ public class RoomFragmentViewModel extends AndroidViewModel {
         repo = app.getRepo();
     }
 
+    /**
+     * This method initializes the RoomFragmentViewModel
+     *
+     * @param officeId of the given office
+     */
     @SuppressWarnings("unchecked")
     public void init(final int officeId) {
         if (this.currentRoomListener != null) {
@@ -67,10 +78,20 @@ public class RoomFragmentViewModel extends AndroidViewModel {
         this.currentRoomListener = liveDataConverter;
     }
 
+    /**
+     * getter for currentRoomListener
+     *
+     * @return observable currentRoomListener
+     */
     public LiveData<String> getCurrentRoomListener() {
         return currentRoomListener;
     }
 
+    /**
+     * setter for room
+     *
+     * @param room which will be set
+     */
     public void setRoom(String room) {
         if (!room.trim().equals("")) {
             disposables.add(

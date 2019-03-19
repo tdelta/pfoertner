@@ -28,6 +28,14 @@ public class LocalCalendar {
 
     private ContentResolver cr;
 
+    /**
+     * LocalCalendar follows the singleton-pattern. This is
+     * the static method to get an Instance of LocalCalender
+     *
+     * @param context of the calling activity/fragment
+     * @param email of the google with which will be synchronized
+     * @return instance of the LocalCalendar class
+     */
     public static LocalCalendar getInstance(Context context, String email){
         if(instance == null){
             instance = new LocalCalendar(context, email);
@@ -36,10 +44,21 @@ public class LocalCalendar {
         return instance;
     }
 
+    /**
+     * sets the field userEmail
+     *
+     * @param userEmail which will be set
+     */
     public void setUserEmail(String userEmail){
         this.userEmail = userEmail;
     }
 
+    /**
+     * Constructor of the LocalCalender class.
+     *
+     * @param context of the calling activity/fragment
+     * @param email of the google calendar with which will be synchronized
+     */
     public LocalCalendar(Context context, String email) {
         PfoertnerApplication app = PfoertnerApplication.get(context);
         this.cr = context.getContentResolver();
@@ -63,6 +82,14 @@ public class LocalCalendar {
         }
     }
 
+    /**
+     * This methods modifies uri to ressources which we want to access. This enables
+     * us to access ressources in the local google calendar.
+     *
+     * @param uri of the ressource, we want access to
+     * @param email of the google calendar with which will be synchronized
+     * @return
+     */
     private Uri asSyncAdapter (Uri uri, String email){
         return uri.buildUpon()
                 .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
@@ -71,6 +98,17 @@ public class LocalCalendar {
                 .build();
     }
 
+    /**
+     * This method save an event to the local calendar
+     *
+     *
+     * @param start date of the calender event
+     * @param end date of the calender event
+     * @param attendee of the calender event
+     * @param email for authentication of the owner
+     * @param message of the calender event
+     * @throws SecurityException
+     */
     public void writeEvent(Date start, Date end, String attendee, String email, String message) throws SecurityException{
         Calendar beginTime = Calendar.getInstance();
         beginTime.setTime(start);

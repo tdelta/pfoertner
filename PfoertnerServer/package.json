@@ -1,35 +1,43 @@
 {
-  "name": "PfoertnerServer",
+  "name": "testnodejsserver",
   "version": "1.0.0",
-  "main": "server/server.js",
-  "engines": {
-    "node": ">=4"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "start": "node .",
-    "posttest": "npm run lint"
-  },
+  "description": "Simple restfull test server with nodejs and express",
+  "main": "server.js",
   "dependencies": {
-    "compression": "^1.0.3",
-    "cors": "^2.5.2",
-    "crypto-token": "^1.0.1",
-    "helmet": "^3.10.0",
-    "loopback": "^3.22.0",
-    "loopback-boot": "^2.6.5",
-    "loopback-cli": "^5.0.0",
-    "loopback-component-explorer": "^6.2.0",
-    "serve-favicon": "^2.0.1",
-    "strong-error-handler": "^3.0.0"
+    "body-parser": "^1.18.3",
+    "caminte": "^0.4.1",
+    "express": "^4.16.4",
+    "express-fileupload": "^1.1.1-alpha.1",
+    "firebase-admin": "^6.5.0",
+    "generate-password": "^1.4.1",
+    "jsonwebtoken": "^8.4.0",
+    "mariadb": "^2.0.2-rc",
+    "moment": "^2.23.0",
+    "multer": "^1.4.1",
+    "mysql": "^2.16.0",
+    "nodejs": "^0.0.0",
+    "nodemailer": "^5.1.1",
+    "nodemon": "^1.18.9",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "sequelize": "^4.42.0",
+    "sqlite3": "^4.0.6"
   },
   "devDependencies": {
-    "eslint": "^3.17.1",
-    "eslint-config-loopback": "^8.0.0"
+    "prettier": "^1.16.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write './**/*.js*'"
   },
   "repository": {
-    "type": "",
-    "url": ""
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/kommiker/testnodejsserver.git"
   },
-  "license": "GPL-3.0-only",
-  "description": "PfoertnerServer"
+  "author": "Marc Arnold",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/kommiker/testnodejsserver/issues"
+  },
+  "homepage": "https://gitlab.com/kommiker/testnodejsserver#readme"
 }

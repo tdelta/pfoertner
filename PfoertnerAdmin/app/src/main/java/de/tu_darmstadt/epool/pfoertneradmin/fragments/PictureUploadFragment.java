@@ -242,6 +242,17 @@ public class PictureUploadFragment extends Fragment {
         );
     }
 
+    /**
+     *
+     * This method displays an input dialog for strings (used in
+     * set firstName() and setLastName()) and insert the input into
+     * a consumer.
+     *
+     *
+     * @param message which will be displayed above the input field
+     * @param initialText initially displayed message
+     * @param onPositiveButton consumer which receives the input
+     */
     private void promptForString(final String message, final String initialText, final Consumer<String> onPositiveButton) {
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getContext());
 

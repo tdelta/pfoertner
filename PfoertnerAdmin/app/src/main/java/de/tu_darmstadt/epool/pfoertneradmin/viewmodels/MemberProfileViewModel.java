@@ -12,12 +12,22 @@ public class MemberProfileViewModel extends AndroidViewModel {
     private LiveData<? extends Member> member;
     private PfoertnerRepository repo;
 
+    /**
+     * Constructor of the MemverProfileViewModel class
+     *
+     * @param app Pfoertner Application
+     */
     public MemberProfileViewModel(final Application app) {
         super(app);
 
         this.repo = AdminApplication.get(getApplication().getApplicationContext()).getRepo();
     }
 
+    /**
+     * This method initializes the member field
+     *
+     * @param memberId of the member to initialize
+     */
     public void init(final int memberId) {
         if (this.member != null) {
             // ViewModel is created on a per-Fragment basis, so the memberId
@@ -28,6 +38,11 @@ public class MemberProfileViewModel extends AndroidViewModel {
         this.member = repo.getMemberRepo().getMember(memberId);
     }
 
+    /**
+     *  Getter for member LiveData
+     *
+     * @return observable Member object
+     */
     public LiveData<? extends Member> getMember() {
         return member;
     }
