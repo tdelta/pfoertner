@@ -54,6 +54,7 @@ public class NotificationHelper {
      */
     public static void displayNotification(final String notificationContent, final Context context) {
         try {
+            final int notificationId = getNextId(context);
             final JSONObject notificationJson = new JSONObject(notificationContent);
             final String title = notificationJson.getString("title");
             final String body = notificationJson.getString("body");
@@ -85,29 +86,30 @@ public class NotificationHelper {
                 notificationBuilder.setContentIntent(pendingIntent);
             }
 
-            final JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
-            if (buttonsJson != null) {
-                for (int i = 0; i < buttonsJson.length(); i++) {
-                    final String buttonText = buttonsJson.getJSONObject(i).getString("title");
-                    final String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
+            //final JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
+            //if (buttonsJson != null) {
+            //    for (int i = 0; i < buttonsJson.length(); i++) {
+            //        final String buttonText = buttonsJson.getJSONObject(i).getString("title");
+            //        final String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
 
-                    final Intent buttonIntent = new Intent(intentUrl);
-                    buttonIntent.putExtra("data", notificationJson.optString("data"));
+            //        final Intent buttonIntent = new Intent(intentUrl);
+            //        buttonIntent.putExtra("data", notificationJson.optString("data"));
+            //        buttonIntent.putExtra("notificationId", notificationId);
 
-                    final PendingIntent pendingIntent = PendingIntent.getService(
-                            context.getApplicationContext(),
-                            i,
-                            buttonIntent,
-                            PendingIntent.FLAG_ONE_SHOT);
+            //        final PendingIntent pendingIntent = PendingIntent.getService(
+            //                context.getApplicationContext(),
+            //                i,
+            //                buttonIntent,
+            //                PendingIntent.FLAG_ONE_SHOT);
 
-                    final NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
-                    notificationBuilder.addAction(action);
-                }
-            }
+            //        final NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
+            //        notificationBuilder.addAction(action);
+            //    }
+            //}
 
             final NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify("de.tu_darmstadt.epool.pfoertner",getNextId(context), notificationBuilder.build());
+            notificationManager.notify("de.tu_darmstadt.epool.pfoertner",notificationId, notificationBuilder.build());
         }
 
         catch (final JSONException e) {
