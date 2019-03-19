@@ -45,6 +45,9 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
+/**
+ * Service for taking pictures secretly (e. g. from the background)
+ */
 public class Spion extends HiddenCameraService {
 
     private static final String TAG = "Spion";

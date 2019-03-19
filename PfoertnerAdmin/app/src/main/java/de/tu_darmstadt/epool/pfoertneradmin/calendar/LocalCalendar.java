@@ -18,6 +18,10 @@ import java.util.Date;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 
+/**
+ * Helper to access a local Google Calendar, if it is registered in the Google
+ * Calendar App using the Calendar Provider API.
+ */
 public class LocalCalendar {
 
     public static String CALENDAR_ID = "primary calendar id";
