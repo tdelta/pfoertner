@@ -26,7 +26,7 @@ public class InitActivity extends AppCompatActivity {
     private CompositeDisposable disposables;
 
     /**
-     * This method is called when app initializes. It waits until
+     * This method is called when the app initializes. It waits until
      * the fcmToken from the server has arrived and displays a message
      * depening whether the fcmToken has arrived. If there is an error during
      * the initialization of the app, this method throws the error with a message
