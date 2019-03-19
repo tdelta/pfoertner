@@ -13,6 +13,10 @@ import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.LocalCalendar;
 
+/**
+ * Class that handles appointment processing requests asynchronously
+ * on demand.
+ */
 public class ProcessAppointmentRequest extends IntentService {
 
     private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").create();
@@ -21,6 +25,10 @@ public class ProcessAppointmentRequest extends IntentService {
         super("ProcessAppointmentRequest");
     }
 
+    /**
+     * This method is invoked on the worker thread with an appointment request
+     * to write into the calendar.
+     */
     @Override
     protected void onHandleIntent(Intent intent){
         Bundle extras = intent.getExtras();
@@ -41,6 +49,12 @@ public class ProcessAppointmentRequest extends IntentService {
         }
     }
 
+    /**
+     * write an accepted appointment into the google calendar or show an
+     * AlertDialog if the required permissions aren't set.
+     * @param appointmentRequest the appointment request
+     * @param email the email of the member
+     */
     private void writeCalendarWithPermission(AppointmentRequest appointmentRequest, String email){
         try{
             LocalCalendar.getInstance(this,email).writeEvent(

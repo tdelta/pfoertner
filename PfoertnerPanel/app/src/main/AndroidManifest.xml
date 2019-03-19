@@ -26,8 +26,10 @@
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning"
         android:theme="@style/PfoertnerStyle">
-
-        <activity android:name=".AtheneInfo"></activity>
+        <activity
+            android:name=".AtheneInfo"
+            android:screenOrientation="landscape"
+            />
         <activity
             android:name=".EditAppointmentsActivity"
             android:label="@string/title_activity_edit_appointments"
@@ -37,13 +39,9 @@
             android:hardwareAccelerated="true"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".ScheduleAppointment"
-            android:hardwareAccelerated="true"
-            android:screenOrientation="landscape" />
-
-        <activity
             android:name=".MakeAppointment"
             android:hardwareAccelerated="true"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="landscape" />
         <activity
             android:name=".MainActivity"

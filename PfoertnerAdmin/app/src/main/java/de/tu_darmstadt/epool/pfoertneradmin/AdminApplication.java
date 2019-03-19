@@ -14,6 +14,10 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.PfoertnerRepository;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.PfoertnerApi;
 
+/**
+ * Class for maintaining global application state that is required in the 
+ * whole app
+ */
 public class AdminApplication extends PfoertnerApplication {
     private Optional<Integer> maybeMemberId = Optional.empty();
 
