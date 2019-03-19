@@ -8,6 +8,10 @@ import org.threeten.bp.LocalDateTime;
 
 import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
 
+/**
+ * This class holds the relevant calendar info for an office member.
+ * This class will have a mapping SQLite table in the database.
+ */
 @Entity
 public class MemberCalendarInfoEntity implements MemberCalendarInfo {
     @PrimaryKey

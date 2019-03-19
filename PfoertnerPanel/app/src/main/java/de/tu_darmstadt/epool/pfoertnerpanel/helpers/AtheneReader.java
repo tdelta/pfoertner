@@ -18,6 +18,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.IOException;
 import java.math.BigInteger;
 
+/**
+ * Identifies TU-Athene cards with the NFC chip
+ */
 public class AtheneReader {
     private IntentFilter[] intentFiltersArray;
     private String[][] techListsArray;

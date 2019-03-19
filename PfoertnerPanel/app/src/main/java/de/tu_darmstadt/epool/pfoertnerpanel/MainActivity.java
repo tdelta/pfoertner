@@ -36,6 +36,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * The main activity, houses the members that are displayed
+ */
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "PfoertnerPanelMain";
 
@@ -70,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * start the editappointments activity when the nfc chip detects an athene card
+     */
     @Override
     protected void onNewIntent(Intent intent){
         if(atheneReader.isTechDiscovered(intent)){
@@ -81,11 +87,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
+    /**
+     * destroy the rxJava subscriptions
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -102,6 +106,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Initializes the panel on first launch. Shows QR-code
+     */
     private void initOffice() {
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);
 
@@ -120,23 +127,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Populate various UI fields when the panel is initialized
+     */
     private void onOfficeInitialized() {
         Log.d(TAG, "Office has been initialized.");
         final PfoertnerApplication app = PfoertnerApplication.get(this);
-        //updateMembers();
 
-        //registerForMemberChanges(app.getOffice().getMembers());
-
-        // Neues system
         viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
-        viewModel.init(app.getOffice().getId()); // The correct way to do this Anton?
+        viewModel.init(app.getOffice().getId());
 
         viewModel.getOffice().observe(this, office -> {
             if(office != null) {
-                //registerForMemberChanges(app.getOffice().getMembers());
                 setGlobalStatus(office.getStatus());
                 setRoom(office.getRoom());
-                //updateMembers();
             }
         });
         initializeMemberGrid();
@@ -153,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * check if playservices are available and makes them available if they aren't.
+     * Used for notifications
+     */
     private void checkForPlayServices() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
 
@@ -161,6 +169,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Create the activity and initialize the panel if not already done
+     * @param savedInstanceState bundle that contains info from the last activity instance
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "MainActivity created.");
@@ -188,6 +200,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Populate the member views generated from member data.
+     * Listens for changes.
+     */
     private void initializeMemberGrid() {
         OfficeViewModel viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
 
@@ -205,6 +221,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Observe the calendar events for a member and forward the events to
+     * the gridview
+     * @param member the member whose calendar should be observed
+     * @param memberList the griview for members
+     */
     private void setTimeEvents(Member member, MemberGrid memberList) {
         final PanelApplication app = PanelApplication.get(this);
         app
@@ -233,6 +255,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * get an observable for calendarEvents given a calendar
+     * @param calendarInfo the calendar
+     * @param start the start limit for returned events
+     * @param end the end limit for returned events
+     * @return an observable which delivers all events on a change
+     */
     private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
         final PanelApplication app = PanelApplication.get(this);
 
@@ -248,6 +277,10 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    /**
+     * save various stuff that should be restored on activity recreation
+     * @param outState the bundle that survives activity ends
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString("room", getRoom());
@@ -257,6 +290,9 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Pause the Athene Card when the main activity is paused
+     */
     @Override
     protected void onPause(){
         super.onPause();
@@ -264,6 +300,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Resume the Athene Card when the main activity is resumed
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -322,7 +361,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else {
-            // TODO: maybe do better handling when status not set
             setGlobalStatus("Come In!");
         }
     }
