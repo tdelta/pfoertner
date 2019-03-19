@@ -32,7 +32,7 @@ public class InitActivity extends AppCompatActivity {
      * the initialization of the app, this method throws the error with a message
      *
      * @param splashScreenActivity is displayed while waiting for the fcmToken
-     * @param closeSplashScreen
+     * @param closeSplashScreen callback to close the splash screen
      */
     private void initApp(final SplashScreenActivity splashScreenActivity, final Consumer<Void> closeSplashScreen){
         final PfoertnerApplication app = PfoertnerApplication.get(InitActivity.this);
