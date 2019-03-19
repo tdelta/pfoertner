@@ -11,4 +11,5 @@ public interface Appointment {
     String getMessage();
     boolean getAccepted();
     int getOfficeMemberId();
+    String getAtheneId();
 }
