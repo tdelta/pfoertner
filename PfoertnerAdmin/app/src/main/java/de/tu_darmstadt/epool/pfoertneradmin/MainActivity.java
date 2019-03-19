@@ -44,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
     private MemberProfileViewModel memberViewModel;
 
+    /**
+     * Called, when the app is started.
+     * If no office id was saved yet, it opens the InitActivity to scan a QR Code
+     * Otherwise calls PfoertnerApplication.init
+     */
     private void init() {
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
@@ -80,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Initializes the drawer navigation to load different fragments when items are selected.
+     */
     private void initNavigation() {
         final Optional<ActionBar> maybeActionBar = Optional.ofNullable(
                 getSupportActionBar()
@@ -158,6 +166,10 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Called after PfoertnerApplication init is done and we joined an office.
+     * Fills the fragments with data about the office member
+     */
     private void onInitialized() {
         {
             final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -200,6 +212,13 @@ public class MainActivity extends AppCompatActivity {
         });
    }
 
+    /**
+     * Android lifecycle method, called when the views are created.
+     * Builds the Navbar.
+     * onBackStackChangedListener selects the correct item in the navbar when the back button is pressed.
+     * calls init
+     * @param savedInstanceState Saved state for recovering activity from background, not used here
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,6 +267,10 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
+    /**
+     * Android callback to handle intents. Handles intent to open the appointment fragment
+     * @param intent Received intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(TAG, "onNewIntent has been called.");
@@ -262,6 +285,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Callback for when a user clicks an item in the app bar
+     * @param item Item that was clicked
+     * @return True if menu processing is done here, returns the result of the method from the superclass
+     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
@@ -272,6 +300,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Android callback, called when an intent started for result is finished
+     * @param requestCode RequestCode of the intent
+     * @param resultCode Returned code
+     * @param data Returned data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult has been called.");
@@ -286,6 +320,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Called when edit profile is selected in the navbar
+     * @param navigationView The navbar view
+     * @param view Header of the navbar
+     */
     public void gotoPictureUploader(final NavigationView navigationView, final View view){
         final FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
