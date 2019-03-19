@@ -6,10 +6,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+/**
+ * Activity that displays usabiility information for the door panel
+ * Athene card support feature
+ */
 public class AtheneInfo extends AppCompatActivity {
     private static final String TAG = "AtheneInfo";
 
 
+    /**
+     * Sets the contentview, initializes the statusbar
+     * @param savedInstanceState saved values, unused
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +54,10 @@ public class AtheneInfo extends AppCompatActivity {
         }
     }
 
+    /**
+     * onClick method to close the activity
+     * @param view the view that invoked this method
+     */
     public void closeActivity(View view) {
         finish();
     }

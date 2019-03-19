@@ -4,7 +4,14 @@ import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 
+/**
+ * A Button that contains an additional id field which is used to identify the
+ * the associated member in the onClick function
+ */
 public class MemberButton extends FloatingActionButton {
+    /**
+     * the id of the member for this button
+     */
     private int memberId;
 
     public int getMemberId() {

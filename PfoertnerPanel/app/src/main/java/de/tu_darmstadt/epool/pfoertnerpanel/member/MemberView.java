@@ -36,6 +36,9 @@ import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
 
 import static android.support.constraint.Constraints.TAG;
 
+/**
+ * UI view class for members displayed in the Membergrid
+ */
 public class MemberView extends CardView {
     private int memberId;
     private final static String TAG = "MemberView";
