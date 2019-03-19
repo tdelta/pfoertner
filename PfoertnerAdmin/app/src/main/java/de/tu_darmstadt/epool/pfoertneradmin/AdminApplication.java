@@ -29,6 +29,11 @@ public class AdminApplication extends PfoertnerApplication {
         startService(new Intent(this,ProcessAppointmentRequest.class));
     }
 
+    /**
+     * setter for memberId
+     *
+     * @param id which will be set
+     */
     public void setMemberId(final int id) {
         checkInitStatus();
 
@@ -40,6 +45,11 @@ public class AdminApplication extends PfoertnerApplication {
         this.maybeMemberId = Optional.of(id);
     }
 
+    /**
+     * getter for memberId
+     *
+     * @return memberId
+     */
     public int getMemberId() {
         checkInitStatus();
 
@@ -53,10 +63,21 @@ public class AdminApplication extends PfoertnerApplication {
         }
     }
 
+    /**
+     * Returns whether a memberId is present
+     *
+     * @return maybeMemberId.isPresent
+     */
     public boolean hasMemberId() {
         return this.maybeMemberId.isPresent();
     }
 
+    /**
+     * Getter for AdminApplication
+     *
+     * @param context of the calling activity/fragment
+     * @return instance of the AdminApplication
+     */
     public static AdminApplication get(final Context context) {
         return (AdminApplication) context.getApplicationContext();
     }
