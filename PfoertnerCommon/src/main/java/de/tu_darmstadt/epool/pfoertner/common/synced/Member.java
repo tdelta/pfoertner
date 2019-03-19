@@ -32,6 +32,13 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
+/**
+ * Old office member class that can save and load office member data in local storage, send modified data to the server
+ * and propagate updates in the office members to observers
+ *
+ * Use instead: {@link de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.MemberRepository}
+ */
+@Deprecated
 public class Member extends Observable<MemberObserver> {
     private static final String TAG = "Member";
 
@@ -46,6 +53,10 @@ public class Member extends Observable<MemberObserver> {
     private final DownloadPictureTask downloadPictureTask = new DownloadPictureTask();
     private final UploadPictureTask uploadPictureTask = new UploadPictureTask();
 
+    /**
+     * @param office Office that this office member belongs to
+     * @param data Data to fill this wrapper
+     */
     Member(final Office office, final MemberData data) {
         super();
 
@@ -53,6 +64,20 @@ public class Member extends Observable<MemberObserver> {
         this.office = office;
     }
 
+    /**
+     * Tries to request a new office member from the server by joining an office.
+     * If the request is successful, the data is saved into local settings.
+     *
+     * @param officeId Office to join
+     * @param joinCode Secret office join code, obtained from the panel or other office members
+     * @param firstName Name of the office member to create
+     * @param lastName Name of the office member to create
+     * @param status Status of the office member to create
+     * @param settings Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param authtoken Authentication to make server requests (PfoertnerApplication.getAuthentication())
+     * @return Loaded Member data
+     */
     public static MemberData joinOffice(final int officeId, final String joinCode, String firstName, String lastName, String status, SharedPreferences settings, PfoertnerService service, Authentication authtoken)  {
         return new ResourceInitProtocol<MemberData>(
     "Could not join office. Do you have an internet connection?"
@@ -84,6 +109,13 @@ public class Member extends Observable<MemberObserver> {
         }.execute();
     }
 
+    /**
+     * Tries to load the id of the officemember associated with the app (used in pfoertner admin)
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @throws RuntimeException if the settings dont contain an office member id
+     * @return Office member id
+     */
     public static int loadMemberId(final SharedPreferences preferences) {
         final Integer memberId = new ResourceInitProtocol<Integer>(
                 "Could not load own member id"
@@ -103,10 +135,21 @@ public class Member extends Observable<MemberObserver> {
         return memberId;
     }
 
+    /**
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @return True if an office member was saved into settings
+     */
     public static boolean hadJoined(final SharedPreferences preferences) {
         return preferences.contains("MemberId");
     }
 
+    /**
+     * Uploads given office member data in an io thread.
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param data Member data to upload
+     */
     public void upload(final PfoertnerService service, final Authentication auth, final MemberData data) {
         this.uploadMemberTask.whenDone(
                 aVoid -> this.uploadMemberTask.execute(
@@ -133,6 +176,12 @@ public class Member extends Observable<MemberObserver> {
         return memberData.firstName;
     }
 
+    /**
+     * Loads the picture of an office member from local storage.
+     *
+     * @param filesDir Directory containing the picture
+     * @return Optional containing a picture or empty if an error occured
+     */
     public Optional<Bitmap> getPicture(final File filesDir) {
         try {
             final File f = new File(filesDir, Member.generatePicturePath(memberData.id));
@@ -168,6 +217,12 @@ public class Member extends Observable<MemberObserver> {
         return calendarApi;
     }
 
+    /**
+     * Sets the access token for the google calendar api and saves it into local memory
+     *
+     * @param settings Local settings (PfoertnerApplication.getSettings())
+     * @param accessToken New access token to write
+     */
     public void setAccessToken(final SharedPreferences settings, final String accessToken){
         Log.d(TAG,"The access token of the member with id " + this.getId() + " is being set to " + accessToken +  ". Meanwhile, the server auth code is " + this.getServerAuthCode());
 
@@ -175,6 +230,13 @@ public class Member extends Observable<MemberObserver> {
         Office.writeMembersToLocalStorage(settings, office.membersToData());
     }
 
+    /**
+     * Uploads a server auth code to the server. The code can be used to request a refresh token and access the calendar api.
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param serverAuthCode server auth code to upload
+     */
     public void setServerAuthCode(final PfoertnerService service, final Authentication auth, final String serverAuthCode){
         final MemberData data = memberData.deepCopy();
         data.serverAuthCode = serverAuthCode;
@@ -182,6 +244,13 @@ public class Member extends Observable<MemberObserver> {
         upload(service,auth,data);
     }
 
+    /**
+     * Uploads a new last name for the office member to the server.
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param newLastName last name to upload
+     */
     public void setLastName(final PfoertnerService service, final Authentication auth, final String newLastName) {
 
         final MemberData data = memberData.deepCopy();
@@ -190,6 +259,13 @@ public class Member extends Observable<MemberObserver> {
         upload(service, auth, data);
     }
 
+    /**
+     * Uploads a new first name for the office member to the server.
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param newFirstName first name to upload
+     */
     public void setFirstName(final PfoertnerService service, final Authentication auth, final String newFirstName) {
         final MemberData data = memberData.deepCopy();
         data.firstName = newFirstName;
@@ -197,6 +273,13 @@ public class Member extends Observable<MemberObserver> {
         upload(service, auth, data);
     }
 
+    /**
+     * Uploads a new status for the office member to the server.
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param newStatus status to upload
+     */
     public void setStatus(final PfoertnerService service, final Authentication auth, final String newStatus) {
         final MemberData data = memberData.deepCopy();
         data.status = newStatus;
@@ -204,12 +287,29 @@ public class Member extends Observable<MemberObserver> {
         upload(service, auth, data);
     }
 
+    /**
+     * Uploads a new picture for the office member to the server
+     *
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param type Type of the image file to upload (com.squareup.okhttp3.MediaType)
+     * @param path Path of the image file to upload
+     */
     public void setPicture(final PfoertnerService service, final Authentication auth, final String type, final String path) {
         this.uploadPictureTask.whenDone(
                 aVoid -> this.uploadPictureTask.execute(service, auth, type, path)
         );
     }
 
+    /**
+     * Downloads member data from the server in an io thread. If the download was successful the new data is written into local settings.
+     * Observers of this class are notified, if the data changed.
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param filesDir Directory to save data like office member pictures
+     */
     public void updateAsync(final SharedPreferences preferences, final PfoertnerService service, final Authentication auth, final File filesDir) {
         this.downloadMemberTask.whenDone(
                 aVoid -> downloadMemberTask.execute(preferences, service, auth, filesDir)
@@ -220,6 +320,14 @@ public class Member extends Observable<MemberObserver> {
         return memberData.appointmentRequests;
     }
 
+    /**
+     * Sends an update to the server to either delete or accept a given appointment request
+     *
+     * @param service Retrofit instance to communicate with the server
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param appointmentRequestId Id of the appointment request to modify
+     * @param accepted True if the appointment shall be accepted, false to delete
+     */
     public void setAppointmentRequestAccepted(final PfoertnerService service, final Authentication auth, final int appointmentRequestId, final boolean accepted){
         AppointmentRequest newAppointmentRequest = memberData.appointmentRequests.stream().
                 filter(appointmentRequest -> appointmentRequest.id == appointmentRequestId).findAny().get();
@@ -243,6 +351,12 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
+    /**
+     * Writes the url to the google calendar of the office member into local settings
+     *
+     * @param settings Local settings (PfoertnerApplication.getSettings())
+     * @param newCalendarId New calendar id to write
+     */
     public void setCalendarId(final SharedPreferences settings, final String newCalendarId){
         this.memberData.calendarId = newCalendarId;
         Office.writeMembersToLocalStorage(settings,office.membersToData());
@@ -252,6 +366,12 @@ public class Member extends Observable<MemberObserver> {
         return memberData.calendarId;
     }
 
+    /**
+     * Compares the new data to the existing data. If there are changes in a field, call the corresponding handler for all observers.
+     * Afterwards update the existing data.
+     *
+     * @param data New data
+     */
     void updateByData(final MemberData data) {
         Log.d(TAG, "The member with id " + this.getId() + " is being updated. We will now check, which attributes changed.");
         final MemberData oldMember = Member.this.memberData;
@@ -287,12 +407,26 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
+    /**
+     * Checks, if two variables are equal. Deals with null.
+     *
+     * @param oldState Variable one
+     * @param newState Variable two
+     * @param <T> Type of the variables.
+     * @return True if the variables are not equal
+     */
     private static <T> boolean didChange(final T oldState, final T newState) {
         return oldState == null && newState != null
             || oldState != null && newState == null
             || oldState != null && newState!= null && !oldState.equals(newState);
     }
 
+    /**
+     * Writes a new email address for the office member into local settings and updates the field.
+     *
+     * @param settings Local settings (PfoertnerApplication.getSettings())
+     * @param email New email address to write
+     */
     public void setEmail(final SharedPreferences settings, final String email){
         memberData.email = email;
         Office.writeMembersToLocalStorage(settings,office.membersToData());
@@ -302,10 +436,27 @@ public class Member extends Observable<MemberObserver> {
         return memberData.email;
     }
 
+    /**
+     * Generates the filenames used for office member pictures
+     *
+     * @param memberId Id of the office member that the picture belongs to
+     * @return A filename
+     */
     private static String generatePicturePath(final int memberId) {
         return String.valueOf(memberId + "-picture.jpg");
     }
 
+    /**
+     * Takes an updated member data, compares the new md5 hash of the picture to the saved one
+     * and downloads the picture if there was a change.
+     *
+     * @param preferences Local settings (PfoertnerApplication.getSettings())
+     * @param service Retrofit instance to communicate with the server
+     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
+     * @param updatedMemberData Updated member data
+     * @param filesDir Directory to save the picture
+     * @return True if a new picture was downloaded
+     */
     boolean downloadPictureIfNecessary(
             final SharedPreferences preferences,
             final PfoertnerService service,
@@ -335,6 +486,9 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
+    /**
+     * Downloads the picture of the office member from the server and saves it in a file, executed in an io thread.
+     */
     private class DownloadPictureTask extends RequestTask<ResponseBody> {
         private SharedPreferences settings;
         private PfoertnerService service;
@@ -433,6 +587,10 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
+    /**
+     * Downloads the office member data for this office member in an io thread.
+     * If the download is successful, the resulting data is written into local settings and the observers are notified
+     */
     private class DownloadMemberTask extends RequestTask<MemberData> {
         private SharedPreferences settings;
         private PfoertnerService service;
@@ -475,6 +633,9 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
+    /**
+     * Uploads the data for this office member to the server in an io thread.
+     */
     private class UploadMemberTask extends RequestTask<Void> {
         private PfoertnerService service;
         private Authentication auth;
@@ -506,6 +667,9 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
+    /**
+     * Uploads a picture for this office member to the server in an io thread.
+     */
     private class UploadPictureTask extends RequestTask<Void> {
         private PfoertnerService service;
         private Authentication auth;

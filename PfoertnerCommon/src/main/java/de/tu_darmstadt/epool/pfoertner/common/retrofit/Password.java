@@ -13,6 +13,10 @@ import java.util.UUID;
 // Only fields with the Expose annotation will be sent to the server
 // Other fields will only be persisted in local memory
 
+/**
+ * Body of a request to the server to create a new device.
+ * Also used to save the password in local settings.
+ */
 public class Password {
     public Password(final String password) {
         this.password = password;
@@ -20,6 +24,12 @@ public class Password {
 
     @Expose public final String password;
 
+    /**
+     * Loads a saved password from local settings or creates a cryptographically strong random password if none exists.
+     * If a new password was created, it is automatically saved to storage.
+     * @param deviceRegistrationInfo local settings (PfoertnerApplication.getSettings())
+     * @return A password
+     */
     public static Password loadPassword(final SharedPreferences deviceRegistrationInfo){
         if(deviceRegistrationInfo.contains("Password")){
             return new Password(
