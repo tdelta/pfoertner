@@ -29,12 +29,14 @@ router.patch('/:id/fcmToken', auth.authFun(), (req, res) => {
   const device = req.user;
 
   if (req.body.fcmToken == null) {
-    console.error('Failed to set fcm token of device ' + device.id + ' since there was no token info in the body of the request.');
+    console.error(
+      'Failed to set fcm token of device ' +
+        device.id +
+        ' since there was no token info in the body of the request.'
+    );
 
     res.status(400).send({ message: 'You need to provide a new fcm token.' });
-  }
-  
-  else {
+  } else {
     const targetId = parseInt(req.params.id, 10);
 
     if (targetId === device.id) {
@@ -45,14 +47,29 @@ router.patch('/:id/fcmToken', auth.authFun(), (req, res) => {
           fcmToken: fcmToken,
         })
         .then(updatedDevice => {
-          console.info("Saved new FCM token " + updatedDevice.fcmToken + " for device " + updatedDevice.id);
+          console.info(
+            'Saved new FCM token ' +
+              updatedDevice.fcmToken +
+              ' for device ' +
+              updatedDevice.id
+          );
 
-          notifyDevice(updatedDevice, 'DeviceUpdated', updatedDevice.id.toString());
+          notifyDevice(
+            updatedDevice,
+            'DeviceUpdated',
+            updatedDevice.id.toString()
+          );
 
           res.send(device);
         });
     } else {
-      console.error('Setting the fcm token for device ' + device.id + ' failed, since it tried to set the token of device ' + targetId + ', not its own.');
+      console.error(
+        'Setting the fcm token for device ' +
+          device.id +
+          ' failed, since it tried to set the token of device ' +
+          targetId +
+          ', not its own.'
+      );
 
       res
         .status(401)
