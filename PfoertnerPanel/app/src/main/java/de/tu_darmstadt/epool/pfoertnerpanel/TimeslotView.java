@@ -16,6 +16,9 @@ import org.w3c.dom.Text;
 import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
 
 
+/**
+ * Displays available timeslot events for a day
+ */
 public class TimeslotView extends RelativeLayout {
     private Event event;
     private Timehelpers timehelper;

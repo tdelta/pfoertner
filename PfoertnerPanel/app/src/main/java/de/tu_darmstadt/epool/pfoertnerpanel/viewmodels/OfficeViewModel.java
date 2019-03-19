@@ -12,6 +12,11 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.repositories.Pfoertne
 
 import java.util.List;
 
+/**
+ * OfficeViewModel is a class that is responsible for preparing and managing the
+ * member data for an Activity
+ *
+ */
 public class OfficeViewModel extends AndroidViewModel {
 
     private LiveData<? extends Office> office;
@@ -24,6 +29,10 @@ public class OfficeViewModel extends AndroidViewModel {
         this.repo = PfoertnerApplication.get(getApplication().getApplicationContext()).getRepo();
     }
 
+    /**
+     * Initialize the VieModel for an office
+     * @param officeId the office identifier
+     */
     public void init(final int officeId) {
         if (this.office != null) {
             // ViewModel is created on a per-Fragment basis, so the memberId
@@ -34,11 +43,18 @@ public class OfficeViewModel extends AndroidViewModel {
         this.office = repo.getOfficeRepo().getOffice(officeId);
     }
 
+    /**
+     * return the office LiveData
+     */
     public LiveData<? extends Office> getOffice() {
         return office;
     }
 
-
+    /**
+     * return the office LiveData
+     * @param officeId the office identifier
+     * @param officeId the office identifier
+     */
     public LiveData<List<Member>> getOfficeMembers(final int officeId){
         return repo
                 .getMemberRepo()
