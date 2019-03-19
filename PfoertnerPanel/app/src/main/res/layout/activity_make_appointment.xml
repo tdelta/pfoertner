@@ -13,26 +13,24 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
-        android:text="TextView"
+        android:text="One last step required"
         android:textColor="@android:color/black"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="One last step required" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:text="TextView"
+        android:text="Please enter your name, mail and a message."
         android:textColor="@android:color/black"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        tools:text="Please enter your name, mail and a message." />
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/textInputLayout"
@@ -45,7 +43,7 @@
             android:id="@+id/nameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="hint"
+            android:hint="Enter your full name here"
             android:inputType="text|textNoSuggestions|textPersonName"
             android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
@@ -61,25 +59,42 @@
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="hint"
+            android:hint="Enter your email address here"
             android:inputType="textNoSuggestions|textEmailAddress"
             android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
-    <Button
-        android:id="@+id/confirmbutton"
-        android:layout_width="191dp"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="32dp"
-        android:background="@color/selected"
-        android:onClick="onConfirmAppointment"
-        android:text="Button"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="CONFIRM APPOINTMENT" />
+        android:baselineAligned="false">
+
+
+        <Button
+            android:id="@+id/confirmbutton"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:background="@color/selected"
+            android:onClick="onConfirmAppointment"
+            android:text="CONFIRM APPOINTMENT" />
+
+        <Button
+            android:id="@+id/athenebutton"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:background="@color/colorPrimary"
+            android:onClick="onAtheneInfo"
+            android:text="Optional: Register your Athene Card" />
+
+    </LinearLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/textInputLayout7"
@@ -92,7 +107,7 @@
             android:id="@+id/messageInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="hint"
+            android:hint="Enter a message"
             android:inputType="text"
             android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>

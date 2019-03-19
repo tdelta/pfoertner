@@ -1,6 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -21,12 +22,19 @@ import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.AppointmentEntity;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
+import de.tu_darmstadt.epool.pfoertnerpanel.helpers.AtheneReader;
+import io.reactivex.schedulers.Schedulers;
 
 public class MakeAppointment extends AppCompatActivity {
     private static final String TAG = "MakeAppointment";
     private final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    private AtheneReader atheneReader;
+
+    private String atheneId;
 
     /**
      * Is called when activity gets created
@@ -35,27 +43,11 @@ public class MakeAppointment extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        atheneReader = new AtheneReader(this);
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_make_appointment);
-
-        final TextView title = findViewById(R.id.textView3);
-        title.setText("One last step required");
-
-        final TextView underTitle = findViewById(R.id.textView5);
-        underTitle.setText("Please enter your name, mail and a message.");
-
-        final Button confirm = findViewById(R.id.confirmbutton);
-        confirm.setText("REQUEST APPOINTMENT");
-
-        final TextInputLayout enterName = findViewById(R.id.textInputLayout);
-        enterName.setHint("Enter your full name here");
-
-        final TextInputLayout enterEmail = findViewById(R.id.textInputLayout6);
-        enterEmail.setHint("Enter your email address here");
-
-        final TextInputLayout enterMessage = findViewById(R.id.textInputLayout7);
-        enterMessage.setHint("Enter a message");
 
         final TextView appointmentTime = findViewById(R.id.textView6);
         appointmentTime.setText(getIntent().getIntExtra("appointmentStartTimeHour", -1)
@@ -66,6 +58,21 @@ public class MakeAppointment extends AppCompatActivity {
                 +":"
                 +getIntent().getStringExtra("appointmentEndTimeMinutes")
         );
+    }
+
+    @Override
+    public void onNewIntent(Intent intent){
+        if(atheneReader.isTechDiscovered(intent)){
+            Log.d(TAG,"Received tech discovered intent");
+            atheneReader.beep();
+            atheneId = atheneReader.extractAtheneId(intent);
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        atheneReader.resume();
     }
 
     /**
@@ -114,36 +121,42 @@ public class MakeAppointment extends AppCompatActivity {
         final TextView name = (TextView) findViewById(R.id.nameInput);
         final TextView message = (TextView) findViewById(R.id.messageInput);
 
-        final AppointmentRequest request = new AppointmentRequest(
+        final int officeMemberId = getIntent().getIntExtra("MemberId", -1);
+
+        final AppointmentEntity request = new AppointmentEntity(
+                0,
                 start,
                 end,
                 email.getText().toString(),
                 name.getText().toString(),
                 message.getText().toString(),
-                false
+                false,
+                officeMemberId,
+                atheneId
         );
 
 
-        new RequestTask<Void>(){
-            @Override
-            protected Void doRequests() throws Exception {
-                final PfoertnerApplication app = PfoertnerApplication.get(MakeAppointment.this);
+        PfoertnerApplication app = PfoertnerApplication.get(this);
 
-                app
-                        .getService()
-                        .createNewAppointment(app.getAuthentication().id, getIntent().getIntExtra("MemberId", 0), request).execute();
-
-                return null;
-            }
-
-            @Override
-            protected void onException(Exception e) {
-                super.onException(e);
-            }
-        }.execute();
-
-        Toast.makeText(this, "Request has been sent!", Toast.LENGTH_LONG).show();
+        app
+                .getRepo()
+                .getAppointmentRepository()
+                .createAppointment(request)
+                .observeOn(Schedulers.io())
+        .subscribe(
+                () -> Toast.makeText(this, "Request has been sent!", Toast.LENGTH_LONG).show(),
+                throwable -> {
+                    Toast.makeText(this, "Error sending appointment request", Toast.LENGTH_LONG).show();
+                    Log.e(TAG,"Error sending appointment request",throwable);
+                }
+        );
 
         finish();
+    }
+
+    public void onAtheneInfo(View view) {
+        final Intent intent = new Intent(this, AtheneInfo.class);
+        intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));
+        startActivity(intent);
     }
 }

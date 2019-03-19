@@ -32,6 +32,11 @@ import retrofit2.http.Path;
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
 public interface PfoertnerApi {
+
+    /**
+     *
+     * @return A retrofit instance that implements the API calls specified in this interface.
+     */
     static PfoertnerApi makeApi() {
         // Debug logging
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -77,6 +82,9 @@ public interface PfoertnerApi {
 
     @DELETE("appointments/{id}")
     Completable removeAppointment(@Header("Authorization") String authToken, @Path("id") int appointmentId);
+
+    @POST("officemembers/{id}/appointment")
+    Completable createNewAppointment(@Header("Authorization") String authToken,@Path("id") int id, @Body AppointmentEntity appointment);
 
     @GET("/officemembers/{id}/appointments")
     Single<List<AppointmentEntity>> getAppointmentsOfMember(@Header("Authorization") String authToken, @Path("id") int memberId);
