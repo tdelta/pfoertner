@@ -73,18 +73,25 @@ public class AppointmentFragment extends Fragment {
 
         final AdminApplication app = AdminApplication.get(getContext());
 
-        app
-                .getRepo()
-                .getMemberRepo()
-                .getMember(app.getMemberId())
-                .observe(this, member -> reactToMemberChange(mainView.findViewById(R.id.appointment_layout), member));
+        app.observeOfficeId()
+                .subscribe(
+                        id -> {
+                            app
+                                    .getRepo()
+                                    .getMemberRepo()
+                                    .getMember(app.getMemberId())
+                                    .observe(this, member -> reactToMemberChange(mainView.findViewById(R.id.appointment_layout), member));
 
-        final AppointmentRequestList appointments = (AppointmentRequestList) getChildFragmentManager().findFragmentById(R.id.appointments);
-        app
-                .getRepo()
-                .getAppointmentRepository()
-                .getAppointmentsOfMember(app.getMemberId())
-                .observe(this,appointmentData -> appointments.showAppointmentRequests(appointmentData));
+                            final AppointmentRequestList appointments = (AppointmentRequestList) getChildFragmentManager().findFragmentById(R.id.appointments);
+                            app
+                                    .getRepo()
+                                    .getAppointmentRepository()
+                                    .getAppointmentsOfMember(app.getMemberId())
+                                    .observe(this, appointmentData -> appointments.showAppointmentRequests(appointmentData));
+
+                        },
+                        throwable -> Log.e(TAG,"Office could not be loaded", throwable)
+                );
 
         return mainView;
     }
