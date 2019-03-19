@@ -11,6 +11,9 @@ import retrofit2.Call;
 // Only fields with the Expose annotation will be sent to the server
 // Other fields will only be persisted in local memory
 
+/**
+ * Body of a response of a create user request from the server. The id is later used for authentication.
+ */
 public class User {
     @Expose public final int id;
 
@@ -18,6 +21,14 @@ public class User {
         this.id = id;
     }
 
+    /**
+     * Loads a device id from local settings or if none exists, makes a <b>blocking</b> request to the server, to create an account.
+     * @param deviceRegistrationInfo local settings (PfoertnerApplication.getSettings())
+     * @param service retrofit instance to communicate with the server
+     * @param password password for account creation, not used if an account exists
+     * @throws RuntimeException if the connection to the server fails
+     * @return
+     */
     public static User loadDevice(final SharedPreferences deviceRegistrationInfo, final PfoertnerService service, final Password password) {
         User device;
 

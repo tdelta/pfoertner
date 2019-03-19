@@ -17,6 +17,12 @@ public class NotificationHelper {
     private static final String TAG = "Notification";
     private static final String SAVED_NOTIFICATION_ID = "saved notification id";
 
+    /**
+     * Notifications need unique ids. This method implements a simple counter.
+     *
+     * @param context Context needed to access local settings to save the current counter
+     * @return A unique id
+     */
     private static int getNextId(final Context context){
         final PfoertnerApplication app = PfoertnerApplication.get(context);
         final SharedPreferences settings = app.getSettings();
@@ -31,6 +37,21 @@ public class NotificationHelper {
         return id;
     }
 
+    /**
+     * Displays a notification
+     *
+     * @param notificationContent JSON Object containing the notification. It is structured in the following way:
+     *                            {
+     *                              title: title,
+     *                              body: body,
+     *                              buttons: {
+     *                                  title: title,
+     *                                  intent: url,
+ *                                      data: intent extras
+     *                              }
+     *                            }
+     * @param context Context needed to display notifications (e.g. ApplicationContext)
+     */
     public static void displayNotification(final String notificationContent, final Context context) {
         try {
             final JSONObject notificationJson = new JSONObject(notificationContent);
@@ -64,25 +85,25 @@ public class NotificationHelper {
                 notificationBuilder.setContentIntent(pendingIntent);
             }
 
-            //final JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
-            //if (buttonsJson != null) {
-            //    for (int i = 0; i < buttonsJson.length(); i++) {
-            //        final String buttonText = buttonsJson.getJSONObject(i).getString("title");
-            //        final String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
+            final JSONArray buttonsJson = notificationJson.optJSONArray("buttons");
+            if (buttonsJson != null) {
+                for (int i = 0; i < buttonsJson.length(); i++) {
+                    final String buttonText = buttonsJson.getJSONObject(i).getString("title");
+                    final String intentUrl = buttonsJson.getJSONObject(i).getString("intent");
 
-            //        final Intent buttonIntent = new Intent(intentUrl);
-            //        buttonIntent.putExtra("data", notificationJson.optString("data"));
+                    final Intent buttonIntent = new Intent(intentUrl);
+                    buttonIntent.putExtra("data", notificationJson.optString("data"));
 
-            //        final PendingIntent pendingIntent = PendingIntent.getService(
-            //                context.getApplicationContext(),
-            //                i,
-            //                buttonIntent,
-            //                PendingIntent.FLAG_ONE_SHOT);
+                    final PendingIntent pendingIntent = PendingIntent.getService(
+                            context.getApplicationContext(),
+                            i,
+                            buttonIntent,
+                            PendingIntent.FLAG_ONE_SHOT);
 
-            //        final NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
-            //        notificationBuilder.addAction(action);
-            //    }
-            //}
+                    final NotificationCompat.Action action = new NotificationCompat.Action(R.drawable.common_full_open_on_phone, buttonText, pendingIntent);
+                    notificationBuilder.addAction(action);
+                }
+            }
 
             final NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

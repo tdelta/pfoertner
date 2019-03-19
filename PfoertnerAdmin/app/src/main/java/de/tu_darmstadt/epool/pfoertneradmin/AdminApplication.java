@@ -34,8 +34,9 @@ public class AdminApplication extends PfoertnerApplication {
     }
 
     /**
-     * Set the id of the member
-     * @param id the new id
+     * setter for memberId
+     *
+     * @param id which will be set
      */
     public void setMemberId(final int id) {
         checkInitStatus();
@@ -49,8 +50,9 @@ public class AdminApplication extends PfoertnerApplication {
     }
 
     /**
-     * Retrieve the id of the member
-     * @return the id
+     * getter for memberId
+     *
+     * @return memberId
      */
     public int getMemberId() {
         checkInitStatus();
@@ -66,16 +68,19 @@ public class AdminApplication extends PfoertnerApplication {
     }
 
     /**
-     * Check if the member has an id
-     * @return true if the member has an id else false
+     * Returns whether a memberId is present
+     *
+     * @return maybeMemberId.isPresent
      */
     public boolean hasMemberId() {
         return this.maybeMemberId.isPresent();
     }
 
     /**
-     * Get an instance of of the Application
-     * @param context the context of the application
+     * Getter for AdminApplication
+     *
+     * @param context of the calling activity/fragment
+     * @return instance of the AdminApplication
      */
     public static AdminApplication get(final Context context) {
         return (AdminApplication) context.getApplicationContext();

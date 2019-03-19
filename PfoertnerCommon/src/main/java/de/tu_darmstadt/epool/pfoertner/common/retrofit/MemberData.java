@@ -9,6 +9,11 @@ import java.util.stream.Collectors;
 // Only fields with the Expose annotation will be sent to the server
 // Other fields will only be persisted in local memory
 
+/**
+ * Old member data marshalling class used to send and receive updates about an office member.
+ * Use instead: de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member
+ */
+@Deprecated
 public class MemberData {
     @Expose public int id;
     @Expose public String lastName;
