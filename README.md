@@ -20,7 +20,7 @@ Additional Pförtner utilizes the tablets camera from the smartphone application
 People outside the office can use Pförtner to arrange appointments. The selected occupant will get a notification on their smartphone and should the occupant accept the appointment will be added to their google calendar. While the creator of the appointments gets an email.
 
 <p align="center">
-  <a href="https://youtu.be/">
+  <a href="https://youtu.be/asGR4Xj08gg">
     Watch a trailer here.
   </a>
 </p>
