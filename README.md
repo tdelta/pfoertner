@@ -1,10 +1,10 @@
 # Pförtner - The digital door label
 
 <p align="center">
-  <img width="500" src="./Graphics/logo.png">
+  <img width="750" src="./Graphics/logo.png">
 </p>
 <p align="center">
-  <img width="500" src="./Graphics/finish.png">
+  <img width="750" src="./Graphics/finish.png">
 </p>
 
 Pförtner is a fully digital door label.<br>
@@ -30,7 +30,7 @@ People outside the office can use Pförtner to arrange appointments. The selecte
 
 The following picture shows the communication between the different components of Pförtner.
 <p align="center">
-  <img width="500" src="./Graphics/arch.png">
+  <img width="750" src="./Graphics/arch.png">
 </p>
 
 
