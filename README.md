@@ -30,12 +30,12 @@ People outside the office can use Pförtner to arrange appointments. The selecte
 
 The following picture shows the communication between the different components of Pförtner.
 <p align="center">
-  <img width="500" src="./graphics/arch.png">
+  <img width="500" src="./Graphics/arch.png">
 </p>
 
 
 
-For a detailed overview of Pförtners architecture take a look at the [technical documentation](arch.png).
+For a detailed overview of Pförtners architecture take a look at the [technical documentation](Pfoertner-Technische_Dokumentation.pdf).
 
 ## System Requirements
 
