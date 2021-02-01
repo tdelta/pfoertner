@@ -52,6 +52,7 @@ Both clients need the address where the server is hosted before the .apks are cr
 For this [Config.java](PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java) needs to be edited.
 
 For the server simple follow the instructions in [PfoertnerServer](PfoertnerServer/).
+The server needs to either be accessible from the internet or all devices need to be on the same network.
 
 # Old project, Cleanup in progress!
 
