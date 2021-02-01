@@ -1,9 +1,6 @@
 # Pförtner - The digital door label
 
 <p align="center">
-  <img width="750" src="./Graphics/logo.png">
-</p>
-<p align="center">
   <img width="750" src="./Graphics/finish.png">
 </p>
 
@@ -35,7 +32,7 @@ The following picture shows the communication between the different components o
 
 
 
-For a detailed overview of Pförtners architecture take a look at the [technical documentation](Pfoertner-Technische_Dokumentation.pdf).
+For a detailed overview of Pförtners architecture take a look at the [technical documentation](Pfoertner-Technische_Dokumentation.pdf) (german only).
 
 ## System Requirements
 
@@ -47,6 +44,8 @@ For a detailed overview of Pförtners architecture take a look at the [technical
 
 Android studio needs to create the .apks for the clients from their corresponding projects:<br>
 [PfoertnerAdmin](PfoertnerAdmin/) for the smart phone and [PfoertnerPanel](PfoertnerPanel/) for the table\label.
+
+Alternatively the applications can be installed to the corresponding devices through android studio and adb.
 
 Both clients need the address where the server is hosted before the .apks are created.
 For this [Config.java](PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java) needs to be edited.
