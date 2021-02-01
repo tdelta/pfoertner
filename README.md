@@ -25,9 +25,6 @@ People outside the office can use Pförtner to arrange appointments. The selecte
   </a>
 </p>
 
-## Build instructions
-
-TODO:
 
 ## Architecture
 
@@ -43,6 +40,10 @@ For a detailed overview of Pförtners architecture take a look at the [technical
 
 * At least 2 Android devices with Android 8.0 or higher.
 * The recommended configuration is 1 tablet as the door label and 1 smartphone per person in working in the office.
+
+## Build instructions
+
+TODO:
 
 # Old project, Cleanup in progress!
 
