@@ -35,7 +35,7 @@ The following picture shows the communication between the different components o
 
 
 
-For a detailed overview of Pförtners architecture take a look at the [technical documentation](Pfoertner-Technische_Dokumentation.pdf).
+For a detailed overview of Pförtners architecture take a look at the [technical documentation](arch.png).
 
 ## System Requirements
 
@@ -45,12 +45,13 @@ For a detailed overview of Pförtners architecture take a look at the [technical
 
 ## Setup instructions
 
-Android studio can create the .apks for the clients from their corresponding projects: [PfoertnerAdmin](PfoertnerAdmin/) for the smart phone and [PfoertnerPanel](PfoertnerPanel/) for the table\label.
+Android studio needs to create the .apks for the clients from their corresponding projects:<br>
+[PfoertnerAdmin](PfoertnerAdmin/) for the smart phone and [PfoertnerPanel](PfoertnerPanel/) for the table\label.
 
 Both clients need the address where the server is hosted before the .apks are created.
 For this [Config.java](PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java) needs to be edited.
 
-For the server simple follow the instructions in [PfoertnerServer](PfoertnerServer/)
+For the server simple follow the instructions in [PfoertnerServer](PfoertnerServer/).
 
 # Old project, Cleanup in progress!
 
