@@ -25,8 +25,17 @@ People outside the office can use Pförtner to arrange appointments. The selecte
   </a>
 </p>
 
-Download links for the latest release:
+## Build instructions
+
 TODO:
+
+## Architecture
+
+The following picture shows the communication between the different components of Pförtner.
+<p align="center">
+  <img width="500" src="./Graphics/arch.png">
+</p>
+
 
 For a detailed overview of Pförtners architecture take a look at the [technical documentation](Pfoertner-Technische_Dokumentation.pdf).
 
@@ -207,4 +216,4 @@ This Project was developed as part of the <em>Internet Praktikum Telekooperaion<
 * [LivaData Library](https://developer.android.com/topic/libraries/architecture/livedata)
 
 ## License
-TODO:
+TODO: gute frage ich meine wir hatte gpl gesagt, aber 
