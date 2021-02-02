@@ -51,7 +51,13 @@ Android studio needs to create the .apks for the clients from their correspondin
 Both clients need the address where the server is hosted before the .apks are created.
 For this [Config.java](PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java) needs to be edited.
 
-For the server simple follow the instructions in [PfoertnerServer](PfoertnerServer/).
+The server is deployed via docker.<br>
+Build the docker image.<br>
+docker build -t pfoertnerserver:1.0 .
+
+And start the container.
+docker run pfoertnerserver:1.0
+
 The server needs to either be accessible from the internet or all devices need to be on the same network.
 
 # Old project, Cleanup in progress!
