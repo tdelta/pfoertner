@@ -4,19 +4,17 @@
   <img width="750" src="./Graphics/finish.png">
 </p>
 
-Pförtner is a fully digital door label.<br>
-It utilizes a tablet outside of a office room to display information about the office occupants.
+Pförtner is a fully digital door label.
+* It utilizes a tablet outside of a office room to display information about the office occupants.
 The occupants inside the office can control the door label via a smart phone app.
 
-Each occupant can display their current status and their office hours along with a picture.
+* Each occupant can display their current status and their office hours along with a picture.
 
-A status for the whole room can be set along with a name for the room.
+* A status for the whole room can be set along with a name for the room.
 
-Additionally Pförtner utilizes the tablets camera from the smartphone application to take a peek at who is outside of the door.
+* Additionally Pförtner utilizes the tablets camera from the smartphone application to take a peek at who is outside of the door.
 
-People outside the office can use Pförtner to arrange appointments. The selected occupant will get a notification on their smart phone and should the occupant accept the appointment will be added to their google calendar. While the creator of the appointments gets an email.
-
-Stichpunkte features.
+* People outside the office can use Pförtner to arrange appointments. The selected occupant will get a notification on their smart phone and should the occupant accept the appointment will be added to their google calendar. While the creator of the appointments gets an email.
 
 <p align="center">
   <a href="https://youtu.be/asGR4Xj08gg">
@@ -40,9 +38,9 @@ For a detailed overview of Pförtners architecture take a look at the [technical
 
 * At least 2 Android devices with Android 8.0 or higher.
 * The recommended configuration is 1 tablet as the door label and 1 smartphone per person in working in the office.
-* TODO: was war nochmal die max anzahl? 4?
 
 ## Setup instructions
+TODO: rewrite after changes
 
 Android studio needs to create the .apks for the clients from their corresponding projects:<br>
 [PfoertnerAdmin](PfoertnerAdmin/) for the smart phone and [PfoertnerPanel](PfoertnerPanel/) for the table\label.
