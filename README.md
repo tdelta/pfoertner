@@ -5,16 +5,18 @@
 </p>
 
 Pförtner is a fully digital door label.<br>
-It utilizes a tablet outside of a office room to display information about the offices occupants.
-The occupants inside the office can control the door label via applications on their smart phone.
+It utilizes a tablet outside of a office room to display information about the office occupants.
+The occupants inside the office can control the door label via a smart phone app.
 
 Each occupant can display their current status and their office hours along with a picture.
 
 A status for the whole room can be set along with a name for the room.
 
-Additional Pförtner utilizes the tablets camera from the smartphone application to take a peek at who is outside of the door.
+Additionally Pförtner utilizes the tablets camera from the smartphone application to take a peek at who is outside of the door.
 
 People outside the office can use Pförtner to arrange appointments. The selected occupant will get a notification on their smart phone and should the occupant accept the appointment will be added to their google calendar. While the creator of the appointments gets an email.
+
+Stichpunkte features.
 
 <p align="center">
   <a href="https://youtu.be/asGR4Xj08gg">
@@ -81,4 +83,4 @@ This Project was developed as part of the <em>Internet Praktikum Telekooperaion<
 * [LivaData Library](https://developer.android.com/topic/libraries/architecture/livedata)
 
 ## License
-TODO: gute frage ich meine wir hatte gpl gesagt, aber 
+AFFERO GENERAL PUBLIC LICENSE, see [LICENSE.md](LICENSE.md)
