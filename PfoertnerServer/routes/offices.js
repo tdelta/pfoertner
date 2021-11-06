@@ -353,7 +353,7 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
         return res.status(500).send(err);
       } else {
         const downloadPath =
-          'https://deh.duckdns.org:3000/offices/' +
+          process.env.PUBLIC_URL + '/offices/' +
           req.params.officeId +
           '/spion';
 

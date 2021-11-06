@@ -1,10 +1,13 @@
+// Load configuration form .env file
+require('dotenv').config();
+
 // Get needed express module
 const express = require('express');
 const server = express();
 
-// Get filesync and https module
+// Get filesync and http module
 const fs = require('fs');
-const https = require('https');
+const http = require('http');
 
 // Get our own models
 const models = require('./models/models.js');
@@ -33,21 +36,6 @@ server.use(fileupload());
 // Connect to firebase
 firebase.initialize();
 
-// Load https certificate
-const privateKey = fs.readFileSync(
-  './letsencript/live/deh.duckdns.org/privkey.pem',
-  'utf8'
-);
-const fullchain = fs.readFileSync(
-  './letsencript/live/deh.duckdns.org/fullchain.pem',
-  'utf8'
-);
-
-const credentials = {
-  key: privateKey,
-  cert: fullchain,
-};
-
 // Get routes
 const officesroutes = require('./routes/offices.js');
 const devicesroutes = require('./routes/devices.js');
@@ -65,6 +53,6 @@ server.use(express.static('public_files'));
 
 // Listen on port 3000 localhost
 db.sequelize.sync().then(() => {
-  const httpsServer = https.createServer(credentials, server);
-  httpsServer.listen(3000, () => console.log('Listening on port 3000'));
+  const httpServer = http.createServer(server);
+  httpServer.listen(3000, () => console.log('Listening on port 3000'));
 });
