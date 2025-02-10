@@ -24,13 +24,13 @@ router.get('/', (req, res) => {
 // ONLY FOR DEBUGING/TESTING PURPOSES.
 // Return a specific user (which matches a id)
 router.get('/:id/debug', (req, res) =>
-  models.OfficeMember.findById(req.params.id).then(officemember =>
+  models.OfficeMember.findByPk(req.params.id).then(officemember =>
     res.status(200).send(officemember)
   )
 );
 
 router.get('/:id/office', (req, res) =>
-  models.OfficeMember.findById(req.params.id).then(officemember =>
+  models.OfficeMember.findByPk(req.params.id).then(officemember =>
     officemember.getOffice().then(office => res.send(office))
   )
 );
@@ -62,7 +62,7 @@ router.patch('/:id/picture', (req, res) => {
     if (err) {
       return res.status(500).send(err);
     } else {
-      models.OfficeMember.findById(officememberid).then(officemember => {
+      models.OfficeMember.findByPk(officememberid).then(officemember => {
         officemember.getOffice().then(office => {
           console.log('Das Officemember' + officemember);
           officemember
@@ -98,7 +98,7 @@ router.get('/:id/picture', (req, res) => {
   const officememberid = parseInt(req.params.id, 10);
 
   // Get the officemember matching the given id
-  models.OfficeMember.findById(officememberid).then(member => {
+  models.OfficeMember.findByPk(officememberid).then(member => {
     // If no officemember with this id is found, return 404
     if (member == null) {
       res.status('404').send('There is no person to your id');
@@ -127,7 +127,7 @@ router.get('/:id/picture/md5', (req, res) => {
   const officememberid = parseInt(req.params.id, 10);
 
   // Get the officemember matching the given id
-  models.OfficeMember.findById(officememberid).then(member => {
+  models.OfficeMember.findByPk(officememberid).then(member => {
     // If no officemember with this id is found, return 404
     if (member == null) {
       res.status('404').send('There is no person to your id');
@@ -156,7 +156,7 @@ router.patch('/:id', auth.authFun(), (req, res) => {
   console.log('Patching officemember');
 
   authenticatePanelOrOwner(req, res, req.params.id).then(() => {
-    models.OfficeMember.findById(officeMemberId).then(officemember => {
+    models.OfficeMember.findByPk(officeMemberId).then(officemember => {
       // Only server should set the id
       delete req.body.id;
       officemember.update(req.body).then(officemember => {
@@ -195,7 +195,7 @@ router.get('/:id/picture', (req, res) => {
   const officememberid = parseInt(req.params.id, 10);
 
   // Get the officemember matching the given id
-  models.OfficeMember.findById(officememberid).then(member => {
+  models.OfficeMember.findByPk(officememberid).then(member => {
     // If no officemember with this id is found, return 404
     if (member == null) {
       res.status('404').send('There is no person to your id');
@@ -302,7 +302,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
 router.patch('/:id/status', (req, res) => {
   const officememberid = parseInt(req.params.id, 10);
   console.log('DEBUG:' + req.body.status);
-  models.OfficeMember.findById(officememberid).then(member => {
+  models.OfficeMember.findByPk(officememberid).then(member => {
     if (member !== null) {
       member
         .update({ status: req.body.status })

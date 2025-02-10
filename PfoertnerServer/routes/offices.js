@@ -192,7 +192,7 @@ router.get('/:officeId/members', auth.authFun(), (req, res) => {
  */
 function findOffice(req, res) {
   return new Promise(function(response) {
-    models.Office.findById(req.params.officeId).then(office => {
+    models.Office.findByPk(req.params.officeId).then(office => {
       if (office) {
         response(office);
       } else {
@@ -298,7 +298,7 @@ router.get('/:officeId', auth.authFun(), (req, res) => {
   const officeId = parseInt(req.params.officeId, 10);
 
   authenticateOfficeMember(req, res).then(
-    models.Office.findById(officeId).then(office => {
+    models.Office.findByPk(officeId).then(office => {
       res.send(office);
     })
   );

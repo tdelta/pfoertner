@@ -117,7 +117,7 @@ router.get('/:id', auth.authFun(), function(req, res) {
         'You can not access information of other devices, but only your own device.',
     });
   } else {
-    models.Device.findById(deviceId).then(result => res.send(result));
+    models.Device.findByPk(deviceId).then(result => res.send(result));
   }
 });
 

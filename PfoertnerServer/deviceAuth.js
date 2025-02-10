@@ -15,7 +15,7 @@ exports.authenticatePanelOrOwner = function(req, res, id) {
     }
 
     // Get the officemember matching the given id
-    models.OfficeMember.findById(officememberid).then(member => {
+    models.OfficeMember.findByPk(officememberid).then(member => {
       // If no officemember with this id is found, return 404
       if (member == null) {
         res.status('404').send('There is no person to your id');
@@ -75,7 +75,7 @@ exports.authenticateAnyOfficeDevice = function(officeId, req, res) {
     } else if (officeId == null) {
       res.status('401').send('Office id is malformed: ' + officeId);
     } else {
-      models.Office.findById(officeId).then(office => {
+      models.Office.findByPk(officeId).then(office => {
         if (office == null) {
           res.status('404').send('There is no office to your id');
         } else {
