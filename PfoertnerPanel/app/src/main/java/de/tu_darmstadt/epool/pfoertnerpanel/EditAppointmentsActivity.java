@@ -1,13 +1,13 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
@@ -27,7 +27,7 @@ import io.reactivex.disposables.CompositeDisposable;
  * Displays all appointments associated with an Athene-Card
  * and offers a delete operations
  */
-public class EditAppointmentsActivity extends AppCompatActivity{
+public class EditAppointmentsActivity extends AppCompatActivity {
 
     private LinearLayout scrollRequests;
     private PfoertnerApplication app;

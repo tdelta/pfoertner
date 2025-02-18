@@ -1,10 +1,8 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import android.content.Intent;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -13,6 +11,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
@@ -40,7 +40,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
-import android.arch.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.LiveDataReactiveStreams;
 
 /**
  * Activity that is used for making appointments.

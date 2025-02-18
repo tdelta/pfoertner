@@ -2,15 +2,14 @@ package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -65,9 +64,10 @@ public class MakeAppointment extends AppCompatActivity {
     }
 
     @Override
-    public void onNewIntent(Intent intent){
-        if(atheneReader.isTechDiscovered(intent)){
-            Log.d(TAG,"Received tech discovered intent");
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (atheneReader.isTechDiscovered(intent)) {
+            Log.d(TAG, "Received tech discovered intent");
             atheneReader.beep();
             atheneId = atheneReader.extractAtheneId(intent);
         }

@@ -1,7 +1,7 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.member;
 
 import android.content.Context;
-import android.support.design.widget.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.util.AttributeSet;
 
 /**

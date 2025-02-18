@@ -1,6 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.services;
 
-import android.arch.lifecycle.LifecycleService;
+import androidx.lifecycle.LifecycleService;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;

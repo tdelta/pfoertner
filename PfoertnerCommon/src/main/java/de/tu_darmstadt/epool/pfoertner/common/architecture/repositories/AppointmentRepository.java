@@ -1,8 +1,8 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.repositories;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Transformations;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 import android.util.Log;
 
 import java.util.ArrayList;

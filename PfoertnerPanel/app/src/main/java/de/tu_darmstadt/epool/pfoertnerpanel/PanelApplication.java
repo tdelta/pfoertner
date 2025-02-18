@@ -1,6 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.content.Context;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;

@@ -1,13 +1,16 @@
 package de.tu_darmstadt.epool.pfoertneradmin.viewmodels;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import android.content.SharedPreferences;
 import android.util.Log;
+
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.viewmodel.ViewModelInitializer;
 
 import com.google.gson.Gson;
 

@@ -1,6 +1,6 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.helpers;
 
-import android.arch.persistence.room.TypeConverter;
+import androidx.room.TypeConverter;
 import android.util.Log;
 
 import org.threeten.bp.LocalDate;

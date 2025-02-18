@@ -7,16 +7,15 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
@@ -33,8 +32,6 @@ import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertnerpanel.R;
 import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
-
-import static android.support.constraint.Constraints.TAG;
 
 /**
  * UI view class for members displayed in the Membergrid

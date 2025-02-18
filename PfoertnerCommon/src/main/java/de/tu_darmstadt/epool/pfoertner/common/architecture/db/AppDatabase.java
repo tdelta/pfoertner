@@ -1,8 +1,8 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.db;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.dao.AppointmentDao;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.dao.InitStatusDao;

@@ -1,7 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.common.architecture.repositories;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Transformations;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 import android.util.Log;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;

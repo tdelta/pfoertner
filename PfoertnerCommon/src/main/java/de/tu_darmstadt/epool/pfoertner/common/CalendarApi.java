@@ -4,15 +4,12 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.internal.AuthAccountRequest;
-import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
@@ -178,7 +175,7 @@ public class CalendarApi implements MemberObserver {
     }
 
     private String getCalendarId() throws IOException{
-        Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), getCredential())
+        Calendar service = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), getCredential())
                 .setApplicationName("Pfoertner")
                 .build();
         List<CalendarListEntry> calendarList = service
@@ -202,7 +199,7 @@ public class CalendarApi implements MemberObserver {
         GoogleTokenResponse tokenResponse =
                 new GoogleAuthorizationCodeTokenRequest(
                         HTTP_TRANSPORT,
-                        JacksonFactory.getDefaultInstance(),
+                        GsonFactory.getDefaultInstance(),
                         "https://oauth2.googleapis.com/token",
                         clientId,
                         clientSecret,
@@ -221,7 +218,7 @@ public class CalendarApi implements MemberObserver {
 
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
-                .setJsonFactory(JacksonFactory.getDefaultInstance())
+                .setJsonFactory(GsonFactory.getDefaultInstance())
                 .setClientSecrets(
                         clientId,
                         clientSecret)
@@ -234,7 +231,7 @@ public class CalendarApi implements MemberObserver {
         if (this.member.getCalendarId() != null) {
             final String calendarId = this.member.getCalendarId();
 
-            Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), getCredential())
+            Calendar service = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), getCredential())
                     .setApplicationName("Pfoertner")
                     .build();
 

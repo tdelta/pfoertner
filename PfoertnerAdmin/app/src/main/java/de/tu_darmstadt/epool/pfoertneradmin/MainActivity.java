@@ -1,20 +1,22 @@
 package de.tu_darmstadt.epool.pfoertneradmin;
 
 
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.annotation.IdRes;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.navigation.NavigationView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -95,6 +97,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Select the fragment that should be displayed, based on the selected menu item
+     * @param menuItemId Resource id of the selected menu item
+     * @return Fragment class
+     */
+    private Class<? extends Fragment> selectFragment(@IdRes int menuItemId) {
+        if (menuItemId == R.id.showHome)
+            return MainScreenFragment.class;
+        if (menuItemId == R.id.addMember)
+            return ShowQrCodeFragment.class;
+        if (menuItemId == R.id.editProfile)
+            return PictureUploadFragment.class;
+        if (menuItemId == R.id.showAppointments)
+            return AppointmentFragment.class;
+        if (menuItemId == R.id.spion)
+            return SpionFragment.class;
+
+        return null;
+    }
+
+    /**
      * Initializes the drawer navigation to load different fragments when items are selected.
      */
     private void initNavigation() {
@@ -126,27 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 // Add code here to update the UI based on the item selected
                                 // For example, swap UI fragments here
-                                Class fragmentClass = null;
-                                switch (menuItem.getItemId()) {
-                                    case R.id.showHome:
-                                        fragmentClass = MainScreenFragment.class;
-                                        break;
-
-                                    case R.id.addMember:
-                                        fragmentClass = ShowQrCodeFragment.class;
-                                        break;
-
-                                    case R.id.editProfile:
-                                        fragmentClass = PictureUploadFragment.class;
-                                        break;
-
-                                    case R.id.showAppointments:
-                                        fragmentClass = AppointmentFragment.class;
-                                        break;
-                                    case R.id.spion:
-                                        fragmentClass = SpionFragment.class;
-                                        break;
-                                }
+                                Class<? extends Fragment> fragmentClass = selectFragment(menuItem.getItemId());
 
                                 if (fragmentClass != null) {
                                     try {
@@ -193,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "App has been initialized. We are member #" + String.valueOf(app.getMemberId()));
 
-        memberViewModel = ViewModelProviders.of(this).get(MemberProfileViewModel.class);
+        memberViewModel = new ViewModelProvider(this).get(MemberProfileViewModel.class);
         memberViewModel.init(app.getMemberId());
 
         memberViewModel.getMember().observe(this, member -> {

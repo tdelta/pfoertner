@@ -1,7 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
 import android.app.Application;
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;

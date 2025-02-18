@@ -1,7 +1,7 @@
 package de.tu_darmstadt.epool.pfoertner.common;
 
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.spencerwi.either.Either;
 

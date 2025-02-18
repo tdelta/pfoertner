@@ -1,8 +1,6 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.member;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModelProviders;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.content.Context;
 
 import android.util.AttributeSet;

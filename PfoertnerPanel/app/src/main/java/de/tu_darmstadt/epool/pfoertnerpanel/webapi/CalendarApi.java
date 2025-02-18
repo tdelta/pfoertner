@@ -12,7 +12,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
@@ -20,6 +20,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.threeten.bp.Duration;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -81,17 +82,17 @@ public class CalendarApi {
      */
     public Single<TokenResponse> getAccessTokenFromRefreshToken(String refreshToken){
         return Single.fromCallable(
-            () ->
-                new RefreshTokenRequest(
-                        HTTP_TRANSPORT,
-                        JacksonFactory.getDefaultInstance(),
-                        new GenericUrl("https://www.googleapis.com/oauth2/v4/token"),
-                        refreshToken
+                        () ->
+                                new RefreshTokenRequest(
+                                        HTTP_TRANSPORT,
+                                        GsonFactory.getDefaultInstance(),
+                                        new GenericUrl("https://www.googleapis.com/oauth2/v4/token"),
+                                        refreshToken
+                                )
+                                        .setClientAuthentication(
+                                                new BasicAuthentication(clientId, clientSecret)
+                                        ).execute()
                 )
-                        .setClientAuthentication(
-                                new BasicAuthentication(clientId, clientSecret)
-                        ).execute()
-        )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -106,7 +107,7 @@ public class CalendarApi {
                 () ->
                     new GoogleAuthorizationCodeTokenRequest(
                             HTTP_TRANSPORT,
-                            JacksonFactory.getDefaultInstance(),
+                            GsonFactory.getDefaultInstance(),
                             "https://www.googleapis.com/oauth2/v4/token",
                             clientId,
                             clientSecret,
@@ -130,7 +131,7 @@ public class CalendarApi {
                 () -> {
                         final Credential credential = new GoogleCredential.Builder()
                                 .setTransport(HTTP_TRANSPORT)
-                                .setJsonFactory(JacksonFactory.getDefaultInstance())
+                                .setJsonFactory(GsonFactory.getDefaultInstance())
                                 .setClientSecrets(
                                         clientId,
                                         clientSecret)
@@ -151,7 +152,7 @@ public class CalendarApi {
         return Single.fromCallable(
                 () -> {
 
-                    final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credential)
+                    final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), credential)
                             .setApplicationName("Pfoertner")
                             .build();
 
@@ -187,7 +188,7 @@ public class CalendarApi {
     /**
      * Get all events of the office hour calendar in the specified time range
      * @param calendarId the id of the office hour calendar
-     * @param credential OAuth 2.0 credentials
+     * @param credentials OAuth 2.0 credentials
      * @param start the starting point where to retrieve events
      * @param end the ending point where to retrieve events
      */
@@ -198,7 +199,7 @@ public class CalendarApi {
                 .observeOn(Schedulers.io())
                 .map(
                         modifiedCalendar -> {
-                            final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credentials)
+                            final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), credentials)
                                     .setApplicationName("Pfoertner")
                                     .build();
 

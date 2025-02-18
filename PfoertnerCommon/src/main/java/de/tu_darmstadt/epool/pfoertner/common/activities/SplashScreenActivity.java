@@ -3,10 +3,10 @@ package de.tu_darmstadt.epool.pfoertner.common.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

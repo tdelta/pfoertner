@@ -7,9 +7,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
@@ -207,6 +208,7 @@ public class InitializationActivity extends AppCompatActivity {
     public void onBackPressed() {
         // prevent the user from removing the initialization activity from the activity stack. (pressing back button)
         // instead, move the entire app into the background
+        super.onBackPressed();
         moveTaskToBack(true);
     }
 }

@@ -1,8 +1,8 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.repositories;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.Transformations;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Transformations;
 import android.util.Log;
 
 import org.threeten.bp.Instant;

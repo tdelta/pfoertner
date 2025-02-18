@@ -1,8 +1,8 @@
 package de.tu_darmstadt.epool.pfoertneradmin.viewmodels;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import de.tu_darmstadt.epool.pfoertneradmin.AdminApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;

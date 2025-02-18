@@ -1,9 +1,9 @@
 package de.tu_darmstadt.epool.pfoertnerpanel.db;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverter;
-import android.arch.persistence.room.TypeConverters;
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
+import androidx.room.TypeConverter;
+import androidx.room.TypeConverters;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.helpers.DateConverter;
 import de.tu_darmstadt.epool.pfoertnerpanel.db.dao.MemberCalendarInfoDao;

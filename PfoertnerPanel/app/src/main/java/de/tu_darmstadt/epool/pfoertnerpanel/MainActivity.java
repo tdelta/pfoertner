@@ -1,17 +1,20 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.arch.lifecycle.ViewModelProviders;
 
+import androidx.lifecycle.ViewModelProvider;
+
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onNewIntent(Intent intent){
+        super.onNewIntent(intent);
         if(atheneReader.isTechDiscovered(intent)){
             atheneReader.beep();
             String atheneId = atheneReader.extractAtheneId(intent);
@@ -134,9 +138,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Office has been initialized.");
         final PfoertnerApplication app = PfoertnerApplication.get(this);
 
-        viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
-        viewModel.init(app.getOffice().getId());
+        OfficeViewModel viewModel = new ViewModelProvider(this).get(OfficeViewModel.class);
 
+        viewModel.init(app.getOffice().getId());
         viewModel.getOffice().observe(this, office -> {
             if(office != null) {
                 setGlobalStatus(office.getStatus());
@@ -205,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
      * Listens for changes.
      */
     private void initializeMemberGrid() {
-        OfficeViewModel viewModel = ViewModelProviders.of(this).get(OfficeViewModel.class);
+        OfficeViewModel viewModel = new ViewModelProvider(this).get(OfficeViewModel.class);
 
         MemberGrid memberList = findViewById(R.id.member_list);
         final PfoertnerApplication app = PfoertnerApplication.get(MainActivity.this);

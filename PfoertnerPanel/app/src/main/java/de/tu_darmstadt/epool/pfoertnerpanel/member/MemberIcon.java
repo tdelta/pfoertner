@@ -4,10 +4,12 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
 /**
  * An image view whose whole purpose is to display an image as a square
  */
-public class MemberIcon extends android.support.v7.widget.AppCompatImageView {
+public class MemberIcon extends AppCompatImageView {
 
     public MemberIcon(final Context context) {
         super(context);

@@ -2,12 +2,11 @@ package de.tu_darmstadt.epool.pfoertneradmin.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,7 +84,7 @@ public class RoomFragment extends Fragment {
 
         final PfoertnerApplication app = PfoertnerApplication.get(getActivity());
 
-        viewModel = ViewModelProviders.of(this).get(RoomFragmentViewModel.class);
+        viewModel = new ViewModelProvider(this).get(RoomFragmentViewModel.class);
         viewModel.init(app.getOffice().getId());
 
         viewModel.getCurrentRoomListener().observe(this, newRoom -> {
