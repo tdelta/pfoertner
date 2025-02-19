@@ -6,7 +6,7 @@ var passport = require('passport');
 var auth = require('./auth.js');
 
 var passportStrategy = auth.getStrategy(
-  'vZPE3TDNJqBJUkY5NXfWPuhPPM5sefkxn45HHfLkxK22Pe3mUL8iTTovktxQdMsyKzPPVfUD', // secret key of server for auth tokens
+  process.env.JWT_SECRET, // secret key of server for auth tokens stored in .env file
   deviceId => {
     const device = models.Device.findByPk(deviceId);
 

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write './**/*.js*'"
+    "format": "prettier --write './**/*.js*'",
+    "setup": "node scripts/generateDotEnv.js > .env"
   },
   "author": "",
   "license": "AGPL-3.0-only",
