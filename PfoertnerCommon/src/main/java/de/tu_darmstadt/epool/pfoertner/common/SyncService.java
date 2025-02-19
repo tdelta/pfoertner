@@ -6,7 +6,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.reactivestreams.Publisher;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.Observable;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
-//import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
+import de.tu_darmstadt.epool.pfoertner.common.spion.Spion;
 import de.tu_darmstadt.epool.pfoertner.common.synced.Member;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
@@ -56,9 +55,8 @@ public class SyncService extends Service {
                         break;
                     case takephoto:
                         Log.d("SpionNew","The new takePhoto service is about to launch!");
-                        throw new NotImplementedException("Spion feature is currently not implemented");
-                        //startService(new Intent(getApplicationContext(), Spion.class));
-                        //break;
+                        startService(new Intent(getApplicationContext(), Spion.class));
+                        break;
                     case AppointmentsUpdated:
                         SyncService.this.updateAppointmentsOfMember(payload);
                         break;

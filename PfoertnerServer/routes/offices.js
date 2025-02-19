@@ -343,7 +343,7 @@ router.patch('/:officeId/spion', auth.authFun(), (req, res) => {
   console.log('function patch spion called');
 
   const picture = req.files.spion;
-  const hash = req.files.spion.md5();
+  const hash = req.files.spion.md5;
 
   const officeId = parseInt(req.params.officeId, 10);
 
