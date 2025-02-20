@@ -54,7 +54,7 @@ router.get('/:id', auth.authFun(), (req, res) => {
  */
 router.patch('/:id/picture', (req, res) => {
   const picture = req.files.picture;
-  const hash = req.files.picture.md5();
+  const hash = req.files.picture.md5;
 
   const officememberid = parseInt(req.params.id, 10);
 

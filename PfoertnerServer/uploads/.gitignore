@@ -1,0 +1,5 @@
+# Another .gitignore so this folder is not empty and it can be committed
+# Ignore the image files within this folder
+*
+# Don't ignore this .gitignore file itself
+!.gitignore
