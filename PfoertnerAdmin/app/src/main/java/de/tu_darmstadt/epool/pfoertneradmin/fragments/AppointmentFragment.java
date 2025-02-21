@@ -2,8 +2,10 @@ package de.tu_darmstadt.epool.pfoertneradmin.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.util.Log;
@@ -14,18 +16,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.identity.AuthorizationRequest;
+import com.google.android.gms.auth.api.identity.AuthorizationResult;
+import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
+import com.google.api.services.calendar.CalendarScopes;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
+
+import java.util.Collections;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
@@ -196,46 +200,64 @@ public class AppointmentFragment extends Fragment {
         Log.d(TAG, "Trying to connect google calendar...");
 
         final String serverClientId = getString(R.string.server_client_id);
-        final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
-                .requestServerAuthCode(serverClientId,true)
-                .requestEmail()
-                .build();
-        final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
-        final Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent,CONNECT_GOOGLE_CALENDAR);
+        List<Scope> requestedScopes = Collections.singletonList(new Scope(CalendarScopes.CALENDAR)); // TODO Check if we can limit the scope a bit (readonly)
+        AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
+                .setRequestedScopes(requestedScopes)
+                .requestOfflineAccess(serverClientId, true)
+                .build();
+        Identity.getAuthorizationClient(requireContext())
+                .authorize(authorizationRequest)
+                .addOnSuccessListener(
+                        authorizationResult -> {
+                            if (authorizationResult.hasResolution()) {
+                                // Access needs to be granted by the user
+                                PendingIntent pendingIntent = authorizationResult.getPendingIntent();
+                                try {
+                                    startIntentSenderForResult(pendingIntent.getIntentSender(),
+                                            CONNECT_GOOGLE_CALENDAR, null, 0, 0, 0, null);
+                                } catch (IntentSender.SendIntentException e) {
+                                    Log.e(TAG, "Couldn't start Authorization UI: " + e.getLocalizedMessage());
+                                }
+                            } else {
+                                // Access already granted, continue with user action
+                                saveAuthCode(authorizationResult);
+                            }
+                        })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to authorize calendar access", e));
     }
 
     @Override
-    @SuppressWarnings("CheckResult")
     public void onActivityResult(final int requestCode,final int resultCode,final Intent data){
         if(requestCode==CONNECT_GOOGLE_CALENDAR){
             Log.d(TAG, "Google calendar oauth connection task finished.");
+            try {
+                AuthorizationResult authorizationResult = Identity
+                        .getAuthorizationClient(requireContext())
+                        .getAuthorizationResultFromIntent(data);
+                saveAuthCode(authorizationResult);
 
-            final Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-
-            try{
-                final GoogleSignInAccount account = task.getResult(ApiException.class);
-                final String authCode = account.getServerAuthCode();
-                final String email = account.getEmail();
-
-                // Send the auth code to the server
-                final AdminApplication app = AdminApplication.get(getContext());
-
-                app
-                        .getRepo()
-                        .getMemberRepo()
-                        .setServerAuthCode(app.getMemberId(), authCode, email)
-                        .subscribe(
-                                () -> Log.d(TAG, "Successfully set new server auth code."),
-                                throwable -> Log.e(TAG, "Failed to set new server auth code", throwable)
-                        );
-            }
-
-            catch (final Exception e) {
-                Log.d(TAG,"could not sign in", e);
+            } catch (ApiException e) {
+                Log.e(TAG, "Could not sign in to calendar", e);
             }
         }
+    }
+
+    private void saveAuthCode(AuthorizationResult authorizationResult){
+        final String authCode = authorizationResult.getServerAuthCode();
+        final String email = authorizationResult.toGoogleSignInAccount().getEmail();
+
+        // Send the auth code to the server
+        final AdminApplication app = AdminApplication.get(requireContext());
+
+        app
+                .getRepo()
+                .getMemberRepo()
+                .setServerAuthCode(app.getMemberId(), authCode, email)
+                .subscribe(
+                        () -> Log.d(TAG, "Successfully set new server auth code."),
+                        throwable -> Log.e(TAG, "Failed to set new server auth code", throwable)
+                );
+
     }
 }
