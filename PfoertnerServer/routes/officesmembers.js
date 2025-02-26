@@ -14,27 +14,6 @@ var authenticatePanelOrOwner = require('../deviceAuth.js')
 
 var auth = require('../authInit.js');
 
-// List all users created in the database
-router.get('/', (req, res) => {
-  models.OfficeMember.findAll().then(officesmembers =>
-    res.send(officesmembers)
-  );
-});
-
-// ONLY FOR DEBUGING/TESTING PURPOSES.
-// Return a specific user (which matches a id)
-router.get('/:id/debug', (req, res) =>
-  models.OfficeMember.findByPk(req.params.id).then(officemember =>
-    res.status(200).send(officemember)
-  )
-);
-
-router.get('/:id/office', (req, res) =>
-  models.OfficeMember.findByPk(req.params.id).then(officemember =>
-    officemember.getOffice().then(office => res.send(office))
-  )
-);
-
 /**
  * ENDPOINT: GET /officemembers/id
  *
