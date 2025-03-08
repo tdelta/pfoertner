@@ -83,15 +83,22 @@ router.delete('/:id', auth.authFun(), (req, res) => {
             );
           });
 
-          console.log('Successfully deleted appointment. Sending mail to ' + u.email);
+          console.log('Successfully deleted appointment');
+
+          if (!process.env.EMAIL_ADDRESS || !process.env.EMAIL_PASSWORD) {
+            res.status(200).send('Successfully deleted appointment request');
+            return;
+          }
+
+          console.log('Sending mail to ' + u.email);
 
           const transporter = nodemailer.createTransport({
             host: 'mail.gmx.net',
             port: 587,
             secureConnection: false,
             auth: {
-              user: 'pfoertner.app@gmx.de',
-              pass: '9x8e92UaPZSvw7ejpju3njcNbDRsWW7MEZRRqSnn',
+              user: process.env.EMAIL_ADDRESS,
+              pass: process.env.EMAIL_PASSWORD,
             },
             tls: {
               ciphers: 'SSLv3',
@@ -100,7 +107,7 @@ router.delete('/:id', auth.authFun(), (req, res) => {
 
           // setup email data with unicode symbols
           const mailOptions = {
-            from: '"Pförtner App <pfoertner.app@gmx.de>',
+            from: `Pförtner App <${process.env.EMAIL_ADDRESS}>`,
             to: u.email,
             subject: 'Appointment has been rejected', // Subject line
             text:

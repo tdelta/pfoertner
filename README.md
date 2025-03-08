@@ -79,7 +79,14 @@ https://firebase.google.com/docs/admin/setup#initialize-sdk
    You might want to setup a (reverse) proxy in Apache or nginx to add SSL
    encryption.
 
-3. Configure the public facing URL of your backend in `./PfoertnerServer/.env`.
+3. Run `npm run setup` to generate the file `./PfoertnerServer/.env`.
+
+   This generates a secret value used to setup authentication using Json Web Token (JWT).
+   
+   The secret should not be uploaded anywhere. It is used by the server to authenticate
+   each device that runs either of the apps.
+
+4. Configure the public facing URL of your backend in `./PfoertnerServer/.env`.
 
    E.g.
    ```
@@ -96,7 +103,20 @@ https://firebase.google.com/docs/admin/setup#initialize-sdk
    PUBLIC_URL="http://myserver.de:3000"
    ```
 
-4. Also configure the URL in the end user app settings. That is, open the file
+5. Optional: Enter email credentials into the server settings. The server can notify
+   panel users if their appointment request was rejected. If you want to use this feature,
+   simply add credentials for an email account (GMX works) to `./PfoertnerServer/.env` as
+   follows:
+
+   ```
+   EMAIL_ADDRESS="your email address"
+   EMAIL_PASSWORD="your email password"
+   ```
+
+   If you want to use a different email provider than GMX, you also need to adjust
+   the settings in `./PfoertnerServer/routes/appointments.js`.
+
+6. Also configure the URL in the end user app settings. That is, open the file
    `./PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java`
    and change the variable `SERVER_ADDR` to the same public url as before.
 
@@ -114,10 +134,10 @@ https://firebase.google.com/docs/admin/setup#initialize-sdk
    }
    ```
 
-5. Install the backend dependencies by running `npm install` in the
+7. Install the backend dependencies by running `npm install` in the
    `PfoertnerServer` directory.
 
-6. Run the backend server using `npm start`.
+8. Run the backend server using `npm start`.
    You might to wrap this command into a systemd (user) service or something
    similar so that the backend server runs at startup.
 
