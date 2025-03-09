@@ -18,7 +18,7 @@ public class MemberEntity implements Member {
     public MemberEntity() {}
 
     @Ignore
-    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String serverAuthCode, String calendarId, String email,String webhookId) {
+    public MemberEntity(int id, int officeId, String firstName, String lastName, String status, String picture, String pictureMD5, String email) {
         this.id = id;
         this.OfficeId = officeId;
         this.firstName = firstName;
@@ -26,10 +26,7 @@ public class MemberEntity implements Member {
         this.status = status;
         this.picture = picture;
         this.pictureMD5 = pictureMD5;
-        this.serverAuthCode = serverAuthCode;
-        this.calendarId = calendarId;
         this.email = email;
-        this.webhookId = webhookId;
     }
 
     @PrimaryKey
@@ -43,10 +40,7 @@ public class MemberEntity implements Member {
     private String status;
     private String picture;
     private String pictureMD5;
-    private String serverAuthCode;
-    private String calendarId;
     private String email;
-    private String webhookId;
 
     public void setId(int id) {
         this.id = id;
@@ -72,15 +66,7 @@ public class MemberEntity implements Member {
 
     public void setPictureMD5(String hash) { this.pictureMD5 = hash; }
 
-    public void setServerAuthCode(String authCode) { this.serverAuthCode = authCode; }
-
-    public void setCalendarId(String calendarId) { this.calendarId = calendarId; }
-
     public void setEmail(String email) { this.email = email; }
-
-    public void setWebhookId(String webhookId) {
-        this.webhookId = webhookId;
-    }
 
     @Override
     public int getId() {
@@ -114,16 +100,7 @@ public class MemberEntity implements Member {
     public String getPictureMD5() { return pictureMD5; }
 
     @Override
-    public String getServerAuthCode() { return serverAuthCode; }
-
-    @Override
-    public String getCalendarId() { return calendarId; }
-
-    @Override
     public String getEmail() { return email; }
-
-    @Override
-    public String getWebhookId() { return webhookId; }
 
     /**
      * Creates a MemberEntity Object with the same values as the current object
@@ -138,10 +115,7 @@ public class MemberEntity implements Member {
                 this.getStatus(),
                 this.getPicture(),
                 this.getPictureMD5(),
-                this.getServerAuthCode(),
-                this.getCalendarId(),
-                this.getEmail(),
-                this.getWebhookId()
+                this.getEmail()
         );
     }
 }

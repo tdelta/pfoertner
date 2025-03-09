@@ -69,13 +69,7 @@
         <service
             android:name="de.tu_darmstadt.epool.pfoertner.common.SyncService"
             android:enabled="true" />
-        <service
-            android:name=".services.MemberCalendarInfoService"
-            android:enabled="true" />
 
-        <activity
-            android:name=".Appointment"
-            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

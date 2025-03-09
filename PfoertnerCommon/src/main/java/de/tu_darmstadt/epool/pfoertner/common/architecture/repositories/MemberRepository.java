@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.GoogleAuthData;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.Authentication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.AppDatabase;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
@@ -191,72 +192,18 @@ public class MemberRepository {
     }
 
     /**
-     * Sets a new calendar server authentication code for the member with the given data. The
-     * change will be propagated to the server and all other members, which use the member.
-     * <p>
-     * This method does not directly change the locally cached data. The local data will only be
-     * refreshed, as soon as the server instructs us to do so
-     * (see {@link de.tu_darmstadt.epool.pfoertner.common.SyncService}.
+     * Uploads a new calendar server authentication code for the member to the server.
+     * This code is only valid once and is not saved by the server or any of the apps.
      *
      * @param memberId       id of the member, for which the status shall be changed
      * @param serverAuthCode new google calendar server auth code needed for accessing the
      *                       calendar of the member
-     * @param eMail          mail associated with the calendar
      * @return a Completable, which indicates, whether the server has been informed about the
      * change yet.
      */
-    public Completable setServerAuthCode(final int memberId, final String serverAuthCode,
-                                         final String eMail) {
-        return modify(
-                memberId,
-                prevMemberClone ->
-                {
-                    prevMemberClone.setServerAuthCode(serverAuthCode);
-                    prevMemberClone.setEmail(eMail);
-                }
-        );
-        // TODO: Dont synchronize EMail
-    }
-
-    /**
-     * Sets id of the connected google calendar for the member with the given data. The change
-     * will be propagated to the server and all other members, which use the member.
-     * <p>
-     * This method does not directly change the locally cached data. The local data will only be
-     * refreshed, as soon as the server instructs us to do so
-     * (see {@link de.tu_darmstadt.epool.pfoertner.common.SyncService}.
-     *
-     * @param memberId  id of the member, for which the status shall be changed
-     * @param calendarId id of the connected google calendar of the member
-     * @return a Completable, which indicates, whether the server has been informed about the
-     * change yet.
-     */
-    public Completable setCalendarId(int memberId, String calendarId) {
-        return modify(
-                memberId,
-                prevMemberClone -> prevMemberClone.setCalendarId(calendarId)
-        );
-    }
-
-
-    /**
-     * Sets id of the google calendar webhook of the member with the given member id. The change
-     * will be propagated to the server and all other members, which use the member.
-     * <p>
-     * This method does not directly change the locally cached data. The local data will only be
-     * refreshed, as soon as the server instructs us to do so
-     * (see {@link de.tu_darmstadt.epool.pfoertner.common.SyncService}.
-     *
-     * @param memberId  id of the member, for which the status shall be changed
-     * @param webhookId id of the webhook of the connected google calendar of the member
-     * @return a Completable, which indicates, whether the server has been informed about the
-     * change yet.
-     */
-    public Completable setWebhookId(int memberId, String webhookId) {
-        return modify(
-                memberId,
-                prevMemberClone -> prevMemberClone.setWebhookId(webhookId)
-        );
+    public Completable uploadServerAuthCode(final int memberId, final String serverAuthCode) {
+        return api.authorizeCalendarAccess(auth.id, memberId, new GoogleAuthData(serverAuthCode))
+                .subscribeOn(Schedulers.io());
     }
 
     /**

@@ -37,24 +37,7 @@ public interface Member {
     String getPictureMD5();
 
     /**
-     * Server auth code, uploaded by the admin app and used to retrieve an auth token to access the google calendar
-     *
-     * https://developers.google.com/calendar/auth
-     */
-    String getServerAuthCode();
-
-    /**
-     * URL of the "office hours" calendar of the office member
-     */
-    String getCalendarId();
-
-    /**
      * Google email address of the office member
      */
     String getEmail();
-
-    /**
-     * Id of the webhook channel for calendar updates
-     */
-    String getWebhookId();
 }

@@ -1,46 +1,34 @@
 package de.tu_darmstadt.epool.pfoertnerpanel;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
+import static androidx.core.content.ContextCompat.getColor;
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
-import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
-
-import org.reactivestreams.Publisher;
-import org.threeten.bp.LocalDateTime;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
+import java.util.stream.IntStream;
 
-import javax.annotation.Nullable;
-
-import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
-import de.tu_darmstadt.epool.pfoertnerpanel.db.entities.MemberCalendarInfoEntity;
-import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
-import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
-import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
-import androidx.lifecycle.LiveDataReactiveStreams;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Timeslot;
+import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.ScheduleAppointmentViewModel;
 
 /**
  * Activity that is used for making appointments.
@@ -48,15 +36,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
  */
 public class ScheduleAppointment extends AppCompatActivity {
     private final String TAG = "NewScheduleAppointment";
-    private LocalDateTime now;
-    private Timehelpers timehelper;
-    private HashMap<LocalDateTime, DayView> upcomingDayViews = new HashMap<>();
-    private LinearLayout dayviews;
-    private LinearLayout timeslots;
-    private LocalDateTime selectedDay;
-
-    private CompositeDisposable disposables = new CompositeDisposable();
-
+    private ScheduleAppointmentViewModel viewModel;
     /**
      * Is called when activity gets created
      * Creates User Interface and listens to changes in the livedata
@@ -66,11 +46,8 @@ public class ScheduleAppointment extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_schedule_appointment);
-        dayviews = (LinearLayout) findViewById(R.id.dayviews);
-        timehelper = new Timehelpers();
-        timeslots = (LinearLayout) findViewById(R.id.timeslots);
-        now = LocalDateTime.now();
 
+        viewModel = new ViewModelProvider(this).get(ScheduleAppointmentViewModel.class);
 
         final TextView room = findViewById(R.id.schedule_room);
 
@@ -91,227 +68,69 @@ public class ScheduleAppointment extends AppCompatActivity {
 
         if (memberId < 0) {
             Log.e(TAG, "A member must be selected to show appointments.");
+            return;
         }
 
-        else {
-            app
-                    .getRepo()
-                    .getMemberRepo()
-                    .getMember(memberId)
-                    .observe(this, member -> {
-                        final TextView appointmentMemberName = (TextView) findViewById(R.id.appointment_member);
-                        appointmentMemberName.setText("Appointment times for: " + member.getFirstName() + " " + member.getLastName());
-                    });
+        app
+                .getRepo()
+                .getMemberRepo()
+                .getMember(memberId)
+                .observe(this, member -> {
+                    final TextView appointmentMemberName = (TextView) findViewById(R.id.appointment_member);
+                    appointmentMemberName.setText("Appointment times for: " + member.getFirstName() + " " + member.getLastName());
+                });
 
-            // ---------------
-            // Build an rxjava pipeline from the database to the screen
-            // ---------------
+        ListView dayList = findViewById(R.id.day_list);
+        DayAdapter dayAdapter = new DayAdapter(this, new ArrayList<>(30));
+        dayList.setAdapter(dayAdapter);
+        dayList.setOnItemClickListener((adapterView, view, i, l) -> {
+            ScheduleAppointmentViewModel.DayItem dayItem = dayAdapter.getItem(i);
+            if (dayItem.hasTimeslots) viewModel.selectedDay.setValue(dayItem.date);
+        });
 
-            // This block only converts livedata to observables
-            LiveData<MemberCalendarInfo> calendarInfoLiveData = app
-                    .getPanelRepo()
-                    .getMemberCalendarInfoRepo()
-                    .getCalendarInfoByMemberId(memberId);
+        ListView timeslotList = findViewById(R.id.timeslot_list);
+        TimeslotAdapter timeslotAdapter = new TimeslotAdapter(this, new ArrayList<>(5));
+        timeslotList.setAdapter(timeslotAdapter);
+        timeslotList.setOnItemClickListener((adapterView, view, i, l) -> gotoMakeAppointment(timeslotAdapter.getItem(i)));
 
-            Publisher<MemberCalendarInfo> memberCalendarInfoPublisher = LiveDataReactiveStreams.toPublisher(this,calendarInfoLiveData);
-            Observable<MemberCalendarInfo> calendarInfoObservable = Observable.fromPublisher(memberCalendarInfoPublisher);
+        viewModel.getNextDays(memberId, LocalDate.now())
+                .observe(this, dayItems -> {
+                    dayAdapter.clear();
+                    dayAdapter.addAll(dayItems);
 
-            LiveData<List<Appointment>> appointmentLiveData = app
-                    .getRepo()
-                    .getAppointmentRepository()
-                    .getAppointmentsOfMember(memberId);
+                });
 
-            Publisher<List<Appointment>> appointmentPublisher = LiveDataReactiveStreams.toPublisher(this,appointmentLiveData);
-            Observable<List<Appointment>> appointmentObservable = Observable.fromPublisher(appointmentPublisher);
-
-            final DateTime start = new DateTime(System.currentTimeMillis());
-            final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
-
-            Observable<List<Event>> calendarEventsObservable = calendarInfoObservable
-                    .flatMap(memberCalendarInfo -> getEvents(memberCalendarInfo,start,end));
-
-            Observable.combineLatest(appointmentObservable,calendarEventsObservable,
-                    (appointments,events) -> new Pair<List<Event>,List<Appointment>>(events,appointments))
-                    .map(this::removeAcceptedAppointments)
-                    .subscribe(
-                            events -> initializeDayViews(events),
-                            throwable -> Log.e(TAG,"Could not load events and appointments",throwable)
-                    );
-
-        }
-    }
-
-    /**
-     * Removes already accepted appointments from the displayed schedule
-     * @param eventsAndAppointments pair of events and appointments meant to be removed from events
-     * @return List of events minus the accepted appointment
-     */
-    private List<Event> removeAcceptedAppointments(Pair<List<Event>,List<Appointment>> eventsAndAppointments){
-        List<Event> result = new LinkedList<>(eventsAndAppointments.first);
-
-        List<Appointment> appointments = eventsAndAppointments.second;
-        if(appointments == null) {
-            return result;
-        }
-
-        Log.d(TAG, "Number of appointments: "+appointments.size());
-
-        for(Appointment appointment: appointments){
-            Log.d(TAG,"Appointment accepted "+appointment.getAccepted());
-            if(appointment.getAccepted()){
-                for(Event timeslot: eventsAndAppointments.first){
-
-                    long timeslotStartShift = timeslot.getStart().getDateTime().getTimeZoneShift() * 3600 * 1000L;
-                    Date timeslotStart = new Date(timeslot.getStart().getDateTime().getValue()+timeslotStartShift);
-                    long timeslotEndShift = timeslot.getEnd().getDateTime().getTimeZoneShift() * 3600 * 1000L;
-                    Date timeslotEnd = new Date(timeslot.getEnd().getDateTime().getValue()+timeslotEndShift);
-
-                    if(appointment.getEnd().after(timeslotStart) && appointment.getStart().before(timeslotEnd)){
-                        // The appointment intersects the timeslot
-                        result.remove(timeslot);
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Get all events from the calendarAPI in a certain time span.
-     * @param calendarInfo api used to get events from google calendar
-     * @param start Start of the time span
-     * @param end End of the time span
-     * @return
-     */
-    private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
-        final PanelApplication app = PanelApplication.get(this);
-
-        return Single.fromCallable(
-                () -> {
-                    if (calendarInfo == null) {
-                        throw new RuntimeException("There is no member calendar info set we can not load time slots.");
-                    } else if (calendarInfo.getCalendarId() == null) {
-                        throw new RuntimeException("The member " + calendarInfo.getMemberId() + " does not have a calendar registered, we can not load time slots.");
-                    }else if (calendarInfo.getOAuthToken() == null) {
-                        throw new RuntimeException("We do not have an oauth token to access the calendar of member " + calendarInfo.getMemberId() + ".");
-                    } else {
-                        return calendarInfo;
-                    }
-                }).flatMapObservable(
-                checkedCalendarInfo -> app
-                        .getCalendarApi()
-                        .getCredential(checkedCalendarInfo.getOAuthToken())
-                        .flatMapObservable(
-                                credentials ->
-                                        app
-                                                .getCalendarApi()
-                                                .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
-                        )
-        )
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-
-    }
-
-    /**
-     * Color the DayView elements depending whether there is an event on that day or not
-     * @param selectedDayView DayView in the sidebar
-     */
-    private void recolorDayViews(DayView selectedDayView){
-        for (DayView d : upcomingDayViews.values()) {
-            d.setColor();
-        }
-        selectedDayView.setBackgroundColor(0xFFFF4081);
-    }
-
-    /**
-     * When a DayView is clicked the event TimeSlots for that day get initialized
-     * @param dayview DayView in the sidebar
-     */
-    private void createTimeSlotsPerDay(DayView dayview){
-        selectedDay = dayview.getDate();
-        timeslots.removeAllViews();
-        for (Event e : dayview.getEvents()){
-            final TimeslotView timeslot = new TimeslotView(this, e);
-            timeslot.setOnClickListener((View v) -> gotoMakeAppointment(v, timeslot));
-            final FrameLayout.LayoutParams timeslotMarginParams = (FrameLayout.LayoutParams) timeslots.getLayoutParams();
-            timeslotMarginParams.setMargins(10, 10, 10, 10);
-
-            ViewCompat.setElevation(timeslot, TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                2,
-                getResources().getDisplayMetrics()
-            ));
-
-            timeslots.addView(timeslot, timeslotMarginParams);
-        }
-        recolorDayViews(dayview);
-    }
-
-    /**
-     * DayViews get created for the next 4 weeks
-     * @param upcomingEvents Events in the next 4 weeks
-     */
-    private void initializeDayViews(List<Event> upcomingEvents){
-        dayviews.removeAllViews();
-        upcomingDayViews.clear();
-        for(int i = 0; i < 28; i++){
-            DayView dayview = new DayView(this);
-            LocalDateTime date = now.plusDays(i).withHour(0).withMinute(0);
-            dayview.setDate(date);
-            addEventsToDayView(dayview,upcomingEvents);
-            dayview.setColor();
-            dayview.setOnClickListener((View v) -> createTimeSlotsPerDay(dayview));
-            final FrameLayout.LayoutParams dayViewMarginParams = (FrameLayout.LayoutParams) dayviews.getLayoutParams();
-            dayViewMarginParams.setMargins(0, 1, 0, 1);
-            dayviews.addView(dayview, dayViewMarginParams);
-            upcomingDayViews.put(date,dayview);
-        }
-
-        if(selectedDay != null) {
-            createTimeSlotsPerDay(upcomingDayViews.get(selectedDay));
-        }
-    }
-
-    /**
-     * Add an event to a DayView
-     * @param dayview DayView in the sidebar
-     * @param upcomingEvents Events in the next 4 weeks
-     */
-    private void addEventsToDayView(DayView dayview, List<Event> upcomingEvents){
-        for (Event e : upcomingEvents){
-            if(timehelper.isItToday(dayview.getDate(),timehelper.toLocalDateTime(e.getStart()))){
-                dayview.addEvents(e);
-            }
-        }
+        viewModel.getTimeslotsOnSelectedDay(memberId)
+                .observe(this, timeslots -> {
+                    timeslotAdapter.clear();
+                    timeslotAdapter.addAll(timeslots);
+                });
     }
 
     /**
      * Change current activity to MakeAppointmentActivity, while including data about the chosen
      * event in the intent
-     * @param view view of the layout
      * @param timeslot timeslot in the right sidebar
      */
-    public void gotoMakeAppointment(View view, TimeslotView timeslot) {
+    public void gotoMakeAppointment(Timeslot timeslot) {
         final Intent intent = new Intent(this, MakeAppointment.class);
 
-        Event e = timeslot.getEvent();
-
-        intent.putExtra("appointmentStartTimeHour", timehelper.toLocalDateTime(e.getStart()).getHour());
-        if(timehelper.toLocalDateTime(e.getStart()).getMinute() > 9){
-            intent.putExtra("appointmentStartTimeMinutes", "" + timehelper.toLocalDateTime(e.getStart()).getMinute());
+        // TODO: Don't use intents, replace with Navigation Component
+        intent.putExtra("appointmentStartTimeHour", timeslot.getStart().getHour());
+        if(timeslot.getStart().getMinute() > 9){
+            intent.putExtra("appointmentStartTimeMinutes", "" + timeslot.getStart().getMinute());
         }else{
-            intent.putExtra("appointmentStartTimeMinutes", "0" + timehelper.toLocalDateTime(e.getStart()).getMinute());
+            intent.putExtra("appointmentStartTimeMinutes", "0" + timeslot.getStart().getMinute());
         }
-        intent.putExtra("appointmentEndTimeHour", timehelper.toLocalDateTime(e.getEnd()).getHour());
-        if(timehelper.toLocalDateTime(e.getEnd()).getMinute() > 9){
-            intent.putExtra("appointmentEndTimeMinutes", "" + timehelper.toLocalDateTime(e.getEnd()).getMinute());
+        intent.putExtra("appointmentEndTimeHour", timeslot.getEnd().getHour());
+        if(timeslot.getEnd().getMinute() > 9){
+            intent.putExtra("appointmentEndTimeMinutes", "" + timeslot.getEnd().getMinute());
         }else{
-            intent.putExtra("appointmentEndTimeMinutes", "0" + timehelper.toLocalDateTime(e.getEnd()).getMinute());
+            intent.putExtra("appointmentEndTimeMinutes", "0" + timeslot.getEnd().getMinute());
         }
-        intent.putExtra("Day", timehelper.toLocalDateTime(e.getStart()).getDayOfMonth());
-        intent.putExtra("Month", timehelper.toLocalDateTime(e.getStart()).getMonthValue());
-        intent.putExtra("Year", timehelper.toLocalDateTime(e.getStart()).getYear());
+        intent.putExtra("Day", timeslot.getStart().getDayOfMonth());
+        intent.putExtra("Month", timeslot.getStart().getMonthValue());
+        intent.putExtra("Year", timeslot.getStart().getYear());
         intent.putExtra("MemberId", getIntent().getIntExtra("MemberId",-1));
 
         // yyyy-MM-dd HH:mm
@@ -321,9 +140,59 @@ public class ScheduleAppointment extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        disposables.dispose();
+    private class TimeslotAdapter extends ArrayAdapter<Timeslot> {
+        public TimeslotAdapter(@NonNull Context context, @NonNull List<Timeslot> objects) {
+            super(context, R.layout.timeslotview, objects);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            View timeslotView = convertView != null ?
+                    convertView : LayoutInflater.from(getContext()).inflate(R.layout.timeslotview, parent, false);
+
+            final TextView startTime = timeslotView.findViewById(R.id.start);
+            final TextView endTime = timeslotView.findViewById(R.id.end);
+
+            Timeslot timeslot = getItem(position);
+
+            timeslotView.setBackgroundColor(getColor(R.color.colorPrimary));
+
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            startTime.setText(timeslot.getStart().format(dateTimeFormatter));
+            endTime.setText(timeslot.getEnd().format(dateTimeFormatter));
+
+            return timeslotView;
+        }
+    }
+
+    private class DayAdapter extends ArrayAdapter<ScheduleAppointmentViewModel.DayItem> {
+
+        public DayAdapter(@NonNull Context context, @NonNull List<ScheduleAppointmentViewModel.DayItem> objects) {
+            super(context, R.layout.dayview, objects);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            View dayView = convertView != null ?
+                    convertView : LayoutInflater.from(getContext()).inflate(R.layout.dayview, parent, false);
+
+            ScheduleAppointmentViewModel.DayItem dayItem = getItem(position);
+            LocalDate day = dayItem.date;
+            Locale locale = getContext().getResources().getConfiguration().getLocales().get(0);
+
+            TextView title = dayView.findViewById(R.id.title);
+            title.setText(day.getDayOfWeek().getDisplayName(TextStyle.SHORT, locale));
+
+            TextView summary = dayView.findViewById(R.id.summary);
+            summary.setText(day.format(DateTimeFormatter.ofPattern("dd - MM")));
+
+            if (dayItem.isSelected) dayView.setBackgroundColor(getColor(R.color.selected));
+            else if(dayItem.hasTimeslots) dayView.setBackgroundColor(getColor(R.color.colorPrimary));
+            else dayView.setBackgroundColor(getColor(R.color.inactive));
+
+            return dayView;
+        }
     }
 }

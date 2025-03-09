@@ -3,10 +3,9 @@ package de.tu_darmstadt.epool.pfoertner.common.architecture.helpers;
 import androidx.room.TypeConverter;
 import android.util.Log;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.format.DateTimeFormatter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -39,7 +38,7 @@ public class DateConverter {
      * @return LocalDateTime object
      */
     @TypeConverter
-    public static LocalDateTime fromTimestamp(String value){
+    public static LocalDateTime fromIsoTimestamp(String value){
         return value == null ? null : LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
@@ -49,7 +48,7 @@ public class DateConverter {
      * @return String representation
      */
     @TypeConverter
-    public static String toTimestamp(LocalDateTime date){
+    public static String toIsoTimestamp(LocalDateTime date){
         return date == null ? null : date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }

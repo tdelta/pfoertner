@@ -34,7 +34,7 @@
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
-    <FrameLayout
+    <ListView
         android:id="@+id/day_list"
         android:elevation="3dp"
         android:layout_width="0dp"
@@ -45,22 +45,7 @@
         app:layout_constraintHorizontal_weight="0.3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layout_constraintVertical_bias="0.0" >
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:id="@+id/dayviews"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-            </LinearLayout>
-        </ScrollView>
-
-    </FrameLayout>
+        app:layout_constraintVertical_bias="0.0" />
 
     <View
         android:id="@+id/spacer"
@@ -68,11 +53,12 @@
         android:layout_height="0dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/appointment_list"
+        app:layout_constraintEnd_toStartOf="@id/timeslot_list"
         app:layout_constraintStart_toEndOf="@id/day_list"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-    <FrameLayout
-        android:id="@+id/appointment_list"
+
+    <ListView
+        android:id="@+id/timeslot_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -81,20 +67,7 @@
         app:layout_constraintHorizontal_weight="0.7"
         app:layout_constraintStart_toEndOf="@+id/spacer"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layout_constraintVertical_bias="1.0" >
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:id="@+id/timeslots"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </ScrollView>
-    </FrameLayout>
-
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -229,6 +229,7 @@ router.post('/:id/appointment', auth.authFun(), (req, res) => {
   }
 
   authenticatePanelOrOwner(req, res).then(officemember => {
+    delete req.body.id; // Id needs to be auto generated.
     models.AppointmentRequest.create(req.body).then(appointment => {
       appointment.setOfficeMember(officemember);
       officemember.getDevice().then(device => {

@@ -17,4 +17,5 @@
 
 
     <color name="selected">#FF4081</color>
+    <color name="inactive">#C4C4C4</color>
 </resources>

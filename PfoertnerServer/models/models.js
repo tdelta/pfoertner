@@ -9,6 +9,8 @@ var OfficeMember = require('./officemember.js');
 var Office = require('./office.js');
 // Get appointment data model
 var AppointmentRequest = require('./appointmentRequest.js');
+// Get google oauth token model
+var GoogleOAuthToken = require('./googleOAuthToken.js');
 
 // Define relations
 
@@ -27,9 +29,14 @@ Device.belongsTo(Office);
 AppointmentRequest.belongsTo(OfficeMember);
 OfficeMember.hasMany(AppointmentRequest);
 
+// Adds primary key from OfficeMember to GoogleOAuthToken as a foreign key
+GoogleOAuthToken.belongsTo(OfficeMember);
+OfficeMember.hasOne(GoogleOAuthToken);
+
 module.exports = {
   Office,
   Device,
   OfficeMember,
   AppointmentRequest,
+  GoogleOAuthToken,
 };

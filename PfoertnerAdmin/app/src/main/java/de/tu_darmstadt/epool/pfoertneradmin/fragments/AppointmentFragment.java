@@ -19,6 +19,10 @@ import android.widget.TextView;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.SignInClient;
+import com.google.android.gms.auth.api.identity.SignInCredential;
+import com.google.android.gms.auth.api.signin.SignInAccount;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.api.services.calendar.CalendarScopes;
@@ -29,17 +33,21 @@ import org.json.JSONObject;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Appointment;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.webapi.GoogleAuthData;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCode;
 import de.tu_darmstadt.epool.pfoertner.common.qrcode.QRCodeData;
 import de.tu_darmstadt.epool.pfoertneradmin.AdminApplication;
 import de.tu_darmstadt.epool.pfoertneradmin.AppointmentRequestList;
 import de.tu_darmstadt.epool.pfoertneradmin.R;
 import de.tu_darmstadt.epool.pfoertneradmin.calendar.Helpers;
+import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_CLIENT_ID;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -133,10 +141,9 @@ public class AppointmentFragment extends Fragment {
         // TODO: topCard seems sometimes not to exist
 
         topCard.removeAllViews();
-        Log.d(TAG,"Server auth code: " + member.getServerAuthCode());
 
         final View newContent;
-        if(member.getServerAuthCode() != null){
+        if(member.getEmail() != null){
             final View calendarName = getLayoutInflater().inflate(R.layout.text_card, topCard, false);
             calendarName.setId(CALENDAR_NAME_ID);
 
@@ -145,7 +152,7 @@ public class AppointmentFragment extends Fragment {
             if(calendarCreated) {
                 text.setText("To display your office hours at the door panel, please enter them into the calendar \"Office hours\"");
             } else {
-                text.setText("Waiting for the door panel to authenticate ...");
+                text.setText("Waiting for the server to authenticate ...");
             }
 
             newContent = calendarName;
@@ -172,14 +179,15 @@ public class AppointmentFragment extends Fragment {
      */
     private void reactToMemberChange(final View root, final Member member) {
         if (member != null) {
-            if (member.getCalendarId() != null) {
+            // TODO: The google email is used to determine whether a Google Calendar was connected. This should be changed
+            if (member.getEmail() != null) {
                 Helpers.requestCalendarsSync(getContext(), member.getEmail()!=null ? member.getEmail() : "TODO: Email");
 
                 buildUI(root, member, true);
             }
 
             else {
-                Log.d(TAG,"Though a member is present, there is no calendar id set yet, so we cant show any appointments.");
+                Log.d(TAG,"Though a member is present, there is no calendar email set yet, so we cant show any appointments.");
 
                 buildUI(root, member, false);
             }
@@ -198,13 +206,11 @@ public class AppointmentFragment extends Fragment {
      */
     public void connectGoogleCalendar(){
         Log.d(TAG, "Trying to connect google calendar...");
-
-        final String serverClientId = getString(R.string.server_client_id);
-
-        List<Scope> requestedScopes = Collections.singletonList(new Scope(CalendarScopes.CALENDAR)); // TODO Check if we can limit the scope a bit (readonly)
+        
+        List<Scope> requestedScopes = Arrays.asList(new Scope(CalendarScopes.CALENDAR), new Scope(Scopes.EMAIL));
         AuthorizationRequest authorizationRequest = AuthorizationRequest.builder()
                 .setRequestedScopes(requestedScopes)
-                .requestOfflineAccess(serverClientId, true)
+                .requestOfflineAccess(SERVER_CLIENT_ID, true)
                 .build();
         Identity.getAuthorizationClient(requireContext())
                 .authorize(authorizationRequest)
@@ -245,7 +251,6 @@ public class AppointmentFragment extends Fragment {
 
     private void saveAuthCode(AuthorizationResult authorizationResult){
         final String authCode = authorizationResult.getServerAuthCode();
-        final String email = authorizationResult.toGoogleSignInAccount().getEmail();
 
         // Send the auth code to the server
         final AdminApplication app = AdminApplication.get(requireContext());
@@ -253,7 +258,7 @@ public class AppointmentFragment extends Fragment {
         app
                 .getRepo()
                 .getMemberRepo()
-                .setServerAuthCode(app.getMemberId(), authCode, email)
+                .uploadServerAuthCode(app.getMemberId(), authCode)
                 .subscribe(
                         () -> Log.d(TAG, "Successfully set new server auth code."),
                         throwable -> Log.e(TAG, "Failed to set new server auth code", throwable)

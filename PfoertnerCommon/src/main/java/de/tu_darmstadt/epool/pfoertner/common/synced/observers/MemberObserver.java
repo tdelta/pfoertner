@@ -14,6 +14,5 @@ public interface MemberObserver {
     default void onLastNameChanged(final String newFirstName) {}
     default void onPictureChanged() {}
     default void onStatusChanged(final String newStatus){}
-    default void onServerAuthCodeChanged(final String serverAuthCode){}
     default void onAppointmentRequestsChanged(final List<AppointmentRequest> newAppointmentRequests){}
 }

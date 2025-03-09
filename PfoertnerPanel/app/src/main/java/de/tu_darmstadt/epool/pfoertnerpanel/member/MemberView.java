@@ -19,9 +19,8 @@ import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
-import com.google.api.services.calendar.model.Event;
 
-import org.threeten.bp.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -30,6 +29,7 @@ import java.util.Optional;
 
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Timeslot;
 import de.tu_darmstadt.epool.pfoertnerpanel.R;
 import de.tu_darmstadt.epool.pfoertnerpanel.helpers.Timehelpers;
 
@@ -45,9 +45,9 @@ public class MemberView extends CardView {
      * initializes the card content including setting up glide
      * @param context view context for the layout
      * @param member Member corresponding to the memeber card
-     * @param events List of Events for the Member
+     * @param timeslots List of time slots for the Member
      */
-    public MemberView(Context context, Member member, List<Event> events) {
+    public MemberView(Context context, Member member, List<Timeslot> timeslots) {
         super(context);
         final LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -65,28 +65,27 @@ public class MemberView extends CardView {
                 .into((ImageView) findViewById(R.id.personalProfilePicture));
 
         setStatus(member.getStatus());
-        initOfficeHours(events);
+        initOfficeHours(timeslots);
     }
 
     /**
-     * Extracts and encodes the first 2 events in the calender to be displayed as office hours
-     * @param events List of events in the calendar
-     * @return List of the first 2 events from the calendar formated as strings
+     * Extracts and encodes the first 2 time slots in the calender to be displayed as office hours
+     * @param timeslots List of available timeslots
+     * @return List of the first 2 time slots from the calendar formated as strings
      * for use as office hour display
      */
-    public List<String> parseOffice(List<Event> events){
-        List<String> nextOfficeHours = new LinkedList<String>();
-        Timehelpers timehelper = new Timehelpers();
+    public List<String> parseOffice(List<Timeslot> timeslots){
+        List<String> nextOfficeHours = new LinkedList<>();
 
         int count = 0;
-        for (Event e : events) {
+        for (Timeslot t : timeslots) {
             if (count < 2){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                String startTime = timehelper.toLocalDateTime(e.getStart()).format(formatter);
-                String endTime = timehelper.toLocalDateTime(e.getEnd()).format(formatter);
+                String startTime = t.getStart().format(formatter);
+                String endTime = t.getEnd().format(formatter);
 
-                nextOfficeHours.add(timehelper.toLocalDateTime(e.getStart()).getDayOfWeek().toString().substring(0, 1)
-                        +timehelper.toLocalDateTime(e.getStart()).getDayOfWeek().toString().substring(1).toLowerCase()
+                nextOfficeHours.add(t.getStart().getDayOfWeek().toString().charAt(0)
+                        +t.getStart().getDayOfWeek().toString().substring(1).toLowerCase()
                         +" "
                         +startTime + " - " + endTime);
             }
@@ -150,13 +149,13 @@ public class MemberView extends CardView {
 
     /**
      * Initializes the office hours for a member
-     * @param events List of events for a member
+     * @param timeslots List of time slots for a member
      */
-    public void initOfficeHours(List<Event> events) {
+    public void initOfficeHours(List<Timeslot> timeslots) {
         LinearLayout info = findViewById(R.id.personalOfficeTimeBoard);
         info.removeAllViews();
 
-        List<String> officeHours = parseOffice(events);
+        List<String> officeHours = parseOffice(timeslots);
 
         officeHours
                 .stream()

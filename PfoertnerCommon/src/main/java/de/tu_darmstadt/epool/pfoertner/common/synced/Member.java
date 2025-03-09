@@ -16,7 +16,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 
-import de.tu_darmstadt.epool.pfoertner.common.CalendarApi;
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.RequestTask;
 import de.tu_darmstadt.epool.pfoertner.common.retrofit.AppointmentRequest;
@@ -45,8 +44,6 @@ public class Member extends Observable<MemberObserver> {
     private MemberData memberData;
 
     private final Office office;
-
-    private CalendarApi calendarApi;
 
     private final DownloadMemberTask downloadMemberTask = new DownloadMemberTask();
     private final UploadMemberTask uploadMemberTask = new UploadMemberTask();
@@ -201,49 +198,6 @@ public class Member extends Observable<MemberObserver> {
         }
     }
 
-    public String getServerAuthCode(){
-        return memberData.serverAuthCode;
-    }
-
-    public String getAccessToken(){
-        return memberData.oauthToken;
-    }
-
-    public void setCalendarApi(CalendarApi calendarApi){
-        this.calendarApi = calendarApi;
-    }
-
-    public CalendarApi getCalendarApi() {
-        return calendarApi;
-    }
-
-    /**
-     * Sets the access token for the google calendar api and saves it into local memory
-     *
-     * @param settings Local settings (PfoertnerApplication.getSettings())
-     * @param accessToken New access token to write
-     */
-    public void setAccessToken(final SharedPreferences settings, final String accessToken){
-        Log.d(TAG,"The access token of the member with id " + this.getId() + " is being set to " + accessToken +  ". Meanwhile, the server auth code is " + this.getServerAuthCode());
-
-        memberData.oauthToken = accessToken;
-        Office.writeMembersToLocalStorage(settings, office.membersToData());
-    }
-
-    /**
-     * Uploads a server auth code to the server. The code can be used to request a refresh token and access the calendar api.
-     *
-     * @param service Retrofit instance to communicate with the server (PfoertnerApplication.getService())
-     * @param auth Authentication of the device to make server requests (PfoertnerApplication.getAuthentication())
-     * @param serverAuthCode server auth code to upload
-     */
-    public void setServerAuthCode(final PfoertnerService service, final Authentication auth, final String serverAuthCode){
-        final MemberData data = memberData.deepCopy();
-        data.serverAuthCode = serverAuthCode;
-
-        upload(service,auth,data);
-    }
-
     /**
      * Uploads a new last name for the office member to the server.
      *
@@ -377,9 +331,6 @@ public class Member extends Observable<MemberObserver> {
         final MemberData oldMember = Member.this.memberData;
         Member.this.memberData = data;
 
-        Log.d(TAG,"Old server auth code: "+oldMember.serverAuthCode);
-        Log.d(TAG,"New server auth code: "+data.serverAuthCode);
-
         if (didChange(oldMember.firstName, data.firstName)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onFirstNameChanged(data.firstName));
         }
@@ -394,12 +345,6 @@ public class Member extends Observable<MemberObserver> {
 
         if (didChange(oldMember.status, data.status)) {
             Member.this.notifyEachObserver(memberObserver -> memberObserver.onStatusChanged(data.status));
-        }
-
-        if (didChange(oldMember.serverAuthCode, data.serverAuthCode)){
-            Log.d(TAG, "The server auth code of member " + this.getId() + " changed from " + oldMember.serverAuthCode + " to " + data.serverAuthCode);
-
-            Member.this.notifyEachObserver(memberObserver -> memberObserver.onServerAuthCodeChanged(data.serverAuthCode));
         }
 
         if (didChange(oldMember.appointmentRequests, data.appointmentRequests)){

@@ -19,7 +19,7 @@ android {
     compileSdk 34
     defaultConfig {
         applicationId "de.tu_darmstadt.epool.pfoertneradmin"
-        minSdk 25
+        minSdk 26
         targetSdk 28
         versionName androidGitVersion.name()
         versionCode(androidGitVersion.code() + 1)

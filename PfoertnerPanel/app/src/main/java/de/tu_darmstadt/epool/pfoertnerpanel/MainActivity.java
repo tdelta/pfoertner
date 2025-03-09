@@ -18,26 +18,18 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
 
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 import de.tu_darmstadt.epool.pfoertner.common.ErrorInfoDialog;
 import de.tu_darmstadt.epool.pfoertner.common.PfoertnerApplication;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
 import de.tu_darmstadt.epool.pfoertnerpanel.helpers.AtheneReader;
-import de.tu_darmstadt.epool.pfoertnerpanel.models.MemberCalendarInfo;
-import de.tu_darmstadt.epool.pfoertnerpanel.services.MemberCalendarInfoService;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberButton;
 import de.tu_darmstadt.epool.pfoertnerpanel.member.MemberGrid;
 import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * The main activity, houses the members that are displayed
@@ -60,13 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 app
                         .init()
                         .subscribe(
-                            () -> {
-                                MainActivity.this.startService(
-                                        new Intent(MainActivity.this, MemberCalendarInfoService.class)
-                                );
-
-                                initOffice();
-                            },
+                                this::initOffice,
                             throwable -> {
                                 Log.e(TAG, "Could not initialize. Asking user to retry...", throwable);
 
@@ -219,66 +205,28 @@ public class MainActivity extends AppCompatActivity {
 
                 members
                         .stream()
-                        .forEach(member -> setTimeEvents(member, memberList));
+                        .forEach(member -> setTimeslots(member, memberList));
 
             }
         });
     }
 
     /**
-     * Observe the calendar events for a member and forward the events to
+     * Observe the time slots for a member and forward the time slots to
      * the gridview
      * @param member the member whose calendar should be observed
      * @param memberList the griview for members
      */
-    private void setTimeEvents(Member member, MemberGrid memberList) {
+    private void setTimeslots(Member member, MemberGrid memberList) {
         final PanelApplication app = PanelApplication.get(this);
-        app
-                .getPanelRepo()
-                .getMemberCalendarInfoRepo()
-                .getCalendarInfoByMemberId(member.getId())
-                .observe(this, calendarInfo -> {
-                    if (calendarInfo != null && calendarInfo.getCalendarId() != null) {
-                        final DateTime start = new DateTime(System.currentTimeMillis());
-                        final DateTime end = new DateTime(System.currentTimeMillis() + 86400000L *28);
-
-                        disposables.add(
-                        getEvents(calendarInfo, start, end)
-                                .subscribe(
-                                        events -> {
-
-                                            Log.d("OfficeHours received", "");
-
-                                            memberList.setEvents(member.getId(), events);
-
-                                        },
-                                        throwable -> Log.e(TAG, "Failed to fetch events.", throwable)
-                                )
-                        );
-                    }});
-    }
-
-
-    /**
-     * get an observable for calendarEvents given a calendar
-     * @param calendarInfo the calendar
-     * @param start the start limit for returned events
-     * @param end the end limit for returned events
-     * @return an observable which delivers all events on a change
-     */
-    private Observable<List<Event>> getEvents(final MemberCalendarInfo calendarInfo, final DateTime start, final DateTime end) {
-        final PanelApplication app = PanelApplication.get(this);
-
-        return app
-                .getCalendarApi()
-                .getCredential(calendarInfo.getOAuthToken())
-                .flatMapObservable(
-                        credentials -> app
-                                .getCalendarApi()
-                                .getEvents(calendarInfo.getCalendarId(), credentials, start, end)
-                )
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+        app.getRepo()
+                .getTimeslotRepo()
+                .getTimeslotsOfMember(LocalDateTime.now().plusDays(7), member.getId())
+                .observe(this, timeslots -> {
+                    if (timeslots != null) {
+                        memberList.setTimeslots(member.getId(), timeslots);
+                    }
+                });
     }
 
     /**

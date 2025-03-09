@@ -6,7 +6,6 @@
     <string name="vorname">Vorname</string>
     <string name="nachname">Nachname</string>
     <string name="create_account">Create Account</string>
-    <string name="server_client_id">626288801350-vk790l2a56u0m25p63q36asu4tv7gnsr.apps.googleusercontent.com</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

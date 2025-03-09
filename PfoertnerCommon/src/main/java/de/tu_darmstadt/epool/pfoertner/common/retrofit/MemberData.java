@@ -20,11 +20,9 @@ public class MemberData {
     @Expose public String firstName;
     @Expose public String pictureMD5;
     @Expose public String status;
-    @Expose public String serverAuthCode;
     @Expose public List<AppointmentRequest> appointmentRequests;
     public String calendarId;
     public String email;
-    public String oauthToken;
 
     public MemberData (final int id, final String lastName, final String firstName, final String pictureMD5, final String status){
         this.id = id;
@@ -39,22 +37,18 @@ public class MemberData {
                        final String firstName,
                        final String pictureMD5,
                        final String status,
-                       final String serverAuthCode,
                        final List<AppointmentRequest> appointmentRequests,
                        final String calendarId,
-                       final String email,
-                       final String oauthToken
+                       final String email
     ){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.pictureMD5 = pictureMD5;
         this.status = status;
-        this.serverAuthCode = serverAuthCode;
         this.appointmentRequests = appointmentRequests;
         this.calendarId = calendarId;
         this.email = email;
-        this.oauthToken = oauthToken;
     }
 
     public MemberData deepCopy() {
@@ -64,13 +58,11 @@ public class MemberData {
                 firstName,
                 pictureMD5,
                 status,
-                serverAuthCode,
                 appointmentRequests == null ?
                           null
                         : appointmentRequests.stream().map(AppointmentRequest::deepCopy).collect(Collectors.toList()),
                 calendarId,
-                email,
-                oauthToken
+                email
         );
     }
 }

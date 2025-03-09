@@ -2,6 +2,7 @@ package de.tu_darmstadt.epool.pfoertner.common.architecture.webapi;
 
 import com.google.gson.GsonBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.AppointmentEntity;
@@ -10,7 +11,10 @@ import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEnt
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.DeviceEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.MemberEntity;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.OfficeEntity;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.db.entities.TimeslotEntity;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.helpers.LocalDateTimeAdapter;
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Device;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Timeslot;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
@@ -28,6 +32,7 @@ import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import static de.tu_darmstadt.epool.pfoertner.common.Config.SERVER_ADDR;
 
@@ -53,7 +58,9 @@ public interface PfoertnerApi {
                 .addConverterFactory(GsonConverterFactory.create(
                         new GsonBuilder()
                                 .setDateFormat("yyyy-MM-dd HH:mm")
+                                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                                 .create()))
+                .addConverterFactory(LocalDateTimeAdapter.getConverterFactory())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
 
@@ -74,6 +81,9 @@ public interface PfoertnerApi {
     @PATCH("/officemembers/{id}")
     Single<MemberEntity> patchMember(@Header("Authorization") String authToken, @Path("id") int id, @Body MemberEntity member);
 
+    @POST("/calendar/{id}/token")
+    Completable authorizeCalendarAccess(@Header("Authorization") String authToken, @Path("id") int id, @Body GoogleAuthData authData);
+
     @GET("/offices/{id}")
     Single<OfficeEntity> getOffice(@Header("Authorization") String authToken, @Path("id") int officeId);
 
@@ -92,7 +102,7 @@ public interface PfoertnerApi {
     @GET("/officemembers/{id}/appointments")
     Single<List<AppointmentEntity>> getAppointmentsOfMember(@Header("Authorization") String authToken, @Path("id") int memberId);
 
-    @POST("https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events/watch")
-    Single<WebhookResponse> requestCalendarWebhook(@Header("Authorization") String authToken, @Path("calendarId") String calendarId, @Body WebhookRequest webhookRequest);
+    @GET("calendar/{id}")
+    Single<List<TimeslotEntity>> getTimeslotsOfMember(@Header("Authorization") String authToken, @Path("id") int memberId, @Query("until") LocalDateTime until);
 
 }

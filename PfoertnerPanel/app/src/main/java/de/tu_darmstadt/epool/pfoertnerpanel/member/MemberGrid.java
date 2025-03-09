@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.api.services.calendar.model.Event;
-
 import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Member;
-import de.tu_darmstadt.epool.pfoertnerpanel.viewmodels.OfficeViewModel;
+import de.tu_darmstadt.epool.pfoertner.common.architecture.model.Timeslot;
 
 /**
  * A GridView subclass that ensures that its views take half of its height
@@ -59,14 +57,14 @@ public class MemberGrid extends GridView{
     }
 
     /**
-     * Set or update the events for a member
+     * Set or update the time slots for a member
      * @param id a unique id that is associated with a member
-     * @param events a list of all available events
+     * @param timeslots a list of all available time slots
      */
-    public void setEvents(int id, List<Event> events) {
+    public void setTimeslots(int id, List<Timeslot> timeslots) {
         MemberArrayAdapter adapter = (MemberArrayAdapter) getAdapter();
         if (adapter != null) {
-            adapter.setEvents(id, events);
+            adapter.setTimeslots(id, timeslots);
         }
 
         }
@@ -106,28 +104,28 @@ public class MemberGrid extends GridView{
          */
         private List<Member> values;
         /**
-         * Mapping from integer IDs to events
+         * Mapping from member IDs to time slots
          */
-        private Map<Integer, List<Event>> eventMap;
+        private Map<Integer, List<Timeslot>> timeslotMap;
 
         private MemberArrayAdapter(Context context, List<Member> values) {
             super(context, -1, values);
-            this.eventMap =  new HashMap<>();
+            this.timeslotMap =  new HashMap<>();
             this.values = values;
         }
 
         /**
-         * Update the events for a member
+         * Update the time slots for a member
          * @param id the unique member id
-         * @param events the associated events
+         * @param timeslots the associated time slots
          */
-        public void setEvents(int id, List<Event> events) {
-            eventMap.put(id, events);
+        public void setTimeslots(int id, List<Timeslot> timeslots) {
+            timeslotMap.put(id, timeslots);
             notifyDataSetChanged();
         }
 
         /**
-         * Creates the member views from the member data and events
+         * Creates the member views from the member data and time slots
          * @param position the position in the gridview
          * @param convertView the old view if a view is overridden, else null
          * @param parent the parent view
@@ -136,8 +134,8 @@ public class MemberGrid extends GridView{
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             Member member = values.get(position);
-            List<Event> events = eventMap.getOrDefault(member.getId(), new ArrayList<>());
-            final MemberView memberView =  new MemberView(getContext(), member, events);
+            List<Timeslot> timeslots = timeslotMap.getOrDefault(member.getId(), new ArrayList<>());
+            final MemberView memberView =  new MemberView(getContext(), member, timeslots);
 
             memberView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, MemberGrid.this.height / 2));
 

@@ -41,6 +41,7 @@ const officesroutes = require('./routes/offices.js');
 const devicesroutes = require('./routes/devices.js');
 const officemembersroutes = require('./routes/officesmembers.js');
 const appointmentroutes = require('./routes/appointments.js');
+const calendarroutes = require('./routes/calendar.js');
 const google_notifications = require('./routes/google-notifications.js');
 
 // Use routes
@@ -49,6 +50,7 @@ server.use('/devices', devicesroutes);
 server.use('/officemembers', officemembersroutes);
 server.use('/appointments', appointmentroutes);
 server.use('/notifications', google_notifications);
+server.use('/calendar', calendarroutes);
 server.use(express.static('public_files'));
 
 // Listen on port 3000 localhost

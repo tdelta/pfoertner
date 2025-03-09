@@ -23,6 +23,7 @@ public class PfoertnerRepository {
     private final MemberRepository memberRepo;
     private final AppointmentRepository appointmentRepository;
     private final InitStatusRepository initStatusRepo;
+    private final TimeslotRepository timeslotRepo;
 
     /**
      * Creates an instance of this class and also instances of all available types of
@@ -40,6 +41,7 @@ public class PfoertnerRepository {
         this.memberRepo = new MemberRepository(api, auth, db);
         this.initStatusRepo = new InitStatusRepository(db);
         this.appointmentRepository = new AppointmentRepository(api, auth, db);
+        this.timeslotRepo = new TimeslotRepository(api, auth, db);
     }
 
     public DeviceRepository getDeviceRepo() {
@@ -62,6 +64,10 @@ public class PfoertnerRepository {
         return appointmentRepository;
     }
 
+    public TimeslotRepository getTimeslotRepo() {
+        return timeslotRepo;
+    }
+
 
     /**
      * Instructs repositories to refresh their cached data.
@@ -74,5 +80,6 @@ public class PfoertnerRepository {
         deviceRepo.refreshAllLocalData();
         officeRepo.refreshAllLocalData();
         memberRepo.refreshAllLocalData();
+        // TODO: Refresh appointments and time slots? Requires knowing which members we care about
     }
 }
