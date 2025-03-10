@@ -60,14 +60,6 @@ docker run pfoertnerserver:1.0
 
 The server needs to either be accessible from the internet or all devices need to be on the same network.
 
-# Old project, Cleanup in progress!
-
-# How to build & self-host
-
-The APKs distributed on GitHub belong to a demo instance of this software.
-To build and self-host your own version you need to setup a Firebase project
-and host a Nodejs service.
-
 ## Step 0: Private clone / fork
 
 To build your own instance of the Pfoertner service, we will need to add a few
