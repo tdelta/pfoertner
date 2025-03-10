@@ -1,23 +1,20 @@
 # Pförtner - The digital door label
 
 <p align="center">
-  <img width="750" src="./Graphics/logo.png">
-</p>
-<p align="center">
   <img width="750" src="./Graphics/finish.png">
 </p>
 
 Pförtner is a fully digital door label.
-* It utilizes a tablet outside of a office room to display information about the office occupants.
-The occupants inside the office can control the door label via a smart phone app.
+* It utilizes a tablet outside an office room to display information about the office occupants.
+The occupants inside the office can control the door label via a smartphone app.
 
 * Each occupant can display their current status and their office hours along with a picture.
 
 * A status for the whole room can be set along with a name for the room.
 
-* Additionally Pförtner utilizes the tablets camera from the smartphone application to take a peek at who is outside of the door.
+* Additionally, Pförtner utilizes the tablets' camera from the smartphone application to take a peek at who is outside the door.
 
-* People outside the office can use Pförtner to arrange appointments. The selected occupant will get a notification on their smart phone and should the occupant accept the appointment will be added to their google calendar. While the creator of the appointments gets an email.
+* People outside the office can use Pförtner to arrange appointments. The selected occupant will get a notification on their smartphone and should the occupant accept the appointment, it will be added to their Google calendar. The creator of the appointments is notified via email.
 
 <p align="center">
   <a href="https://youtu.be/asGR4Xj08gg">
@@ -40,27 +37,21 @@ For a detailed overview of Pförtners architecture take a look at the [technical
 ## System Requirements
 
 * At least 2 Android devices with Android 8.0 or higher.
-* The recommended configuration is 1 tablet as the door label and 1 smartphone per person in working in the office.
+* The recommended configuration is 1 tablet as the door label and 1 smartphone per person working in the office.
 
 ## Setup instructions
-TODO: rewrite after changes
 
 Android studio needs to create the .apks for the clients from their corresponding projects:<br>
-[PfoertnerAdmin](PfoertnerAdmin/) for the smart phone and [PfoertnerPanel](PfoertnerPanel/) for the table\label.
+[PfoertnerAdmin](PfoertnerAdmin/) for the smartphone and [PfoertnerPanel](PfoertnerPanel/) for the table\label.
 
 Both clients need the address where the server is hosted before the .apks are created.
-For this [Config.java](PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java) needs to be edited.
+For this, [Config.java](PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java) needs to be edited.
 
-The server is deployed via docker.<br>
-Build the docker image.<br>
-docker build -t pfoertnerserver:1.0 .
-
-And start the container.
-docker run pfoertnerserver:1.0
-
+The [server](PfoertnerServer) is deployed via docker.
+First follow the instructions in this section to set up all config files, then build the docker image.
 The server needs to either be accessible from the internet or all devices need to be on the same network.
 
-## Step 0: Private clone / fork
+### Step 0: Private clone / fork
 
 To build your own instance of the Pfoertner service, we will need to add a few
 secret files to this project in the following steps.
@@ -68,7 +59,7 @@ secret files to this project in the following steps.
 Hence, you should first make sure, your downstream clone/fork of this repository
 is private.
 
-## Step 1: Setting up Firebase for the PfoertnerAdmin app
+### Step 1: Setting up Firebase for the PfoertnerAdmin app
 
 This guide follows https://firebase.google.com/docs/android/setup#console
 
@@ -88,7 +79,7 @@ This guide follows https://firebase.google.com/docs/android/setup#console
 
    `PfoertnerAdmin/app/`
 
-## Step 2: Setting up Firebase for the PfoertnerPanel app
+### Step 2: Setting up Firebase for the PfoertnerPanel app
 
 We will now repeat the above steps with minor changes to setup the PfortnerPanel
 app:
@@ -108,7 +99,7 @@ app:
 
    `PfoertnerPanel/app/`
 
-## Step 3: Download Firebase Server Secrets
+### Step 3: Download Firebase Server Secrets
 
 The backend server of Pfoertner needs a private key to access the Firebase
 project. In this step, we will create it and provide it to the backend.
@@ -124,23 +115,37 @@ https://firebase.google.com/docs/admin/setup#initialize-sdk
    Download the file and save it as
    `PfoertnerServer/firebase/firebase-secret.json`
 
-## Step 4: Setting up the backend server
+### Step 5: Setting up Google Calendar access
 
-1. The backend server is implemented in node.js. Prepare a system with `node`
-   and `npm` installed.
+This section roughly follows https://developers.google.com/workspace/guides/create-credentials
 
-2. The backend will bind a HTTP server to the local interface on port 3000.
-   You might want to setup a (reverse) proxy in Apache or nginx to add SSL
-   encryption.
+1. Create a Google Cloud Console project:
+   Go to https://console.cloud.google.com/projectcreate and enter a project name
 
-3. Run `npm run setup` to generate the file `./PfoertnerServer/.env`.
-
-   This generates a secret value used to setup authentication using Json Web Token (JWT).
+2. Set up your project:
+   * Go to https://console.cloud.google.com/auth/clients
+   * Click "Get Started"
+   * Enter an app name and email
+   * Under audience you can select external, creating a Google Workspace is not required
    
-   The secret should not be uploaded anywhere. It is used by the server to authenticate
-   each device that runs either of the apps.
+3. Create a client (i.e. credentials to authenticate the server as belonging to the project)
+   * Go to **Clients** in the side navigation panel and click **CREATE CLIENT**
+   * Select **Web application** under **Application type**
+   * You don't need to add any JavaScript origins or redirect URIs
+   
+4. Download the client secret
+   * You will be redirected back to **Clients**
+   * There you will see the web client you just created. On the right of the page under actions, click the download button (**Download OAuth client**)
+   * Move the file you downloaded to `./PfoertnerServer/client_secret.json`
+   
+5. Copy the client id into the apps
+   * Now click on the name of the client you have created
+   * On the right side, under **Additional Information**, copy the **Client ID** ending in apps.googleusercontent.com
+   * Open the file `./PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java` and change the variable `SERVER_CLIENT_ID` to your client id
 
-4. Configure the public facing URL of your backend in `./PfoertnerServer/.env`.
+### Step 5: Setting up the backend server
+
+1. Configure the public-facing URL of your backend in `./PfoertnerServer/.env`.
 
    E.g.
    ```
@@ -157,20 +162,7 @@ https://firebase.google.com/docs/admin/setup#initialize-sdk
    PUBLIC_URL="http://myserver.de:3000"
    ```
 
-5. Optional: Enter email credentials into the server settings. The server can notify
-   panel users if their appointment request was rejected. If you want to use this feature,
-   simply add credentials for an email account (GMX works) to `./PfoertnerServer/.env` as
-   follows:
-
-   ```
-   EMAIL_ADDRESS="your email address"
-   EMAIL_PASSWORD="your email password"
-   ```
-
-   If you want to use a different email provider than GMX, you also need to adjust
-   the settings in `./PfoertnerServer/routes/appointments.js`.
-
-6. Also configure the URL in the end user app settings. That is, open the file
+2. Also configure the URL in the end user app settings. That is, open the file
    `./PfoertnerCommon/src/main/java/de/tu_darmstadt/epool/pfoertner/common/Config.java`
    and change the variable `SERVER_ADDR` to the same public url as before.
 
@@ -184,24 +176,40 @@ https://firebase.google.com/docs/admin/setup#initialize-sdk
     */
    public class Config {
        public static final String SERVER_ADDR = "https://myserver.de/";
+       public static final String SERVER_CLIENT_ID = "my-client-id.apps.googleusercontent.com";
        public static final String PREFERENCES_NAME = "MainPrefs";
    }
    ```
 
-7. Install the backend dependencies by running `npm install` in the
-   `PfoertnerServer` directory.
+3. Optional: Enter email credentials into the server settings. The server can notify
+   panel users if their appointment request is rejected. If you want to use this feature,
+   simply add credentials for an email account (GMX works) to `./PfoertnerServer/.env` as
+   follows:
 
-8. Run the backend server using `npm start`.
-   You might to wrap this command into a systemd (user) service or something
-   similar so that the backend server runs at startup.
+   ```
+   EMAIL_ADDRESS="your email address"
+   EMAIL_PASSWORD="your email password"
+   ```
 
-## Step 5: Build the end user apps
+   If you want to use a different email provider than GMX, you also need to adjust
+   the settings in `./PfoertnerServer/routes/appointments.js`.
 
-TODO Description
+4. Build the Docker image
+   ```
+   docker build -t pfoertnerserver:1.0 .
+   ```
+   And start the container
+   ```
+   docker run pfoertnerserver:1.0
+   ```
+   You can also manually set up the server using `npm`. Simply navigate into `./PfoertnerServer`, 
+   then run `npm install` to install dependencies and `npm start` to start the server.
 
-## Step 6: Deploy apps
+### Step 6: Build and deploy apps
 
-TODO Description
+You are now ready to use Pförtner.
+Open both apps in **Android Studio** and build APKs,
+or load the apps onto your smartphone and tablet using USB debugging.
 
 ## Credits
 This Project was developed as part of the <em>Internet Praktikum Telekooperaion</em> at Technische Universität Darmstadt.
